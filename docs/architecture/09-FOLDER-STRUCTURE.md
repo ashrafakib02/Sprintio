@@ -1854,7 +1854,7 @@ Database:    PostgreSQL 16 | Redis 7 | Drizzle migrations
 AI:          Python 3.12 | FastAPI | Pydantic | Jinja2 | pgvector
 Real-time:   Yjs | WebSocket (ws) | Durable Objects
 Storage:     Cloudflare R2
-Cloud:       Cloudflare Workers | Pages | D1 | KV | AI Gateway | Access
+Cloud:       Cloudflare Workers | Pages | R2 | KV | AI Gateway | Access
 Monorepo:    pnpm workspaces | Turborepo
 Testing:     Vitest | Playwright | pytest
 CI/CD:       GitHub Actions
