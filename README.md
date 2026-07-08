@@ -44,6 +44,17 @@ Sprintio unifies the tools your team already uses — task tracking, docs, and a
 | **Infrastructure** | Cloudflare (Pages, Workers, R2, CDN, DDoS) |
 | **Monorepo** | Turborepo + pnpm workspaces |
 
+### Observability
+
+| | |
+|-|-|
+| **Logging** | Pino (structured JSON) → OpenTelemetry → Loki |
+| **Metrics** | Prometheus + Grafana dashboards |
+| **Tracing** | OpenTelemetry → Tempo |
+| **Errors** | Sentry (frontend + backend) |
+| **Analytics** | PostHog (events, feature flags, session replay) |
+| **Uptime** | Better Uptime (synthetic checks + status page) |
+
 ---
 
 ## Quick Start
