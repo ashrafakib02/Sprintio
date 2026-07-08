@@ -19,7 +19,9 @@ Sprintio unifies the tools your team already uses — task tracking, docs, and a
 | **Framework** | React 18 + Vite + TypeScript |
 | **Styling** | Tailwind CSS v4 |
 | **Components** | [21st.dev](https://21st.dev) (shadcn/ui-compatible marketplace) |
-| **Routing & State** | TanStack Router + TanStack Query + Zustand |
+| **Routing** | TanStack Router (file-based) |
+| **Server State** | TanStack Query |
+| **Client State** | Redux Toolkit |
 | **Rich Text** | TipTap (ProseMirror) |
 | **Real-time** | Yjs (CRDT) — collaborative editing & live cursors |
 

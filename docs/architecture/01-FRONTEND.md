@@ -38,13 +38,13 @@
 
 This document defines the complete frontend architecture for Sprintio's web application. It is the single source of truth for how the frontend is structured, how data flows, how real-time collaboration works, and how every component, route, and state interaction is organized.
 
-The frontend is a **React 18 SPA** built with **TypeScript**, **Vite**, **TanStack Router** (file-based routing), **TanStack Query** (server state), **Zustand** (client state), **Tailwind CSS** (styling), **21st.dev (shadcn/ui-compatible component marketplace)** (component primitives), **TipTap** (rich text), and **Yjs** (CRDT real-time sync).
+The frontend is a **React 18 SPA** built with **TypeScript**, **Vite**, **TanStack Router** (file-based routing), **TanStack Query** (server state), **Redux Toolkit** (client state), **Tailwind CSS** (styling), **21st.dev (shadcn/ui-compatible component marketplace)** (component primitives), **TipTap** (rich text), and **Yjs** (CRDT real-time sync).
 
 ### Design Principles
 
 | # | Principle | Application |
 |---|-----------|-------------|
-| 1 | **Server state is the source of truth** | TanStack Query owns all server-derived data. Zustand owns only ephemeral UI state. Never duplicate server data in Zustand. |
+| 1 | **Server state is the source of truth** | TanStack Query owns all server-derived data. Redux Toolkit owns only ephemeral UI state. Never duplicate server data in Redux Toolkit. |
 | 2 | **Offline-first, connected-by-default** | Yjs CRDTs queue local changes. WebSocket syncs when connected. Users never see "offline" banners — work just continues. |
 | 3 | **Composition over configuration** | Components are small, focused, and composable. No "god components" with 20+ props. |
 | 4 | **Lazy everything** | Routes, heavy components (editor, board, calendar), and panels are lazy-loaded. The initial bundle is under 300KB gzipped (NFR-PERF-13). |
@@ -133,11 +133,11 @@ function RootLayout() {
 
 | Surface | Component | Behavior | State Owner |
 |---------|-----------|----------|-------------|
-| **Sidebar** | `<Sidebar />` | Collapsible (icon-only mode). Workspace tree, nav links, starred items. Resizable width (240px default, 48px collapsed). | Zustand (`useSidebarStore`) |
+| **Sidebar** | `<Sidebar />` | Collapsible (icon-only mode). Workspace tree, nav links, starred items. Resizable width (240px default, 48px collapsed). | RTK (`useAppSelector`/`useDispatch`) |
 | **Header** | `<Header />` | Workspace name, search trigger, notification bell, user avatar/menu, ⌘K hint. Fixed height (48px). | Static |
 | **Content Area** | `<Outlet />` | Router outlet. Fills remaining space. Scrollable. | Router |
-| **AI Panel** | `<AiPanel />` | Slide-in from right. 360px width. Context-aware (knows current task/doc). Collapsible. | Zustand (`useAiPanelStore`) |
-| **Command Palette** | `<CommandPalette />` | Modal overlay. ⌘K opens. Search-first with categorized results. Keyboard navigable. | Zustand (`useCommandPaletteStore`) |
+| **AI Panel** | `<AiPanel />` | Slide-in from right. 360px width. Context-aware (knows current task/doc). Collapsible. | RTK (`useAppSelector`/`useDispatch`) |
+| **Command Palette** | `<CommandPalette />` | Modal overlay. ⌘K opens. Search-first with categorized results. Keyboard navigable. | RTK (`useAppSelector`/`useDispatch`) |
 | **Toast Container** | `<Toaster />` | Bottom-right. Auto-dismiss. Stacked. Supports action buttons. | React Hot Toast / Sonner |
 
 ### 2.4 Responsive Behavior
@@ -282,120 +282,200 @@ const prefetchList = useCallback(() => {
 
 ## 4. State Management
 
-Sprintio separates **server state** (TanStack Query) from **client state** (Zustand). This prevents duplication, stale data, and unnecessary re-renders.
+Sprintio separates **server state** (TanStack Query) from **client state** (Redux Toolkit). This prevents duplication, stale data, and unnecessary re-renders.
 
 ### 4.1 State Ownership Matrix
 
 | State Category | Owner | Storage | Example |
 |----------------|-------|---------|---------|
 | **Server data** (tasks, users, projects) | TanStack Query | Query cache | Task list, user profile, workspace settings |
-| **UI ephemeral state** (sidebar open, panel width) | Zustand | In-memory | Sidebar collapsed, AI panel open, modal stack |
+| **UI ephemeral state** (sidebar open, panel width) | Redux Toolkit | In-memory | Sidebar collapsed, AI panel open, modal stack |
 | **Form state** (unsubmitted edits) | React Hook Form / local state | Component state | Task edit form, filter builder |
 | **Real-time state** (cursors, presence) | Yjs awareness | Yjs Doc | User cursors, selection highlights, online status |
 | **Auth state** (token, user session) | React Context + cookie | HTTP-only cookie | Current user, workspace role |
-| **Theme state** (dark/light) | Zustand + localStorage | Persisted | Theme preference, locale |
+| **Theme state** (dark/light) | Redux Toolkit (redux-persist) | Persisted | Theme preference, locale |
 
-### 4.2 Zustand Store Definitions
+### 4.2 Redux Toolkit Store Definitions
 
 ```typescript
-// src/stores/sidebar.store.ts
+// src/slices/sidebar.slice.ts
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+
 interface SidebarState {
   collapsed: boolean;
   width: number;
   expandedSections: string[];
-  toggle: () => void;
-  setWidth: (width: number) => void;
-  toggleSection: (section: string) => void;
 }
 
-export const useSidebarStore = create<SidebarState>()(
-  persist(
-    (set) => ({
-      collapsed: false,
-      width: 240,
-      expandedSections: ['spaces', 'starred'],
-      toggle: () => set((s) => ({ collapsed: !s.collapsed })),
-      setWidth: (width) => set({ width }),
-      toggleSection: (section) =>
-        set((s) => ({
-          expandedSections: s.expandedSections.includes(section)
-            ? s.expandedSections.filter((sec) => sec !== section)
-            : [...s.expandedSections, section],
-        })),
-    }),
-    { name: 'sprintio-sidebar' }
-  )
+const initialState: SidebarState = {
+  collapsed: false,
+  width: 240,
+  expandedSections: ['spaces', 'starred'],
+};
+
+const sidebarSlice = createSlice({
+  name: 'sidebar',
+  initialState,
+  reducers: {
+    toggle(state) {
+      state.collapsed = !state.collapsed;
+    },
+    setWidth(state, action: PayloadAction<number>) {
+      state.width = action.payload;
+    },
+    toggleSection(state, action: PayloadAction<string>) {
+      const section = action.payload;
+      const idx = state.expandedSections.indexOf(section);
+      if (idx >= 0) {
+        state.expandedSections.splice(idx, 1);
+      } else {
+        state.expandedSections.push(section);
+      }
+    },
+  },
+});
+
+export const { toggle, setWidth, toggleSection } = sidebarSlice.actions;
+
+// Persisted reducer — equivalent to persist middleware from the previous stack
+export const persistedSidebarReducer = persistReducer(
+  { key: 'sprintio-sidebar', storage },
+  sidebarSlice.reducer
 );
 
-// src/stores/ai-panel.store.ts
+// src/slices/ai-panel.slice.ts
 interface AiPanelState {
   open: boolean;
   width: number;
   context: AiContext | null;        // Current task/doc context
   conversationId: string | null;
-  toggle: () => void;
-  setContext: (ctx: AiContext) => void;
-  setConversationId: (id: string) => void;
 }
 
-export const useAiPanelStore = create<AiPanelState>()((set) => ({
+const aiPanelInitialState: AiPanelState = {
   open: false,
   width: 360,
   context: null,
   conversationId: null,
-  toggle: () => set((s) => ({ open: !s.open })),
-  setContext: (ctx) => set({ context: ctx }),
-  setConversationId: (id) => set({ conversationId: id }),
-}));
+};
 
-// src/stores/command-palette.store.ts
+const aiPanelSlice = createSlice({
+  name: 'aiPanel',
+  initialState: aiPanelInitialState,
+  reducers: {
+    toggle(state) {
+      state.open = !state.open;
+    },
+    setContext(state, action: PayloadAction<AiContext>) {
+      state.context = action.payload;
+    },
+    setConversationId(state, action: PayloadAction<string>) {
+      state.conversationId = action.payload;
+    },
+  },
+});
+
+export const { toggle: toggleAiPanel, setContext, setConversationId } = aiPanelSlice.actions;
+export const aiPanelReducer = aiPanelSlice.reducer;
+
+// src/slices/command-palette.slice.ts
 interface CommandPaletteState {
   open: boolean;
   query: string;
   selectedIndex: number;
-  openCmd: () => void;
-  closeCmd: () => void;
-  setQuery: (q: string) => void;
-  setSelectedIndex: (i: number) => void;
 }
 
-export const useCommandPaletteStore = create<CommandPaletteState>()((set) => ({
+const commandPaletteInitialState: CommandPaletteState = {
   open: false,
   query: '',
   selectedIndex: 0,
-  openCmd: () => set({ open: true, query: '', selectedIndex: 0 }),
-  closeCmd: () => set({ open: false }),
-  setQuery: (q) => set({ query: q, selectedIndex: 0 }),
-  setSelectedIndex: (i) => set({ selectedIndex: i }),
-}));
+};
 
-// src/stores/view-filters.store.ts
+const commandPaletteSlice = createSlice({
+  name: 'commandPalette',
+  initialState: commandPaletteInitialState,
+  reducers: {
+    openCmd(state) {
+      state.open = true;
+      state.query = '';
+      state.selectedIndex = 0;
+    },
+    closeCmd(state) {
+      state.open = false;
+    },
+    setQuery(state, action: PayloadAction<string>) {
+      state.query = action.payload;
+      state.selectedIndex = 0;
+    },
+    setSelectedIndex(state, action: PayloadAction<number>) {
+      state.selectedIndex = action.payload;
+    },
+  },
+});
+
+export const { openCmd, closeCmd, setQuery, setSelectedIndex } = commandPaletteSlice.actions;
+export const commandPaletteReducer = commandPaletteSlice.reducer;
+
+// src/slices/view-filters.slice.ts
 interface ViewFiltersState {
   // Per-list view preferences (persisted to server)
   filters: Record<string, FilterState>;
   sorting: Record<string, SortState>;
   viewMode: Record<string, 'board' | 'list' | 'calendar' | 'timeline'>;
-  setFilters: (listId: string, filters: FilterState) => void;
-  setSorting: (listId: string, sorting: SortState) => void;
-  setViewMode: (listId: string, mode: string) => void;
 }
 
-export const useViewFiltersStore = create<ViewFiltersState>()(
-  persist(
-    (set) => ({
-      filters: {},
-      sorting: {},
-      viewMode: {},
-      setFilters: (listId, filters) =>
-        set((s) => ({ filters: { ...s.filters, [listId]: filters } })),
-      setSorting: (listId, sorting) =>
-        set((s) => ({ sorting: { ...s.sorting, [listId]: sorting } })),
-      setViewMode: (listId, mode) =>
-        set((s) => ({ viewMode: { ...s.viewMode, [listId]: mode } })),
-    }),
-    { name: 'sprintio-view-filters' }
-  )
+const viewFiltersInitialState: ViewFiltersState = {
+  filters: {},
+  sorting: {},
+  viewMode: {},
+};
+
+const viewFiltersSlice = createSlice({
+  name: 'viewFilters',
+  initialState: viewFiltersInitialState,
+  reducers: {
+    setFilters(state, action: PayloadAction<{ listId: string; filters: FilterState }>) {
+      state.filters[action.payload.listId] = action.payload.filters;
+    },
+    setSorting(state, action: PayloadAction<{ listId: string; sorting: SortState }>) {
+      state.sorting[action.payload.listId] = action.payload.sorting;
+    },
+    setViewMode(state, action: PayloadAction<{ listId: string; mode: string }>) {
+      state.viewMode[action.payload.listId] = action.payload.mode as ViewFiltersState['viewMode'][string];
+    },
+  },
+});
+
+export const { setFilters, setSorting, setViewMode } = viewFiltersSlice.actions;
+
+export const persistedViewFiltersReducer = persistReducer(
+  { key: 'sprintio-view-filters', storage },
+  viewFiltersSlice.reducer
 );
+
+// src/store.ts — configureStore assembles all slices
+import { configureStore } from '@reduxjs/toolkit';
+import { persistStore } from 'redux-persist';
+
+export const store = configureStore({
+  reducer: {
+    sidebar: persistedSidebarReducer,
+    aiPanel: aiPanelReducer,
+    commandPalette: commandPaletteReducer,
+    viewFilters: persistedViewFiltersReducer,
+  },
+});
+
+export const persistor = persistStore(store);
+
+// Hooks for type-safe selector/dispatch access
+import { useDispatch, useSelector } from 'react-redux';
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
+
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
+export const useAppSelector = useSelector.withTypes<RootState>();
 ```
 
 ### 4.3 Store Selection Guide
@@ -403,8 +483,8 @@ export const useViewFiltersStore = create<ViewFiltersState>()(
 | Question | Answer |
 |----------|--------|
 | Does this data come from the API? | → TanStack Query |
-| Does this data need to persist across sessions? | → Zustand `persist` middleware |
-| Is this data ephemeral (UI open/close, hover state)? | → Zustand (no persist) |
+| Does this data need to persist across sessions? | → Redux Toolkit (`redux-persist`) |
+| Is this data ephemeral (UI open/close, hover state)? | → Redux Toolkit (no persist) |
 | Is this form data not yet submitted? | → React Hook Form or local `useState` |
 | Is this real-time collaborative state? | → Yjs awareness |
 | Is this auth/session data? | → React Context + cookie |
@@ -413,11 +493,11 @@ export const useViewFiltersStore = create<ViewFiltersState>()(
 
 | Anti-Pattern | Why It's Bad | Correct Approach |
 |--------------|-------------|------------------|
-| Storing API data in Zustand | Duplicates TanStack Query cache, stale data, no background refetch | Use `useQuery` / `useSuspenseQuery` |
-| Zustand store with 50+ fields | God store, hard to reason about, causes unnecessary re-renders | Split into focused stores by domain |
+| Storing API data in Redux Toolkit | Duplicates TanStack Query cache, stale data, no background refetch | Use `useQuery` / `useSuspenseQuery` |
+| Redux Toolkit slice with 50+ fields | God slice, hard to reason about, causes unnecessary re-renders | Split into focused slices by domain |
 | Global state for component-local UI | Unnecessary complexity, hard to test | Use `useState` / `useReducer` in component |
 | Storing derived data | Can be recomputed, wastes memory | Use `useMemo` / selector functions |
-| Mixing auth state with UI state | Security concerns, different lifecycles | Separate Context for auth, Zustand for UI |
+| Mixing auth state with UI state | Security concerns, different lifecycles | Separate Context for auth, Redux Toolkit for UI |
 
 ---
 
@@ -2019,7 +2099,7 @@ src/
 │   ├── use-local-storage.ts
 │   └── use-media-query.ts
 │
-├── stores/                         # Zustand stores
+├── stores/                         # Redux Toolkit slices
 │   ├── sidebar.store.ts
 │   ├── ai-panel.store.ts
 │   ├── command-palette.store.ts
@@ -2083,11 +2163,11 @@ Is the data from the API?
   NO  ↓
 
 Is it ephemeral UI state (open/close, hover)?
-  YES → Zustand (no persist)
+  YES → Redux Toolkit (no persist)
   NO  ↓
 
 Does it persist across sessions (theme, preferences)?
-  YES → Zustand (with persist middleware)
+  YES → Redux Toolkit (with redux-persist)
   NO  ↓
 
 Is it form data not yet submitted?
@@ -2161,7 +2241,7 @@ Is it auth/session data?
 |---------|---------|--------|
 | Routing | TanStack Router | `@tanstack/react-router` |
 | Data fetching | TanStack Query | `@tanstack/react-query` |
-| Client state | Zustand | `zustand` |
+| Client state | Redux Toolkit | `@reduxjs/toolkit` + `react-redux` |
 | Styling | Tailwind CSS | `tailwindcss` |
 | UI primitives | 21st.dev (shadcn/ui-compatible) | `21st.dev` |
 | Rich text | TipTap | `@tiptap/react` |

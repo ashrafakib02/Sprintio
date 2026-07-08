@@ -6,7 +6,7 @@
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | React 18, Vite, TypeScript, TanStack Router/Query, Zustand, Tailwind CSS v4 |
+| **Frontend** | React 18, Vite, TypeScript, TanStack Router/Query, Redux Toolkit, Tailwind CSS v4 |
 | **UI Components** | 21st.dev (shadcn/ui-compatible marketplace) |
 | **Rich Text** | TipTap (ProseMirror) |
 | **Real-time** | Yjs (CRDT) |

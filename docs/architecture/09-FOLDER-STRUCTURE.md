@@ -278,15 +278,16 @@ sprintio/
 │   │   │   │   ├─── use-infinite-query.ts
 │   │   │   │   └─── use-clipboard.ts
 │   │   │   │
-│   │   │   ├─── stores/                   # Zustand state stores
+│   │   │   ├─── store/                     # Redux Toolkit slices & store config
 │   │   │   │   ├─── index.ts
-│   │   │   │   ├─── auth-store.ts
-│   │   │   │   ├─── workspace-store.ts
-│   │   │   │   ├─── board-store.ts
-│   │   │   │   ├─── ui-store.ts
-│   │   │   │   ├─── notification-store.ts
-│   │   │   │   ├─── collaboration-store.ts
-│   │   │   │   └─── ai-store.ts
+│   │   │   │   ├─── authSlice.ts
+│   │   │   │   ├─── workspaceSlice.ts
+│   │   │   │   ├─── boardSlice.ts
+│   │   │   │   ├─── uiSlice.ts
+│   │   │   │   ├─── notificationSlice.ts
+│   │   │   │   ├─── collaborationSlice.ts
+│   │   │   │   ├─── aiSlice.ts
+│   │   │   │   └─── store.ts
 │   │   │   │
 │   │   │   ├─── lib/                      # Library wrappers & utilities
 │   │   │   │   ├─── index.ts
@@ -842,7 +843,7 @@ packages:
 ```
 Route File (page) → Components → Hooks → Services → API Client → Backend
                           ↓
-                      Zustand Store ← WebSocket Events
+                      Redux Store ← WebSocket Events
 ```
 
 ### Key Directories Explained
@@ -854,7 +855,7 @@ Route File (page) → Components → Hooks → Services → API Client → Backe
 | `components/layout/` | App shell, sidebar, header | Layout-specific; not reusable outside this app |
 | `components/<domain>/` | Domain components (board, document, etc.) | One directory per business domain |
 | `hooks/` | Custom React hooks | Max 1 hook per file; prefix with `use` |
-| `stores/` | Zustand stores | One store per domain; use `persist` middleware sparingly |
+| `store/` | Redux Toolkit slices | One slice per domain; use `redux-persist` sparingly |
 | `services/` | TanStack Query hooks wrapping API calls | One service file per API resource |
 | `lib/` | Utility wrappers, config, helpers | No business logic; pure helpers only |
 | `types/` | Frontend-specific types | Types that are NOT shared with backend |
@@ -865,7 +866,7 @@ Route File (page) → Components → Hooks → Services → API Client → Backe
 routes/_dashboard.index.tsx        → Route components: kebab-case with route params
 components/board/board-card.tsx    → Domain components: kebab-case, noun-first
 hooks/use-board.ts                 → Hooks: camelCase, use- prefix
-stores/board-store.ts              → Stores: kebab-case, -store suffix
+store/slices/boardSlice.ts         → Slices: camelCase, -Slice suffix
 services/board.service.ts          → Services: kebab-case, .service.ts suffix
 lib/query-client.ts               → Lib files: kebab-case, descriptive name
 ```
@@ -897,32 +898,22 @@ export function useCreateBoard(workspaceId: string) {
 }
 ```
 
-### Store Pattern (`stores/board-store.ts`)
+### Store Pattern (`store/slices/boardSlice.ts`)
 
 ```typescript
-import { create } from 'zustand';
-import type { Board, Column, Card } from '@sprintio/shared';
+import { configureStore } from '@reduxjs/toolkit';
+import sidebarReducer from './slices/sidebarSlice';
+import boardReducer from './slices/boardSlice';
 
-interface BoardState {
-  activeBoardId: string | null;
-  columns: Column[];
-  cards: Card[];
-  setActiveBoard: (boardId: string) => void;
-  moveCard: (cardId: string, toColumnId: string, position: number) => void;
-}
+export const store = configureStore({
+  reducer: {
+    sidebar: sidebarReducer,
+    board: boardReducer,
+  },
+});
 
-export const useBoardStore = create<BoardState>((set) => ({
-  activeBoardId: null,
-  columns: [],
-  cards: [],
-  setActiveBoard: (boardId) => set({ activeBoardId: boardId }),
-  moveCard: (cardId, toColumnId, position) =>
-    set((state) => ({
-      cards: state.cards.map((c) =>
-        c.id === cardId ? { ...c, columnId: toColumnId, position } : c,
-      ),
-    })),
-}));
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
 ```
 
 ---
@@ -1638,7 +1629,7 @@ export async function cleanupTestData() {
 | **Directories** | kebab-case | `board-components/`, `auth-middleware/` |
 | **React components** | kebab-case, noun-first | `board-card.tsx`, `workspace-switcher.tsx` |
 | **React hooks** | camelCase, `use-` prefix | `use-auth.ts`, `use-debounce.ts` |
-| **Stores** | kebab-case, `-store` suffix | `auth-store.ts`, `board-store.ts` |
+| **Stores** | camelCase, `-Slice` suffix | `authSlice.ts`, `boardSlice.ts` |
 | **Services (FE)** | kebab-case, `.service.ts` | `board.service.ts` |
 | **Routes (FE)** | TanStack file routing convention | `_dashboard.settings.tsx` |
 | **Modules (BE)** | kebab-case, plural noun | `boards/`, `workspaces/`, `cards/` |
@@ -1707,7 +1698,7 @@ import type { BoardsController } from './boards.controller';
       "@/*": ["./src/*"],
       "@components/*": ["./src/components/*"],
       "@hooks/*": ["./src/hooks/*"],
-      "@stores/*": ["./src/stores/*"],
+      "@store/*": ["./src/store/*"],
       "@lib/*": ["./src/lib/*"],
       "@services/*": ["./src/services/*"],
       "@routes/*": ["./src/routes/*"]
@@ -1771,7 +1762,7 @@ export default defineConfig({
 | `@/*` | `src/*` (app-specific) | Frontend, Backend |
 | `@components/*` | `src/components/*` | Frontend |
 | `@hooks/*` | `src/hooks/*` | Frontend |
-| `@stores/*` | `src/stores/*` | Frontend |
+| `@store/*` | `src/store/*` | Frontend |
 | `@services/*` | `src/services/*` | Frontend |
 | `@modules/*` | `src/modules/*` | Backend |
 | `@middleware/*` | `src/middleware/*` | Backend |
@@ -1848,7 +1839,7 @@ export default defineConfig({
 ### Tech Stack at a Glance
 
 ```
-Frontend:    React 18 | TypeScript | Vite | TanStack Router/Query | Zustand | Tailwind CSS
+Frontend:    React 18 | TypeScript | Vite | TanStack Router/Query | Redux Toolkit | Tailwind CSS
 Backend:     Node.js 20 | Express.js | TypeScript | Drizzle ORM | BullMQ
 Database:    PostgreSQL 16 | Redis 7 | Drizzle migrations
 AI:          Python 3.12 | FastAPI | Pydantic | Jinja2 | pgvector

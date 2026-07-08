@@ -477,7 +477,7 @@ Sprintio unifies **Projects + Docs + Automation + Intelligence** in one platform
 ### 9.2 Technology Stack
 | Layer | Technology | Rationale |
 |-------|------------|-----------|
-| **Frontend** | React 18, TypeScript, Vite, TanStack Router, TanStack Query, Zustand, Tailwind CSS, Radix UI, TipTap (ProseMirror), Yjs | Modern, performant, great DX, real-time ready |
+| **Frontend** | React 18, TypeScript, Vite, TanStack Router, TanStack Query, Redux Toolkit, Tailwind CSS, Radix UI, TipTap (ProseMirror), Yjs | Modern, performant, great DX, real-time ready |
 | **Desktop** | Tauri (Rust + WebView) | Small binary, secure, native performance |
 | **Mobile** | React Native (Expo), Expo Router, React Native Reanimated | Code sharing with web, fast iteration |
 | **API Gateway** | Kong / Envoy | Rate limiting, auth, observability, plugin ecosystem |
