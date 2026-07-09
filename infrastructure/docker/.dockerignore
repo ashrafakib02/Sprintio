@@ -1,0 +1,14 @@
+node_modules
+.git
+.turbo
+dist
+build
+*.log
+.env
+.env.*
+!.env.example
+__pycache__
+.venv
+venv
+.coverage
+htmlcov

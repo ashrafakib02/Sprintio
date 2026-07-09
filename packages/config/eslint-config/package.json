@@ -1,0 +1,11 @@
+{
+  "name": "@sprintio/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "exports": {
+    "./base": "./base.js",
+    "./react": "./react.js",
+    "./typescript": "./typescript.js"
+  }
+}
