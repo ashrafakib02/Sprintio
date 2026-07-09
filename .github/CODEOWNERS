@@ -1,0 +1,14 @@
+# Default code owners
+* @ashrafakib02
+
+# Frontend
+apps/web/ @ashrafakib02
+
+# Backend
+packages/api/ @ashrafakib02
+
+# Database
+packages/db/ @ashrafakib02
+
+# Infrastructure
+infrastructure/ @ashrafakib02

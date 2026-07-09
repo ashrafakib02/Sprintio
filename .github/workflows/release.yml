@@ -1,0 +1,159 @@
+# ==============================================================================
+# Sprintio Release Pipeline
+# ==============================================================================
+# Triggered when code is merged (or pushed) to main.
+# Uses Conventional Commits to automate versioning via semantic-release,
+# generates a changelog, creates a GitHub Release, and tags the commit.
+# ==============================================================================
+
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+# Only one release at a time
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write        # create tags, releases, push changelog
+  issues: write          # comment on related issues
+  pull-requests: write   # comment on merged PRs
+  id-token: write        # OIDC for provenance (optional)
+
+env:
+  NODE_VERSION: "20"
+  PNPM_VERSION: "9"
+
+jobs:
+  # ╔═══════════════════════════════════════════════════════════════════════════╗
+  # ║  CI GATE — Ensure main is healthy before releasing                       ║
+  # ╚═══════════════════════════════════════════════════════════════════════════╝
+  ci-check:
+    name: CI Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Tests with coverage
+        run: pnpm test -- --coverage
+
+      - name: Build
+        run: pnpm build
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+  # ╔═══════════════════════════════════════════════════════════════════════════╗
+  # ║  RELEASE — Version bump, changelog, GitHub Release, npm publish           ║
+  # ╚═══════════════════════════════════════════════════════════════════════════╝
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [ci-check]
+    outputs:
+      new_release_published: ${{ steps.semantic.outputs.new_release_published }}
+      new_release_version: ${{ steps.semantic.outputs.new_release_version }}
+      new_release_major: ${{ steps.semantic.outputs.new_release_major }}
+      new_release_minor: ${{ steps.semantic.outputs.new_release_minor }}
+      new_release_patch: ${{ steps.semantic.outputs.new_release_patch }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history needed for changelog generation
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Semantic Release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          branches: |
+            [
+              'main'
+            ]
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optional: uncomment if publishing packages to npm
+          # NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Display release info
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "  New Release Published!"
+          echo "  Version: ${{ steps.semantic.outputs.new_release_version }}"
+          echo "  Major:   ${{ steps.semantic.outputs.new_release_major }}"
+          echo "  Minor:   ${{ steps.semantic.outputs.new_release_minor }}"
+          echo "  Patch:   ${{ steps.semantic.outputs.new_release_patch }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+  # ╔═══════════════════════════════════════════════════════════════════════════╗
+  # ║  POST-RELEASE — Notifications (Slack, Discord, etc.)                     ║
+  # ╚═══════════════════════════════════════════════════════════════════════════╝
+  notify:
+    name: Notify
+    runs-on: ubuntu-latest
+    needs: [release]
+    if: needs.release.outputs.new_release_published == 'true'
+    steps:
+      - name: Release notification
+        run: |
+          echo "Release v${{ needs.release.outputs.new_release_version }} published!"
+          echo "Add Slack/Discord webhook notifications here."
+          # Example Slack notification:
+          # curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+          #   -H "Content-Type: application/json" \
+          #   -d '{
+          #     "text": "🚀 Sprintio v${{ needs.release.outputs.new_release_version }} released!",
+          #     "blocks": [{
+          #       "type": "section",
+          #       "text": {
+          #         "type": "mrkdwn",
+          #         "text": "🚀 *Sprintio v${{ needs.release.outputs.new_release_version }}* has been released.\nView the <https://github.com/${{ github.repository }}/releases/latest|release notes>."
+          #       }
+          #     }]
+          #   }'
