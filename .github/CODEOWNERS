@@ -1,0 +1,44 @@
+# ==============================================================================
+# Sprintio CODEOWNERS
+# ==============================================================================
+# Defines code ownership for automatic PR review assignment.
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Order matters: later patterns override earlier ones for the same file.
+# ──────────────────────────────────────────────────────────────────────────────
+
+# ── Default owners for everything ────────────────────────────────────────────
+*                                   @ashrafakib02
+
+# ── Frontend (web app) ──────────────────────────────────────────────────────
+apps/web/                           @ashrafakib02
+
+# ── Backend (API server) ────────────────────────────────────────────────────
+apps/api/                           @ashrafakib02
+
+# ── AI sidecar (Python FastAPI) ─────────────────────────────────────────────
+apps/ai/                            @ashrafakib02
+
+# ── Shared packages ─────────────────────────────────────────────────────────
+packages/shared/                    @ashrafakib02
+packages/db/                        @ashrafakib02
+packages/eslint-config/             @ashrafakib02
+packages/tsconfig/                  @ashrafakib02
+
+# ── Design system & tokens ─────────────────────────────────────────────────
+Design-System/                      @ashrafakib02
+docs/Design-System/                 @ashrafakib02
+
+# ── Infrastructure & CI/CD ─────────────────────────────────────────────────
+.github/                            @ashrafakib02
+Dockerfile                          @ashrafakib02
+docker-compose*.yml                 @ashrafakib02
+turbo.json                          @ashrafakib02
+pnpm-workspace.yaml                 @ashrafakib02
+
+# ── Database & migrations ───────────────────────────────────────────────────
+docs/database/                      @ashrafakib02
+
+# ── Documentation ───────────────────────────────────────────────────────────
+docs/architecture/                  @ashrafakib02
+docs/*.md                           @ashrafakib02

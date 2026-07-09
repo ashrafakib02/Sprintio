@@ -1,0 +1,202 @@
+# ==============================================================================
+# Sprintio CI Pipeline
+# ==============================================================================
+# Quality gates that run on every push and pull request.
+# All jobs run in parallel with fail-fast: any failure blocks the pipeline.
+# ==============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
+  PNPM_VERSION: "9"
+
+jobs:
+  # ╔═══════════════════════════════════════════════════════════════════════════╗
+  # ║  LINT — ESLint + Prettier                                               ║
+  # ╚═══════════════════════════════════════════════════════════════════════════╝
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: ESLint
+        run: pnpm lint
+
+      - name: Prettier check
+        run: pnpm format:check || pnpm prettier --check .
+
+  # ╔═══════════════════════════════════════════════════════════════════════════╗
+  # ║  TYPE CHECK — TypeScript                                                 ║
+  # ╚═══════════════════════════════════════════════════════════════════════════╝
+  type-check:
+    name: Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript type check
+        run: pnpm typecheck
+
+  # ╔═══════════════════════════════════════════════════════════════════════════╗
+  # ║  TEST — Unit tests + coverage                                            ║
+  # ╚═══════════════════════════════════════════════════════════════════════════╝
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests with coverage
+        run: pnpm test -- --coverage
+
+      - name: Enforce coverage threshold (80%)
+        run: |
+          # Parse coverage summary and enforce 80% minimum
+          if [ -f coverage/coverage-summary.json ]; then
+            COVERAGE=$(node -e "
+              const c = require('./coverage/coverage-summary.json');
+              const total = c.total?.lines?.pct ?? 0;
+              console.log(total);
+            ")
+            echo "Line coverage: ${COVERAGE}%"
+            if [ "$(echo "$COVERAGE < 80" | bc -l)" -eq 1 ]; then
+              echo "::error::Coverage ${COVERAGE}% is below the 80% threshold"
+              exit 1
+            fi
+          else
+            echo "::warning::No coverage summary found"
+          fi
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
+
+  # ╔═══════════════════════════════════════════════════════════════════════════╗
+  # ║  BUILD — Production build verification                                   ║
+  # ╚═══════════════════════════════════════════════════════════════════════════╝
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Turborepo build
+        run: pnpm build
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+      - name: Verify build artifacts exist
+        run: |
+          echo "Verifying build outputs..."
+          for dir in apps/web apps/api; do
+            if [ -d "$dir/dist" ] || [ -d "$dir/build" ]; then
+              echo "  ✓ $dir has build output"
+            else
+              echo "::warning::No build output found in $dir/dist or $dir/build"
+            fi
+          done
+
+  # ╔═══════════════════════════════════════════════════════════════════════════╗
+  # ║  QUALITY GATE — Final check (depends on all other jobs)                  ║
+  # ╚═══════════════════════════════════════════════════════════════════════════╝
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: [lint, type-check, test, build]
+    if: always()
+    steps:
+      - name: Check all jobs passed
+        run: |
+          if [ "${{ needs.lint.result }}" != "success" ] ||
+             [ "${{ needs.type-check.result }}" != "success" ] ||
+             [ "${{ needs.test.result }}" != "success" ] ||
+             [ "${{ needs.build.result }}" != "success" ]; then
+            echo "::error::Quality gate failed"
+            echo "lint:       ${{ needs.lint.result }}"
+            echo "type-check: ${{ needs.type-check.result }}"
+            echo "test:       ${{ needs.test.result }}"
+            echo "build:      ${{ needs.build.result }}"
+            exit 1
+          fi
+          echo "All quality gates passed"

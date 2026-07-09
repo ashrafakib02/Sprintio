@@ -1,0 +1,10 @@
+{
+  "name": "@sprintio/vite-config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "exports": {
+    "./base": "./base.ts",
+    "./plugins": "./plugins.ts"
+  }
+}

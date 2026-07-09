@@ -1,0 +1,46 @@
+{
+  "name": "@sprintio/web",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b && vite build",
+    "dev": "vite",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@sprintio/shared": "workspace:*",
+    "@reduxjs/toolkit": "^2.3.0",
+    "@tanstack/react-query": "^5.59.0",
+    "@tanstack/react-router": "^1.82.0",
+    "@tanstack/react-virtual": "^3.10.0",
+    "clsx": "^2.1.0",
+    "lucide-react": "^0.453.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "react-redux": "^9.1.0",
+    "sonner": "^1.7.0",
+    "tailwind-merge": "^2.5.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@sprintio/tsconfig": "workspace:*",
+    "@tanstack/router-devtools": "^1.82.0",
+    "@tanstack/router-plugin": "^1.82.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.6.0",
+    "vite": "^5.4.0",
+    "vite-tsconfig-paths": "^4.3.0",
+    "vitest": "^2.1.0"
+  }
+}

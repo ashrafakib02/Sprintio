@@ -1,0 +1,98 @@
+# ============================================
+# Sprintio — EditorConfig
+# Consistent coding styles across editors and IDEs
+# https://editorconfig.org
+# ============================================
+
+root = true
+
+# ----------------------------------
+# Default (all files)
+# ----------------------------------
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# ----------------------------------
+# JavaScript / TypeScript
+# ----------------------------------
+[*.{js,jsx,ts,tsx,mjs,cjs}]
+indent_size = 2
+max_line_length = 100
+
+# ----------------------------------
+# JSON / YAML / TOML
+# ----------------------------------
+[*.{json,jsonc,json5,yaml,yml,toml}]
+indent_size = 2
+
+# ----------------------------------
+# HTML / Templates
+# ----------------------------------
+[*.{html,htm,vue,svelte,ejs,hbs}]
+indent_size = 2
+max_line_length = 120
+
+# ----------------------------------
+# CSS / SCSS / Less
+# ----------------------------------
+[*.{css,scss,less,pcss}]
+indent_size = 2
+max_line_length = 100
+
+# ----------------------------------
+# Markdown
+# ----------------------------------
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = 120
+
+# ----------------------------------
+# Makefiles (require tabs)
+# ----------------------------------
+[Makefile]
+indent_style = tab
+
+# ----------------------------------
+# Shell scripts
+# ----------------------------------
+[*.{sh,bash,zsh}]
+indent_size = 2
+
+# ----------------------------------
+# Python (if needed for AI sidecar)
+# ----------------------------------
+[*.py]
+indent_size = 4
+max_line_length = 88
+
+# ----------------------------------
+# SQL
+# ----------------------------------
+[*.sql]
+indent_size = 4
+
+# ----------------------------------
+# Docker
+# ----------------------------------
+[Dockerfile*]
+indent_size = 4
+
+[docker-compose*.yml]
+indent_size = 2
+
+# ----------------------------------
+# Git files
+# ----------------------------------
+[.gitattributes]
+indent_style = tab
+
+# ----------------------------------
+# Environment files
+# ----------------------------------
+[.env*]
+insert_final_newline = true
