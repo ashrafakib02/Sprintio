@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify, decodeJwt, type JWTPayload } from 'jose';
 import { env } from '../config/env.js';
 
-const ALGORITHM = 'ES256';
+const ALGORITHM = 'HS256';
 
 export interface AccessTokenPayload {
   userId: string;

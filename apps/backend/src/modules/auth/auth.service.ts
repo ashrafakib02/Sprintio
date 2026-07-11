@@ -2,7 +2,7 @@ import { eq, and, gt } from 'drizzle-orm';
 import { db } from '../../config/database.js';
 import { users } from '../../db/schema/users.js';
 import { sessions } from '../../db/schema/sessions.js';
-import { refreshTokens } from '../../db/schema/refresh-tokens.js';
+import { refreshTokens as refreshTokenTable } from '../../db/schema/refresh-tokens.js';
 import { hashPassword, comparePassword } from '../../utils/password.js';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../utils/jwt.js';
 import { hashToken } from '../../utils/token-hash.js';
@@ -53,7 +53,7 @@ async function createTokenPair(
   // Hash the refresh token before storing
   const tokenHash = await hashToken(refreshToken);
 
-  await db.insert(refreshTokens).values({
+  await db.insert(refreshTokenTable).values({
     tokenHash,
     sessionId,
     userId,
@@ -200,8 +200,11 @@ export async function loginUser(
 export async function refreshTokens(
   refreshTokenValue: string
 ): Promise<AuthTokens> {
-  // Verify the JWT
+  // Verify the JWT signature and expiry first
   const payload = await verifyRefreshToken(refreshTokenValue);
+  if (!payload) {
+    throw new Error('Invalid or expired refresh token');
+  }
 
   // Hash the incoming token to look it up
   const tokenHash = await hashToken(refreshTokenValue);
@@ -209,11 +212,11 @@ export async function refreshTokens(
   // Find the stored token
   const [storedToken] = await db
     .select()
-    .from(refreshTokens)
+    .from(refreshTokenTable)
     .where(
       and(
-        eq(refreshTokens.tokenHash, tokenHash),
-        gt(refreshTokens.expiresAt, new Date())
+        eq(refreshTokenTable.tokenHash, tokenHash),
+        gt(refreshTokenTable.expiresAt, new Date())
       )
     )
     .limit(1);
@@ -224,8 +227,8 @@ export async function refreshTokens(
 
   // Delete the old refresh token (rotation)
   await db
-    .delete(refreshTokens)
-    .where(eq(refreshTokens.id, storedToken.id));
+    .delete(refreshTokenTable)
+    .where(eq(refreshTokenTable.id, storedToken.id));
 
   // Delete the old session as well
   await db
@@ -273,9 +276,9 @@ export async function logoutUser(refreshTokenValue: string): Promise<void> {
 
   // Find and delete the refresh token
   const [deletedToken] = await db
-    .delete(refreshTokens)
-    .where(eq(refreshTokens.tokenHash, tokenHash))
-    .returning({ sessionId: refreshTokens.sessionId });
+    .delete(refreshTokenTable)
+    .where(eq(refreshTokenTable.tokenHash, tokenHash))
+    .returning({ sessionId: refreshTokenTable.sessionId });
 
   // Also delete the associated session
   if (deletedToken) {
@@ -291,8 +294,8 @@ export async function logoutUser(refreshTokenValue: string): Promise<void> {
 export async function logoutAllSessions(userId: string): Promise<void> {
   // Delete all refresh tokens for this user
   await db
-    .delete(refreshTokens)
-    .where(eq(refreshTokens.userId, userId));
+    .delete(refreshTokenTable)
+    .where(eq(refreshTokenTable.userId, userId));
 
   // Delete all sessions for this user
   await db
