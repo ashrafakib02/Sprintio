@@ -1,0 +1,193 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": {
+    "users": {
+      "name": "users",
+      "schema": "public",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "unique": true
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email_verified": {
+          "name": "email_verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {}
+    },
+    "sessions": {
+      "name": "sessions",
+      "schema": "public",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true,
+          "references": {
+            "table": "users",
+            "column": "id",
+            "onDelete": "cascade"
+          }
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ip_address": {
+          "name": "ip_address",
+          "type": "varchar(45)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_sessions_user_id": {
+          "name": "idx_sessions_user_id",
+          "columns": ["user_id"],
+          "isUnique": false
+        },
+        "idx_sessions_expires_at": {
+          "name": "idx_sessions_expires_at",
+          "columns": ["expires_at"],
+          "isUnique": false
+        }
+      }
+    },
+    "refresh_tokens": {
+      "name": "refresh_tokens",
+      "schema": "public",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "token_hash": {
+          "name": "token_hash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "unique": true
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true,
+          "references": {
+            "table": "sessions",
+            "column": "id",
+            "onDelete": "cascade"
+          }
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true,
+          "references": {
+            "table": "users",
+            "column": "id",
+            "onDelete": "cascade"
+          }
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_refresh_tokens_session_id": {
+          "name": "idx_refresh_tokens_session_id",
+          "columns": ["session_id"],
+          "isUnique": false
+        },
+        "idx_refresh_tokens_user_id": {
+          "name": "idx_refresh_tokens_user_id",
+          "columns": ["user_id"],
+          "isUnique": false
+        },
+        "idx_refresh_tokens_token_hash": {
+          "name": "idx_refresh_tokens_token_hash",
+          "columns": ["token_hash"],
+          "isUnique": false
+        },
+        "idx_refresh_tokens_expires_at": {
+          "name": "idx_refresh_tokens_expires_at",
+          "columns": ["expires_at"],
+          "isUnique": false
+        }
+      }
+    }
+  },
+  "id": "0000_snapshot"
+}
