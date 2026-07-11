@@ -49,3 +49,24 @@ export async function register(data: RegisterRequest): Promise<ApiResponse<Regis
     body: JSON.stringify(data),
   });
 }
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    emailVerified: boolean;
+  };
+}
+
+export async function login(data: LoginRequest): Promise<ApiResponse<LoginResponse>> {
+  return apiRequest<LoginResponse>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
