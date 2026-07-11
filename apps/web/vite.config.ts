@@ -4,11 +4,7 @@ import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
-  plugins: [
-    TanStackRouterVite({ quoteStyle: 'single' }),
-    react(),
-    tsconfigPaths(),
-  ],
+  plugins: [TanStackRouterVite({ quoteStyle: 'single' }), react(), tsconfigPaths()],
   server: {
     port: 5173,
     proxy: {

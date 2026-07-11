@@ -28,12 +28,12 @@ Branch protection rules enforce quality gates at the Git hosting level, preventi
 
 ### Protection Philosophy
 
-| Principle | Rationale |
-|-----------|-----------|
-| **No direct pushes to protected branches** | Every change must be reviewed and tested |
-| **CI must pass before merge** | Prevents regressions from entering stable branches |
-| **Approvals required** | At least one other engineer validates the change |
-| **Linear history** | Keeps git log clean and bisectable |
+| Principle                                  | Rationale                                          |
+| ------------------------------------------ | -------------------------------------------------- |
+| **No direct pushes to protected branches** | Every change must be reviewed and tested           |
+| **CI must pass before merge**              | Prevents regressions from entering stable branches |
+| **Approvals required**                     | At least one other engineer validates the change   |
+| **Linear history**                         | Keeps git log clean and bisectable                 |
 
 ---
 
@@ -47,28 +47,28 @@ The `main` branch represents production-ready code. It has the strictest protect
 Branch name pattern:  main
 ```
 
-| Setting | Value | Rationale |
-|---------|-------|-----------|
-| **Require a pull request before merging** | ✓ | No direct pushes |
-| **Required approvals** | 2 | Two independent reviewers catch more issues |
-| **Dismiss stale pull request approvals** | ✓ | New pushes invalidate previous approvals |
-| **Require review from code owners** | ✓ | Domain experts validate changes in their area |
-| **Require status checks before merging** | ✓ | CI must pass |
-| **Required status checks** | `Quality Gate`, `lint`, `type-check`, `test`, `build` | All CI jobs |
-| **Require branches to be up to date** | ✓ | Prevents merge conflicts and stale merges |
-| **Require linear history** | ✓ | Enforce squash or rebase, no merge commits |
-| **Allow force pushes** | ✗ | Never force push to main |
-| **Allow deletions** | ✗ | Never delete main |
-| **Require conversation resolution** | ✓ | All review threads must be resolved |
-| **Require signed commits** | ✓ (recommended) | Cryptographic verification of authorship |
-| **Require deployments to succeed** | ✓ (if applicable) | Deployment checks must pass |
+| Setting                                   | Value                                                 | Rationale                                     |
+| ----------------------------------------- | ----------------------------------------------------- | --------------------------------------------- |
+| **Require a pull request before merging** | ✓                                                     | No direct pushes                              |
+| **Required approvals**                    | 2                                                     | Two independent reviewers catch more issues   |
+| **Dismiss stale pull request approvals**  | ✓                                                     | New pushes invalidate previous approvals      |
+| **Require review from code owners**       | ✓                                                     | Domain experts validate changes in their area |
+| **Require status checks before merging**  | ✓                                                     | CI must pass                                  |
+| **Required status checks**                | `Quality Gate`, `lint`, `type-check`, `test`, `build` | All CI jobs                                   |
+| **Require branches to be up to date**     | ✓                                                     | Prevents merge conflicts and stale merges     |
+| **Require linear history**                | ✓                                                     | Enforce squash or rebase, no merge commits    |
+| **Allow force pushes**                    | ✗                                                     | Never force push to main                      |
+| **Allow deletions**                       | ✗                                                     | Never delete main                             |
+| **Require conversation resolution**       | ✓                                                     | All review threads must be resolved           |
+| **Require signed commits**                | ✓ (recommended)                                       | Cryptographic verification of authorship      |
+| **Require deployments to succeed**        | ✓ (if applicable)                                     | Deployment checks must pass                   |
 
 ### Additional Restrictions
 
-| Restriction | Setting |
-|-------------|---------|
-| **Restrict who can push** | No one (PRs only) |
-| **Allow force pushes** | Disabled |
+| Restriction                | Setting                         |
+| -------------------------- | ------------------------------- |
+| **Restrict who can push**  | No one (PRs only)               |
+| **Allow force pushes**     | Disabled                        |
 | **Require linear history** | Enabled (squash or rebase only) |
 
 ---
@@ -83,18 +83,18 @@ The `develop` branch is the integration branch for active development. Protectio
 Branch name pattern:  develop
 ```
 
-| Setting | Value | Rationale |
-|---------|-------|-----------|
-| **Require a pull request before merging** | ✓ | Code review is always required |
-| **Required approvals** | 1 | Single reviewer sufficient for dev branch |
-| **Dismiss stale pull request approvals** | ✓ | Keeps approvals current |
-| **Require status checks before merging** | ✓ | CI must pass |
-| **Required status checks** | `Quality Gate`, `lint`, `type-check`, `test`, `build` | Same CI as main |
-| **Require branches to be up to date** | ✓ | Prevents integration issues |
-| **Require linear history** | ✓ | Clean history |
-| **Allow force pushes** | ✗ | Even on develop, force pushes are dangerous |
-| **Allow deletions** | ✗ | Never delete develop |
-| **Require conversation resolution** | ✓ | Clean up discussions |
+| Setting                                   | Value                                                 | Rationale                                   |
+| ----------------------------------------- | ----------------------------------------------------- | ------------------------------------------- |
+| **Require a pull request before merging** | ✓                                                     | Code review is always required              |
+| **Required approvals**                    | 1                                                     | Single reviewer sufficient for dev branch   |
+| **Dismiss stale pull request approvals**  | ✓                                                     | Keeps approvals current                     |
+| **Require status checks before merging**  | ✓                                                     | CI must pass                                |
+| **Required status checks**                | `Quality Gate`, `lint`, `type-check`, `test`, `build` | Same CI as main                             |
+| **Require branches to be up to date**     | ✓                                                     | Prevents integration issues                 |
+| **Require linear history**                | ✓                                                     | Clean history                               |
+| **Allow force pushes**                    | ✗                                                     | Even on develop, force pushes are dangerous |
+| **Allow deletions**                       | ✗                                                     | Never delete develop                        |
+| **Require conversation resolution**       | ✓                                                     | Clean up discussions                        |
 
 ### Why Not Lighter?
 
@@ -112,14 +112,14 @@ Release branches (`release/*`) are short-lived stabilization branches. They need
 Branch name pattern:  release/**
 ```
 
-| Setting | Value | Rationale |
-|---------|-------|-----------|
-| **Require a pull request before merging** | ✓ | Changes to release must be reviewed |
-| **Required approvals** | 2 | Same rigor as main (this becomes production) |
-| **Require status checks** | ✓ | All CI must pass |
-| **Required status checks** | `Quality Gate` | Full gate |
-| **Allow force pushes** | ✗ | Release history must be preserved |
-| **Require linear history** | ✓ | Clean history for hotfix tracking |
+| Setting                                   | Value          | Rationale                                    |
+| ----------------------------------------- | -------------- | -------------------------------------------- |
+| **Require a pull request before merging** | ✓              | Changes to release must be reviewed          |
+| **Required approvals**                    | 2              | Same rigor as main (this becomes production) |
+| **Require status checks**                 | ✓              | All CI must pass                             |
+| **Required status checks**                | `Quality Gate` | Full gate                                    |
+| **Allow force pushes**                    | ✗              | Release history must be preserved            |
+| **Require linear history**                | ✓              | Clean history for hotfix tracking            |
 
 ---
 
@@ -129,12 +129,12 @@ Administrators can bypass branch protection rules when necessary (e.g., urgent h
 
 ### Policy
 
-| Scenario | Allow Bypass? | Process |
-|----------|---------------|---------|
-| **Urgent production hotfix** | ✓ With approval | Admin force-pushes hotfix, documents reason in incident report, creates follow-up PR for review |
-| **CI infrastructure failure** | ✓ Temporary | Admin bypasses, CI is fixed immediately, retrospective conducted |
-| **Revert a broken merge** | ✓ With approval | Admin reverts via PR or direct push, documents in changelog |
-| **Routine development** | ✗ Never | Normal PR process applies regardless of role |
+| Scenario                      | Allow Bypass?   | Process                                                                                         |
+| ----------------------------- | --------------- | ----------------------------------------------------------------------------------------------- |
+| **Urgent production hotfix**  | ✓ With approval | Admin force-pushes hotfix, documents reason in incident report, creates follow-up PR for review |
+| **CI infrastructure failure** | ✓ Temporary     | Admin bypasses, CI is fixed immediately, retrospective conducted                                |
+| **Revert a broken merge**     | ✓ With approval | Admin reverts via PR or direct push, documents in changelog                                     |
+| **Routine development**       | ✗ Never         | Normal PR process applies regardless of role                                                    |
 
 ### Accountability Requirements
 
@@ -204,14 +204,14 @@ After configuration, verify by:
 
 Branch names must follow the conventions below. Branch protection rules can optionally enforce these via naming patterns.
 
-| Pattern | Purpose | Example |
-|---------|---------|---------|
-| `feature/<ticket>-<description>` | New features | `feature/SR-123-user-auth` |
-| `fix/<ticket>-<description>` | Bug fixes | `fix/SR-456-null-pointer` |
-| `hotfix/<description>` | Emergency production fixes | `hotfix/auth-token-expiry` |
-| `release/<version>` | Release stabilization | `release/1.2.0` |
-| `chore/<description>` | Maintenance tasks | `chore/update-dependencies` |
-| `docs/<description>` | Documentation changes | `docs/update-api-reference` |
+| Pattern                          | Purpose                    | Example                     |
+| -------------------------------- | -------------------------- | --------------------------- |
+| `feature/<ticket>-<description>` | New features               | `feature/SR-123-user-auth`  |
+| `fix/<ticket>-<description>`     | Bug fixes                  | `fix/SR-456-null-pointer`   |
+| `hotfix/<description>`           | Emergency production fixes | `hotfix/auth-token-expiry`  |
+| `release/<version>`              | Release stabilization      | `release/1.2.0`             |
+| `chore/<description>`            | Maintenance tasks          | `chore/update-dependencies` |
+| `docs/<description>`             | Documentation changes      | `docs/update-api-reference` |
 
 ### Branch Lifecycle
 
@@ -224,4 +224,4 @@ feature/xyz ──────► develop ──► main
 
 ---
 
-*Document maintained by the Sprintio engineering team.*
+_Document maintained by the Sprintio engineering team._

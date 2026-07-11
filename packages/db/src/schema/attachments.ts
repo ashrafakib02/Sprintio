@@ -7,6 +7,8 @@ export const attachments = pgTable('attachments', {
   mimeType: varchar('mime_type', { length: 100 }).notNull(),
   size: bigint('size', { mode: 'number' }).notNull(),
   url: text('url').notNull(),
-  uploaderId: uuid('uploader_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  uploaderId: uuid('uploader_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });

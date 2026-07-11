@@ -183,10 +183,10 @@ branch_protection:
     dismiss_stale_reviews: true
     require_code_owner_reviews: true
     required_status_checks:
-      - "lint-typecheck"
-      - "unit-tests"
-      - "build"
-      - "integration-tests"
+      - 'lint-typecheck'
+      - 'unit-tests'
+      - 'build'
+      - 'integration-tests'
     enforce_admins: false
     restrictions: null
 
@@ -194,11 +194,11 @@ branch_protection:
     required_reviews: 1
     dismiss_stale_reviews: true
     required_status_checks:
-      - "lint-typecheck"
-      - "unit-tests"
-      - "integration-tests"
-      - "e2e-tests"
-      - "build"
+      - 'lint-typecheck'
+      - 'unit-tests'
+      - 'integration-tests'
+      - 'e2e-tests'
+      - 'build'
 ```
 
 ---
@@ -251,7 +251,7 @@ branch_protection:
 ```yaml
 # .github/workflows/ci-pr.yml
 
-name: "CI — Pull Request"
+name: 'CI — Pull Request'
 
 on:
   pull_request:
@@ -263,15 +263,15 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: "20"
-  PNPM_VERSION: "9"
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9'
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
 jobs:
   # ─── Stage 1: Detect What Changed ────────────────────────────
   changes:
-    name: "Detect Changes"
+    name: 'Detect Changes'
     runs-on: ubuntu-latest
     outputs:
       web: ${{ steps.filter.outputs.web }}
@@ -302,7 +302,7 @@ jobs:
 
   # ─── Stage 2: Lint & Type Check (Parallel) ──────────────────
   lint:
-    name: "Lint & TypeCheck"
+    name: 'Lint & TypeCheck'
     needs: changes
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -340,7 +340,7 @@ jobs:
 
   # ─── Stage 2b: Unit Tests (Parallel) ────────────────────────
   unit-tests:
-    name: "Unit Tests"
+    name: 'Unit Tests'
     needs: changes
     runs-on: ubuntu-latest
     timeout-minutes: 8
@@ -390,7 +390,7 @@ jobs:
 
   # ─── Stage 2c: Build Check (Parallel) ───────────────────────
   build:
-    name: "Build"
+    name: 'Build'
     needs: changes
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -428,7 +428,7 @@ jobs:
 
   # ─── Stage 3: Python Sidecar Lint ───────────────────────────
   python-lint:
-    name: "Python Lint"
+    name: 'Python Lint'
     needs: changes
     if: needs.changes.outputs.ai == 'true'
     runs-on: ubuntu-latest
@@ -439,7 +439,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12'
 
       - name: Install uv
         run: pip install uv
@@ -462,7 +462,7 @@ jobs:
 
   # ─── Stage 4: Coverage Report ───────────────────────────────
   coverage-report:
-    name: "Coverage Report"
+    name: 'Coverage Report'
     needs: [lint, unit-tests, build]
     if: always()
     runs-on: ubuntu-latest
@@ -501,60 +501,60 @@ jobs:
             | Build | ${{ needs.build.result == 'success' && '✅' || '❌' }} |
 
 ---
-
 ## 4. Main Pipeline
 
 ### 4.1 Main Pipeline Flow
+```
 
-```
 ┌──────────────────────────────────────────────────────────────────────────┐
-│                    MAIN PIPELINE (Full Validation)                       │
-│                                                                          │
-│  Push to main                                                            │
-│       │                                                                  │
-│       ▼                                                                  │
-│  ┌────────────┐   ┌────────────┐   ┌────────────┐   ┌────────────┐      │
-│  │ Lint &     │   │ Unit +     │   │ Integration│   │ E2E Tests  │      │
-│  │ TypeCheck  │   │ Unit Tests │   │ Tests      │   │ (Playwright│      │
-│  │            │   │            │   │ (Test DB)  │   │  critical) │      │
-│  └─────┬──────┘   └─────┬──────┘   └─────┬──────┘   └─────┬──────┘      │
-│        │                │                │                │              │
-│        └────────┬───────┘                │                │              │
-│                 │                        │                │              │
-│                 ▼                        ▼                ▼              │
-│          ┌──────────────────────────────────────────────────┐           │
-│          │            Build All Packages                    │           │
-│          └──────────────────────┬───────────────────────────┘           │
-│                                 │                                       │
-│                                 ▼                                       │
-│          ┌──────────────────────────────────────────┐                   │
-│          │   Database Migrations (staging DB)       │                   │
-│          └──────────────────────┬───────────────────┘                   │
-│                                 │                                       │
-│                    ┌────────────┼────────────┐                          │
-│                    ▼            ▼            ▼                          │
-│            ┌──────────┐ ┌──────────┐ ┌──────────┐                      │
-│            │  Deploy  │ │  Deploy  │ │  Build   │                      │
-│            │  Frontend│ │  Backend │ │  Docker  │                      │
-│            │  (Pages) │ │  (Worker)│ │  Images  │                      │
-│            └────┬─────┘ └────┬─────┘ └────┬─────┘                      │
-│                 │            │            │                             │
-│                 └────────┬───┘            │                             │
-│                          ▼                ▼                             │
-│                   ┌─────────────┐  ┌──────────────┐                    │
-│                   │ Health Check│  │ Push to GHCR │                    │
-│                   │ + Smoke     │  │ + Docker Hub │                    │
-│                   └──────┬──────┘  └──────────────┘                    │
-│                          │                                              │
-│                          ▼                                              │
-│                   ┌──────────────┐                                      │
-│                   │   Notify     │                                      │
-│                   │  (Slack/PR)  │                                      │
-│                   └──────────────┘                                      │
-│                                                                          │
-│  Target: < 15 minutes                                                   │
+│ MAIN PIPELINE (Full Validation) │
+│ │
+│ Push to main │
+│ │ │
+│ ▼ │
+│ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐ │
+│ │ Lint & │ │ Unit + │ │ Integration│ │ E2E Tests │ │
+│ │ TypeCheck │ │ Unit Tests │ │ Tests │ │ (Playwright│ │
+│ │ │ │ │ │ (Test DB) │ │ critical) │ │
+│ └─────┬──────┘ └─────┬──────┘ └─────┬──────┘ └─────┬──────┘ │
+│ │ │ │ │ │
+│ └────────┬───────┘ │ │ │
+│ │ │ │ │
+│ ▼ ▼ ▼ │
+│ ┌──────────────────────────────────────────────────┐ │
+│ │ Build All Packages │ │
+│ └──────────────────────┬───────────────────────────┘ │
+│ │ │
+│ ▼ │
+│ ┌──────────────────────────────────────────┐ │
+│ │ Database Migrations (staging DB) │ │
+│ └──────────────────────┬───────────────────┘ │
+│ │ │
+│ ┌────────────┼────────────┐ │
+│ ▼ ▼ ▼ │
+│ ┌──────────┐ ┌──────────┐ ┌──────────┐ │
+│ │ Deploy │ │ Deploy │ │ Build │ │
+│ │ Frontend│ │ Backend │ │ Docker │ │
+│ │ (Pages) │ │ (Worker)│ │ Images │ │
+│ └────┬─────┘ └────┬─────┘ └────┬─────┘ │
+│ │ │ │ │
+│ └────────┬───┘ │ │
+│ ▼ ▼ │
+│ ┌─────────────┐ ┌──────────────┐ │
+│ │ Health Check│ │ Push to GHCR │ │
+│ │ + Smoke │ │ + Docker Hub │ │
+│ └──────┬──────┘ └──────────────┘ │
+│ │ │
+│ ▼ │
+│ ┌──────────────┐ │
+│ │ Notify │ │
+│ │ (Slack/PR) │ │
+│ └──────────────┘ │
+│ │
+│ Target: < 15 minutes │
 └──────────────────────────────────────────────────────────────────────────┘
-```
+
+````
 
 ### 4.2 Main Pipeline — GitHub Actions
 
@@ -955,7 +955,7 @@ jobs:
                 }
               ]
             }
-```
+````
 
 ---
 
@@ -1027,19 +1027,19 @@ jobs:
 
 ### 5.2 Release Pipeline — GitHub Actions
 
-```yaml
+````yaml
 # .github/workflows/ci-release.yml
 
-name: "CI — Release"
+name: 'CI — Release'
 
 on:
   push:
     tags:
-      - "v*.*.*"
+      - 'v*.*.*'
 
 env:
-  NODE_VERSION: "20"
-  PNPM_VERSION: "9"
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9'
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
   REGISTRY: ghcr.io
@@ -1048,7 +1048,7 @@ env:
 jobs:
   # ─── Validate Tag ───────────────────────────────────────────
   validate:
-    name: "Validate Release Tag"
+    name: 'Validate Release Tag'
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.extract.outputs.version }}
@@ -1077,14 +1077,14 @@ jobs:
 
   # ─── Full Test Suite ────────────────────────────────────────
   test-suite:
-    name: "Full Test Suite"
+    name: 'Full Test Suite'
     needs: validate
     uses: ./.github/workflows/_test-suite.yml
     secrets: inherit
 
   # ─── Build ──────────────────────────────────────────────────
   build:
-    name: "Build All"
+    name: 'Build All'
     needs: test-suite
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -1115,7 +1115,7 @@ jobs:
 
   # ─── Database Migration (Production) ────────────────────────
   db-migrate-production:
-    name: "Production DB Migration"
+    name: 'Production DB Migration'
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -1157,7 +1157,7 @@ jobs:
 
   # ─── Deploy Production ──────────────────────────────────────
   deploy-frontend-prod:
-    name: "Deploy Frontend → Production"
+    name: 'Deploy Frontend → Production'
     needs: [build, db-migrate-production]
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -1178,7 +1178,7 @@ jobs:
           command: pages deploy ./apps/web/dist --project-name=sprintio
 
   deploy-backend-prod:
-    name: "Deploy Backend → Production"
+    name: 'Deploy Backend → Production'
     needs: [build, db-migrate-production]
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -1197,7 +1197,7 @@ jobs:
 
   # ─── Docker Release ─────────────────────────────────────────
   docker-release:
-    name: "Docker Release Images"
+    name: 'Docker Release Images'
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -1247,7 +1247,7 @@ jobs:
 
   # ─── Post-Deploy Validation ─────────────────────────────────
   post-deploy:
-    name: "Post-Deploy Validation"
+    name: 'Post-Deploy Validation'
     needs: [deploy-frontend-prod, deploy-backend-prod]
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -1299,7 +1299,7 @@ jobs:
 
   # ─── Create GitHub Release ──────────────────────────────────
   github-release:
-    name: "Create GitHub Release"
+    name: 'Create GitHub Release'
     needs: [validate, post-deploy]
     runs-on: ubuntu-latest
     permissions:
@@ -1327,7 +1327,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: "Release ${{ needs.validate.outputs.version }}"
+          name: 'Release ${{ needs.validate.outputs.version }}'
           body: |
             ## Changes
 
@@ -1349,7 +1349,7 @@ jobs:
 
   # ─── Notify ─────────────────────────────────────────────────
   notify:
-    name: "Release Notification"
+    name: 'Release Notification'
     needs: [validate, post-deploy, github-release]
     if: always()
     runs-on: ubuntu-latest
@@ -1381,14 +1381,14 @@ jobs:
                 }
               ]
             }
-```
+````
 
 ### 5.3 Reusable Test Suite Workflow
 
 ```yaml
 # .github/workflows/_test-suite.yml
 
-name: "_Test Suite (Reusable)"
+name: '_Test Suite (Reusable)'
 
 on:
   workflow_call:
@@ -1400,39 +1400,39 @@ on:
 
 jobs:
   lint:
-    name: "Lint & TypeCheck"
+    name: 'Lint & TypeCheck'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: "9"
+          version: '9'
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm turbo lint typecheck
 
   unit-tests:
-    name: "Unit Tests"
+    name: 'Unit Tests'
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: "9"
+          version: '9'
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm turbo test -- --coverage
 
   integration-tests:
-    name: "Integration Tests"
+    name: 'Integration Tests'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     services:
@@ -1453,10 +1453,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: "9"
+          version: '9'
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @sprintio/db migrate
@@ -1470,7 +1470,7 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sprintio_test
 
   e2e-tests:
-    name: "E2E Tests"
+    name: 'E2E Tests'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     services:
@@ -1491,10 +1491,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: "9"
+          version: '9'
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @sprintio/db migrate
@@ -1519,129 +1519,65 @@ jobs:
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": [
-        "src/**",
-        "tsconfig.json",
-        "tsconfig.build.json",
-        "vite.config.*",
-        "package.json"
-      ],
-      "outputs": [
-        "dist/**",
-        ".next/**",
-        "!.next/cache/**"
-      ],
-      "env": [
-        "NODE_ENV"
-      ]
+      "inputs": ["src/**", "tsconfig.json", "tsconfig.build.json", "vite.config.*", "package.json"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "env": ["NODE_ENV"],
     },
     "lint": {
       "dependsOn": ["^build"],
-      "inputs": [
-        "src/**",
-        ".eslintrc*",
-        "eslint.config.*"
-      ],
-      "outputs": []
+      "inputs": ["src/**", ".eslintrc*", "eslint.config.*"],
+      "outputs": [],
     },
     "typecheck": {
       "dependsOn": ["^build"],
-      "inputs": [
-        "src/**",
-        "tsconfig.json"
-      ],
-      "outputs": []
+      "inputs": ["src/**", "tsconfig.json"],
+      "outputs": [],
     },
     "test": {
       "dependsOn": ["^build"],
-      "inputs": [
-        "src/**",
-        "tests/**",
-        "__tests__/**",
-        "vitest.config.*",
-        "jest.config.*"
-      ],
-      "outputs": [
-        "coverage/**"
-      ],
-      "env": [
-        "NODE_ENV",
-        "DATABASE_URL"
-      ]
+      "inputs": ["src/**", "tests/**", "__tests__/**", "vitest.config.*", "jest.config.*"],
+      "outputs": ["coverage/**"],
+      "env": ["NODE_ENV", "DATABASE_URL"],
     },
     "test:integration": {
       "dependsOn": ["build", "^build"],
-      "inputs": [
-        "src/**",
-        "tests/integration/**"
-      ],
-      "outputs": [
-        "coverage/integration/**"
-      ],
-      "env": [
-        "NODE_ENV",
-        "DATABASE_URL"
-      ]
+      "inputs": ["src/**", "tests/integration/**"],
+      "outputs": ["coverage/integration/**"],
+      "env": ["NODE_ENV", "DATABASE_URL"],
     },
     "test:e2e": {
       "dependsOn": ["build", "^build"],
-      "inputs": [
-        "tests/e2e/**",
-        "playwright.config.*"
-      ],
-      "outputs": [
-        "test-results/**",
-        "playwright-report/**"
-      ],
-      "env": [
-        "BASE_URL",
-        "API_URL",
-        "CI"
-      ]
+      "inputs": ["tests/e2e/**", "playwright.config.*"],
+      "outputs": ["test-results/**", "playwright-report/**"],
+      "env": ["BASE_URL", "API_URL", "CI"],
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
     },
     "clean": {
-      "cache": false
+      "cache": false,
     },
     "migrate": {
-      "inputs": [
-        "src/**",
-        "drizzle/**",
-        "drizzle.config.*"
-      ],
-      "outputs": []
+      "inputs": ["src/**", "drizzle/**", "drizzle.config.*"],
+      "outputs": [],
     },
     "seed": {
       "dependsOn": ["migrate"],
-      "inputs": [
-        "src/**",
-        "seeds/**"
-      ],
-      "outputs": []
+      "inputs": ["src/**", "seeds/**"],
+      "outputs": [],
     },
     "deploy": {
       "dependsOn": ["build"],
-      "inputs": [
-        "wrangler.toml",
-        "src/**"
-      ],
-      "outputs": []
-    }
+      "inputs": ["wrangler.toml", "src/**"],
+      "outputs": [],
+    },
   },
-  "globalDependencies": [
-    "pnpm-lock.yaml",
-    "pnpm-workspace.yaml"
-  ],
-  "globalEnv": [
-    "NODE_ENV",
-    "CI"
-  ],
+  "globalDependencies": ["pnpm-lock.yaml", "pnpm-workspace.yaml"],
+  "globalEnv": ["NODE_ENV", "CI"],
   "remoteCache": {
-    "signature": true
-  }
+    "signature": true,
+  },
 }
 ```
 
@@ -1709,8 +1645,8 @@ pnpm turbo run build --dry --filter="...[origin/main]"
     "test:watch": "vitest --watch",
     "test:e2e": "playwright test",
     "lint": "eslint src/ --ext .ts,.tsx",
-    "typecheck": "tsc --noEmit"
-  }
+    "typecheck": "tsc --noEmit",
+  },
 }
 ```
 
@@ -1724,8 +1660,8 @@ pnpm turbo run build --dry --filter="...[origin/main]"
     "lint": "eslint src/ --ext .ts",
     "typecheck": "tsc --noEmit",
     "migrate": "drizzle-kit migrate",
-    "deploy": "wrangler deploy"
-  }
+    "deploy": "wrangler deploy",
+  },
 }
 ```
 
@@ -1737,18 +1673,18 @@ pnpm turbo run build --dry --filter="...[origin/main]"
       "build": {
         "dependsOn": ["^build"],
         "inputs": ["src/**/*.py", "pyproject.toml", "uv.lock"],
-        "outputs": ["dist/**"]
+        "outputs": ["dist/**"],
       },
       "lint": {
         "inputs": ["src/**/*.py", "pyproject.toml"],
-        "outputs": []
+        "outputs": [],
       },
       "test": {
         "inputs": ["src/**/*.py", "tests/**/*.py"],
-        "outputs": ["coverage/**"]
-      }
-    }
-  }
+        "outputs": ["coverage/**"],
+      },
+    },
+  },
 }
 ```
 
@@ -1832,13 +1768,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov', 'json-summary'],
-      exclude: [
-        'node_modules/',
-        'src/types/',
-        '**/*.d.ts',
-        '**/*.config.*',
-        'src/main.tsx',
-      ],
+      exclude: ['node_modules/', 'src/types/', '**/*.d.ts', '**/*.config.*', 'src/main.tsx'],
       thresholds: {
         statements: 80,
         branches: 75,
@@ -1860,11 +1790,7 @@ const config: Config = {
   roots: ['<rootDir>/src', '<rootDir>/tests'],
   testMatch: ['**/*.test.ts', '!**/*.integration.test.ts'],
   setupFilesAfterSetup: ['./tests/setup.ts'],
-  collectCoverageFrom: [
-    'src/**/*.ts',
-    '!src/types/**',
-    '!src/**/*.d.ts',
-  ],
+  collectCoverageFrom: ['src/**/*.ts', '!src/types/**', '!src/**/*.d.ts'],
   coverageThresholds: {
     global: {
       statements: 75,
@@ -1906,9 +1832,7 @@ export default defineConfig({
   forbidOnly: CI,
   retries: CI ? 2 : 0,
   workers: CI ? 1 : undefined,
-  reporter: CI
-    ? [['html', { open: 'never' }], ['github']]
-    : [['html', { open: 'on-failure' }]],
+  reporter: CI ? [['html', { open: 'never' }], ['github']] : [['html', { open: 'on-failure' }]],
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:5173',
     trace: 'on-first-retry',
@@ -1978,7 +1902,7 @@ test.describe('Workspace Management', () => {
     await page.click('[data-testid="save-task"]');
 
     await expect(
-      page.locator('[data-testid="task-item"]').filter({ hasText: 'Ship CI/CD' })
+      page.locator('[data-testid="task-item"]').filter({ hasText: 'Ship CI/CD' }),
     ).toBeVisible();
   });
 });
@@ -2247,7 +2171,6 @@ bucket_name = "sprintio-production"
 
 name = "sprintio"
 compatibility_date = "2024-09-23"
-
 # Cloudflare Pages is configured via the dashboard or
 # the wrangler CLI in the deploy workflow
 ```
@@ -2610,13 +2533,13 @@ protection_rules:
 ```yaml
 # .github/workflows/rollback.yml
 
-name: "Rollback"
+name: 'Rollback'
 
 on:
   workflow_dispatch:
     inputs:
       service:
-        description: "Service to rollback"
+        description: 'Service to rollback'
         required: true
         type: choice
         options:
@@ -2624,21 +2547,21 @@ on:
           - backend
           - all
       version:
-        description: "Target version (git tag or commit SHA)"
+        description: 'Target version (git tag or commit SHA)'
         required: true
         type: string
       reason:
-        description: "Rollback reason"
+        description: 'Rollback reason'
         required: true
         type: string
 
 env:
-  NODE_VERSION: "20"
-  PNPM_VERSION: "9"
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9'
 
 jobs:
   validate:
-    name: "Validate Rollback"
+    name: 'Validate Rollback'
     runs-on: ubuntu-latest
     environment:
       name: production
@@ -2656,7 +2579,7 @@ jobs:
           echo "✅ Version validated"
 
   rollback-backend:
-    name: "Rollback Backend"
+    name: 'Rollback Backend'
     if: inputs.service == 'backend' || inputs.service == 'all'
     needs: validate
     runs-on: ubuntu-latest
@@ -2686,7 +2609,7 @@ jobs:
           command: deploy --env production
 
   rollback-frontend:
-    name: "Rollback Frontend"
+    name: 'Rollback Frontend'
     if: inputs.service == 'frontend' || inputs.service == 'all'
     needs: validate
     runs-on: ubuntu-latest
@@ -2715,7 +2638,7 @@ jobs:
           command: pages deploy ./apps/web/dist --project-name=sprintio
 
   db-rollback:
-    name: "Database Rollback"
+    name: 'Database Rollback'
     if: inputs.service == 'all'
     needs: validate
     runs-on: ubuntu-latest
@@ -2741,7 +2664,7 @@ jobs:
             backup-${{ inputs.version }}.dump
 
   notify:
-    name: "Rollback Notification"
+    name: 'Rollback Notification'
     needs: [rollback-backend, rollback-frontend]
     if: always()
     runs-on: ubuntu-latest
@@ -2943,6 +2866,6 @@ pnpm-workspace.yaml            # pnpm workspace definition
 
 > **Document Version History**
 >
-> | Version | Date       | Author  | Changes                     |
-> |---------|------------|---------|-----------------------------|
-> | 1.0     | 2026-07-09 | Sprintio | Initial CI/CD architecture  |
+> | Version | Date       | Author   | Changes                    |
+> | ------- | ---------- | -------- | -------------------------- |
+> | 1.0     | 2026-07-09 | Sprintio | Initial CI/CD architecture |

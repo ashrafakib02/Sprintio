@@ -9,40 +9,40 @@
 
 ## 1. Migration Overview
 
-| Metric | Value |
-|--------|-------|
-| **Total Migrations** | 17 |
-| **Total Tables** | 32 |
-| **Schemas** | 6 (auth, workspace, automation, integration, analytics, timeseries) |
-| **Extensions** | 6 (uuid-ossp, pgcrypto, vector, pg_trgm, btree_gin, timescaledb) |
-| **Deferred FK Constraints** | 2 (api_keys → workspaces) |
-| **TimescaleDB Hypertables** | 3 (activity_log, automation_runs, webhook_deliveries) |
-| **Estimated Total Time** | 35–55 minutes |
-| **Risk Level** | Medium — circular dependency on api_keys requires careful ordering |
+| Metric                      | Value                                                               |
+| --------------------------- | ------------------------------------------------------------------- |
+| **Total Migrations**        | 17                                                                  |
+| **Total Tables**            | 32                                                                  |
+| **Schemas**                 | 6 (auth, workspace, automation, integration, analytics, timeseries) |
+| **Extensions**              | 6 (uuid-ossp, pgcrypto, vector, pg_trgm, btree_gin, timescaledb)    |
+| **Deferred FK Constraints** | 2 (api_keys → workspaces)                                           |
+| **TimescaleDB Hypertables** | 3 (activity_log, automation_runs, webhook_deliveries)               |
+| **Estimated Total Time**    | 35–55 minutes                                                       |
+| **Risk Level**              | Medium — circular dependency on api_keys requires careful ordering  |
 
 ---
 
 ## 2. Migration Sequence
 
-| # | Migration Name | Description | Tables Affected | Dependencies |
-|---|---------------|-------------|-----------------|--------------|
-| 01 | `001_enable_extensions` | Install all required PostgreSQL extensions | (none — extension-level) | None |
-| 02 | `002_create_schemas` | Create all 6 schemas in dependency order | (none — schema-level) | 001 |
-| 03 | `003_auth_users_and_sessions` | Core auth tables: users, user_accounts, sessions | users, user_accounts, sessions | 002 |
-| 04 | `004_workspace_core` | Core workspace tables: workspaces, memberships, teams, team_members, spaces | workspaces, memberships, teams, team_members, spaces | 003 (users) |
-| 05 | `005_auth_api_keys` | Create api_keys table WITHOUT workspace FK (circular dep) | api_keys | 003 (users) |
-| 06 | `006_project_structure` | Folders, lists, tasks, task_relationships — the project hierarchy | folders, lists, tasks, task_relationships | 004 (spaces, workspaces, users) |
-| 07 | `007_custom_fields_and_labels` | Custom field definitions, values, and labels | custom_field_definitions, custom_field_values, labels | 006 (tasks, spaces, workspaces) |
-| 08 | `008_collaboration` | Comments, documents, document_versions, attachments, saved_views | comments, documents, document_versions, attachments, saved_views | 006 (tasks, lists, spaces, folders, workspaces, users) |
-| 09 | `009_notifications_and_recurring` | Notifications, preferences, and recurring task templates | notifications, notification_preferences, recurring_tasks | 006 (tasks, workspaces, users) |
-| 10 | `010_automation_schema` | Automation engine tables | automations, automation_runs | 004 (workspaces, users) |
-| 11 | `011_integration_schema` | Integration and webhook tables | webhooks, webhook_deliveries, connected_integrations | 004 (workspaces, users) |
-| 12 | `012_analytics_schema` | AI/embedding and usage analytics | ai_embeddings, ai_usage | 004 (workspaces, users) |
-| 13 | `013_timeseries_schema` | Time-series activity logging | activity_log | 004 (workspaces, users) |
-| 14 | `014_deferred_foreign_keys` | Add FK constraints that were deferred due to circular dependencies | api_keys (ALTER) | 004, 005 |
-| 15 | `015_indexes` | Create all performance indexes across every schema | (index-only — 50+ indexes) | 003–013 |
-| 16 | `016_triggers_and_functions` | created_at/updated_at triggers, audit triggers, TimescaleDB hypertable conversions | (trigger/function-level) | 015 |
-| 17 | `017_seed_data` | Default statuses, plans, notification defaults, system labels | (data-only — INSERT) | 016 |
+| #   | Migration Name                    | Description                                                                        | Tables Affected                                                  | Dependencies                                           |
+| --- | --------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------ |
+| 01  | `001_enable_extensions`           | Install all required PostgreSQL extensions                                         | (none — extension-level)                                         | None                                                   |
+| 02  | `002_create_schemas`              | Create all 6 schemas in dependency order                                           | (none — schema-level)                                            | 001                                                    |
+| 03  | `003_auth_users_and_sessions`     | Core auth tables: users, user_accounts, sessions                                   | users, user_accounts, sessions                                   | 002                                                    |
+| 04  | `004_workspace_core`              | Core workspace tables: workspaces, memberships, teams, team_members, spaces        | workspaces, memberships, teams, team_members, spaces             | 003 (users)                                            |
+| 05  | `005_auth_api_keys`               | Create api_keys table WITHOUT workspace FK (circular dep)                          | api_keys                                                         | 003 (users)                                            |
+| 06  | `006_project_structure`           | Folders, lists, tasks, task_relationships — the project hierarchy                  | folders, lists, tasks, task_relationships                        | 004 (spaces, workspaces, users)                        |
+| 07  | `007_custom_fields_and_labels`    | Custom field definitions, values, and labels                                       | custom_field_definitions, custom_field_values, labels            | 006 (tasks, spaces, workspaces)                        |
+| 08  | `008_collaboration`               | Comments, documents, document_versions, attachments, saved_views                   | comments, documents, document_versions, attachments, saved_views | 006 (tasks, lists, spaces, folders, workspaces, users) |
+| 09  | `009_notifications_and_recurring` | Notifications, preferences, and recurring task templates                           | notifications, notification_preferences, recurring_tasks         | 006 (tasks, workspaces, users)                         |
+| 10  | `010_automation_schema`           | Automation engine tables                                                           | automations, automation_runs                                     | 004 (workspaces, users)                                |
+| 11  | `011_integration_schema`          | Integration and webhook tables                                                     | webhooks, webhook_deliveries, connected_integrations             | 004 (workspaces, users)                                |
+| 12  | `012_analytics_schema`            | AI/embedding and usage analytics                                                   | ai_embeddings, ai_usage                                          | 004 (workspaces, users)                                |
+| 13  | `013_timeseries_schema`           | Time-series activity logging                                                       | activity_log                                                     | 004 (workspaces, users)                                |
+| 14  | `014_deferred_foreign_keys`       | Add FK constraints that were deferred due to circular dependencies                 | api_keys (ALTER)                                                 | 004, 005                                               |
+| 15  | `015_indexes`                     | Create all performance indexes across every schema                                 | (index-only — 50+ indexes)                                       | 003–013                                                |
+| 16  | `016_triggers_and_functions`      | created_at/updated_at triggers, audit triggers, TimescaleDB hypertable conversions | (trigger/function-level)                                         | 015                                                    |
+| 17  | `017_seed_data`                   | Default statuses, plans, notification defaults, system labels                      | (data-only — INSERT)                                             | 016                                                    |
 
 ---
 
@@ -1324,6 +1324,7 @@ SELECT add_retention_policy('timeseries.activity_log', INTERVAL '2 years', if_no
 ```
 
 **Verification**:
+
 1. Triggers exist: `SELECT trigger_name FROM information_schema.triggers WHERE trigger_schema IN ('auth','workspace','automation','integration','analytics');`
 2. Hypertables exist: `SELECT * FROM timescaledb_information.hypertables;`
 3. Compression policies: `SELECT * FROM timescaledb_information.jobs WHERE proc_name = 'policy_compression';`
@@ -1486,6 +1487,7 @@ $$;
 ```
 
 **Verification**:
+
 - `SELECT COUNT(*) FROM workspace.default_statuses;` → 6
 - `SELECT COUNT(*) FROM workspace.default_priorities;` → 5
 - `SELECT COUNT(*) FROM workspace.default_labels;` → 10
@@ -1574,15 +1576,15 @@ $$;
 
 These groups can run in parallel since they share no sequential dependencies (only depend on common ancestors):
 
-| Group | Migrations | Common Ancestor |
-|-------|-----------|-----------------|
-| A | 005 (api_keys) | 003 (users) |
-| B | 004 (workspace core) | 003 (users) |
-| C | 010 (automation) | 004 (workspace core) |
-| D | 011 (integration) | 004 (workspace core) |
-| E | 012 (analytics) | 004 (workspace core) |
-| F | 013 (timeseries) | 004 (workspace core) |
-| G | 007, 008, 009 | 006 (project structure) |
+| Group | Migrations           | Common Ancestor         |
+| ----- | -------------------- | ----------------------- |
+| A     | 005 (api_keys)       | 003 (users)             |
+| B     | 004 (workspace core) | 003 (users)             |
+| C     | 010 (automation)     | 004 (workspace core)    |
+| D     | 011 (integration)    | 004 (workspace core)    |
+| E     | 012 (analytics)      | 004 (workspace core)    |
+| F     | 013 (timeseries)     | 004 (workspace core)    |
+| G     | 007, 008, 009        | 006 (project structure) |
 
 After 003: run 004 and 005 in parallel
 After 004: run 010, 011, 012, 013 in parallel
@@ -1594,25 +1596,25 @@ After 006: run 007, 008, 009 in parallel
 
 Each migration must have a corresponding rollback. Rollbacks are executed in **reverse order**.
 
-| Migration | Rollback Strategy |
-|-----------|-------------------|
-| **017** | `DELETE FROM workspace.plans; DELETE FROM workspace.notification_types; DELETE FROM workspace.default_labels; DELETE FROM workspace.default_priorities; DELETE FROM workspace.default_statuses; DROP TABLE IF EXISTS workspace.plans, workspace.notification_types, workspace.default_labels, workspace.default_priorities, workspace.default_statuses;` |
-| **016** | Drop all triggers, functions, continuous aggregates. Remove hypertables (requires `DROP_HYPERTABLE` or table drop + recreate). **WARNING**: TimescaleDB hypertable conversion cannot be "undone" — you must drop and recreate the table. |
-| **015** | `DROP INDEX CONCURRENTLY IF EXISTS <index_name>` for each index. Use `CONCURRENTLY` to avoid locks. |
-| **014** | `ALTER TABLE auth.api_keys DROP CONSTRAINT IF EXISTS fk_api_keys_workspace_id;` |
-| **013** | `DROP TABLE IF EXISTS timeseries.activity_log CASCADE;` |
-| **012** | `DROP TABLE IF EXISTS analytics.ai_usage CASCADE; DROP TABLE IF EXISTS analytics.ai_embeddings CASCADE;` |
-| **011** | `DROP TABLE IF EXISTS integration.connected_integrations CASCADE; DROP TABLE IF EXISTS integration.webhook_deliveries CASCADE; DROP TABLE IF EXISTS integration.webhooks CASCADE;` |
-| **010** | `DROP TABLE IF EXISTS automation.automation_runs CASCADE; DROP TABLE IF EXISTS automation.automations CASCADE;` |
-| **009** | `DROP TABLE IF EXISTS workspace.recurring_tasks CASCADE; DROP TABLE IF EXISTS workspace.notification_preferences CASCADE; DROP TABLE IF EXISTS workspace.notifications CASCADE;` |
-| **008** | `DROP TABLE IF EXISTS workspace.saved_views CASCADE; DROP TABLE IF EXISTS workspace.attachments CASCADE; DROP TABLE IF EXISTS workspace.document_versions CASCADE; DROP TABLE IF EXISTS workspace.documents CASCADE; DROP TABLE IF EXISTS workspace.comments CASCADE;` |
-| **007** | `DROP TABLE IF EXISTS workspace.labels CASCADE; DROP TABLE IF EXISTS workspace.custom_field_values CASCADE; DROP TABLE IF EXISTS workspace.custom_field_definitions CASCADE;` |
-| **006** | `DROP TABLE IF EXISTS workspace.task_relationships CASCADE; DROP TABLE IF EXISTS workspace.tasks CASCADE; DROP TABLE IF EXISTS workspace.lists CASCADE; DROP TABLE IF EXISTS workspace.folders CASCADE;` |
-| **005** | `DROP TABLE IF EXISTS auth.api_keys CASCADE;` |
-| **004** | `DROP TABLE IF EXISTS workspace.spaces CASCADE; DROP TABLE IF EXISTS workspace.team_members CASCADE; DROP TABLE IF EXISTS workspace.teams CASCADE; DROP TABLE IF EXISTS workspace.memberships CASCADE; DROP TABLE IF EXISTS workspace.workspaces CASCADE;` |
-| **003** | `DROP TABLE IF EXISTS auth.sessions CASCADE; DROP TABLE IF EXISTS auth.user_accounts CASCADE; DROP TABLE IF EXISTS auth.users CASCADE;` |
-| **002** | `DROP SCHEMA IF EXISTS timeseries CASCADE; DROP SCHEMA IF EXISTS analytics CASCADE; DROP SCHEMA IF EXISTS integration CASCADE; DROP SCHEMA IF EXISTS automation CASCADE; DROP SCHEMA IF EXISTS workspace CASCADE; DROP SCHEMA IF EXISTS auth CASCADE;` |
-| **001** | `DROP EXTENSION IF EXISTS timescaledb CASCADE; DROP EXTENSION IF EXISTS btree_gin CASCADE; DROP EXTENSION IF EXISTS pg_trgm CASCADE; DROP EXTENSION IF EXISTS vector CASCADE; DROP EXTENSION IF EXISTS pgcrypto CASCADE; DROP EXTENSION IF EXISTS "uuid-ossp" CASCADE;` |
+| Migration | Rollback Strategy                                                                                                                                                                                                                                                                                                                                        |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **017**   | `DELETE FROM workspace.plans; DELETE FROM workspace.notification_types; DELETE FROM workspace.default_labels; DELETE FROM workspace.default_priorities; DELETE FROM workspace.default_statuses; DROP TABLE IF EXISTS workspace.plans, workspace.notification_types, workspace.default_labels, workspace.default_priorities, workspace.default_statuses;` |
+| **016**   | Drop all triggers, functions, continuous aggregates. Remove hypertables (requires `DROP_HYPERTABLE` or table drop + recreate). **WARNING**: TimescaleDB hypertable conversion cannot be "undone" — you must drop and recreate the table.                                                                                                                 |
+| **015**   | `DROP INDEX CONCURRENTLY IF EXISTS <index_name>` for each index. Use `CONCURRENTLY` to avoid locks.                                                                                                                                                                                                                                                      |
+| **014**   | `ALTER TABLE auth.api_keys DROP CONSTRAINT IF EXISTS fk_api_keys_workspace_id;`                                                                                                                                                                                                                                                                          |
+| **013**   | `DROP TABLE IF EXISTS timeseries.activity_log CASCADE;`                                                                                                                                                                                                                                                                                                  |
+| **012**   | `DROP TABLE IF EXISTS analytics.ai_usage CASCADE; DROP TABLE IF EXISTS analytics.ai_embeddings CASCADE;`                                                                                                                                                                                                                                                 |
+| **011**   | `DROP TABLE IF EXISTS integration.connected_integrations CASCADE; DROP TABLE IF EXISTS integration.webhook_deliveries CASCADE; DROP TABLE IF EXISTS integration.webhooks CASCADE;`                                                                                                                                                                       |
+| **010**   | `DROP TABLE IF EXISTS automation.automation_runs CASCADE; DROP TABLE IF EXISTS automation.automations CASCADE;`                                                                                                                                                                                                                                          |
+| **009**   | `DROP TABLE IF EXISTS workspace.recurring_tasks CASCADE; DROP TABLE IF EXISTS workspace.notification_preferences CASCADE; DROP TABLE IF EXISTS workspace.notifications CASCADE;`                                                                                                                                                                         |
+| **008**   | `DROP TABLE IF EXISTS workspace.saved_views CASCADE; DROP TABLE IF EXISTS workspace.attachments CASCADE; DROP TABLE IF EXISTS workspace.document_versions CASCADE; DROP TABLE IF EXISTS workspace.documents CASCADE; DROP TABLE IF EXISTS workspace.comments CASCADE;`                                                                                   |
+| **007**   | `DROP TABLE IF EXISTS workspace.labels CASCADE; DROP TABLE IF EXISTS workspace.custom_field_values CASCADE; DROP TABLE IF EXISTS workspace.custom_field_definitions CASCADE;`                                                                                                                                                                            |
+| **006**   | `DROP TABLE IF EXISTS workspace.task_relationships CASCADE; DROP TABLE IF EXISTS workspace.tasks CASCADE; DROP TABLE IF EXISTS workspace.lists CASCADE; DROP TABLE IF EXISTS workspace.folders CASCADE;`                                                                                                                                                 |
+| **005**   | `DROP TABLE IF EXISTS auth.api_keys CASCADE;`                                                                                                                                                                                                                                                                                                            |
+| **004**   | `DROP TABLE IF EXISTS workspace.spaces CASCADE; DROP TABLE IF EXISTS workspace.team_members CASCADE; DROP TABLE IF EXISTS workspace.teams CASCADE; DROP TABLE IF EXISTS workspace.memberships CASCADE; DROP TABLE IF EXISTS workspace.workspaces CASCADE;`                                                                                               |
+| **003**   | `DROP TABLE IF EXISTS auth.sessions CASCADE; DROP TABLE IF EXISTS auth.user_accounts CASCADE; DROP TABLE IF EXISTS auth.users CASCADE;`                                                                                                                                                                                                                  |
+| **002**   | `DROP SCHEMA IF EXISTS timeseries CASCADE; DROP SCHEMA IF EXISTS analytics CASCADE; DROP SCHEMA IF EXISTS integration CASCADE; DROP SCHEMA IF EXISTS automation CASCADE; DROP SCHEMA IF EXISTS workspace CASCADE; DROP SCHEMA IF EXISTS auth CASCADE;`                                                                                                   |
+| **001**   | `DROP EXTENSION IF EXISTS timescaledb CASCADE; DROP EXTENSION IF EXISTS btree_gin CASCADE; DROP EXTENSION IF EXISTS pg_trgm CASCADE; DROP EXTENSION IF EXISTS vector CASCADE; DROP EXTENSION IF EXISTS pgcrypto CASCADE; DROP EXTENSION IF EXISTS "uuid-ossp" CASCADE;`                                                                                  |
 
 ### Rollback Rules
 
@@ -1627,27 +1629,27 @@ Each migration must have a corresponding rollback. Rollbacks are executed in **r
 
 ## 6. Estimated Timeline
 
-| Migration | Name | Est. Time | Notes |
-|-----------|------|-----------|-------|
-| 001 | Extensions | 1–2 min | Extension download may take time on first install |
-| 002 | Schemas | < 1 min | Simple DDL |
-| 003 | Users & Sessions | 1–2 min | 3 tables with constraints |
-| 004 | Workspace Core | 2–3 min | 5 tables, self-referencing FKs |
-| 005 | API Keys | < 1 min | Single table |
-| 006 | Project Structure | 3–5 min | 4 tables, complex interdependencies |
-| 007 | Custom Fields | 1–2 min | 3 tables |
-| 008 | Collaboration | 2–4 min | 5 tables, polymorphic FKs |
-| 009 | Notifications | 1–2 min | 3 tables |
-| 010 | Automation | 1–2 min | 2 tables |
-| 011 | Integration | 1–2 min | 3 tables |
-| 012 | Analytics | 1–2 min | 2 tables, pgvector |
-| 013 | Timeseries | < 1 min | 1 table |
-| 014 | Deferred FKs | < 1 min | Single ALTER TABLE |
-| 015 | Indexes | 3–8 min | 50+ indexes; varies by data volume |
-| 016 | Triggers & Hypertables | 2–5 min | Hypertable conversion, continuous aggregates |
-| 017 | Seed Data | < 1 min | Small INSERTs |
-| **Total** | | **25–45 min** | First run (empty database) |
-| **Total** | | **35–60 min** | With data (index rebuild on large tables) |
+| Migration | Name                   | Est. Time     | Notes                                             |
+| --------- | ---------------------- | ------------- | ------------------------------------------------- |
+| 001       | Extensions             | 1–2 min       | Extension download may take time on first install |
+| 002       | Schemas                | < 1 min       | Simple DDL                                        |
+| 003       | Users & Sessions       | 1–2 min       | 3 tables with constraints                         |
+| 004       | Workspace Core         | 2–3 min       | 5 tables, self-referencing FKs                    |
+| 005       | API Keys               | < 1 min       | Single table                                      |
+| 006       | Project Structure      | 3–5 min       | 4 tables, complex interdependencies               |
+| 007       | Custom Fields          | 1–2 min       | 3 tables                                          |
+| 008       | Collaboration          | 2–4 min       | 5 tables, polymorphic FKs                         |
+| 009       | Notifications          | 1–2 min       | 3 tables                                          |
+| 010       | Automation             | 1–2 min       | 2 tables                                          |
+| 011       | Integration            | 1–2 min       | 3 tables                                          |
+| 012       | Analytics              | 1–2 min       | 2 tables, pgvector                                |
+| 013       | Timeseries             | < 1 min       | 1 table                                           |
+| 014       | Deferred FKs           | < 1 min       | Single ALTER TABLE                                |
+| 015       | Indexes                | 3–8 min       | 50+ indexes; varies by data volume                |
+| 016       | Triggers & Hypertables | 2–5 min       | Hypertable conversion, continuous aggregates      |
+| 017       | Seed Data              | < 1 min       | Small INSERTs                                     |
+| **Total** |                        | **25–45 min** | First run (empty database)                        |
+| **Total** |                        | **35–60 min** | With data (index rebuild on large tables)         |
 
 ---
 
@@ -1655,27 +1657,27 @@ Each migration must have a corresponding rollback. Rollbacks are executed in **r
 
 ### High Risk
 
-| Migration | Risk | Impact | Mitigation |
-|-----------|------|--------|------------|
-| **006** (Project Structure) | Complex interdependencies between folders, lists, tasks with self-FKs | Application cannot function without this | Run integration tests immediately after; verify all FK chains work |
-| **016** (Triggers & Hypertables) | TimescaleDB hypertable conversion is **irreversible** | Cannot undo without dropping and recreating tables | Backup before execution; test on staging with production-like data volume |
-| **015** (Indexes) | 50+ indexes on large tables can lock the database | Extended downtime on existing databases | Use `CREATE INDEX CONCURRENTLY`; schedule during maintenance window |
+| Migration                        | Risk                                                                  | Impact                                             | Mitigation                                                                |
+| -------------------------------- | --------------------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------- |
+| **006** (Project Structure)      | Complex interdependencies between folders, lists, tasks with self-FKs | Application cannot function without this           | Run integration tests immediately after; verify all FK chains work        |
+| **016** (Triggers & Hypertables) | TimescaleDB hypertable conversion is **irreversible**                 | Cannot undo without dropping and recreating tables | Backup before execution; test on staging with production-like data volume |
+| **015** (Indexes)                | 50+ indexes on large tables can lock the database                     | Extended downtime on existing databases            | Use `CREATE INDEX CONCURRENTLY`; schedule during maintenance window       |
 
 ### Medium Risk
 
-| Migration | Risk | Impact | Mitigation |
-|-----------|------|--------|------------|
-| **004** (Workspace Core) | Central hub — most tables depend on workspaces | Cascading failures if FKs are wrong | Validate FK integrity with `pg_constraint` queries |
-| **012** (Analytics) | pgvector HNSW index build time scales with row count | Slow on large embedding datasets | Build vector index separately after data migration |
-| **014** (Deferred FKs) | Adding FK to existing data may fail if orphaned rows exist | Migration will fail on constraint violation | Pre-check script runs before ALTER TABLE |
+| Migration                | Risk                                                       | Impact                                      | Mitigation                                         |
+| ------------------------ | ---------------------------------------------------------- | ------------------------------------------- | -------------------------------------------------- |
+| **004** (Workspace Core) | Central hub — most tables depend on workspaces             | Cascading failures if FKs are wrong         | Validate FK integrity with `pg_constraint` queries |
+| **012** (Analytics)      | pgvector HNSW index build time scales with row count       | Slow on large embedding datasets            | Build vector index separately after data migration |
+| **014** (Deferred FKs)   | Adding FK to existing data may fail if orphaned rows exist | Migration will fail on constraint violation | Pre-check script runs before ALTER TABLE           |
 
 ### Low Risk
 
-| Migration | Risk | Impact | Mitigation |
-|-----------|------|--------|------------|
-| **001** | Extension install fails | PostgreSQL version mismatch | Verify PG 16 + TimescaleDB compatibility |
-| **002** | Schema already exists | Wasted time | `IF NOT EXISTS` handles this |
-| **017** | Seed data conflicts | Stale data on re-run | `ON CONFLICT DO NOTHING` handles this |
+| Migration | Risk                    | Impact                      | Mitigation                               |
+| --------- | ----------------------- | --------------------------- | ---------------------------------------- |
+| **001**   | Extension install fails | PostgreSQL version mismatch | Verify PG 16 + TimescaleDB compatibility |
+| **002**   | Schema already exists   | Wasted time                 | `IF NOT EXISTS` handles this             |
+| **017**   | Seed data conflicts     | Stale data on re-run        | `ON CONFLICT DO NOTHING` handles this    |
 
 ---
 
@@ -1819,57 +1821,57 @@ echo "=== All tests passed ==="
 
 ### Summary of Seed Data
 
-| Table | Rows | Purpose |
-|-------|------|---------|
-| `workspace.default_statuses` | 6 | Template task statuses copied to new workspaces |
-| `workspace.default_priorities` | 5 | Priority levels (None through Urgent) |
-| `workspace.default_labels` | 10 | System-level labels (Bug, Feature, etc.) |
-| `workspace.notification_types` | 10 | Notification type definitions with defaults |
-| `workspace.plans` | 3 | Billing tiers (Free, Pro, Enterprise) |
+| Table                          | Rows | Purpose                                         |
+| ------------------------------ | ---- | ----------------------------------------------- |
+| `workspace.default_statuses`   | 6    | Template task statuses copied to new workspaces |
+| `workspace.default_priorities` | 5    | Priority levels (None through Urgent)           |
+| `workspace.default_labels`     | 10   | System-level labels (Bug, Feature, etc.)        |
+| `workspace.notification_types` | 10   | Notification type definitions with defaults     |
+| `workspace.plans`              | 3    | Billing tiers (Free, Pro, Enterprise)           |
 
 ### Default Statuses
 
-| Key | Label | Color | Category | Default |
-|-----|-------|-------|----------|---------|
-| `todo` | To Do | #94A3B8 | open | Yes |
-| `in_progress` | In Progress | #3B82F6 | in_progress | No |
-| `in_review` | In Review | #F59E0B | in_progress | No |
-| `blocked` | Blocked | #EF4444 | in_progress | No |
-| `done` | Done | #10B981 | closed | No |
-| `cancelled` | Cancelled | #6B7280 | closed | No |
+| Key           | Label       | Color   | Category    | Default |
+| ------------- | ----------- | ------- | ----------- | ------- |
+| `todo`        | To Do       | #94A3B8 | open        | Yes     |
+| `in_progress` | In Progress | #3B82F6 | in_progress | No      |
+| `in_review`   | In Review   | #F59E0B | in_progress | No      |
+| `blocked`     | Blocked     | #EF4444 | in_progress | No      |
+| `done`        | Done        | #10B981 | closed      | No      |
+| `cancelled`   | Cancelled   | #6B7280 | closed      | No      |
 
 ### Default Priorities
 
-| Level | Label | Color |
-|-------|-------|-------|
-| 0 | None | #94A3B8 |
-| 1 | Low | #3B82F6 |
-| 2 | Medium | #F59E0B |
-| 3 | High | #EF4444 |
-| 4 | Urgent | #DC2626 |
+| Level | Label  | Color   |
+| ----- | ------ | ------- |
+| 0     | None   | #94A3B8 |
+| 1     | Low    | #3B82F6 |
+| 2     | Medium | #F59E0B |
+| 3     | High   | #EF4444 |
+| 4     | Urgent | #DC2626 |
 
 ### Default Labels
 
-| Name | Color |
-|------|-------|
-| Bug | #EF4444 |
-| Feature | #8B5CF6 |
-| Enhancement | #3B82F6 |
-| Documentation | #F59E0B |
-| Question | #10B981 |
-| Duplicate | #6B7280 |
-| Wontfix | #9CA3AF |
-| Help Wanted | #06B6D4 |
+| Name             | Color   |
+| ---------------- | ------- |
+| Bug              | #EF4444 |
+| Feature          | #8B5CF6 |
+| Enhancement      | #3B82F6 |
+| Documentation    | #F59E0B |
+| Question         | #10B981 |
+| Duplicate        | #6B7280 |
+| Wontfix          | #9CA3AF |
+| Help Wanted      | #06B6D4 |
 | Good First Issue | #22C55E |
-| Performance | #F97316 |
+| Performance      | #F97316 |
 
 ### Plans
 
-| Plan | Members | Spaces | Storage | Automations | API Calls/hr | AI Credits/mo | Price/mo |
-|------|---------|--------|---------|-------------|-------------|---------------|----------|
-| Free | 10 | 5 | 1 GB | 10 | 100 | 100 | $0 |
-| Pro | 50 | 25 | 10 GB | 100 | 1,000 | 2,000 | $12 |
-| Enterprise | 999 | 999 | 100 GB | 999 | 10,000 | 10,000 | $48 |
+| Plan       | Members | Spaces | Storage | Automations | API Calls/hr | AI Credits/mo | Price/mo |
+| ---------- | ------- | ------ | ------- | ----------- | ------------ | ------------- | -------- |
+| Free       | 10      | 5      | 1 GB    | 10          | 100          | 100           | $0       |
+| Pro        | 50      | 25     | 10 GB   | 100         | 1,000        | 2,000         | $12      |
+| Enterprise | 999     | 999    | 100 GB  | 999         | 10,000       | 10,000        | $48      |
 
 ### Application-Layer Seeding
 
@@ -2012,15 +2014,22 @@ export const users = pgTable('users', { ... }, (table) => ({
 5. **Index creation**: Define indexes in Drizzle schema using the third argument of `pgTable`:
 
 ```typescript
-export const tasks = pgTable('tasks', {
-  // columns...
-}, (table) => ({
-  listIdIdx: index('idx_tasks_list_id').on(table.listId),
-  statusIdx: index('idx_tasks_status').on(table.status),
-  // composite index
-  listStatusPriorityIdx: index('idx_tasks_list_status_priority')
-    .on(table.listId, table.status, table.priority),
-}));
+export const tasks = pgTable(
+  'tasks',
+  {
+    // columns...
+  },
+  (table) => ({
+    listIdIdx: index('idx_tasks_list_id').on(table.listId),
+    statusIdx: index('idx_tasks_status').on(table.status),
+    // composite index
+    listStatusPriorityIdx: index('idx_tasks_list_status_priority').on(
+      table.listId,
+      table.status,
+      table.priority,
+    ),
+  }),
+);
 ```
 
 6. **Vector columns**: Use raw SQL type for pgvector since Drizzle doesn't natively support `vector(N)`:
@@ -2028,10 +2037,14 @@ export const tasks = pgTable('tasks', {
 ```typescript
 import { raw } from 'drizzle-orm';
 
-export const aiEmbeddings = pgTable('ai_embeddings', {
-  // ...
-  embedding: raw('vector(1536)'),
-}, { schema: 'analytics' });
+export const aiEmbeddings = pgTable(
+  'ai_embeddings',
+  {
+    // ...
+    embedding: raw('vector(1536)'),
+  },
+  { schema: 'analytics' },
+);
 ```
 
 7. **Polymorphic references** (attachments, documents, notifications): These use `parent_type` + `parent_id` columns without foreign keys. Define them in Drizzle as plain columns:
@@ -2068,46 +2081,46 @@ export default defineConfig({
 
 ## Appendix: Complete Table Reference
 
-| # | Schema | Table | Created In | Dependencies | FKs |
-|---|--------|-------|-----------|-------------|-----|
-| 1 | auth | users | 003 | extensions | — |
-| 2 | auth | user_accounts | 003 | users | user_id → users(id) |
-| 3 | auth | sessions | 003 | users | user_id → users(id) |
-| 4 | auth | api_keys | 005 | users | user_id → users(id); workspace_id → workspaces(id) [deferred to 014] |
-| 5 | workspace | workspaces | 004 | users | owner_id → users(id) |
-| 6 | workspace | memberships | 004 | workspaces, users | workspace_id → workspaces(id); user_id → users(id) |
-| 7 | workspace | teams | 004 | workspaces | workspace_id → workspaces(id); parent_team_id → teams(id) |
-| 8 | workspace | team_members | 004 | teams, users | team_id → teams(id); user_id → users(id) |
-| 9 | workspace | spaces | 004 | workspaces, users | workspace_id → workspaces(id); created_by → users(id) |
-| 10 | workspace | folders | 006 | spaces | space_id → spaces(id); parent_folder_id → folders(id) |
-| 11 | workspace | lists | 006 | spaces, folders, users | space_id → spaces(id); folder_id → folders(id); created_by → users(id) |
-| 12 | workspace | tasks | 006 | lists, users | list_id → lists(id); parent_task_id → tasks(id); created_by → users(id) |
-| 13 | workspace | task_relationships | 006 | tasks | source_task_id → tasks(id); target_task_id → tasks(id) |
-| 14 | workspace | custom_field_definitions | 007 | spaces | space_id → spaces(id) |
-| 15 | workspace | custom_field_values | 007 | tasks, custom_field_definitions | task_id → tasks(id); field_definition_id → custom_field_definitions(id) |
-| 16 | workspace | labels | 007 | workspaces | workspace_id → workspaces(id) |
-| 17 | workspace | comments | 008 | tasks, users | task_id → tasks(id); parent_comment_id → comments(id); author_id → users(id) |
-| 18 | workspace | documents | 008 | workspaces, spaces, folders, lists, tasks, users | workspace_id → workspaces(id); + 4 optional FKs |
-| 19 | workspace | document_versions | 008 | documents, users | document_id → documents(id); created_by → users(id) |
-| 20 | workspace | attachments | 008 | users | uploaded_by → users(id); polymorphic parent (no FK) |
-| 21 | workspace | saved_views | 008 | lists, users | list_id → lists(id); user_id → users(id) |
-| 22 | workspace | notifications | 009 | users, workspaces | user_id → users(id); workspace_id → workspaces(id); actor_id → users(id) |
-| 23 | workspace | notification_preferences | 009 | users | user_id → users(id) |
-| 24 | workspace | recurring_tasks | 009 | tasks, workspaces | task_id → tasks(id); workspace_id → workspaces(id) |
-| 25 | automation | automations | 010 | workspaces, users | workspace_id → workspaces(id); created_by → users(id) |
-| 26 | automation | automation_runs | 010 | automations | automation_id → automations(id) |
-| 27 | integration | webhooks | 011 | workspaces, users | workspace_id → workspaces(id); created_by → users(id) |
-| 28 | integration | webhook_deliveries | 011 | webhooks | webhook_id → webhooks(id) |
-| 29 | integration | connected_integrations | 011 | workspaces, users | workspace_id → workspaces(id); created_by → users(id) |
-| 30 | analytics | ai_embeddings | 012 | — | polymorphic (no FK) |
-| 31 | analytics | ai_usage | 012 | users, workspaces | user_id → users(id); workspace_id → workspaces(id) |
-| 32 | timeseries | activity_log | 013 | users, workspaces | user_id → users(id); workspace_id → workspaces(id) |
-| — | workspace | default_statuses | 017 | — | seed data |
-| — | workspace | default_priorities | 017 | — | seed data |
-| — | workspace | default_labels | 017 | — | seed data |
-| — | workspace | notification_types | 017 | — | seed data |
-| — | workspace | plans | 017 | — | seed data |
+| #   | Schema      | Table                    | Created In | Dependencies                                     | FKs                                                                          |
+| --- | ----------- | ------------------------ | ---------- | ------------------------------------------------ | ---------------------------------------------------------------------------- |
+| 1   | auth        | users                    | 003        | extensions                                       | —                                                                            |
+| 2   | auth        | user_accounts            | 003        | users                                            | user_id → users(id)                                                          |
+| 3   | auth        | sessions                 | 003        | users                                            | user_id → users(id)                                                          |
+| 4   | auth        | api_keys                 | 005        | users                                            | user_id → users(id); workspace_id → workspaces(id) [deferred to 014]         |
+| 5   | workspace   | workspaces               | 004        | users                                            | owner_id → users(id)                                                         |
+| 6   | workspace   | memberships              | 004        | workspaces, users                                | workspace_id → workspaces(id); user_id → users(id)                           |
+| 7   | workspace   | teams                    | 004        | workspaces                                       | workspace_id → workspaces(id); parent_team_id → teams(id)                    |
+| 8   | workspace   | team_members             | 004        | teams, users                                     | team_id → teams(id); user_id → users(id)                                     |
+| 9   | workspace   | spaces                   | 004        | workspaces, users                                | workspace_id → workspaces(id); created_by → users(id)                        |
+| 10  | workspace   | folders                  | 006        | spaces                                           | space_id → spaces(id); parent_folder_id → folders(id)                        |
+| 11  | workspace   | lists                    | 006        | spaces, folders, users                           | space_id → spaces(id); folder_id → folders(id); created_by → users(id)       |
+| 12  | workspace   | tasks                    | 006        | lists, users                                     | list_id → lists(id); parent_task_id → tasks(id); created_by → users(id)      |
+| 13  | workspace   | task_relationships       | 006        | tasks                                            | source_task_id → tasks(id); target_task_id → tasks(id)                       |
+| 14  | workspace   | custom_field_definitions | 007        | spaces                                           | space_id → spaces(id)                                                        |
+| 15  | workspace   | custom_field_values      | 007        | tasks, custom_field_definitions                  | task_id → tasks(id); field_definition_id → custom_field_definitions(id)      |
+| 16  | workspace   | labels                   | 007        | workspaces                                       | workspace_id → workspaces(id)                                                |
+| 17  | workspace   | comments                 | 008        | tasks, users                                     | task_id → tasks(id); parent_comment_id → comments(id); author_id → users(id) |
+| 18  | workspace   | documents                | 008        | workspaces, spaces, folders, lists, tasks, users | workspace_id → workspaces(id); + 4 optional FKs                              |
+| 19  | workspace   | document_versions        | 008        | documents, users                                 | document_id → documents(id); created_by → users(id)                          |
+| 20  | workspace   | attachments              | 008        | users                                            | uploaded_by → users(id); polymorphic parent (no FK)                          |
+| 21  | workspace   | saved_views              | 008        | lists, users                                     | list_id → lists(id); user_id → users(id)                                     |
+| 22  | workspace   | notifications            | 009        | users, workspaces                                | user_id → users(id); workspace_id → workspaces(id); actor_id → users(id)     |
+| 23  | workspace   | notification_preferences | 009        | users                                            | user_id → users(id)                                                          |
+| 24  | workspace   | recurring_tasks          | 009        | tasks, workspaces                                | task_id → tasks(id); workspace_id → workspaces(id)                           |
+| 25  | automation  | automations              | 010        | workspaces, users                                | workspace_id → workspaces(id); created_by → users(id)                        |
+| 26  | automation  | automation_runs          | 010        | automations                                      | automation_id → automations(id)                                              |
+| 27  | integration | webhooks                 | 011        | workspaces, users                                | workspace_id → workspaces(id); created_by → users(id)                        |
+| 28  | integration | webhook_deliveries       | 011        | webhooks                                         | webhook_id → webhooks(id)                                                    |
+| 29  | integration | connected_integrations   | 011        | workspaces, users                                | workspace_id → workspaces(id); created_by → users(id)                        |
+| 30  | analytics   | ai_embeddings            | 012        | —                                                | polymorphic (no FK)                                                          |
+| 31  | analytics   | ai_usage                 | 012        | users, workspaces                                | user_id → users(id); workspace_id → workspaces(id)                           |
+| 32  | timeseries  | activity_log             | 013        | users, workspaces                                | user_id → users(id); workspace_id → workspaces(id)                           |
+| —   | workspace   | default_statuses         | 017        | —                                                | seed data                                                                    |
+| —   | workspace   | default_priorities       | 017        | —                                                | seed data                                                                    |
+| —   | workspace   | default_labels           | 017        | —                                                | seed data                                                                    |
+| —   | workspace   | notification_types       | 017        | —                                                | seed data                                                                    |
+| —   | workspace   | plans                    | 017        | —                                                | seed data                                                                    |
 
 ---
 
-*This migration plan was generated for Sprintio v1.0.0. Review and adjust before production deployment.*
+_This migration plan was generated for Sprintio v1.0.0. Review and adjust before production deployment._

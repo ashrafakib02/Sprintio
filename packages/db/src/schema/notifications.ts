@@ -3,7 +3,9 @@ import { users } from './users.js';
 
 export const notifications = pgTable('notifications', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   type: varchar('type', { length: 50 }).notNull(),
   title: varchar('title', { length: 255 }).notNull(),
   message: text('message').notNull(),

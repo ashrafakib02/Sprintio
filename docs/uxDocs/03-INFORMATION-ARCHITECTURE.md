@@ -24,13 +24,13 @@
 
 ## 1. IA Principles
 
-| # | Principle | Rationale |
-|---|-----------|-----------|
-| P1 | **Flat hierarchy, rich relationships** | Spaces/Folders/Lists are organizational wrappers; the real work connects through Tasks, Docs, and Links — not nesting depth |
-| P2 | **Context before navigation** | Users rarely navigate to "see everything" — they navigate to see what's relevant *now*. Every view is pre-filtered by context (sprint, me, blocked) |
-| P3 | **Progressive disclosure** | New users see 4 primary screens. Power users unlock keyboard shortcuts, command palette, and advanced filters over time |
-| P4 | **Entities are peers** | Tasks and Docs are first-class citizens at the same level — not tasks-inside-docs or docs-inside-tasks. They link bidirectionally |
-| P5 | **Global + local separation** | Global navigation (sidebar, command palette, search) is always available. Local actions (filter, sort, new task) are scoped to the current view |
+| #   | Principle                              | Rationale                                                                                                                                           |
+| --- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P1  | **Flat hierarchy, rich relationships** | Spaces/Folders/Lists are organizational wrappers; the real work connects through Tasks, Docs, and Links — not nesting depth                         |
+| P2  | **Context before navigation**          | Users rarely navigate to "see everything" — they navigate to see what's relevant _now_. Every view is pre-filtered by context (sprint, me, blocked) |
+| P3  | **Progressive disclosure**             | New users see 4 primary screens. Power users unlock keyboard shortcuts, command palette, and advanced filters over time                             |
+| P4  | **Entities are peers**                 | Tasks and Docs are first-class citizens at the same level — not tasks-inside-docs or docs-inside-tasks. They link bidirectionally                   |
+| P5  | **Global + local separation**          | Global navigation (sidebar, command palette, search) is always available. Local actions (filter, sort, new task) are scoped to the current view     |
 
 ---
 
@@ -91,14 +91,14 @@ Level 4: Task / Doc          (leaf entity — never nest further)
 
 ### 2.3 Sidebar Tree — Flat vs Tree
 
-| Element | Navigation Type | Reasoning |
-|---------|----------------|-----------|
-| Home | Flat link | Single destination, no children |
-| Workspace Tree | Collapsible tree | Many items; drill-down needed |
-| Docs | Collapsible list | Flat list of docs, no tree |
-| Automations | Collapsible list | Flat list of flows |
-| Team | Flat link | Opens settings section |
-| Settings | Flat link | Opens settings page |
+| Element        | Navigation Type  | Reasoning                       |
+| -------------- | ---------------- | ------------------------------- |
+| Home           | Flat link        | Single destination, no children |
+| Workspace Tree | Collapsible tree | Many items; drill-down needed   |
+| Docs           | Collapsible list | Flat list of docs, no tree      |
+| Automations    | Collapsible list | Flat list of flows              |
+| Team           | Flat link        | Opens settings section          |
+| Settings       | Flat link        | Opens settings page             |
 
 ---
 
@@ -154,145 +154,145 @@ Level 4: Task / Doc          (leaf entity — never nest further)
 
 #### Workspace
 
-| Property | Type | Required | Notes |
-|----------|------|----------|-------|
-| id | UUID | auto | Primary key |
-| name | string | yes | e.g. "Acme Engineering" |
-| slug | string | yes | URL-safe, e.g. "acme-engineering" |
-| plan | enum | auto | "free" (MVP) |
-| created_at | timestamp | auto | |
-| settings | JSONB | no | Workspace-level config |
+| Property   | Type      | Required | Notes                             |
+| ---------- | --------- | -------- | --------------------------------- |
+| id         | UUID      | auto     | Primary key                       |
+| name       | string    | yes      | e.g. "Acme Engineering"           |
+| slug       | string    | yes      | URL-safe, e.g. "acme-engineering" |
+| plan       | enum      | auto     | "free" (MVP)                      |
+| created_at | timestamp | auto     |                                   |
+| settings   | JSONB     | no       | Workspace-level config            |
 
 #### Space
 
-| Property | Type | Required | Notes |
-|----------|------|----------|-------|
-| id | UUID | auto | |
-| workspace_id | FK | auto | |
-| name | string | yes | e.g. "Engineering" |
-| icon | string | no | Emoji or icon name |
-| color | string | no | Hex color for sidebar |
-| sort_order | int | auto | Position in sidebar |
-| created_by | FK | auto | |
+| Property     | Type   | Required | Notes                 |
+| ------------ | ------ | -------- | --------------------- |
+| id           | UUID   | auto     |                       |
+| workspace_id | FK     | auto     |                       |
+| name         | string | yes      | e.g. "Engineering"    |
+| icon         | string | no       | Emoji or icon name    |
+| color        | string | no       | Hex color for sidebar |
+| sort_order   | int    | auto     | Position in sidebar   |
+| created_by   | FK     | auto     |                       |
 
 #### Folder
 
-| Property | Type | Required | Notes |
-|----------|------|----------|-------|
-| id | UUID | auto | |
-| space_id | FK | auto | |
-| name | string | yes | e.g. "Frontend" |
-| parent_folder_id | FK | no | Null = root level |
-| sort_order | int | auto | |
+| Property         | Type   | Required | Notes             |
+| ---------------- | ------ | -------- | ----------------- |
+| id               | UUID   | auto     |                   |
+| space_id         | FK     | auto     |                   |
+| name             | string | yes      | e.g. "Frontend"   |
+| parent_folder_id | FK     | no       | Null = root level |
+| sort_order       | int    | auto     |                   |
 
 #### List
 
-| Property | Type | Required | Notes |
-|----------|------|----------|-------|
-| id | UUID | auto | |
-| folder_id | FK | no | Null = root of space |
-| space_id | FK | auto | |
-| name | string | yes | e.g. "Auth Module" |
-| description | text | no | Brief context |
-| icon | string | no | |
-| default_view | enum | "board" or "list" | |
+| Property     | Type   | Required          | Notes                |
+| ------------ | ------ | ----------------- | -------------------- |
+| id           | UUID   | auto              |                      |
+| folder_id    | FK     | no                | Null = root of space |
+| space_id     | FK     | auto              |                      |
+| name         | string | yes               | e.g. "Auth Module"   |
+| description  | text   | no                | Brief context        |
+| icon         | string | no                |                      |
+| default_view | enum   | "board" or "list" |                      |
 
 #### Task
 
-| Property | Type | Required | Notes |
-|----------|------|----------|-------|
-| id | UUID | auto | |
-| list_id | FK | auto | |
-| identifier | string | auto | e.g. "SIO-245" (workspace prefix + sequence) |
-| title | string | yes | Max 256 chars |
-| description | rich text | no | Blocknote JSON |
-| status | enum | yes | Configurable per workspace (default: Backlog, In Progress, In Review, Done, Cancelled) |
-| priority | enum | no | P0, P1, P2, P3, P4 |
-| assignee_id | FK | no | Single assignee (multi-assignee = Phase 2) |
-| sprint_id | FK | no | |
-| parent_task_id | FK | no | For subtask relationships |
-| due_date | date | no | |
-| labels | array | no | String array, workspace-scoped |
-| estimate | int | no | Story points (1, 2, 3, 5, 8, 13) |
-| position | float | auto | For ordering within a status column |
-| custom_fields | JSONB | no | Extensible metadata store |
-| github_pr_url | string | no | Auto-populated by integration |
-| github_branch | string | no | Auto-populated by integration |
-| created_by | FK | auto | |
-| created_at | timestamp | auto | |
-| updated_at | timestamp | auto | |
+| Property       | Type      | Required | Notes                                                                                  |
+| -------------- | --------- | -------- | -------------------------------------------------------------------------------------- |
+| id             | UUID      | auto     |                                                                                        |
+| list_id        | FK        | auto     |                                                                                        |
+| identifier     | string    | auto     | e.g. "SIO-245" (workspace prefix + sequence)                                           |
+| title          | string    | yes      | Max 256 chars                                                                          |
+| description    | rich text | no       | Blocknote JSON                                                                         |
+| status         | enum      | yes      | Configurable per workspace (default: Backlog, In Progress, In Review, Done, Cancelled) |
+| priority       | enum      | no       | P0, P1, P2, P3, P4                                                                     |
+| assignee_id    | FK        | no       | Single assignee (multi-assignee = Phase 2)                                             |
+| sprint_id      | FK        | no       |                                                                                        |
+| parent_task_id | FK        | no       | For subtask relationships                                                              |
+| due_date       | date      | no       |                                                                                        |
+| labels         | array     | no       | String array, workspace-scoped                                                         |
+| estimate       | int       | no       | Story points (1, 2, 3, 5, 8, 13)                                                       |
+| position       | float     | auto     | For ordering within a status column                                                    |
+| custom_fields  | JSONB     | no       | Extensible metadata store                                                              |
+| github_pr_url  | string    | no       | Auto-populated by integration                                                          |
+| github_branch  | string    | no       | Auto-populated by integration                                                          |
+| created_by     | FK        | auto     |                                                                                        |
+| created_at     | timestamp | auto     |                                                                                        |
+| updated_at     | timestamp | auto     |                                                                                        |
 
 #### Task Relationships
 
-| Relationship | Inverse | Description |
-|-------------|---------|-------------|
-| parent_task → subtask | child → parent | Parent/child hierarchy (not nesting, just a link) |
-| task blocks → task | task blocked by | Dependency: A blocks B means B can't start until A is done |
-| task related to → task | task related to | Loose association, no dependency |
+| Relationship           | Inverse         | Description                                                |
+| ---------------------- | --------------- | ---------------------------------------------------------- |
+| parent_task → subtask  | child → parent  | Parent/child hierarchy (not nesting, just a link)          |
+| task blocks → task     | task blocked by | Dependency: A blocks B means B can't start until A is done |
+| task related to → task | task related to | Loose association, no dependency                           |
 
 #### Doc
 
-| Property | Type | Required | Notes |
-|----------|------|----------|-------|
-| id | UUID | auto | |
-| workspace_id | FK | auto | |
-| title | string | yes | |
-| content | rich text | no | Blocknote JSON (TipTap) |
-| status | enum | "draft" or "in_review" or "approved" | Tracks document lifecycle |
-| created_by | FK | auto | |
-| created_at | timestamp | auto | |
-| updated_at | timestamp | auto | |
+| Property     | Type      | Required                             | Notes                     |
+| ------------ | --------- | ------------------------------------ | ------------------------- |
+| id           | UUID      | auto                                 |                           |
+| workspace_id | FK        | auto                                 |                           |
+| title        | string    | yes                                  |                           |
+| content      | rich text | no                                   | Blocknote JSON (TipTap)   |
+| status       | enum      | "draft" or "in_review" or "approved" | Tracks document lifecycle |
+| created_by   | FK        | auto                                 |                           |
+| created_at   | timestamp | auto                                 |                           |
+| updated_at   | timestamp | auto                                 |                           |
 
 #### Doc ↔ Task Links (Bidirectional)
 
-| Property | Type | Notes |
-|----------|------|-------|
-| id | UUID | Auto |
-| doc_id | FK | |
-| task_id | FK | |
-| link_type | enum | "references" (doc mentions task) or "linked" (task linked to doc) |
-| created_at | timestamp | |
+| Property   | Type      | Notes                                                             |
+| ---------- | --------- | ----------------------------------------------------------------- |
+| id         | UUID      | Auto                                                              |
+| doc_id     | FK        |                                                                   |
+| task_id    | FK        |                                                                   |
+| link_type  | enum      | "references" (doc mentions task) or "linked" (task linked to doc) |
+| created_at | timestamp |                                                                   |
 
 #### Comment (Shared Entity)
 
-| Property | Type | Required | Notes |
-|----------|------|----------|-------|
-| id | UUID | auto | |
-| entity_type | enum | "task" or "doc" | Polymorphic |
-| entity_id | UUID | auto | |
-| parent_comment_id | FK | no | For threaded replies |
-| author_id | FK | auto | |
-| content | rich text | no | Supports @mentions, emoji |
-| resolved | boolean | no | For doc inline comments |
-| anchored_text | string | no | For doc inline comments (text range) |
-| created_at | timestamp | auto | |
-| updated_at | timestamp | auto | |
+| Property          | Type      | Required        | Notes                                |
+| ----------------- | --------- | --------------- | ------------------------------------ |
+| id                | UUID      | auto            |                                      |
+| entity_type       | enum      | "task" or "doc" | Polymorphic                          |
+| entity_id         | UUID      | auto            |                                      |
+| parent_comment_id | FK        | no              | For threaded replies                 |
+| author_id         | FK        | auto            |                                      |
+| content           | rich text | no              | Supports @mentions, emoji            |
+| resolved          | boolean   | no              | For doc inline comments              |
+| anchored_text     | string    | no              | For doc inline comments (text range) |
+| created_at        | timestamp | auto            |                                      |
+| updated_at        | timestamp | auto            |                                      |
 
 #### Automation
 
-| Property | Type | Required | Notes |
-|----------|------|----------|-------|
-| id | UUID | auto | |
-| workspace_id | FK | auto | |
-| name | string | yes | e.g. "Stale Task Nudge" |
-| enabled | boolean | yes | |
-| trigger | JSON | yes | Trigger definition |
-| conditions | array | no | Array of condition objects |
-| actions | array | yes | Array of action objects |
-| created_by | FK | auto | |
-| last_run_at | timestamp | auto | |
+| Property     | Type      | Required | Notes                      |
+| ------------ | --------- | -------- | -------------------------- |
+| id           | UUID      | auto     |                            |
+| workspace_id | FK        | auto     |                            |
+| name         | string    | yes      | e.g. "Stale Task Nudge"    |
+| enabled      | boolean   | yes      |                            |
+| trigger      | JSON      | yes      | Trigger definition         |
+| conditions   | array     | no       | Array of condition objects |
+| actions      | array     | yes      | Array of action objects    |
+| created_by   | FK        | auto     |                            |
+| last_run_at  | timestamp | auto     |                            |
 
 #### Sprint
 
-| Property | Type | Required | Notes |
-|----------|------|----------|-------|
-| id | UUID | auto | |
-| workspace_id | FK | auto | |
-| name | string | yes | e.g. "Sprint 14" |
-| start_date | date | yes | |
-| end_date | date | yes | |
-| goal | text | no | Sprint objective |
-| status | enum | "planning" or "active" or "completed" | |
+| Property     | Type   | Required                              | Notes            |
+| ------------ | ------ | ------------------------------------- | ---------------- |
+| id           | UUID   | auto                                  |                  |
+| workspace_id | FK     | auto                                  |                  |
+| name         | string | yes                                   | e.g. "Sprint 14" |
+| start_date   | date   | yes                                   |                  |
+| end_date     | date   | yes                                   |                  |
+| goal         | text   | no                                    | Sprint objective |
+| status       | enum   | "planning" or "active" or "completed" |                  |
 
 ---
 
@@ -340,12 +340,12 @@ Level 4: Task / Doc          (leaf entity — never nest further)
 
 Each major screen has view-level navigation:
 
-| Screen | Tab Navigation | Default |
-|--------|---------------|---------|
-| List (Board/List toggle) | Board ● / List | Board |
-| Task Detail | Description / Comments / Activity / Subtasks | Description |
-| Doc Editor | Editor / Comments / Version History / Backlinks | Editor |
-| Settings | Workspace / Profile / Notifications / Help | Workspace |
+| Screen                   | Tab Navigation                                  | Default     |
+| ------------------------ | ----------------------------------------------- | ----------- |
+| List (Board/List toggle) | Board ● / List                                  | Board       |
+| Task Detail              | Description / Comments / Activity / Subtasks    | Description |
+| Doc Editor               | Editor / Comments / Version History / Backlinks | Editor      |
+| Settings                 | Workspace / Profile / Notifications / Help      | Workspace   |
 
 ### 4.3 Tertiary Navigation (Filter Bar)
 
@@ -360,15 +360,15 @@ Every view with task data has a consistent filter bar:
 
 **Filter Taxonomy:**
 
-| Filter | Type | Values |
-|--------|------|--------|
-| Status | Multi-select dropdown | Workspace-defined statuses |
-| Assignee | Multi-select dropdown | All members + "Unassigned" |
-| Priority | Multi-select dropdown | P0, P1, P2, P3, P4 |
-| Label | Multi-select dropdown | Workspace-defined labels |
-| Sprint | Single-select dropdown | Active sprint, All sprints, specific sprints |
-| Due Date | Preset ranges | Overdue, Today, This Week, This Sprint, No Date |
-| Search | Text input | Searches title + description |
+| Filter   | Type                   | Values                                          |
+| -------- | ---------------------- | ----------------------------------------------- |
+| Status   | Multi-select dropdown  | Workspace-defined statuses                      |
+| Assignee | Multi-select dropdown  | All members + "Unassigned"                      |
+| Priority | Multi-select dropdown  | P0, P1, P2, P3, P4                              |
+| Label    | Multi-select dropdown  | Workspace-defined labels                        |
+| Sprint   | Single-select dropdown | Active sprint, All sprints, specific sprints    |
+| Due Date | Preset ranges          | Overdue, Today, This Week, This Sprint, No Date |
+| Search   | Text input             | Searches title + description                    |
 
 ---
 
@@ -376,14 +376,14 @@ Every view with task data has a consistent filter bar:
 
 ### 5.1 Task Display Grouping Options
 
-| Grouping | When Used | Visual |
-|----------|-----------|--------|
-| **By Status** | Board View (columns), List View (sections) | Columns or collapsible groups |
-| **By Assignee** | Board swimlane, List grouped | Rows (board) or sections (list) |
-| **By Priority** | List View grouped | Sections: P0 → P4 |
-| **By Sprint** | List View across sprints | Sections per sprint |
-| **By Label** | List View filtered | Sections per label |
-| **No Group** | List View flat | Single flat list, sortable |
+| Grouping        | When Used                                  | Visual                          |
+| --------------- | ------------------------------------------ | ------------------------------- |
+| **By Status**   | Board View (columns), List View (sections) | Columns or collapsible groups   |
+| **By Assignee** | Board swimlane, List grouped               | Rows (board) or sections (list) |
+| **By Priority** | List View grouped                          | Sections: P0 → P4               |
+| **By Sprint**   | List View across sprints                   | Sections per sprint             |
+| **By Label**    | List View filtered                         | Sections per label              |
+| **No Group**    | List View flat                             | Single flat list, sortable      |
 
 ### 5.2 Doc Organization
 
@@ -458,23 +458,23 @@ The command palette is the power-user's primary navigation tool:
 
 **Search Scope:**
 
-| Category | Searchable Fields | Icon |
-|----------|------------------|------|
-| Tasks | Identifier, title, description | 📋 |
-| Docs | Title, content (full-text) | 📄 |
-| People | Name, email | 👤 |
-| Actions | Command names, settings pages | ⚡ |
+| Category | Searchable Fields              | Icon |
+| -------- | ------------------------------ | ---- |
+| Tasks    | Identifier, title, description | 📋   |
+| Docs     | Title, content (full-text)     | 📄   |
+| People   | Name, email                    | 👤   |
+| Actions  | Command names, settings pages  | ⚡   |
 
 ### 6.2 Local Search (Per-View)
 
 Each view has a contextual search that filters the current data set:
 
-| View | Search Fields | Behavior |
-|------|--------------|----------|
-| Board View | Task title, identifier | Filters cards in all columns |
-| List View | Task title, identifier, description | Filters rows |
-| Docs | Doc title, content | Filters doc list |
-| Notifications | Notification text, task title | Filters notification list |
+| View          | Search Fields                       | Behavior                     |
+| ------------- | ----------------------------------- | ---------------------------- |
+| Board View    | Task title, identifier              | Filters cards in all columns |
+| List View     | Task title, identifier, description | Filters rows                 |
+| Docs          | Doc title, content                  | Filters doc list             |
+| Notifications | Notification text, task title       | Filters notification list    |
 
 ---
 
@@ -526,24 +526,24 @@ Base: https://app.sprintio.com
 
 ### 7.2 URL Patterns
 
-| Pattern | Behavior | Example |
-|---------|----------|---------|
-| `/:workspaceId/:listId/board` | Opens Board View for that list | `/ws-abc/list-123/board` |
-| `/:workspaceId/:listId/list` | Opens List View for that list | `/ws-abc/list-123/list` |
-| `/:workspaceId/docs/:docId` | Opens doc editor directly | `/ws-abc/docs/doc-456` |
+| Pattern                       | Behavior                               | Example                  |
+| ----------------------------- | -------------------------------------- | ------------------------ |
+| `/:workspaceId/:listId/board` | Opens Board View for that list         | `/ws-abc/list-123/board` |
+| `/:workspaceId/:listId/list`  | Opens List View for that list          | `/ws-abc/list-123/list`  |
+| `/:workspaceId/docs/:docId`   | Opens doc editor directly              | `/ws-abc/docs/doc-456`   |
 | `/:workspaceId/tasks/:taskId` | Opens task detail panel from last view | `/ws-abc/tasks/task-789` |
-| `/?filter=status:in_progress` | Pre-applied filter via query param | Board with status filter |
+| `/?filter=status:in_progress` | Pre-applied filter via query param     | Board with status filter |
 
 ### 7.3 Deep Linking Rules
 
-| Action | URL Behavior |
-|--------|-------------|
-| Click task on board | Appends `/tasks/:taskId` to current URL; opens panel |
-| Open doc from sidebar | Navigates to `/docs/:docId` |
-| Click notification for task | Navigates to task detail, preserving source view |
-| Share task link | URL with task ID; opens board/list with task panel open |
-| Share doc link | URL with doc ID; opens doc editor directly |
-| Share sprint link | URL with sprint ID; opens board/list filtered to sprint |
+| Action                      | URL Behavior                                            |
+| --------------------------- | ------------------------------------------------------- |
+| Click task on board         | Appends `/tasks/:taskId` to current URL; opens panel    |
+| Open doc from sidebar       | Navigates to `/docs/:docId`                             |
+| Click notification for task | Navigates to task detail, preserving source view        |
+| Share task link             | URL with task ID; opens board/list with task panel open |
+| Share doc link              | URL with doc ID; opens doc editor directly              |
+| Share sprint link           | URL with sprint ID; opens board/list filtered to sprint |
 
 ---
 
@@ -621,34 +621,34 @@ Guest
 
 ### 9.2 Permission Matrix
 
-| Action | Owner | Admin | Member | Guest |
-|--------|:-----:|:-----:|:------:|:-----:|
-| Create task | ✅ | ✅ | ✅ | ✅* |
-| Edit any task | ✅ | ✅ | ✅ | ❌ |
-| Delete task | ✅ | ✅ | ✅** | ❌ |
-| Create doc | ✅ | ✅ | ✅ | ✅* |
-| Edit any doc | ✅ | ✅ | ✅ | ❌ |
-| Comment on task | ✅ | ✅ | ✅ | ✅ |
-| Create automation | ✅ | ✅ | ✅ | ❌ |
-| Manage members | ✅ | ✅ | ❌ | ❌ |
-| Change settings | ✅ | ✅ | ❌ | ❌ |
-| Manage billing | ✅ | ❌ | ❌ | ❌ |
-| Delete workspace | ✅ | ❌ | ❌ | ❌ |
+| Action            | Owner | Admin | Member | Guest |
+| ----------------- | :---: | :---: | :----: | :---: |
+| Create task       |  ✅   |  ✅   |   ✅   |  ✅*  |
+| Edit any task     |  ✅   |  ✅   |   ✅   |  ❌   |
+| Delete task       |  ✅   |  ✅   |  ✅**  |  ❌   |
+| Create doc        |  ✅   |  ✅   |   ✅   |  ✅*  |
+| Edit any doc      |  ✅   |  ✅   |   ✅   |  ❌   |
+| Comment on task   |  ✅   |  ✅   |   ✅   |  ✅   |
+| Create automation |  ✅   |  ✅   |   ✅   |  ❌   |
+| Manage members    |  ✅   |  ✅   |   ❌   |  ❌   |
+| Change settings   |  ✅   |  ✅   |   ❌   |  ❌   |
+| Manage billing    |  ✅   |  ❌   |   ❌   |  ❌   |
+| Delete workspace  |  ✅   |  ❌   |   ❌   |  ❌   |
 
-\* *Guests can only create tasks/docs in shared lists/projects*
-\** *Members can only delete their own tasks*
+\* _Guests can only create tasks/docs in shared lists/projects_
+\** _Members can only delete their own tasks_
 
 ### 9.3 Scoping Rules
 
-| Scope | Who Sees It | Rule |
-|-------|------------|------|
-| Workspace | All members | Top-level container; everyone in the workspace sees all spaces |
-| Space | All members | Visible to all workspace members (no per-space permissions in MVP) |
-| Folder | All members | Visible to all workspace members |
-| List | All members | Visible to all workspace members; guests see only shared lists |
-| Task | Assignee + list members + admins | |
-| Doc | Created by + shared users + admins | Docs can be private (only creator + shared) or workspace-wide |
-| Automation | All members | Visible to all; only admins can delete |
+| Scope      | Who Sees It                        | Rule                                                               |
+| ---------- | ---------------------------------- | ------------------------------------------------------------------ |
+| Workspace  | All members                        | Top-level container; everyone in the workspace sees all spaces     |
+| Space      | All members                        | Visible to all workspace members (no per-space permissions in MVP) |
+| Folder     | All members                        | Visible to all workspace members                                   |
+| List       | All members                        | Visible to all workspace members; guests see only shared lists     |
+| Task       | Assignee + list members + admins   |                                                                    |
+| Doc        | Created by + shared users + admins | Docs can be private (only creator + shared) or workspace-wide      |
+| Automation | All members                        | Visible to all; only admins can delete                             |
 
 ---
 
@@ -656,53 +656,53 @@ Guest
 
 ### 10.1 Entity → Screen Mapping
 
-| Entity | Primary Screen | Detail View | Create/Edit |
-|--------|---------------|-------------|-------------|
-| Task | Board / List | Task Detail Panel (slide-in) | Inline create or modal |
-| Doc | Docs List | Doc Editor (full page) | Modal → inline editor |
-| Sprint | Sprint Selector (dropdown) | Board/List filtered to sprint | Modal |
-| Automation | Automations List | Automation Builder (full page) | Modal → builder |
-| User | Team Members | Settings / Members page | Invite modal |
-| Group | Team Groups | Settings / Members page | Create modal |
-| Workspace | — (implicit) | Settings / General | Setup wizard |
-| Space | Sidebar tree | — (inline in tree) | Inline in sidebar |
-| Folder | Sidebar tree | — (inline in tree) | Inline in sidebar |
-| List | Sidebar tree | — (inline in tree) | Inline in sidebar |
+| Entity     | Primary Screen             | Detail View                    | Create/Edit            |
+| ---------- | -------------------------- | ------------------------------ | ---------------------- |
+| Task       | Board / List               | Task Detail Panel (slide-in)   | Inline create or modal |
+| Doc        | Docs List                  | Doc Editor (full page)         | Modal → inline editor  |
+| Sprint     | Sprint Selector (dropdown) | Board/List filtered to sprint  | Modal                  |
+| Automation | Automations List           | Automation Builder (full page) | Modal → builder        |
+| User       | Team Members               | Settings / Members page        | Invite modal           |
+| Group      | Team Groups                | Settings / Members page        | Create modal           |
+| Workspace  | — (implicit)               | Settings / General             | Setup wizard           |
+| Space      | Sidebar tree               | — (inline in tree)             | Inline in sidebar      |
+| Folder     | Sidebar tree               | — (inline in tree)             | Inline in sidebar      |
+| List       | Sidebar tree               | — (inline in tree)             | Inline in sidebar      |
 
 ### 10.2 Persona → Primary Navigation Path
 
-| Persona | Morning Entry Point | Primary Navigation | Power User Shortcut |
-|---------|--------------------|--------------------|---------------------|
-| **Sarah** | Home → Board View | Sidebar: Space → List → Board | `G B` → Board |
-| **Marcus** | Home → My Work | Sidebar: Space → List → List | `G M` → My Work |
-| **Priya** | Home → Board View | Sidebar: Space → List → Board | `G B` → Board |
-| **Alex** | Home → Docs | Sidebar: Docs → Specific doc | `G D` → Docs |
+| Persona    | Morning Entry Point | Primary Navigation            | Power User Shortcut |
+| ---------- | ------------------- | ----------------------------- | ------------------- |
+| **Sarah**  | Home → Board View   | Sidebar: Space → List → Board | `G B` → Board       |
+| **Marcus** | Home → My Work      | Sidebar: Space → List → List  | `G M` → My Work     |
+| **Priya**  | Home → Board View   | Sidebar: Space → List → Board | `G B` → Board       |
+| **Alex**   | Home → Docs         | Sidebar: Docs → Specific doc  | `G D` → Docs        |
 
 ### 10.3 Screen → Entity Dependencies
 
-| Screen | Depends On | Optional With |
-|--------|-----------|---------------|
-| Board View | Workspace, Space, List, Tasks | Sprint, Filters |
-| List View | Workspace, Space, List, Tasks | Sprint, Filters, Grouping |
-| Task Detail | Task, Comments, Activity | Subtasks, Links, Attachments |
-| Doc Editor | Doc, Content | Comments, Backlinks, Versions |
-| Automation Builder | Automation, Trigger/Actions | Conditions, Run History |
-| AI Copilot Panel | Workspace context | Current screen context |
-| Settings | Workspace, User | Members, Billing |
-| Onboarding Wizard | User, Workspace | Team invites |
+| Screen             | Depends On                    | Optional With                 |
+| ------------------ | ----------------------------- | ----------------------------- |
+| Board View         | Workspace, Space, List, Tasks | Sprint, Filters               |
+| List View          | Workspace, Space, List, Tasks | Sprint, Filters, Grouping     |
+| Task Detail        | Task, Comments, Activity      | Subtasks, Links, Attachments  |
+| Doc Editor         | Doc, Content                  | Comments, Backlinks, Versions |
+| Automation Builder | Automation, Trigger/Actions   | Conditions, Run History       |
+| AI Copilot Panel   | Workspace context             | Current screen context        |
+| Settings           | Workspace, User               | Members, Billing              |
+| Onboarding Wizard  | User, Workspace               | Team invites                  |
 
 ---
 
 ## Appendix A: IA Decision Log
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Tasks under Lists, not under Projects | Lists are the atomic container | More flexible; a project can span multiple lists; a list can be a sprint or a feature area |
-| Docs are first-class, not inside tasks | Bidirectional links, not nesting | Matches how teams actually work: specs reference many tasks; tasks reference many docs |
-| Automations are workspace-scoped | Not per-list | Automation logic is more valuable when it can span multiple lists; granular scoping is Phase 2 |
-| Single assignee per task | MVP constraint | Multi-assignee adds complexity (permissions, notifications, UI) without clear MVP value |
-| Sprints are global (not per-space) | Simplifies sprint planning | Teams typically run one sprint across all spaces; per-space sprints are Phase 2 |
-| No nested tasks beyond parent/subtask | Prevents deep nesting confusion | Parent/subtask is a relationship, not hierarchy; max depth is 1 level |
+| Decision                               | Choice                           | Rationale                                                                                      |
+| -------------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Tasks under Lists, not under Projects  | Lists are the atomic container   | More flexible; a project can span multiple lists; a list can be a sprint or a feature area     |
+| Docs are first-class, not inside tasks | Bidirectional links, not nesting | Matches how teams actually work: specs reference many tasks; tasks reference many docs         |
+| Automations are workspace-scoped       | Not per-list                     | Automation logic is more valuable when it can span multiple lists; granular scoping is Phase 2 |
+| Single assignee per task               | MVP constraint                   | Multi-assignee adds complexity (permissions, notifications, UI) without clear MVP value        |
+| Sprints are global (not per-space)     | Simplifies sprint planning       | Teams typically run one sprint across all spaces; per-space sprints are Phase 2                |
+| No nested tasks beyond parent/subtask  | Prevents deep nesting confusion  | Parent/subtask is a relationship, not hierarchy; max depth is 1 level                          |
 
 ---
 

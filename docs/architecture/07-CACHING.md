@@ -2,15 +2,15 @@
 
 ---
 
-| Field          | Value                                                         |
-|----------------|---------------------------------------------------------------|
-| Document Type  | Caching Architecture                                          |
-| Product        | Sprintio — Sprint fast. Ship together.                        |
-| Version        | 1.0                                                           |
-| Status         | Finalized                                                     |
-| Date           | 2026-07-08                                                    |
-| Author         | Engineering Team                                              |
-| Related Docs   | [Backend Architecture](02-BACKEND.md), [Frontend Architecture](01-FRONTEND.md), [NFRs](../NON_FUNCTIONAL_REQUIREMENTS.md), [MVP Definition](../MVP_DEFINITION.md) |
+| Field         | Value                                                                                                                                                             |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Document Type | Caching Architecture                                                                                                                                              |
+| Product       | Sprintio — Sprint fast. Ship together.                                                                                                                            |
+| Version       | 1.0                                                                                                                                                               |
+| Status        | Finalized                                                                                                                                                         |
+| Date          | 2026-07-08                                                                                                                                                        |
+| Author        | Engineering Team                                                                                                                                                  |
+| Related Docs  | [Backend Architecture](02-BACKEND.md), [Frontend Architecture](01-FRONTEND.md), [NFRs](../NON_FUNCTIONAL_REQUIREMENTS.md), [MVP Definition](../MVP_DEFINITION.md) |
 
 ---
 
@@ -41,29 +41,29 @@ Sprintio operates a **three-tier cache hierarchy**: L1 (in-process Node.js memor
 
 ### Design Principles
 
-| # | Principle | Application |
-|---|-----------|-------------|
-| 1 | **Cache is a performance optimization, not a feature** | Every cached value has a clear origin. If Redis dies, the system degrades gracefully to database reads — never to stale data served as truth. |
-| 2 | **Keys have owners** | Every Redis key belongs to a domain module. Only that module writes, invalidates, and reads its keys. No cross-module key access. |
-| 3 | **TTL is the safety net** | Every key has a maximum TTL, even if invalidation is expected. The TTL is the backstop for missed invalidation events. |
-| 4 | **Invalidation is event-driven** | Cache invalidation flows through the same event bus that powers real-time sync. If you can see a change in the UI, the cache is already invalidated. |
-| 5 | **Fail open** | Redis timeouts fall through to the database. A cold cache is faster than a broken cache. |
-| 6 | **Measure everything** | Every cache operation is instrumented. Hit rate, miss rate, eviction rate, and latency are always observable. |
+| #   | Principle                                              | Application                                                                                                                                          |
+| --- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Cache is a performance optimization, not a feature** | Every cached value has a clear origin. If Redis dies, the system degrades gracefully to database reads — never to stale data served as truth.        |
+| 2   | **Keys have owners**                                   | Every Redis key belongs to a domain module. Only that module writes, invalidates, and reads its keys. No cross-module key access.                    |
+| 3   | **TTL is the safety net**                              | Every key has a maximum TTL, even if invalidation is expected. The TTL is the backstop for missed invalidation events.                               |
+| 4   | **Invalidation is event-driven**                       | Cache invalidation flows through the same event bus that powers real-time sync. If you can see a change in the UI, the cache is already invalidated. |
+| 5   | **Fail open**                                          | Redis timeouts fall through to the database. A cold cache is faster than a broken cache.                                                             |
+| 6   | **Measure everything**                                 | Every cache operation is instrumented. Hit rate, miss rate, eviction rate, and latency are always observable.                                        |
 
 ### Cache Domain Coverage
 
-| Domain | Cache Layer | Strategy | Priority |
-|--------|-------------|----------|----------|
-| Session store | L2 (Redis) | Write-through | P0 — Auth depends on it |
-| API response cache | L1 + L2 | Cache-aside with TTL | P0 — Dashboard latency |
-| Permission cache | L1 + L2 | Write-through + TTL | P0 — Security gate |
-| Rate limiting | L2 (Redis) | Sliding window | P0 — Abuse prevention |
-| Real-time presence | L2 (Redis) | Write-behind (ephemeral) | P1 — Online status |
-| Search suggestions | L2 (Redis) | Write-through | P1 — Autocomplete UX |
-| Feature flags | L1 + L2 | Cache-aside + pub/sub | P1 — Feature gating |
-| Leaderboard / stats | L2 (Redis) | Write-behind | P2 — Non-critical |
-| AI response cache | L2 (Redis) | Cache-aside with hash key | P2 — Cost optimization |
-| Static assets | L3 (CDN) | Immutable + cache-bust | P0 — Cold load |
+| Domain              | Cache Layer | Strategy                  | Priority                |
+| ------------------- | ----------- | ------------------------- | ----------------------- |
+| Session store       | L2 (Redis)  | Write-through             | P0 — Auth depends on it |
+| API response cache  | L1 + L2     | Cache-aside with TTL      | P0 — Dashboard latency  |
+| Permission cache    | L1 + L2     | Write-through + TTL       | P0 — Security gate      |
+| Rate limiting       | L2 (Redis)  | Sliding window            | P0 — Abuse prevention   |
+| Real-time presence  | L2 (Redis)  | Write-behind (ephemeral)  | P1 — Online status      |
+| Search suggestions  | L2 (Redis)  | Write-through             | P1 — Autocomplete UX    |
+| Feature flags       | L1 + L2     | Cache-aside + pub/sub     | P1 — Feature gating     |
+| Leaderboard / stats | L2 (Redis)  | Write-behind              | P2 — Non-critical       |
+| AI response cache   | L2 (Redis)  | Cache-aside with hash key | P2 — Cost optimization  |
+| Static assets       | L3 (CDN)    | Immutable + cache-bust    | P0 — Cold load          |
 
 ---
 
@@ -152,11 +152,11 @@ function createProdRedis(): Redis.Cluster {
       connectTimeout: 10_000,
       commandTimeout: 5_000,
     },
-    scaleReads: 'slave',        // Read from replicas, write to master
+    scaleReads: 'slave', // Read from replicas, write to master
     clusterRetryStrategy(times) {
       return Math.min(times * 1000, 30_000);
     },
-    enableOfflineQueue: true,    // Queue commands during reconnection
+    enableOfflineQueue: true, // Queue commands during reconnection
     slotsRefreshTimeout: 2000,
     slotsRefreshInterval: 15_000,
   });
@@ -166,9 +166,7 @@ function createProdRedis(): Redis.Cluster {
 let redisClient: Redis | Redis.Cluster;
 
 export async function initializeRedis(): Promise<Redis | Redis.Cluster> {
-  redisClient = config.NODE_ENV === 'production'
-    ? createProdRedis()
-    : createDevRedis();
+  redisClient = config.NODE_ENV === 'production' ? createProdRedis() : createDevRedis();
 
   await redisClient.connect();
 
@@ -190,14 +188,14 @@ export function getRedis(): Redis | Redis.Cluster {
 
 ### 2.3 Cluster Slot Mapping
 
-| Slot Range | Domain | Rationale |
-|------------|--------|-----------|
-| `0 – 4095` | `session` | Auth-critical, isolated failover |
-| `4096 – 8191` | `permission` | Security-critical, frequent reads |
-| `8192 – 12287` | `cache` | General API cache, high write volume |
+| Slot Range      | Domain                   | Rationale                                       |
+| --------------- | ------------------------ | ----------------------------------------------- |
+| `0 – 4095`      | `session`                | Auth-critical, isolated failover                |
+| `4096 – 8191`   | `permission`             | Security-critical, frequent reads               |
+| `8192 – 12287`  | `cache`                  | General API cache, high write volume            |
 | `12288 – 16383` | `presence` + `ratelimit` | Ephemeral + counters, co-located for efficiency |
 
-> **Note**: Redis Cluster auto-assigns hash slots. The table above shows the *intended* key distribution. Actual slot assignment depends on the key hash. Use Redis `CLUSTER KEYSLOT` to verify.
+> **Note**: Redis Cluster auto-assigns hash slots. The table above shows the _intended_ key distribution. Actual slot assignment depends on the key hash. Use Redis `CLUSTER KEYSLOT` to verify.
 
 ---
 
@@ -253,13 +251,13 @@ export function getRedis(): Redis | Redis.Cluster {
 
 ### 3.1 L1 — In-Process Memory
 
-| Property | Value |
-|----------|-------|
-| Technology | `Map<string, {value, expiresAt}>` with LRU eviction |
-| Max size | 1,000 entries per process |
-| Scope | Per-Node.js process (not shared across pods) |
-| Invalidation | On write, broadcast invalidation via Redis Pub/Sub |
-| Use case | Ultra-hot data: feature flags, user permissions, workspace config |
+| Property     | Value                                                             |
+| ------------ | ----------------------------------------------------------------- |
+| Technology   | `Map<string, {value, expiresAt}>` with LRU eviction               |
+| Max size     | 1,000 entries per process                                         |
+| Scope        | Per-Node.js process (not shared across pods)                      |
+| Invalidation | On write, broadcast invalidation via Redis Pub/Sub                |
+| Use case     | Ultra-hot data: feature flags, user permissions, workspace config |
 
 ```typescript
 // src/lib/l1-cache.ts
@@ -306,9 +304,7 @@ export class L1Cache<T = unknown> {
   }
 
   invalidatePattern(pattern: string): void {
-    const regex = new RegExp(
-      '^' + pattern.replace(/\*/g, '.*').replace(/\?/g, '.') + '$'
-    );
+    const regex = new RegExp('^' + pattern.replace(/\*/g, '.*').replace(/\?/g, '.') + '$');
     for (const key of this.store.keys()) {
       if (regex.test(key)) this.store.delete(key);
     }
@@ -335,24 +331,24 @@ export const l1WorkspaceConfig = new L1Cache<WorkspaceConfig>(200);
 
 ### 3.2 L2 — Redis
 
-| Property | Value |
-|----------|-------|
-| Technology | Redis 7 (single dev, cluster prod) |
-| Network latency | ~1ms same-AZ, ~2ms cross-AZ |
-| Max memory | 8GB per shard (production) |
-| Eviction | `allkeys-lru` |
-| Persistence | AOF (everysec) + RDB snapshots |
-| Use case | All shared server-side state |
+| Property        | Value                              |
+| --------------- | ---------------------------------- |
+| Technology      | Redis 7 (single dev, cluster prod) |
+| Network latency | ~1ms same-AZ, ~2ms cross-AZ        |
+| Max memory      | 8GB per shard (production)         |
+| Eviction        | `allkeys-lru`                      |
+| Persistence     | AOF (everysec) + RDB snapshots     |
+| Use case        | All shared server-side state       |
 
 ### 3.3 L3 — Cloudflare CDN
 
-| Property | Value |
-|----------|-------|
-| Technology | Cloudflare CDN / Cache API |
-| Edge locations | 300+ global PoPs |
-| Network latency | <10ms (edge), 0ms (cache hit) |
-| TTL range | Immutable assets: 30d, API: 5min–1h |
-| Use case | Static assets, cacheable API responses |
+| Property        | Value                                  |
+| --------------- | -------------------------------------- |
+| Technology      | Cloudflare CDN / Cache API             |
+| Edge locations  | 300+ global PoPs                       |
+| Network latency | <10ms (edge), 0ms (cache hit)          |
+| TTL range       | Immutable assets: 30d, API: 5min–1h    |
+| Use case        | Static assets, cacheable API responses |
 
 ---
 
@@ -519,10 +515,7 @@ interface WriteThroughOptions<T> {
  * If DB write fails, cache is not touched.
  * On success, cache is updated and invalidation event is published.
  */
-export async function writeThrough<T>(
-  opts: WriteThroughOptions<T>,
-  value: T
-): Promise<T> {
+export async function writeThrough<T>(opts: WriteThroughOptions<T>, value: T): Promise<T> {
   const { key, ttl, writeFn, serialize = JSON.stringify } = opts;
   const redis = getRedis();
 
@@ -564,7 +557,7 @@ export class WriteBehindBuffer<T> {
 
   constructor(
     private readonly flushIntervalMs: number,
-    private readonly flushFn: (entries: Map<string, T>) => Promise<void>
+    private readonly flushFn: (entries: Map<string, T>) => Promise<void>,
   ) {}
 
   /** Write to buffer — will be flushed to DB asynchronously */
@@ -624,7 +617,7 @@ const activityBuffer = new WriteBehindBuffer(
       pipeline.setex(key, ttl, JSON.stringify(value));
     }
     await pipeline.exec();
-  }
+  },
 );
 ```
 
@@ -638,45 +631,45 @@ const activityBuffer = new WriteBehindBuffer(
 {domain}:{workspace_id}:{entity}:{entity_id}:{sub_entity}
 ```
 
-| Segment | Description | Examples |
-|---------|-------------|----------|
-| `domain` | Cache namespace — the module that owns the key | `session`, `perm`, `cache`, `rl`, `presence`, `search`, `ff`, `stats`, `ai` |
-| `workspace_id` | Workspace scope (or `*` for global keys) | `ws_abc123`, `*` |
-| `entity` | Data type | `user`, `project`, `task`, `dashboard`, `doc` |
-| `entity_id` | Unique identifier | `usr_xyz`, `prj_456` |
-| `sub_entity` | Sub-resource (optional) | `comments`, `members`, `stats` |
+| Segment        | Description                                    | Examples                                                                    |
+| -------------- | ---------------------------------------------- | --------------------------------------------------------------------------- |
+| `domain`       | Cache namespace — the module that owns the key | `session`, `perm`, `cache`, `rl`, `presence`, `search`, `ff`, `stats`, `ai` |
+| `workspace_id` | Workspace scope (or `*` for global keys)       | `ws_abc123`, `*`                                                            |
+| `entity`       | Data type                                      | `user`, `project`, `task`, `dashboard`, `doc`                               |
+| `entity_id`    | Unique identifier                              | `usr_xyz`, `prj_456`                                                        |
+| `sub_entity`   | Sub-resource (optional)                        | `comments`, `members`, `stats`                                              |
 
 ### 5.2 Complete Key Schema
 
-| Domain | Key Pattern | Example | Value Type | TTL |
-|--------|-------------|---------|------------|-----|
-| **Session** | `session:{user_id}` | `session:usr_xyz` | Hash (session data) | 7d |
-| **Session** | `session:refresh:{user_id}` | `session:refresh:usr_xyz` | String (token) | 30d |
-| **Permission** | `perm:{workspace_id}:user:{user_id}` | `perm:ws_abc:user:usr_xyz` | Set (roles) | 30s L1 / 5min L2 |
-| **Permission** | `perm:{workspace_id}:roles` | `perm:ws_abc:roles` | Hash (role→perms) | 5min |
-| **Permission** | `perm:{workspace_id}:admin:{user_id}` | `perm:ws_abc:admin:usr_xyz` | String (`0`/`1`) | 30s |
-| **Cache** | `cache:{ws_id}:dashboard:{dash_id}` | `cache:ws_abc:dash:dsh_123` | JSON (stats) | 60s |
-| **Cache** | `cache:{ws_id}:projects:list` | `cache:ws_abc:projects:list` | JSON (array) | 120s |
-| **Cache** | `cache:{ws_id}:project:{proj_id}` | `cache:ws_abc:project:prj_456` | JSON (project) | 60s |
-| **Cache** | `cache:{ws_id}:user:{user_id}` | `cache:ws_abc:user:usr_xyz` | JSON (profile) | 120s |
-| **Cache** | `cache:{ws_id}:task:{task_id}` | `cache:ws_abc:task:tsk_789` | JSON (task) | 30s |
-| **Rate Limit** | `rl:{scope}:{identifier}:{window}` | `rl:api:usr_xyz:1688822400` | String (count) | 1 min |
-| **Rate Limit** | `rl:sliding:{scope}:{id}` | `rl:sliding:api:usr_xyz` | Sorted Set | 1 min |
-| **Presence** | `presence:{ws_id}:online` | `presence:ws_abc:online` | Set (user IDs) | No TTL |
-| **Presence** | `presence:{ws_id}:user:{user_id}` | `presence:ws_abc:user:usr_xyz` | Hash (status, cursor) | 30s |
-| **Presence** | `presence:{ws_id}:doc:{doc_id}:cursors` | `presence:ws_abc:doc:d_1:cursors` | Hash (user→cursor) | 10s |
-| **Presence** | `presence:{ws_id}:typing:{task_id}` | `presence:ws_abc:typing:tsk_1` | Set (user IDs) | 5s |
-| **Search** | `search:{ws_id}:recent:{user_id}` | `search:ws_abc:recent:usr_xyz` | List (queries) | 24h |
-| **Search** | `search:{ws_id}:suggest:{prefix}` | `search:ws_abc:suggest:pro` | Sorted Set | 1h |
-| **Feature Flag** | `ff:workspace:{ws_id}` | `ff:workspace:ws_abc` | Hash (flag→value) | 60s |
-| **Feature Flag** | `ff:user:{user_id}` | `ff:user:usr_xyz` | Hash (overrides) | 60s |
-| **Stats** | `stats:{ws_id}:tasks:count` | `stats:ws_abc:tasks:count` | Hash (by status) | 120s |
-| **Stats** | `stats:{ws_id}:leaderboard:{period}` | `stats:ws_abc:leaderboard:weekly` | Sorted Set | 300s |
-| **Stats** | `stats:{ws_id}:activity:{date}` | `stats:ws_abc:activity:2026-07-08` | Hash (metrics) | 24h |
-| **AI Cache** | `ai:{ws_id}:prompt:{hash}` | `ai:ws_abc:prompt:a1b2c3` | JSON (response) | 1h |
-| **Pub/Sub** | `pubsub:{ws_id}:invalidate` | `pubsub:ws_abc:invalidate` | Channel | N/A |
-| **Pub/Sub** | `pubsub:presence` | `pubsub:presence` | Channel | N/A |
-| **Pub/Sub** | `pubsub:flags` | `pubsub:flags` | Channel | N/A |
+| Domain           | Key Pattern                             | Example                            | Value Type            | TTL              |
+| ---------------- | --------------------------------------- | ---------------------------------- | --------------------- | ---------------- |
+| **Session**      | `session:{user_id}`                     | `session:usr_xyz`                  | Hash (session data)   | 7d               |
+| **Session**      | `session:refresh:{user_id}`             | `session:refresh:usr_xyz`          | String (token)        | 30d              |
+| **Permission**   | `perm:{workspace_id}:user:{user_id}`    | `perm:ws_abc:user:usr_xyz`         | Set (roles)           | 30s L1 / 5min L2 |
+| **Permission**   | `perm:{workspace_id}:roles`             | `perm:ws_abc:roles`                | Hash (role→perms)     | 5min             |
+| **Permission**   | `perm:{workspace_id}:admin:{user_id}`   | `perm:ws_abc:admin:usr_xyz`        | String (`0`/`1`)      | 30s              |
+| **Cache**        | `cache:{ws_id}:dashboard:{dash_id}`     | `cache:ws_abc:dash:dsh_123`        | JSON (stats)          | 60s              |
+| **Cache**        | `cache:{ws_id}:projects:list`           | `cache:ws_abc:projects:list`       | JSON (array)          | 120s             |
+| **Cache**        | `cache:{ws_id}:project:{proj_id}`       | `cache:ws_abc:project:prj_456`     | JSON (project)        | 60s              |
+| **Cache**        | `cache:{ws_id}:user:{user_id}`          | `cache:ws_abc:user:usr_xyz`        | JSON (profile)        | 120s             |
+| **Cache**        | `cache:{ws_id}:task:{task_id}`          | `cache:ws_abc:task:tsk_789`        | JSON (task)           | 30s              |
+| **Rate Limit**   | `rl:{scope}:{identifier}:{window}`      | `rl:api:usr_xyz:1688822400`        | String (count)        | 1 min            |
+| **Rate Limit**   | `rl:sliding:{scope}:{id}`               | `rl:sliding:api:usr_xyz`           | Sorted Set            | 1 min            |
+| **Presence**     | `presence:{ws_id}:online`               | `presence:ws_abc:online`           | Set (user IDs)        | No TTL           |
+| **Presence**     | `presence:{ws_id}:user:{user_id}`       | `presence:ws_abc:user:usr_xyz`     | Hash (status, cursor) | 30s              |
+| **Presence**     | `presence:{ws_id}:doc:{doc_id}:cursors` | `presence:ws_abc:doc:d_1:cursors`  | Hash (user→cursor)    | 10s              |
+| **Presence**     | `presence:{ws_id}:typing:{task_id}`     | `presence:ws_abc:typing:tsk_1`     | Set (user IDs)        | 5s               |
+| **Search**       | `search:{ws_id}:recent:{user_id}`       | `search:ws_abc:recent:usr_xyz`     | List (queries)        | 24h              |
+| **Search**       | `search:{ws_id}:suggest:{prefix}`       | `search:ws_abc:suggest:pro`        | Sorted Set            | 1h               |
+| **Feature Flag** | `ff:workspace:{ws_id}`                  | `ff:workspace:ws_abc`              | Hash (flag→value)     | 60s              |
+| **Feature Flag** | `ff:user:{user_id}`                     | `ff:user:usr_xyz`                  | Hash (overrides)      | 60s              |
+| **Stats**        | `stats:{ws_id}:tasks:count`             | `stats:ws_abc:tasks:count`         | Hash (by status)      | 120s             |
+| **Stats**        | `stats:{ws_id}:leaderboard:{period}`    | `stats:ws_abc:leaderboard:weekly`  | Sorted Set            | 300s             |
+| **Stats**        | `stats:{ws_id}:activity:{date}`         | `stats:ws_abc:activity:2026-07-08` | Hash (metrics)        | 24h              |
+| **AI Cache**     | `ai:{ws_id}:prompt:{hash}`              | `ai:ws_abc:prompt:a1b2c3`          | JSON (response)       | 1h               |
+| **Pub/Sub**      | `pubsub:{ws_id}:invalidate`             | `pubsub:ws_abc:invalidate`         | Channel               | N/A              |
+| **Pub/Sub**      | `pubsub:presence`                       | `pubsub:presence`                  | Channel               | N/A              |
+| **Pub/Sub**      | `pubsub:flags`                          | `pubsub:flags`                     | Channel               | N/A              |
 
 ### 5.3 Key Validation
 
@@ -703,17 +696,14 @@ export function validateKey(domain: Domain, key: string): void {
     if (!KEY_PATTERNS[domain].test(key)) {
       throw new Error(
         `Invalid Redis key for domain "${domain}": "${key}" — ` +
-        `must match pattern: ${KEY_PATTERNS[domain].source}`
+          `must match pattern: ${KEY_PATTERNS[domain].source}`,
       );
     }
   }
 }
 
 /** Build a namespaced key with validation */
-export function redisKey(
-  domain: Domain,
-  ...parts: (string | number)[]
-): string {
+export function redisKey(domain: Domain, ...parts: (string | number)[]): string {
   const key = `${domain}:${parts.join(':')}`;
   validateKey(domain, key);
   return key;
@@ -726,28 +716,28 @@ export function redisKey(
 
 ### 6.1 Per-Domain TTL Table
 
-| Domain | L1 TTL | L2 TTL | Stale-While-Revalidate | Rationale |
-|--------|--------|--------|------------------------|-----------|
-| **Session** | N/A | 7 days | No | Auth session lifetime |
-| **Refresh Token** | N/A | 30 days | No | Rotation on use |
-| **Permissions** | 30s | 5 min | No | Security-critical; short TTL |
-| **Dashboard Stats** | 10s | 60s | Yes (10s) | High read, moderate write |
-| **Project List** | 15s | 120s | Yes (15s) | Stable data, frequently read |
-| **Project Detail** | 10s | 60s | Yes (10s) | Moderate change frequency |
-| **User Profile** | 10s | 120s | Yes (10s) | Rarely changes |
-| **Task Detail** | 5s | 30s | Yes (5s) | Frequently updated |
-| **Rate Limit Window** | N/A | 60s (fixed) / 1m (sliding) | No | Counter must be exact |
-| **Presence (online set)** | N/A | No TTL (keyspace notify) | N/A | Updated every heartbeat |
-| **Presence (user status)** | N/A | 30s | N/A | Heartbeat refreshes |
-| **Typing Indicator** | N/A | 5s | N/A | Ephemeral |
-| **Cursor Position** | N/A | 10s | N/A | High-frequency update |
-| **Search Suggestions** | N/A | 1h | No | Computed from index |
-| **Recent Searches** | N/A | 24h | No | User preference data |
-| **Feature Flags** | 5s | 60s | No | Must reflect changes fast |
-| **Workspace Config** | 60s | 5 min | Yes (60s) | Rarely changes |
-| **Task Counts/Stats** | N/A | 120s | Yes (30s) | Approximate is acceptable |
-| **Leaderboard** | N/A | 300s | Yes (30s) | Cosmetic; stale is fine |
-| **AI Response** | N/A | 1 hour | No | Expensive to regenerate |
+| Domain                     | L1 TTL | L2 TTL                     | Stale-While-Revalidate | Rationale                    |
+| -------------------------- | ------ | -------------------------- | ---------------------- | ---------------------------- |
+| **Session**                | N/A    | 7 days                     | No                     | Auth session lifetime        |
+| **Refresh Token**          | N/A    | 30 days                    | No                     | Rotation on use              |
+| **Permissions**            | 30s    | 5 min                      | No                     | Security-critical; short TTL |
+| **Dashboard Stats**        | 10s    | 60s                        | Yes (10s)              | High read, moderate write    |
+| **Project List**           | 15s    | 120s                       | Yes (15s)              | Stable data, frequently read |
+| **Project Detail**         | 10s    | 60s                        | Yes (10s)              | Moderate change frequency    |
+| **User Profile**           | 10s    | 120s                       | Yes (10s)              | Rarely changes               |
+| **Task Detail**            | 5s     | 30s                        | Yes (5s)               | Frequently updated           |
+| **Rate Limit Window**      | N/A    | 60s (fixed) / 1m (sliding) | No                     | Counter must be exact        |
+| **Presence (online set)**  | N/A    | No TTL (keyspace notify)   | N/A                    | Updated every heartbeat      |
+| **Presence (user status)** | N/A    | 30s                        | N/A                    | Heartbeat refreshes          |
+| **Typing Indicator**       | N/A    | 5s                         | N/A                    | Ephemeral                    |
+| **Cursor Position**        | N/A    | 10s                        | N/A                    | High-frequency update        |
+| **Search Suggestions**     | N/A    | 1h                         | No                     | Computed from index          |
+| **Recent Searches**        | N/A    | 24h                        | No                     | User preference data         |
+| **Feature Flags**          | 5s     | 60s                        | No                     | Must reflect changes fast    |
+| **Workspace Config**       | 60s    | 5 min                      | Yes (60s)              | Rarely changes               |
+| **Task Counts/Stats**      | N/A    | 120s                       | Yes (30s)              | Approximate is acceptable    |
+| **Leaderboard**            | N/A    | 300s                       | Yes (30s)              | Cosmetic; stale is fine      |
+| **AI Response**            | N/A    | 1 hour                     | No                     | Expensive to regenerate      |
 
 ### 6.2 Stale-While-Revalidate (SWR) Pattern
 
@@ -959,20 +949,20 @@ await redis.setex(key, jitterTTL(60), value);
 
 ### 7.2 Invalidation Event Types
 
-| Event | Keys Invalidated | Scope |
-|-------|-----------------|-------|
-| `task.updated` | `cache:{ws}:task:{id}`, `cache:{ws}:dashboard:*` | Workspace |
-| `task.moved` | `cache:{ws}:task:*`, `cache:{ws}:dashboard:*` | Workspace |
-| `task.created` | `cache:{ws}:project:{projId}:tasks`, `cache:{ws}:dashboard:*` | Workspace |
-| `task.deleted` | `cache:{ws}:task:{id}`, `cache:{ws}:project:*`, `cache:{ws}:dashboard:*` | Workspace |
-| `project.updated` | `cache:{ws}:project:{id}`, `cache:{ws}:projects:list` | Workspace |
-| `project.created` | `cache:{ws}:projects:list` | Workspace |
-| `comment.added` | `cache:{ws}:task:{taskId}:comments` | Workspace |
-| `member.joined` | `perm:{ws}:*`, `cache:{ws}:project:*:members` | Workspace |
-| `role.changed` | `perm:{ws}:user:{userId}`, `perm:{ws}:admin:{userId}` | Workspace |
-| `settings.updated` | `cache:{ws}:config` | Workspace |
-| `feature_flag.toggled` | `ff:workspace:{ws}`, `ff:user:*` | Global |
-| `user.profile.updated` | `cache:*:user:{userId}` | Global |
+| Event                  | Keys Invalidated                                                         | Scope     |
+| ---------------------- | ------------------------------------------------------------------------ | --------- |
+| `task.updated`         | `cache:{ws}:task:{id}`, `cache:{ws}:dashboard:*`                         | Workspace |
+| `task.moved`           | `cache:{ws}:task:*`, `cache:{ws}:dashboard:*`                            | Workspace |
+| `task.created`         | `cache:{ws}:project:{projId}:tasks`, `cache:{ws}:dashboard:*`            | Workspace |
+| `task.deleted`         | `cache:{ws}:task:{id}`, `cache:{ws}:project:*`, `cache:{ws}:dashboard:*` | Workspace |
+| `project.updated`      | `cache:{ws}:project:{id}`, `cache:{ws}:projects:list`                    | Workspace |
+| `project.created`      | `cache:{ws}:projects:list`                                               | Workspace |
+| `comment.added`        | `cache:{ws}:task:{taskId}:comments`                                      | Workspace |
+| `member.joined`        | `perm:{ws}:*`, `cache:{ws}:project:*:members`                            | Workspace |
+| `role.changed`         | `perm:{ws}:user:{userId}`, `perm:{ws}:admin:{userId}`                    | Workspace |
+| `settings.updated`     | `cache:{ws}:config`                                                      | Workspace |
+| `feature_flag.toggled` | `ff:workspace:{ws}`, `ff:user:*`                                         | Global    |
+| `user.profile.updated` | `cache:*:user:{userId}`                                                  | Global    |
 
 ### 7.3 Invalidation Implementation
 
@@ -1020,7 +1010,10 @@ export function subscribeToInvalidation(workspaceId: string): void {
 
   redis.subscribe(channel, (err) => {
     if (err) {
-      logger.error('Failed to subscribe to invalidation channel', { channel, error: (err as Error).message });
+      logger.error('Failed to subscribe to invalidation channel', {
+        channel,
+        error: (err as Error).message,
+      });
       return;
     }
     logger.info('Subscribed to invalidation channel', { channel });
@@ -1067,13 +1060,7 @@ async function scanKeys(redis: Redis, pattern: string): Promise<string[]> {
   let cursor = '0';
 
   do {
-    const [nextCursor, found] = await redis.scan(
-      cursor,
-      'MATCH',
-      pattern,
-      'COUNT',
-      100
-    );
+    const [nextCursor, found] = await redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
     cursor = nextCursor;
     keys.push(...found);
   } while (cursor !== '0');
@@ -1095,7 +1082,7 @@ import { db } from '../../lib/database';
 import { tasks } from '../../db/schema';
 import { eq } from 'drizzle-orm';
 
-const TASK_TTL = 30;       // seconds
+const TASK_TTL = 30; // seconds
 const TASK_LIST_TTL = 120; // seconds
 
 export async function getTask(taskId: string, workspaceId: string) {
@@ -1112,7 +1099,11 @@ export async function getTask(taskId: string, workspaceId: string) {
   });
 }
 
-export async function updateTask(taskId: string, workspaceId: string, data: Partial<typeof tasks.$inferInsert>) {
+export async function updateTask(
+  taskId: string,
+  workspaceId: string,
+  data: Partial<typeof tasks.$inferInsert>,
+) {
   const key = redisKey('cache', workspaceId, 'task', taskId);
 
   const updated = await writeThrough(
@@ -1124,7 +1115,7 @@ export async function updateTask(taskId: string, workspaceId: string, data: Part
         return result[0];
       },
     },
-    data as any
+    data as any,
   );
 
   // Publish invalidation for related caches
@@ -1203,15 +1194,15 @@ export async function updateTask(taskId: string, workspaceId: string, data: Part
 
 ### 8.2 Session Configuration
 
-| Parameter | Value | Rationale |
-|-----------|-------|-----------|
-| JWT Access Token TTL | 15 minutes | Short-lived, stateless verification |
-| JWT Refresh Token TTL | 30 days | Long session for UX; revocable |
-| Redis Session TTL | 30 days | Matches refresh token |
-| Session Rotation | On every refresh | Prevents refresh token replay attacks |
-| Max Sessions per User | 5 | Prevent session accumulation |
-| Cookie Name | `sprintio.sid` | HttpOnly, Secure, SameSite=Strict |
-| Cookie TTL | 30 days | Matches session TTL |
+| Parameter             | Value            | Rationale                             |
+| --------------------- | ---------------- | ------------------------------------- |
+| JWT Access Token TTL  | 15 minutes       | Short-lived, stateless verification   |
+| JWT Refresh Token TTL | 30 days          | Long session for UX; revocable        |
+| Redis Session TTL     | 30 days          | Matches refresh token                 |
+| Session Rotation      | On every refresh | Prevents refresh token replay attacks |
+| Max Sessions per User | 5                | Prevent session accumulation          |
+| Cookie Name           | `sprintio.sid`   | HttpOnly, Secure, SameSite=Strict     |
+| Cookie TTL            | 30 days          | Matches session TTL                   |
 
 ### 8.3 Session Implementation
 
@@ -1238,7 +1229,7 @@ const MAX_SESSIONS = 5;
 export async function createSession(
   userId: string,
   refreshToken: string,
-  meta: { userAgent: string; ip: string; workspaceId: string }
+  meta: { userAgent: string; ip: string; workspaceId: string },
 ): Promise<void> {
   const redis = getRedis();
   const sessionKey = redisKey('session', userId);
@@ -1291,7 +1282,7 @@ export async function validateSession(userId: string): Promise<SessionData | nul
 export async function rotateRefreshToken(
   userId: string,
   oldRefreshToken: string,
-  newRefreshToken: string
+  newRefreshToken: string,
 ): Promise<boolean> {
   const redis = getRedis();
   const refreshKey = redisKey('session', 'refresh', userId);
@@ -1306,7 +1297,14 @@ export async function rotateRefreshToken(
     return 0
   `;
 
-  const result = await redis.eval(script, 1, refreshKey, oldRefreshToken, REFRESH_TTL, newRefreshToken) as number;
+  const result = (await redis.eval(
+    script,
+    1,
+    refreshKey,
+    oldRefreshToken,
+    REFRESH_TTL,
+    newRefreshToken,
+  )) as number;
 
   if (result === 0) {
     // Refresh token mismatch — possible replay attack, revoke all sessions
@@ -1337,14 +1335,14 @@ export async function revokeAllSessions(userId: string): Promise<void> {
 
 ### 9.1 Rate Limit Tiers
 
-| Tier | Scope | Window | Limit | Applies To |
-|------|-------|--------|-------|------------|
-| Global API | Per IP | Sliding 1 min | 60 req | All `/api/*` endpoints |
-| Auth API | Per IP | Fixed 1 min | 10 req | `/api/auth/*` (login, register) |
-| Workspace API | Per user + workspace | Sliding 1 min | 300 req | All workspace endpoints |
-| AI API | Per user | Sliding 1 min | 20 req | `/api/ai/*` |
-| Webhook | Per workspace | Fixed 1 min | 60 req | `/api/webhooks/*` |
-| Upload | Per user | Fixed 1 min | 10 req | `/api/uploads/*` |
+| Tier          | Scope                | Window        | Limit   | Applies To                      |
+| ------------- | -------------------- | ------------- | ------- | ------------------------------- |
+| Global API    | Per IP               | Sliding 1 min | 60 req  | All `/api/*` endpoints          |
+| Auth API      | Per IP               | Fixed 1 min   | 10 req  | `/api/auth/*` (login, register) |
+| Workspace API | Per user + workspace | Sliding 1 min | 300 req | All workspace endpoints         |
+| AI API        | Per user             | Sliding 1 min | 20 req  | `/api/ai/*`                     |
+| Webhook       | Per workspace        | Fixed 1 min   | 60 req  | `/api/webhooks/*`               |
+| Upload        | Per user             | Fixed 1 min   | 10 req  | `/api/uploads/*`                |
 
 ### 9.2 Sliding Window Counter (Redis)
 
@@ -1397,7 +1395,7 @@ interface RateLimitResult {
  */
 export async function checkRateLimit(
   identifier: string,
-  config: RateLimitConfig
+  config: RateLimitConfig,
 ): Promise<RateLimitResult> {
   const redis = getRedis();
   const now = Date.now();
@@ -1463,9 +1461,8 @@ export function rateLimitMiddleware(tier: keyof typeof RATE_LIMITS) {
 
   return async (req: Request, res: Response, next: NextFunction) => {
     const userId = (req as any).userId || 'anonymous';
-    const identifier = tier === 'api'
-      ? req.ip || 'unknown'
-      : `${userId}:${req.params.workspaceId || 'global'}`;
+    const identifier =
+      tier === 'api' ? req.ip || 'unknown' : `${userId}:${req.params.workspaceId || 'global'}`;
 
     const result = await checkRateLimit(identifier, config);
 
@@ -1500,13 +1497,12 @@ import { QueryClient } from '@tanstack/react-query';
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30_000,               // 30s — default freshness window
-      gcTime: 5 * 60_000,              // 5min — keep in garbage collection
-      retry: 2,                         // Retry twice on failure
-      retryDelay: (attempt) =>
-        Math.min(1000 * 2 ** attempt, 30_000),  // Exponential backoff
-      refetchOnWindowFocus: true,       // Refetch when user returns to tab
-      refetchOnReconnect: true,         // Refetch when network reconnects
+      staleTime: 30_000, // 30s — default freshness window
+      gcTime: 5 * 60_000, // 5min — keep in garbage collection
+      retry: 2, // Retry twice on failure
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30_000), // Exponential backoff
+      refetchOnWindowFocus: true, // Refetch when user returns to tab
+      refetchOnReconnect: true, // Refetch when network reconnects
     },
     mutations: {
       retry: 1,
@@ -1517,20 +1513,20 @@ export const queryClient = new QueryClient({
 
 ### 10.2 Stale Time Configuration by Domain
 
-| Domain | staleTime | gcTime | refetchOnWindowFocus | Rationale |
-|--------|-----------|--------|---------------------|-----------|
-| Dashboard stats | 30s | 5min | Yes | Frequently refreshed, high read volume |
-| Project list | 60s | 5min | Yes | Changes less often than tasks |
-| Project detail | 30s | 5min | Yes | Moderate change frequency |
-| Task list | 15s | 5min | Yes | Highly dynamic; users expect fresh data |
-| Task detail | 10s | 5min | Yes | Updates frequently (comments, status) |
-| User profile | 60s | 10min | Yes | Rarely changes |
-| Workspace settings | 120s | 10min | Yes | Very rarely changes |
-| Comments | 10s | 5min | Yes | Real-time; must feel live |
-| Notifications | 15s | 5min | Yes | Urgency-sensitive |
-| Search results | 0s (always fresh) | 2min | No | Each search is unique |
-| Feature flags | Infinity | Infinity | No | Managed by WebSocket, not polling |
-| Documents (Yjs) | Infinity | Infinity | No | CRDT sync handles truth |
+| Domain             | staleTime         | gcTime   | refetchOnWindowFocus | Rationale                               |
+| ------------------ | ----------------- | -------- | -------------------- | --------------------------------------- |
+| Dashboard stats    | 30s               | 5min     | Yes                  | Frequently refreshed, high read volume  |
+| Project list       | 60s               | 5min     | Yes                  | Changes less often than tasks           |
+| Project detail     | 30s               | 5min     | Yes                  | Moderate change frequency               |
+| Task list          | 15s               | 5min     | Yes                  | Highly dynamic; users expect fresh data |
+| Task detail        | 10s               | 5min     | Yes                  | Updates frequently (comments, status)   |
+| User profile       | 60s               | 10min    | Yes                  | Rarely changes                          |
+| Workspace settings | 120s              | 10min    | Yes                  | Very rarely changes                     |
+| Comments           | 10s               | 5min     | Yes                  | Real-time; must feel live               |
+| Notifications      | 15s               | 5min     | Yes                  | Urgency-sensitive                       |
+| Search results     | 0s (always fresh) | 2min     | No                   | Each search is unique                   |
+| Feature flags      | Infinity          | Infinity | No                   | Managed by WebSocket, not polling       |
+| Documents (Yjs)    | Infinity          | Infinity | No                   | CRDT sync handles truth                 |
 
 ### 10.3 Query Key Factories
 
@@ -1583,7 +1579,7 @@ export function applyInvalidationRules(
   queryClient: QueryClient,
   entity: string,
   action: string,
-  context: Record<string, string>
+  context: Record<string, string>,
 ): void {
   const { workspaceId, taskId, projectId, listId } = context;
 
@@ -1662,7 +1658,7 @@ export function useUpdateTask(workspaceId: string) {
       const previousTask = queryClient.getQueryData<Task>(taskKeys.detail(data.id));
 
       queryClient.setQueryData<Task>(taskKeys.detail(data.id), (old) =>
-        old ? { ...old, ...data.updates } : old
+        old ? { ...old, ...data.updates } : old,
       );
 
       return { previousTask };
@@ -1670,10 +1666,7 @@ export function useUpdateTask(workspaceId: string) {
 
     // 2. On failure, roll back to the snapshot
     onError: (_err, data, context) => {
-      queryClient.setQueryData(
-        taskKeys.detail(data.id),
-        context?.previousTask
-      );
+      queryClient.setQueryData(taskKeys.detail(data.id), context?.previousTask);
       toast.error('Failed to update task. Changes reverted.');
     },
 
@@ -1715,9 +1708,8 @@ export function useRealtimeInvalidation(socket: WebSocket) {
       switch (data.type) {
         case 'task.updated':
           // Merge changes directly — no refetch needed
-          queryClient.setQueryData(
-            taskKeys.detail(data.taskId),
-            (old: Task | undefined) => old ? { ...old, ...data.changes } : old
+          queryClient.setQueryData(taskKeys.detail(data.taskId), (old: Task | undefined) =>
+            old ? { ...old, ...data.changes } : old,
           );
           queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
           queryClient.invalidateQueries({ queryKey: dashboardKeys.stats(data.workspaceId) });
@@ -1907,22 +1899,22 @@ router.use('/api/v1/uploads', noStore);
 
 ### 12.1 Metrics to Track
 
-| Metric | Type | Description | Alert Threshold |
-|--------|------|-------------|-----------------|
-| `redis_hit_ratio` | Gauge | L2 cache hit rate (hits / (hits + misses)) | < 80% sustained |
-| `redis_l1_hit_ratio` | Gauge | L1 cache hit rate | < 60% sustained |
-| `redis_memory_used_bytes` | Gauge | Current memory usage | > 80% of maxmemory |
-| `redis_memory_peak_bytes` | Gauge | Peak memory usage | > 90% of maxmemory |
-| `redis_connected_clients` | Gauge | Active connections | > 1000 (investigate) |
-| `redis_operations_per_sec` | Gauge | Total ops/sec | > 50,000 (capacity planning) |
-| `redis_evicted_keys_total` | Counter | Keys evicted by LRU | > 100/sec (increase memory) |
-| `redis_keyspace_misses_total` | Counter | Total cache misses | Monitor for trends |
-| `redis_latency_p99_ms` | Gauge | P99 command latency | > 5ms |
-| `cache_invalidation_events_total` | Counter | Total invalidation events | Monitor rate |
-| `session_active_count` | Gauge | Active user sessions | Capacity planning |
-| `rate_limit_rejections_total` | Counter | Requests rejected by rate limiter | > 1% of total requests |
-| `l1_eviction_total` | Counter | L1 cache evictions (LRU) | > 100/sec |
-| `cdn_hit_ratio` | Gauge | Cloudflare CDN hit rate | < 85% |
+| Metric                            | Type    | Description                                | Alert Threshold              |
+| --------------------------------- | ------- | ------------------------------------------ | ---------------------------- |
+| `redis_hit_ratio`                 | Gauge   | L2 cache hit rate (hits / (hits + misses)) | < 80% sustained              |
+| `redis_l1_hit_ratio`              | Gauge   | L1 cache hit rate                          | < 60% sustained              |
+| `redis_memory_used_bytes`         | Gauge   | Current memory usage                       | > 80% of maxmemory           |
+| `redis_memory_peak_bytes`         | Gauge   | Peak memory usage                          | > 90% of maxmemory           |
+| `redis_connected_clients`         | Gauge   | Active connections                         | > 1000 (investigate)         |
+| `redis_operations_per_sec`        | Gauge   | Total ops/sec                              | > 50,000 (capacity planning) |
+| `redis_evicted_keys_total`        | Counter | Keys evicted by LRU                        | > 100/sec (increase memory)  |
+| `redis_keyspace_misses_total`     | Counter | Total cache misses                         | Monitor for trends           |
+| `redis_latency_p99_ms`            | Gauge   | P99 command latency                        | > 5ms                        |
+| `cache_invalidation_events_total` | Counter | Total invalidation events                  | Monitor rate                 |
+| `session_active_count`            | Gauge   | Active user sessions                       | Capacity planning            |
+| `rate_limit_rejections_total`     | Counter | Requests rejected by rate limiter          | > 1% of total requests       |
+| `l1_eviction_total`               | Counter | L1 cache evictions (LRU)                   | > 100/sec                    |
+| `cdn_hit_ratio`                   | Gauge   | Cloudflare CDN hit rate                    | < 85%                        |
 
 ### 12.2 Redis Monitoring Script
 
@@ -2008,8 +2000,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Redis cache hit ratio below 80%"
-          description: "Current hit ratio: {{ $value | humanizePercentage }}"
+          summary: 'Redis cache hit ratio below 80%'
+          description: 'Current hit ratio: {{ $value | humanizePercentage }}'
 
       # Memory pressure
       - alert: CacheMemoryHigh
@@ -2018,8 +2010,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Redis memory usage above 80%"
-          description: "Current memory utilization: {{ $value | humanizePercentage }}"
+          summary: 'Redis memory usage above 80%'
+          description: 'Current memory utilization: {{ $value | humanizePercentage }}'
 
       # High eviction rate
       - alert: CacheEvictionRateHigh
@@ -2028,7 +2020,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Redis eviction rate exceeds 100 keys/sec"
+          summary: 'Redis eviction rate exceeds 100 keys/sec'
 
       # High latency
       - alert: CacheLatencyHigh
@@ -2037,7 +2029,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Redis P99 latency above 5ms"
+          summary: 'Redis P99 latency above 5ms'
 ```
 
 ### 12.4 Grafana Dashboard Panels
@@ -2173,10 +2165,7 @@ const inflight = new Map<string, Promise<any>>();
  * If N requests arrive simultaneously for the same key, only 1 hits the DB;
  * the other N-1 wait for the same result.
  */
-export function singleflight<T>(
-  key: string,
-  fn: () => Promise<T>
-): Promise<T> {
+export function singleflight<T>(key: string, fn: () => Promise<T>): Promise<T> {
   const existing = inflight.get(key);
   if (existing) {
     return existing;
@@ -2197,9 +2186,10 @@ async function getHotDashboardStats(dashId: string) {
       key: redisKey('cache', '*', 'dashboard', dashId),
       ttl: jitterTTL(60),
       l1TtlMs: 10_000,
-      fetchFn: () => db.query.dashboards.findFirst({
-        where: eq(dashboards.id, dashId),
-      }),
+      fetchFn: () =>
+        db.query.dashboards.findFirst({
+          where: eq(dashboards.id, dashId),
+        }),
     });
   });
 }
@@ -2249,7 +2239,7 @@ export async function earlyRecompute<T>(
   key: string,
   ttl: number,
   threshold: number,
-  recomputeFn: () => Promise<T>
+  recomputeFn: () => Promise<T>,
 ): Promise<void> {
   const redis = getRedis();
   const remaining = await redis.ttl(key);
@@ -2260,7 +2250,7 @@ export async function earlyRecompute<T>(
 
   if (remaining <= dangerZone) {
     // Probability increases as TTL approaches 0
-    const probability = 1 - (remaining / dangerZone);
+    const probability = 1 - remaining / dangerZone;
 
     if (Math.random() < probability) {
       // Trigger background recompute — don't await
@@ -2372,10 +2362,7 @@ export async function warmCache(config = DEFAULT_CONFIG): Promise<void> {
 
     const pipeline = redis.pipeline();
     for (const ws of topWorkspaces) {
-      const perms = await db
-        .select()
-        .from(permissions)
-        .where(eq(permissions.workspaceId, ws.id));
+      const perms = await db.select().from(permissions).where(eq(permissions.workspaceId, ws.id));
 
       for (const perm of perms) {
         const key = redisKey('perm', ws.id, 'user', perm.userId);
@@ -2409,7 +2396,7 @@ export async function hotKeyGuard<T>(
   l1TtlMs: number,
   l1Cache: L1Cache<T>,
   fetchFn: () => Promise<T>,
-  redisGetFn: () => Promise<T>
+  redisGetFn: () => Promise<T>,
 ): Promise<T> {
   // L1 absorbs the hot key traffic — no Redis round-trip needed
   const l1Value = l1Cache.get(key);
@@ -2452,41 +2439,41 @@ async function staggeredRewarm(keys: string[], fetchFns: (() => Promise<any>)[])
 
 ### Redis Key Patterns
 
-| Domain | Pattern | TTL |
-|--------|---------|-----|
-| Session | `session:{userId}` | 30d |
-| Refresh Token | `session:refresh:{userId}` | 30d |
-| Permission | `perm:{wsId}:user:{userId}` | 5min |
-| API Cache | `cache:{wsId}:{entity}:{id}` | 30s–120s |
-| Rate Limit | `rl:{tier}:{identifier}:{window}` | 1–2min |
-| Presence | `presence:{wsId}:user:{userId}` | 30s |
-| Feature Flag | `ff:workspace:{wsId}` | 60s |
-| Stats | `stats:{wsId}:{metric}:{period}` | 120s–300s |
-| AI Cache | `ai:{wsId}:prompt:{hash}` | 1h |
+| Domain        | Pattern                           | TTL       |
+| ------------- | --------------------------------- | --------- |
+| Session       | `session:{userId}`                | 30d       |
+| Refresh Token | `session:refresh:{userId}`        | 30d       |
+| Permission    | `perm:{wsId}:user:{userId}`       | 5min      |
+| API Cache     | `cache:{wsId}:{entity}:{id}`      | 30s–120s  |
+| Rate Limit    | `rl:{tier}:{identifier}:{window}` | 1–2min    |
+| Presence      | `presence:{wsId}:user:{userId}`   | 30s       |
+| Feature Flag  | `ff:workspace:{wsId}`             | 60s       |
+| Stats         | `stats:{wsId}:{metric}:{period}`  | 120s–300s |
+| AI Cache      | `ai:{wsId}:prompt:{hash}`         | 1h        |
 
 ### TTL Quick Reference
 
-| Data Type | L1 TTL | L2 TTL | SWR Window |
-|-----------|--------|--------|------------|
-| Feature flags | 5s | 60s | — |
-| Permissions | 30s | 5min | — |
-| Task detail | 5s | 30s | 5s |
-| Project detail | 10s | 60s | 10s |
-| User profile | 10s | 120s | 10s |
-| Dashboard stats | 10s | 60s | 10s |
-| Workspace config | 60s | 5min | 60s |
-| Session | — | 30d | — |
-| AI response | — | 1h | — |
-| Rate limit counter | — | 1min | — |
+| Data Type          | L1 TTL | L2 TTL | SWR Window |
+| ------------------ | ------ | ------ | ---------- |
+| Feature flags      | 5s     | 60s    | —          |
+| Permissions        | 30s    | 5min   | —          |
+| Task detail        | 5s     | 30s    | 5s         |
+| Project detail     | 10s    | 60s    | 10s        |
+| User profile       | 10s    | 120s   | 10s        |
+| Dashboard stats    | 10s    | 60s    | 10s        |
+| Workspace config   | 60s    | 5min   | 60s        |
+| Session            | —      | 30d    | —          |
+| AI response        | —      | 1h     | —          |
+| Rate limit counter | —      | 1min   | —          |
 
 ### Strategy Quick Reference
 
-| Pattern | Write Path | Read Path | Consistency | Use For |
-|---------|-----------|-----------|-------------|---------|
-| Cache-aside | Write DB → set cache | Read cache → miss → read DB | Eventual | API cache, AI cache |
-| Write-through | Write DB + cache simultaneously | Read cache (always hit) | Strong | Sessions, permissions |
-| Write-behind | Write cache → async DB flush | Read cache (always hit) | Eventual | Presence, stats |
-| SWR | Cache-aside + background refresh | Serve stale, revalidate async | Eventual (fast) | Dashboard, lists |
+| Pattern       | Write Path                       | Read Path                     | Consistency     | Use For               |
+| ------------- | -------------------------------- | ----------------------------- | --------------- | --------------------- |
+| Cache-aside   | Write DB → set cache             | Read cache → miss → read DB   | Eventual        | API cache, AI cache   |
+| Write-through | Write DB + cache simultaneously  | Read cache (always hit)       | Strong          | Sessions, permissions |
+| Write-behind  | Write cache → async DB flush     | Read cache (always hit)       | Eventual        | Presence, stats       |
+| SWR           | Cache-aside + background refresh | Serve stale, revalidate async | Eventual (fast) | Dashboard, lists      |
 
 ### Invalidation Checklist
 

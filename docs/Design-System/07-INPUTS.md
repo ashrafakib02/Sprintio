@@ -28,21 +28,21 @@ Sprintio's input system is built from composable primitives. Every input follows
 
 ### Component Map
 
-| Component | Source | Installation |
-|-----------|--------|--------------|
-| Input | 21st.dev | `npx shadcn@latest add "https://21st.dev/r/{author}/input?api_key=..."` |
-| Textarea | 21st.dev | `npx shadcn@latest add "https://21st.dev/r/{author}/textarea?api_key=..."` |
-| Select | 21st.dev | `npx shadcn@latest add "https://21st.dev/r/{author}/select?api_key=..."` |
-| Checkbox | shadcn/ui | `npx shadcn@latest add checkbox` |
-| Label | shadcn/ui | `npx shadcn@latest add label` |
+| Component | Source    | Installation                                                               |
+| --------- | --------- | -------------------------------------------------------------------------- |
+| Input     | 21st.dev  | `npx shadcn@latest add "https://21st.dev/r/{author}/input?api_key=..."`    |
+| Textarea  | 21st.dev  | `npx shadcn@latest add "https://21st.dev/r/{author}/textarea?api_key=..."` |
+| Select    | 21st.dev  | `npx shadcn@latest add "https://21st.dev/r/{author}/select?api_key=..."`   |
+| Checkbox  | shadcn/ui | `npx shadcn@latest add checkbox`                                           |
+| Label     | shadcn/ui | `npx shadcn@latest add label`                                              |
 
 ### Input Sizes
 
-| Size | Height | Padding (x) | Text Size | Tailwind |
-|------|--------|-------------|-----------|----------|
-| `sm` | 32px (h-8) | 12px (px-3) | 12px (`text-xs`) | `h-8 px-3 text-xs` |
-| `md` (default) | 36px (h-9) | 12px (px-3) | 14px (`text-sm`) | `h-9 px-3 text-sm` |
-| `lg` | 40px (h-10) | 16px (px-4) | 16px (`text-base`) | `h-10 px-4 text-base` |
+| Size           | Height      | Padding (x) | Text Size          | Tailwind              |
+| -------------- | ----------- | ----------- | ------------------ | --------------------- |
+| `sm`           | 32px (h-8)  | 12px (px-3) | 12px (`text-xs`)   | `h-8 px-3 text-xs`    |
+| `md` (default) | 36px (h-9)  | 12px (px-3) | 14px (`text-sm`)   | `h-9 px-3 text-sm`    |
+| `lg`           | 40px (h-10) | 16px (px-4) | 16px (`text-base`) | `h-10 px-4 text-base` |
 
 ---
 
@@ -61,11 +61,11 @@ Sprintio's input system is built from composable primitives. Every input follows
    optional         required                  optional
 ```
 
-| Zone | Required | Notes |
-|------|----------|-------|
-| Leading icon | No | Search icon, user icon, etc. |
-| Input field | Yes | `flex-1` takes remaining width |
-| Trailing action | No | Clear button, password toggle, copy button |
+| Zone            | Required | Notes                                      |
+| --------------- | -------- | ------------------------------------------ |
+| Leading icon    | No       | Search icon, user icon, etc.               |
+| Input field     | Yes      | `flex-1` takes remaining width             |
+| Trailing action | No       | Clear button, password toggle, copy button |
 
 ### 2.2 Default State
 
@@ -73,26 +73,26 @@ Sprintio's input system is built from composable primitives. Every input follows
 <Input type="text" placeholder="Enter task name..." />
 ```
 
-| Property | Value |
-|----------|-------|
-| Height | 36px (`h-9`) |
-| Padding | `px-3 py-2` |
-| Background | `bg-input` (white / slate-800) |
-| Border | `border border-border` (gray-200 / slate-700) |
-| Radius | `rounded-md` (6px) |
-| Text | `text-sm text-foreground` |
+| Property    | Value                                          |
+| ----------- | ---------------------------------------------- |
+| Height      | 36px (`h-9`)                                   |
+| Padding     | `px-3 py-2`                                    |
+| Background  | `bg-input` (white / slate-800)                 |
+| Border      | `border border-border` (gray-200 / slate-700)  |
+| Radius      | `rounded-md` (6px)                             |
+| Text        | `text-sm text-foreground`                      |
 | Placeholder | `placeholder:text-muted-foreground` (gray-400) |
 
 ### 2.3 States
 
-| State | Background | Border | Text | Ring |
-|-------|-----------|--------|------|------|
-| Default | `bg-input` | `border-border` | `text-foreground` | — |
-| Hover | `bg-input` | `border-strong` (gray-300) | `text-foreground` | — |
-| Focus | `bg-input` | `border-focus` (indigo-500) | `text-foreground` | `ring-2 ring-ring ring-offset-2` |
-| Disabled | `bg-muted` (gray-100) | `border-border` | `text-muted` (gray-400) | — |
-| Error | `bg-input` | `border-destructive` (red-500) | `text-foreground` | `ring-destructive` |
-| Success | `bg-input` | `border-success` (green-500) | `text-foreground` | — |
+| State    | Background            | Border                         | Text                    | Ring                             |
+| -------- | --------------------- | ------------------------------ | ----------------------- | -------------------------------- |
+| Default  | `bg-input`            | `border-border`                | `text-foreground`       | —                                |
+| Hover    | `bg-input`            | `border-strong` (gray-300)     | `text-foreground`       | —                                |
+| Focus    | `bg-input`            | `border-focus` (indigo-500)    | `text-foreground`       | `ring-2 ring-ring ring-offset-2` |
+| Disabled | `bg-muted` (gray-100) | `border-border`                | `text-muted` (gray-400) | —                                |
+| Error    | `bg-input`            | `border-destructive` (red-500) | `text-foreground`       | `ring-destructive`               |
+| Success  | `bg-input`            | `border-success` (green-500)   | `text-foreground`       | —                                |
 
 ### 2.4 With Icons
 
@@ -133,9 +133,12 @@ Sprintio's input system is built from composable primitives. Every input follows
 ### 2.5 File Input
 
 ```tsx
-<Input type="file" className="file:mr-4 file:border-0 file:bg-transparent
+<Input
+  type="file"
+  className="file:mr-4 file:border-0 file:bg-transparent
   file:text-sm file:font-medium file:text-foreground
-  hover:file:text-primary" />
+  hover:file:text-primary"
+/>
 ```
 
 ---
@@ -148,26 +151,26 @@ Sprintio's input system is built from composable primitives. Every input follows
 <Textarea placeholder="Add a description..." rows={3} />
 ```
 
-| Property | Value |
-|----------|-------|
-| Min height | 80px (`min-h-[80px]`) |
-| Padding | `px-3 py-2` |
-| Background | `bg-input` |
-| Border | `border border-border` |
-| Radius | `rounded-md` |
-| Text | `text-sm text-foreground` |
-| Resize | `resize-none` (default) or `resize-y` |
+| Property   | Value                                 |
+| ---------- | ------------------------------------- |
+| Min height | 80px (`min-h-[80px]`)                 |
+| Padding    | `px-3 py-2`                           |
+| Background | `bg-input`                            |
+| Border     | `border border-border`                |
+| Radius     | `rounded-md`                          |
+| Text       | `text-sm text-foreground`             |
+| Resize     | `resize-none` (default) or `resize-y` |
 
 ### 3.2 Auto-Expanding Textarea
 
 ```tsx
 function AutoExpandingTextarea({ ...props }) {
-  const ref = useRef<HTMLTextAreaElement>(null)
+  const ref = useRef<HTMLTextAreaElement>(null);
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    e.target.style.height = 'auto'
-    e.target.style.height = `${e.target.scrollHeight}px`
-  }
+    e.target.style.height = 'auto';
+    e.target.style.height = `${e.target.scrollHeight}px`;
+  };
 
   return (
     <Textarea
@@ -176,7 +179,7 @@ function AutoExpandingTextarea({ ...props }) {
       className="min-h-[80px] resize-none overflow-hidden"
       {...props}
     />
-  )
+  );
 }
 ```
 
@@ -184,11 +187,11 @@ function AutoExpandingTextarea({ ...props }) {
 
 Same states as Input (see §2.3). Additional:
 
-| State | Behavior |
-|-------|----------|
+| State           | Behavior                                    |
+| --------------- | ------------------------------------------- |
 | Character count | Show `current / max` in bottom-right corner |
-| Disabled | Same as input disabled |
-| Read-only | No border change, cursor: default |
+| Disabled        | Same as input disabled                      |
+| Read-only       | No border change, cursor: default           |
 
 ### 3.4 With Character Counter
 
@@ -197,7 +200,7 @@ Same states as Input (see §2.3). Additional:
   <Textarea
     maxLength={500}
     value={text}
-    onChange={e => setText(e.target.value)}
+    onChange={(e) => setText(e.target.value)}
     rows={4}
     placeholder="Write a task description..."
   />
@@ -235,21 +238,21 @@ npx shadcn@latest add "https://21st.dev/r/{author}/select?api_key=YOUR_KEY"
 </Select>
 ```
 
-| Property | Value |
-|----------|-------|
-| Trigger height | 36px (`h-9`) — same as Input |
-| Trigger padding | `px-3 py-2` |
-| Trigger bg | `bg-input` |
-| Trigger border | `border border-border` |
-| Trigger radius | `rounded-md` |
-| Chevron | `ChevronDown` right-aligned |
-| Content bg | `bg-popover` (raised surface) |
-| Content border | `border border-border` |
-| Content shadow | `shadow-lg` |
-| Content radius | `rounded-lg` |
-| Item padding | `px-3 py-2` |
-| Item selected | `bg-accent` with checkmark |
-| Item hover | `bg-accent` |
+| Property        | Value                         |
+| --------------- | ----------------------------- |
+| Trigger height  | 36px (`h-9`) — same as Input  |
+| Trigger padding | `px-3 py-2`                   |
+| Trigger bg      | `bg-input`                    |
+| Trigger border  | `border border-border`        |
+| Trigger radius  | `rounded-md`                  |
+| Chevron         | `ChevronDown` right-aligned   |
+| Content bg      | `bg-popover` (raised surface) |
+| Content border  | `border border-border`        |
+| Content shadow  | `shadow-lg`                   |
+| Content radius  | `rounded-lg`                  |
+| Item padding    | `px-3 py-2`                   |
+| Item selected   | `bg-accent` with checkmark    |
+| Item hover      | `bg-accent`                   |
 
 ### 4.3 Sprintio-Specific Selects
 
@@ -330,25 +333,25 @@ npx shadcn@latest add "https://21st.dev/r/{author}/select?api_key=YOUR_KEY"
 </div>
 ```
 
-| Property | Value |
-|----------|-------|
-| Size | 16px × 16px (`h-4 w-4`) |
-| Border | `border border-border` |
-| Checked bg | `bg-primary` (indigo-500) |
-| Checked border | `border-primary` |
-| Check icon | `Check` (white, 12px) |
-| Focus | `ring-2 ring-ring ring-offset-2` |
-| Radius | `rounded-sm` (2px) |
+| Property       | Value                            |
+| -------------- | -------------------------------- |
+| Size           | 16px × 16px (`h-4 w-4`)          |
+| Border         | `border border-border`           |
+| Checked bg     | `bg-primary` (indigo-500)        |
+| Checked border | `border-primary`                 |
+| Check icon     | `Check` (white, 12px)            |
+| Focus          | `ring-2 ring-ring ring-offset-2` |
+| Radius         | `rounded-sm` (2px)               |
 
 ### 5.2 States
 
-| State | Background | Border | Icon |
-|-------|-----------|--------|------|
-| Unchecked | transparent | `border-border` (gray-300) | — |
-| Checked | `bg-primary` | `border-primary` | `Check` (white) |
-| Indeterminate | `bg-primary` | `border-primary` | `Minus` (white) |
-| Disabled | `bg-muted` | `border-border` | dimmed |
-| Focus | — | — | + `ring-2 ring-ring ring-offset-2` |
+| State         | Background   | Border                     | Icon                               |
+| ------------- | ------------ | -------------------------- | ---------------------------------- |
+| Unchecked     | transparent  | `border-border` (gray-300) | —                                  |
+| Checked       | `bg-primary` | `border-primary`           | `Check` (white)                    |
+| Indeterminate | `bg-primary` | `border-primary`           | `Minus` (white)                    |
+| Disabled      | `bg-muted`   | `border-border`            | dimmed                             |
+| Focus         | —            | —                          | + `ring-2 ring-ring ring-offset-2` |
 
 ### 5.3 Usage
 
@@ -415,17 +418,17 @@ A reusable wrapper that standardizes the label → input → helper/error patter
 
 ```tsx
 interface FormFieldProps {
-  label?: string
-  error?: string
-  helperText?: string
-  required?: boolean
-  children: React.ReactNode
-  className?: string
+  label?: string;
+  error?: string;
+  helperText?: string;
+  required?: boolean;
+  children: React.ReactNode;
+  className?: string;
 }
 
 function FormField({ label, error, helperText, required, children, className }: FormFieldProps) {
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn('space-y-2', className)}>
       {label && (
         <Label className="text-sm font-medium">
           {label}
@@ -436,7 +439,7 @@ function FormField({ label, error, helperText, required, children, className }: 
       {error && <p className="text-xs text-destructive">{error}</p>}
       {helperText && !error && <p className="text-xs text-muted-foreground">{helperText}</p>}
     </div>
-  )
+  );
 }
 ```
 
@@ -500,31 +503,31 @@ function FormField({ label, error, helperText, required, children, className }: 
 
 ### 7.1 Input Spacing
 
-| Element | Spacing | Tailwind |
-|---------|---------|----------|
-| Label → Input | 8px | `space-y-2` or `mt-2` |
-| Input → Helper/Error | 6px | `mt-1.5` or within `space-y-2` |
-| Form field → Form field | 24px | `space-y-6` |
-| Input + Leading icon gap | 8px | `gap-2` |
-| Input + Trailing action gap | 8px | `gap-2` |
+| Element                     | Spacing | Tailwind                       |
+| --------------------------- | ------- | ------------------------------ |
+| Label → Input               | 8px     | `space-y-2` or `mt-2`          |
+| Input → Helper/Error        | 6px     | `mt-1.5` or within `space-y-2` |
+| Form field → Form field     | 24px    | `space-y-6`                    |
+| Input + Leading icon gap    | 8px     | `gap-2`                        |
+| Input + Trailing action gap | 8px     | `gap-2`                        |
 
 ### 7.2 Select Dropdown Spacing
 
-| Element | Spacing | Tailwind |
-|---------|---------|----------|
-| Trigger → Content | — | Radix handles positioning |
-| Content padding | 4px | `p-1` |
-| Item padding | 8px × 6px | `px-3 py-1.5` (sm) or `px-3 py-2` (md) |
-| Item → Item | 2px | `gap-0.5` |
-| Group label → items | 4px | — |
+| Element             | Spacing   | Tailwind                               |
+| ------------------- | --------- | -------------------------------------- |
+| Trigger → Content   | —         | Radix handles positioning              |
+| Content padding     | 4px       | `p-1`                                  |
+| Item padding        | 8px × 6px | `px-3 py-1.5` (sm) or `px-3 py-2` (md) |
+| Item → Item         | 2px       | `gap-0.5`                              |
+| Group label → items | 4px       | —                                      |
 
 ### 7.3 Checkbox Spacing
 
-| Element | Spacing | Tailwind |
-|---------|---------|----------|
-| Checkbox → Label | 8px | `gap-2` |
-| Checkbox → Checkbox | 12px | `space-y-3` |
-| Checkbox size | 16px × 16px | `h-4 w-4` |
+| Element             | Spacing     | Tailwind    |
+| ------------------- | ----------- | ----------- |
+| Checkbox → Label    | 8px         | `gap-2`     |
+| Checkbox → Checkbox | 12px        | `space-y-3` |
+| Checkbox size       | 16px × 16px | `h-4 w-4`   |
 
 ---
 
@@ -532,12 +535,12 @@ function FormField({ label, error, helperText, required, children, className }: 
 
 ### 8.1 Visual Treatment
 
-| State | Border | Ring | Icon | Helper Text |
-|-------|--------|------|------|-------------|
-| Default | `border-border` | none | none | `text-muted-foreground` |
-| Error | `border-destructive` | `ring-destructive` | `AlertCircle` (red) | `text-destructive` |
-| Success | `border-success` | none | `CheckCircle` (green) | `text-success` |
-| Warning | `border-warning` | none | `AlertTriangle` (amber) | `text-warning` |
+| State   | Border               | Ring               | Icon                    | Helper Text             |
+| ------- | -------------------- | ------------------ | ----------------------- | ----------------------- |
+| Default | `border-border`      | none               | none                    | `text-muted-foreground` |
+| Error   | `border-destructive` | `ring-destructive` | `AlertCircle` (red)     | `text-destructive`      |
+| Success | `border-success`     | none               | `CheckCircle` (green)   | `text-success`          |
+| Warning | `border-warning`     | none               | `AlertTriangle` (amber) | `text-warning`          |
 
 ### 8.2 Error State
 
@@ -560,12 +563,7 @@ function FormField({ label, error, helperText, required, children, className }: 
 ```tsx
 <FormField label="Email" helperText="Email is available">
   <div className="relative">
-    <Input
-      type="email"
-      value={email}
-      onChange={handleChange}
-      className="border-green-500 pr-9"
-    />
+    <Input type="email" value={email} onChange={handleChange} className="border-green-500 pr-9" />
     <CheckCircle className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-green-500" />
   </div>
 </FormField>
@@ -592,8 +590,8 @@ function FormField({ label, error, helperText, required, children, className }: 
 
 ```tsx
 function InlineEdit({ value, onSave }: { value: string; onSave: (v: string) => void }) {
-  const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState(value)
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
 
   if (!editing) {
     return (
@@ -603,22 +601,31 @@ function InlineEdit({ value, onSave }: { value: string; onSave: (v: string) => v
       >
         {value}
       </span>
-    )
+    );
   }
 
   return (
     <Input
       autoFocus
       value={draft}
-      onChange={e => setDraft(e.target.value)}
-      onBlur={() => { onSave(draft); setEditing(false) }}
-      onKeyDown={e => {
-        if (e.key === 'Enter') { onSave(draft); setEditing(false) }
-        if (e.key === 'Escape') { setDraft(value); setEditing(false) }
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={() => {
+        onSave(draft);
+        setEditing(false);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          onSave(draft);
+          setEditing(false);
+        }
+        if (e.key === 'Escape') {
+          setDraft(value);
+          setEditing(false);
+        }
       }}
       className="h-7 text-sm px-1"
     />
-  )
+  );
 }
 ```
 
@@ -628,8 +635,10 @@ function InlineEdit({ value, onSave }: { value: string; onSave: (v: string) => v
 <div className="relative">
   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
   <Input className="pl-9 pr-20" placeholder="Search..." />
-  <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground
-                   bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded border font-mono">
+  <kbd
+    className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground
+                   bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded border font-mono"
+  >
     ⌘K
   </kbd>
 </div>
@@ -655,14 +664,14 @@ function InlineEdit({ value, onSave }: { value: string; onSave: (v: string) => v
 
 ### 10.1 Requirements
 
-| Requirement | Implementation |
-|-------------|---------------|
-| Label association | `<Label htmlFor="id">` matches `<Input id="id">` |
-| `aria-describedby` | Link error/helper text to input |
-| `aria-invalid` | Set to `true` on error state |
-| `aria-required` | Set when field is required |
-| `aria-disabled` | Visually disabled but focusable (for tooltips) |
-| Focus visible | `focus-visible:ring-2 ring-ring ring-offset-2` |
+| Requirement        | Implementation                                   |
+| ------------------ | ------------------------------------------------ |
+| Label association  | `<Label htmlFor="id">` matches `<Input id="id">` |
+| `aria-describedby` | Link error/helper text to input                  |
+| `aria-invalid`     | Set to `true` on error state                     |
+| `aria-required`    | Set when field is required                       |
+| `aria-disabled`    | Visually disabled but focusable (for tooltips)   |
+| Focus visible      | `focus-visible:ring-2 ring-ring ring-offset-2`   |
 
 ### 10.2 Full Accessibility Example
 
@@ -691,14 +700,14 @@ function InlineEdit({ value, onSave }: { value: string; onSave: (v: string) => v
 
 ### 10.3 Keyboard Navigation
 
-| Key | Behavior |
-|-----|----------|
-| `Tab` | Move to next input |
-| `Shift+Tab` | Move to previous input |
-| `Enter` | Submit form (on submit button or single input) |
-| `Escape` | Close dropdown (Select), cancel inline edit |
-| `Arrow Up/Down` | Navigate Select options |
-| `Space` | Toggle Checkbox |
+| Key             | Behavior                                       |
+| --------------- | ---------------------------------------------- |
+| `Tab`           | Move to next input                             |
+| `Shift+Tab`     | Move to previous input                         |
+| `Enter`         | Submit form (on submit button or single input) |
+| `Escape`        | Close dropdown (Select), cancel inline edit    |
+| `Arrow Up/Down` | Navigate Select options                        |
+| `Space`         | Toggle Checkbox                                |
 
 ### 10.4 Error Announcements
 
@@ -715,16 +724,16 @@ function InlineEdit({ value, onSave }: { value: string; onSave: (v: string) => v
 
 ## 11. Don'ts
 
-| ❌ Don't | ✅ Do Instead |
-|---------|-------------|
-| Use placeholder as label | Always use a visible `<Label>` |
-| Color-only error indication | Pair red border with error text + icon |
-| Set `pointer-events: none` on disabled | Use `disabled` prop (browser handles it) |
-| Skip `htmlFor` / `id` linking | Every input must have an associated label |
-| Use `<div>` as input container | Use native `<input>` or `<textarea>` |
-| Auto-focus multiple inputs | Only auto-focus the most relevant one (search) |
-| Hide error text behind interaction | Show errors immediately on submit |
-| Use `*` asterisk without `aria-required` | Always pair visual required with ARIA |
+| ❌ Don't                                 | ✅ Do Instead                                  |
+| ---------------------------------------- | ---------------------------------------------- |
+| Use placeholder as label                 | Always use a visible `<Label>`                 |
+| Color-only error indication              | Pair red border with error text + icon         |
+| Set `pointer-events: none` on disabled   | Use `disabled` prop (browser handles it)       |
+| Skip `htmlFor` / `id` linking            | Every input must have an associated label      |
+| Use `<div>` as input container           | Use native `<input>` or `<textarea>`           |
+| Auto-focus multiple inputs               | Only auto-focus the most relevant one (search) |
+| Hide error text behind interaction       | Show errors immediately on submit              |
+| Use `*` asterisk without `aria-required` | Always pair visual required with ARIA          |
 
 ---
 

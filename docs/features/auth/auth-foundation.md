@@ -17,47 +17,47 @@ This document describes the authentication foundation for the Sprint.io platform
 
 #### Users Table
 
-| Column | Type | Constraints |
-|--------|------|------------|
-| id | UUID | PK, auto-generated |
-| email | VARCHAR(255) | UNIQUE, NOT NULL |
-| password_hash | VARCHAR(255) | NOT NULL |
-| email_verified | BOOLEAN | DEFAULT FALSE |
-| created_at | TIMESTAMPTZ | DEFAULT NOW() |
-| updated_at | TIMESTAMPTZ | DEFAULT NOW() |
+| Column         | Type         | Constraints        |
+| -------------- | ------------ | ------------------ |
+| id             | UUID         | PK, auto-generated |
+| email          | VARCHAR(255) | UNIQUE, NOT NULL   |
+| password_hash  | VARCHAR(255) | NOT NULL           |
+| email_verified | BOOLEAN      | DEFAULT FALSE      |
+| created_at     | TIMESTAMPTZ  | DEFAULT NOW()      |
+| updated_at     | TIMESTAMPTZ  | DEFAULT NOW()      |
 
 #### Sessions Table
 
-| Column | Type | Constraints |
-|--------|------|------------|
-| id | UUID | PK, auto-generated |
-| user_id | UUID | FK -> users(id), CASCADE |
-| user_agent | TEXT | |
-| ip_address | VARCHAR(45) | |
-| expires_at | TIMESTAMPTZ | NOT NULL |
-| created_at | TIMESTAMPTZ | DEFAULT NOW() |
+| Column     | Type        | Constraints              |
+| ---------- | ----------- | ------------------------ |
+| id         | UUID        | PK, auto-generated       |
+| user_id    | UUID        | FK -> users(id), CASCADE |
+| user_agent | TEXT        |                          |
+| ip_address | VARCHAR(45) |                          |
+| expires_at | TIMESTAMPTZ | NOT NULL                 |
+| created_at | TIMESTAMPTZ | DEFAULT NOW()            |
 
 #### Refresh Tokens Table
 
-| Column | Type | Constraints |
-|--------|------|------------|
-| id | UUID | PK, auto-generated |
-| token_hash | VARCHAR(255) | UNIQUE, NOT NULL |
-| session_id | UUID | FK -> sessions(id), CASCADE |
-| user_id | UUID | FK -> users(id), CASCADE |
-| expires_at | TIMESTAMPTZ | NOT NULL |
-| created_at | TIMESTAMPTZ | DEFAULT NOW() |
+| Column     | Type         | Constraints                 |
+| ---------- | ------------ | --------------------------- |
+| id         | UUID         | PK, auto-generated          |
+| token_hash | VARCHAR(255) | UNIQUE, NOT NULL            |
+| session_id | UUID         | FK -> sessions(id), CASCADE |
+| user_id    | UUID         | FK -> users(id), CASCADE    |
+| expires_at | TIMESTAMPTZ  | NOT NULL                    |
+| created_at | TIMESTAMPTZ  | DEFAULT NOW()               |
 
 ### API Endpoints
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | /api/auth/register | No | Register a new user |
-| POST | /api/auth/login | No | Login with email/password |
-| POST | /api/auth/refresh | No* | Refresh access token |
-| POST | /api/auth/logout | Yes | Logout (single session) |
-| POST | /api/auth/logout-all | Yes | Logout all sessions |
-| GET | /api/auth/me | Yes | Get current user profile |
+| Method | Path                 | Auth | Description               |
+| ------ | -------------------- | ---- | ------------------------- |
+| POST   | /api/auth/register   | No   | Register a new user       |
+| POST   | /api/auth/login      | No   | Login with email/password |
+| POST   | /api/auth/refresh    | No*  | Refresh access token      |
+| POST   | /api/auth/logout     | Yes  | Logout (single session)   |
+| POST   | /api/auth/logout-all | Yes  | Logout all sessions       |
+| GET    | /api/auth/me         | Yes  | Get current user profile  |
 
 \*Uses refresh token cookie, not access token
 

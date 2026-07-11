@@ -28,15 +28,15 @@ Modals (dialogs) create focused, temporary contexts. They interrupt the user flo
 
 ### When to Use a Modal
 
-| Scenario | Use Modal? |
-|----------|-----------|
-| Create/edit a task | ✅ Yes — focused form |
-| Confirm destructive action | ✅ Yes — requires explicit consent |
-| Settings panel | ⚠️ Maybe — consider slide-over instead |
-| Quick info display | ❌ No — use tooltip or inline |
-| Inline editing | ❌ No — edit in place |
-| Long forms (>4 fields) | ⚠️ Maybe — consider dedicated page |
-| Command palette (⌘K) | ✅ Yes — command palette pattern |
+| Scenario                   | Use Modal?                             |
+| -------------------------- | -------------------------------------- |
+| Create/edit a task         | ✅ Yes — focused form                  |
+| Confirm destructive action | ✅ Yes — requires explicit consent     |
+| Settings panel             | ⚠️ Maybe — consider slide-over instead |
+| Quick info display         | ❌ No — use tooltip or inline          |
+| Inline editing             | ❌ No — edit in place                  |
+| Long forms (>4 fields)     | ⚠️ Maybe — consider dedicated page     |
+| Command palette (⌘K)       | ✅ Yes — command palette pattern       |
 
 ### Modal Hierarchy
 
@@ -73,12 +73,12 @@ npx shadcn@latest add dialog
 
 ### Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `@radix-ui/react-dialog` | Accessible dialog primitive |
-| `class-variance-authority` | Variant management |
-| `tailwind-merge` | Class merging |
-| `lucide-react` | Close icon |
+| Package                    | Purpose                     |
+| -------------------------- | --------------------------- |
+| `@radix-ui/react-dialog`   | Accessible dialog primitive |
+| `class-variance-authority` | Variant management          |
+| `tailwind-merge`           | Class merging               |
+| `lucide-react`             | Close icon                  |
 
 ---
 
@@ -119,25 +119,27 @@ npx shadcn@latest add dialog
 ### 3.2 Radix UI Primitives
 
 ```tsx
-import * as Dialog from '@radix-ui/react-dialog'
+import * as Dialog from '@radix-ui/react-dialog';
 
 <Dialog.Root>
   <Dialog.Trigger asChild>
     <Button>Open Dialog</Button>
   </Dialog.Trigger>
   <Dialog.Portal>
-    <Dialog.Overlay />      {/* backdrop */}
-    <Dialog.Content>         {/* modal box */}
+    <Dialog.Overlay /> {/* backdrop */}
+    <Dialog.Content>
+      {' '}
+      {/* modal box */}
       <Dialog.Header>
         <Dialog.Title />
         <Dialog.Description />
       </Dialog.Header>
       {/* body content */}
       <Dialog.Footer />
-      <Dialog.Close />       {/* close button */}
+      <Dialog.Close /> {/* close button */}
     </Dialog.Content>
   </Dialog.Portal>
-</Dialog.Root>
+</Dialog.Root>;
 ```
 
 ---
@@ -148,66 +150,66 @@ import * as Dialog from '@radix-ui/react-dialog'
 
 Standard centered dialog.
 
-| Property | Value |
-|----------|-------|
-| Max width | `max-w-lg` (512px) |
-| Padding | `p-6` |
-| Radius | `rounded-xl` |
-| Shadow | `shadow-lg` |
-| Overlay | `bg-black/50 dark:bg-black/70` |
-| Position | Centered, `top-[50%] translate-y-[-50%]` |
-| Usage | Create task, edit task, settings forms |
+| Property  | Value                                    |
+| --------- | ---------------------------------------- |
+| Max width | `max-w-lg` (512px)                       |
+| Padding   | `p-6`                                    |
+| Radius    | `rounded-xl`                             |
+| Shadow    | `shadow-lg`                              |
+| Overlay   | `bg-black/50 dark:bg-black/70`           |
+| Position  | Centered, `top-[50%] translate-y-[-50%]` |
+| Usage     | Create task, edit task, settings forms   |
 
 ### 4.2 Compact (Small)
 
 For quick confirmations and small forms.
 
-| Property | Value |
-|----------|-------|
-| Max width | `max-w-sm` (384px) |
-| Padding | `p-4` |
-| Radius | `rounded-xl` |
-| Shadow | `shadow-lg` |
-| Usage | Confirm delete, quick prompt, alert |
+| Property  | Value                               |
+| --------- | ----------------------------------- |
+| Max width | `max-w-sm` (384px)                  |
+| Padding   | `p-4`                               |
+| Radius    | `rounded-xl`                        |
+| Shadow    | `shadow-lg`                         |
+| Usage     | Confirm delete, quick prompt, alert |
 
 ### 4.3 Wide (Large)
 
 For complex forms, multi-step flows, or content-heavy modals.
 
-| Property | Value |
-|----------|-------|
-| Max width | `max-w-2xl` (672px) |
-| Padding | `p-6` |
-| Radius | `rounded-xl` |
-| Shadow | `shadow-lg` |
-| Usage | Onboarding wizard, detailed settings, report view |
+| Property  | Value                                             |
+| --------- | ------------------------------------------------- |
+| Max width | `max-w-2xl` (672px)                               |
+| Padding   | `p-6`                                             |
+| Radius    | `rounded-xl`                                      |
+| Shadow    | `shadow-lg`                                       |
+| Usage     | Onboarding wizard, detailed settings, report view |
 
 ### 4.4 Full-Screen
 
 Maximum focus. Reserved for immersive tasks.
 
-| Property | Value |
-|----------|-------|
-| Width | `w-[calc(100vw-32px)]` |
-| Height | `h-[calc(100vh-32px)]` |
-| Margin | `m-4` (16px inset) |
-| Padding | `p-6` |
-| Radius | `rounded-xl` |
-| Usage | Document editor, full report, complex board configuration |
+| Property | Value                                                     |
+| -------- | --------------------------------------------------------- |
+| Width    | `w-[calc(100vw-32px)]`                                    |
+| Height   | `h-[calc(100vh-32px)]`                                    |
+| Margin   | `m-4` (16px inset)                                        |
+| Padding  | `p-6`                                                     |
+| Radius   | `rounded-xl`                                              |
+| Usage    | Document editor, full report, complex board configuration |
 
 ### 4.5 Slide-Over (Panel)
 
 Slides in from the right. Best for detail views and settings.
 
-| Property | Value |
-|----------|-------|
-| Width | `w-[400px]` |
-| Position | `fixed right-0 top-0 h-full` |
-| Radius | `rounded-l-xl` (left side only) |
-| Shadow | `shadow-xl` |
-| Overlay | `bg-black/50` |
-| Animation | `translate-x-full → translate-x-0` |
-| Usage | Task detail, member list, AI copilot panel |
+| Property  | Value                                      |
+| --------- | ------------------------------------------ |
+| Width     | `w-[400px]`                                |
+| Position  | `fixed right-0 top-0 h-full`               |
+| Radius    | `rounded-l-xl` (left side only)            |
+| Shadow    | `shadow-xl`                                |
+| Overlay   | `bg-black/50`                              |
+| Animation | `translate-x-full → translate-x-0`         |
+| Usage     | Task detail, member list, AI copilot panel |
 
 ---
 
@@ -217,9 +219,9 @@ Slides in from the right. Best for detail views and settings.
 
 ```tsx
 interface DialogProps {
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
-  children: React.ReactNode
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  children: React.ReactNode;
 }
 ```
 
@@ -228,13 +230,13 @@ interface DialogProps {
 ```tsx
 interface DialogContentProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Size preset */
-  size?: 'sm' | 'default' | 'lg' | 'xl' | 'full'
+  size?: 'sm' | 'default' | 'lg' | 'xl' | 'full';
   /** Show close button in top-right */
-  showClose?: boolean
+  showClose?: boolean;
   /** Disable overlay click-to-close */
-  preventOverlayClose?: boolean
+  preventOverlayClose?: boolean;
   /** Custom overlay class */
-  overlayClassName?: string
+  overlayClassName?: string;
 }
 ```
 
@@ -243,13 +245,13 @@ interface DialogContentProps extends React.HTMLAttributes<HTMLDivElement> {
 ```tsx
 const dialogContentVariants = cva(
   'fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%]' +
-  ' gap-4 bg-card p-6 shadow-lg duration-200' +
-  ' data-[state=open]:animate-in data-[state=closed]:animate-out' +
-  ' data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0' +
-  ' data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95' +
-  ' data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]' +
-  ' data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]' +
-  ' sm:rounded-xl',
+    ' gap-4 bg-card p-6 shadow-lg duration-200' +
+    ' data-[state=open]:animate-in data-[state=closed]:animate-out' +
+    ' data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0' +
+    ' data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95' +
+    ' data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]' +
+    ' data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]' +
+    ' sm:rounded-xl',
   {
     variants: {
       size: {
@@ -263,8 +265,8 @@ const dialogContentVariants = cva(
     defaultVariants: {
       size: 'default',
     },
-  }
-)
+  },
+);
 ```
 
 ### 5.4 Overlay
@@ -272,10 +274,10 @@ const dialogContentVariants = cva(
 ```tsx
 const dialogOverlayVariants = cva(
   'fixed inset-0 z-50 bg-black/50' +
-  ' data-[state=open]:animate-in data-[state=closed]:animate-out' +
-  ' data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0' +
-  ' dark:bg-black/70'
-)
+    ' data-[state=open]:animate-in data-[state=closed]:animate-out' +
+    ' data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0' +
+    ' dark:bg-black/70',
+);
 ```
 
 ---
@@ -284,22 +286,22 @@ const dialogOverlayVariants = cva(
 
 ### 6.1 Dialog Internal Spacing
 
-| Element | Spacing | Tailwind |
-|---------|---------|----------|
-| Dialog padding | 24px all sides | `p-6` |
-| Compact dialog padding | 16px all sides | `p-4` |
-| Close button position | 16px from edges | `top-4 right-4` |
-| Header → Content | 6px | `space-y-1.5` |
-| Content → Footer | implicit (via padding areas) | — |
-| Footer button gap | 8px | `gap-2` |
-| Overlay backdrop blur | — | `backdrop-blur-sm` (optional) |
+| Element                | Spacing                      | Tailwind                      |
+| ---------------------- | ---------------------------- | ----------------------------- |
+| Dialog padding         | 24px all sides               | `p-6`                         |
+| Compact dialog padding | 16px all sides               | `p-4`                         |
+| Close button position  | 16px from edges              | `top-4 right-4`               |
+| Header → Content       | 6px                          | `space-y-1.5`                 |
+| Content → Footer       | implicit (via padding areas) | —                             |
+| Footer button gap      | 8px                          | `gap-2`                       |
+| Overlay backdrop blur  | —                            | `backdrop-blur-sm` (optional) |
 
 ### 6.2 Overlay Spacing
 
-| Screen Size | Overlay Padding | Modal Position |
-|-------------|----------------|----------------|
-| Mobile (<768px) | 16px (`p-4`) | Full width minus padding |
-| Desktop (≥768px) | auto-center | Centered, max-width set |
+| Screen Size      | Overlay Padding | Modal Position           |
+| ---------------- | --------------- | ------------------------ |
+| Mobile (<768px)  | 16px (`p-4`)    | Full width minus padding |
+| Desktop (≥768px) | auto-center     | Centered, max-width set  |
 
 ### 6.3 Modal → Modal Stacking
 
@@ -332,9 +334,7 @@ Radix UI handles stacking automatically.
   <DialogContent size="default">
     <DialogHeader>
       <DialogTitle>Create New Task</DialogTitle>
-      <DialogDescription>
-        Add a new task to your project board.
-      </DialogDescription>
+      <DialogDescription>Add a new task to your project board.</DialogDescription>
     </DialogHeader>
 
     <div className="space-y-4 py-2">
@@ -381,10 +381,13 @@ Radix UI handles stacking automatically.
 
 ```tsx
 <Dialog>
-  <DialogContent size="xl" className="right-0 top-0 h-full w-full max-w-[400px]
+  <DialogContent
+    size="xl"
+    className="right-0 top-0 h-full w-full max-w-[400px]
     translate-x-0 translate-y-0 rounded-l-xl
     data-[state=closed]:slide-out-to-right
-    data-[state=open]:slide-in-from-right">
+    data-[state=open]:slide-in-from-right"
+  >
     <DialogHeader>
       <DialogTitle>Task Details</DialogTitle>
     </DialogHeader>
@@ -410,7 +413,7 @@ Radix UI handles stacking automatically.
 
         <FormField label="Subtasks">
           <div className="space-y-2">
-            {subtasks.map(sub => (
+            {subtasks.map((sub) => (
               <div key={sub.id} className="flex items-center gap-2">
                 <Checkbox checked={sub.done} />
                 <span className="text-sm">{sub.title}</span>
@@ -438,9 +441,7 @@ Radix UI handles stacking automatically.
   <DialogContent size="lg">
     <DialogHeader>
       <DialogTitle>Project Settings</DialogTitle>
-      <DialogDescription>
-        Manage your project configuration.
-      </DialogDescription>
+      <DialogDescription>Manage your project configuration.</DialogDescription>
     </DialogHeader>
 
     <Tabs defaultValue="general" className="py-2">
@@ -518,23 +519,29 @@ A specialized modal for quick actions. Appears centered with a search input.
 
 ### 8.2 Command Palette Spacing
 
-| Element | Spacing | Tailwind |
-|---------|---------|----------|
-| Max width | 560px | `max-w-[560px]` |
-| Input padding | 12px × 16px | `px-4 py-3` |
-| Input → Results | 0 (border separator) | `border-t` |
-| Result item padding | 8px × 12px | `px-3 py-2` |
-| Result → Result | 2px | `gap-0.5` |
-| Result icon → text | 8px | `gap-2` |
-| Result text → shortcut | flex-1 (pushed right) | `ml-auto` |
-| Shortcut key style | `kbd` | `text-[10px] px-1.5 py-0.5 bg-muted rounded` |
+| Element                | Spacing               | Tailwind                                     |
+| ---------------------- | --------------------- | -------------------------------------------- |
+| Max width              | 560px                 | `max-w-[560px]`                              |
+| Input padding          | 12px × 16px           | `px-4 py-3`                                  |
+| Input → Results        | 0 (border separator)  | `border-t`                                   |
+| Result item padding    | 8px × 12px            | `px-3 py-2`                                  |
+| Result → Result        | 2px                   | `gap-0.5`                                    |
+| Result icon → text     | 8px                   | `gap-2`                                      |
+| Result text → shortcut | flex-1 (pushed right) | `ml-auto`                                    |
+| Shortcut key style     | `kbd`                 | `text-[10px] px-1.5 py-0.5 bg-muted rounded` |
 
 ### 8.3 Implementation
 
 ```tsx
-import { Command } from 'cmdk'
+import { Command } from 'cmdk';
 
-function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+function CommandPalette({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="overflow-hidden p-0 max-w-[560px]">
@@ -547,8 +554,10 @@ function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenChange: (
               className="flex-1 bg-transparent py-3 px-3 text-sm outline-none
                          placeholder:text-muted-foreground"
             />
-            <kbd className="text-[10px] text-muted-foreground bg-muted
-                           px-1.5 py-0.5 rounded border font-mono">
+            <kbd
+              className="text-[10px] text-muted-foreground bg-muted
+                           px-1.5 py-0.5 rounded border font-mono"
+            >
               ESC
             </kbd>
           </div>
@@ -560,22 +569,30 @@ function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenChange: (
             </Command.Empty>
 
             <Command.Group heading="Actions" className="px-2">
-              <Command.Item className="flex items-center gap-2 px-3 py-2 rounded-md text-sm
-                                       cursor-pointer data-[selected]:bg-accent">
+              <Command.Item
+                className="flex items-center gap-2 px-3 py-2 rounded-md text-sm
+                                       cursor-pointer data-[selected]:bg-accent"
+              >
                 <Plus className="h-4 w-4" />
                 Create Task
-                <kbd className="ml-auto text-[10px] text-muted-foreground bg-muted
-                               px-1.5 py-0.5 rounded border font-mono">
+                <kbd
+                  className="ml-auto text-[10px] text-muted-foreground bg-muted
+                               px-1.5 py-0.5 rounded border font-mono"
+                >
                   ⌘N
                 </kbd>
               </Command.Item>
 
-              <Command.Item className="flex items-center gap-2 px-3 py-2 rounded-md text-sm
-                                       cursor-pointer data-[selected]:bg-accent">
+              <Command.Item
+                className="flex items-center gap-2 px-3 py-2 rounded-md text-sm
+                                       cursor-pointer data-[selected]:bg-accent"
+              >
                 <Search className="h-4 w-4" />
                 Search Tasks
-                <kbd className="ml-auto text-[10px] text-muted-foreground bg-muted
-                               px-1.5 py-0.5 rounded border font-mono">
+                <kbd
+                  className="ml-auto text-[10px] text-muted-foreground bg-muted
+                               px-1.5 py-0.5 rounded border font-mono"
+                >
                   ⌘F
                 </kbd>
               </Command.Item>
@@ -584,13 +601,17 @@ function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenChange: (
             <Command.Separator className="my-1 h-px bg-border" />
 
             <Command.Group heading="AI" className="px-2">
-              <Command.Item className="flex items-center gap-2 px-3 py-2 rounded-md text-sm
+              <Command.Item
+                className="flex items-center gap-2 px-3 py-2 rounded-md text-sm
                                        cursor-pointer data-[selected]:bg-accent
-                                       text-violet-600 dark:text-violet-400">
+                                       text-violet-600 dark:text-violet-400"
+              >
                 <Sparkles className="h-4 w-4" />
                 Summarize Board
-                <kbd className="ml-auto text-[10px] text-muted-foreground bg-muted
-                               px-1.5 py-0.5 rounded border font-mono">
+                <kbd
+                  className="ml-auto text-[10px] text-muted-foreground bg-muted
+                               px-1.5 py-0.5 rounded border font-mono"
+                >
                   ⌘I
                 </kbd>
               </Command.Item>
@@ -599,19 +620,19 @@ function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenChange: (
         </Command>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 ```
 
 ### 8.4 Keyboard Shortcuts
 
-| Key | Action |
-|-----|--------|
-| `⌘K` / `Ctrl+K` | Open command palette |
-| `Escape` | Close command palette |
-| `↑` / `↓` | Navigate results |
-| `Enter` | Execute selected command |
-| Type to filter | Real-time fuzzy search |
+| Key             | Action                   |
+| --------------- | ------------------------ |
+| `⌘K` / `Ctrl+K` | Open command palette     |
+| `Escape`        | Close command palette    |
+| `↑` / `↓`       | Navigate results         |
+| `Enter`         | Execute selected command |
+| Type to filter  | Real-time fuzzy search   |
 
 ---
 
@@ -628,12 +649,12 @@ function ConfirmDeleteDialog({
   onConfirm,
   itemName,
 }: {
-  open: boolean
-  onOpenChange: (v: boolean) => void
-  onConfirm: () => void
-  itemName: string
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onConfirm: () => void;
+  itemName: string;
 }) {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -641,23 +662,25 @@ function ConfirmDeleteDialog({
         <DialogHeader>
           <DialogTitle>Delete Task</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete <strong>"{itemName}"</strong>?
-            This action cannot be undone.
+            Are you sure you want to delete <strong>"{itemName}"</strong>? This action cannot be
+            undone.
           </DialogDescription>
         </DialogHeader>
 
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="ghost" disabled={loading}>Cancel</Button>
+            <Button variant="ghost" disabled={loading}>
+              Cancel
+            </Button>
           </DialogClose>
           <Button
             variant="destructive"
             disabled={loading}
             onClick={async () => {
-              setLoading(true)
-              await onConfirm()
-              setLoading(false)
-              onOpenChange(false)
+              setLoading(true);
+              await onConfirm();
+              setLoading(false);
+              onOpenChange(false);
             }}
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -666,7 +689,7 @@ function ConfirmDeleteDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 ```
 
@@ -677,9 +700,7 @@ function ConfirmDeleteDialog({
 <DialogContent size="sm">
   <DialogHeader>
     <DialogTitle>Unsaved Changes</DialogTitle>
-    <DialogDescription>
-      You have unsaved changes. Discard them?
-    </DialogDescription>
+    <DialogDescription>You have unsaved changes. Discard them?</DialogDescription>
   </DialogHeader>
   <DialogFooter>
     <DialogClose asChild>
@@ -692,14 +713,14 @@ function ConfirmDeleteDialog({
 
 ### 9.3 Confirmation Rules
 
-| Rule | Details |
-|------|---------|
-| Always show item name | "Delete **Task A**?" not just "Delete?" |
-| State irreversibility | "This action cannot be undone." |
-| Destructive button = red | `variant="destructive"` |
-| Cancel is always safe | `variant="ghost"` — easy to dismiss |
-| Loading on confirm | Disable both buttons, show spinner on confirm |
-| Never auto-focus destructive | Focus Cancel button by default |
+| Rule                         | Details                                       |
+| ---------------------------- | --------------------------------------------- |
+| Always show item name        | "Delete **Task A**?" not just "Delete?"       |
+| State irreversibility        | "This action cannot be undone."               |
+| Destructive button = red     | `variant="destructive"`                       |
+| Cancel is always safe        | `variant="ghost"` — easy to dismiss           |
+| Loading on confirm           | Disable both buttons, show spinner on confirm |
+| Never auto-focus destructive | Focus Cancel button by default                |
 
 ---
 
@@ -707,16 +728,16 @@ function ConfirmDeleteDialog({
 
 ### 10.1 Requirements
 
-| Requirement | Implementation |
-|-------------|---------------|
-| Focus trapped | Radix UI handles automatically |
-| Focus returns on close | Radix UI handles automatically |
-| `aria-labelledby` | `DialogTitle` provides this |
-| `aria-describedby` | `DialogDescription` provides this |
-| `aria-modal="true"` | Radix UI handles automatically |
-| Escape to close | Built-in |
-| Click overlay to close | Built-in (can disable) |
-| Scroll lock on body | Radix UI handles automatically |
+| Requirement            | Implementation                    |
+| ---------------------- | --------------------------------- |
+| Focus trapped          | Radix UI handles automatically    |
+| Focus returns on close | Radix UI handles automatically    |
+| `aria-labelledby`      | `DialogTitle` provides this       |
+| `aria-describedby`     | `DialogDescription` provides this |
+| `aria-modal="true"`    | Radix UI handles automatically    |
+| Escape to close        | Built-in                          |
+| Click overlay to close | Built-in (can disable)            |
+| Scroll lock on body    | Radix UI handles automatically    |
 
 ### 10.2 Focus Management
 
@@ -745,35 +766,36 @@ On close:
 
 ### 10.4 Keyboard Navigation
 
-| Key | Behavior |
-|-----|----------|
-| `Escape` | Close modal, return focus to trigger |
-| `Tab` | Move to next focusable element within modal |
-| `Shift+Tab` | Move to previous focusable element within modal |
-| `Enter` | Activate focused button/link |
+| Key          | Behavior                                          |
+| ------------ | ------------------------------------------------- |
+| `Escape`     | Close modal, return focus to trigger              |
+| `Tab`        | Move to next focusable element within modal       |
+| `Shift+Tab`  | Move to previous focusable element within modal   |
+| `Enter`      | Activate focused button/link                      |
 | `Arrow keys` | Navigate within Select dropdowns, Command palette |
 
 ---
 
 ## 11. Don'ts
 
-| ❌ Don't | ✅ Do Instead |
-|---------|-------------|
-| Open modal from modal (deep nesting) | Use slide-over, or navigate to new page |
-| Use modal for simple alerts | Use toast notification |
-| Auto-focus destructive action button | Focus cancel/safe option |
-| Skip confirmation on destructive actions | Always confirm delete, archive, remove |
-| Make modal scroll beyond viewport height | Use scroll area within content, cap at `max-h-[85vh]` |
-| Close modal on background click for unsaved data | Disable overlay close with `onInteractOutside` |
-| Use modal for full-page workflows | Use dedicated route/page |
-| Skip close button | Always show `×` button alongside Escape |
-| Use long forms in small modal | Use wide variant or dedicated page |
+| ❌ Don't                                         | ✅ Do Instead                                         |
+| ------------------------------------------------ | ----------------------------------------------------- |
+| Open modal from modal (deep nesting)             | Use slide-over, or navigate to new page               |
+| Use modal for simple alerts                      | Use toast notification                                |
+| Auto-focus destructive action button             | Focus cancel/safe option                              |
+| Skip confirmation on destructive actions         | Always confirm delete, archive, remove                |
+| Make modal scroll beyond viewport height         | Use scroll area within content, cap at `max-h-[85vh]` |
+| Close modal on background click for unsaved data | Disable overlay close with `onInteractOutside`        |
+| Use modal for full-page workflows                | Use dedicated route/page                              |
+| Skip close button                                | Always show `×` button alongside Escape               |
+| Use long forms in small modal                    | Use wide variant or dedicated page                    |
 
 ---
 
 > **End of Sprintio Design System**
 >
 > All 8 files:
+>
 > 1. [01-SPACING.md](./01-SPACING.md) — Spacing system
 > 2. [02-TOKENS.md](./02-TOKENS.md) — Design tokens
 > 3. [03-TAILWIND-CONFIG.md](./03-TAILWIND-CONFIG.md) — Tailwind configuration

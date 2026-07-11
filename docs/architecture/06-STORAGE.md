@@ -2,15 +2,15 @@
 
 ---
 
-| Field          | Value                                                                          |
-|----------------|--------------------------------------------------------------------------------|
-| Document Type  | Storage Architecture                                                           |
-| Product        | Sprintio — Sprint fast. Ship together.                                         |
-| Version        | 1.0                                                                            |
-| Status         | Finalized                                                                      |
-| Date           | 2026-07-08                                                                     |
-| Author         | Engineering Team                                                               |
-| Related Docs   | [Frontend Architecture](01-FRONTEND.md), [MVP Definition](../MVP_DEFINITION.md), [PRD](../PRD.md), [NFRs](../NON_FUNCTIONAL_REQUIREMENTS.md) |
+| Field         | Value                                                                                                                                        |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Document Type | Storage Architecture                                                                                                                         |
+| Product       | Sprintio — Sprint fast. Ship together.                                                                                                       |
+| Version       | 1.0                                                                                                                                          |
+| Status        | Finalized                                                                                                                                    |
+| Date          | 2026-07-08                                                                                                                                   |
+| Author        | Engineering Team                                                                                                                             |
+| Related Docs  | [Frontend Architecture](01-FRONTEND.md), [MVP Definition](../MVP_DEFINITION.md), [PRD](../PRD.md), [NFRs](../NON_FUNCTIONAL_REQUIREMENTS.md) |
 
 ---
 
@@ -38,23 +38,23 @@ This document defines the complete storage architecture for Sprintio. All binary
 
 ### Design Principles
 
-| # | Principle | Application |
-|---|-----------|-------------|
-| 1 | **Direct client uploads** | The browser uploads straight to R2 via presigned URLs. The Node.js server never sees file bytes for large uploads — it only signs URLs and records metadata. |
-| 2 | **Workspace-scoped isolation** | Every object key is prefixed by workspace ID. No cross-workspace access is possible without an explicit signed URL. |
-| 3 | **Content-addressed caching** | CDN cache keys include a version hash. Updating a file creates a new object; the old one is cleaned up asynchronously. |
-| 4 | **Soft delete, async cleanup** | Files are never hard-deleted on user action. They are marked deleted in the DB and garbage-collected after a configurable retention period. |
-| 5 | **Fail-safe uploads** | A separate upload_sessions table tracks in-progress uploads. Incomplete uploads are cleaned up by a cron job, never left dangling. |
-| 6 | **Least-privilege access** | Public read access is limited to avatar images and shared export links. Everything else requires time-limited signed URLs. |
+| #   | Principle                      | Application                                                                                                                                                  |
+| --- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | **Direct client uploads**      | The browser uploads straight to R2 via presigned URLs. The Node.js server never sees file bytes for large uploads — it only signs URLs and records metadata. |
+| 2   | **Workspace-scoped isolation** | Every object key is prefixed by workspace ID. No cross-workspace access is possible without an explicit signed URL.                                          |
+| 3   | **Content-addressed caching**  | CDN cache keys include a version hash. Updating a file creates a new object; the old one is cleaned up asynchronously.                                       |
+| 4   | **Soft delete, async cleanup** | Files are never hard-deleted on user action. They are marked deleted in the DB and garbage-collected after a configurable retention period.                  |
+| 5   | **Fail-safe uploads**          | A separate upload_sessions table tracks in-progress uploads. Incomplete uploads are cleaned up by a cron job, never left dangling.                           |
+| 6   | **Least-privilege access**     | Public read access is limited to avatar images and shared export links. Everything else requires time-limited signed URLs.                                   |
 
 ### Technology Choices
 
-| Concern | Choice | Rationale |
-|---------|--------|-----------|
-| Object Store | Cloudflare R2 | Zero egress, S3-compatible API, native CDN, 10 GB free tier |
-| SDK | `@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner` | S3-compatible; works out-of-the-box with R2 |
+| Concern          | Choice                                                 | Rationale                                                         |
+| ---------------- | ------------------------------------------------------ | ----------------------------------------------------------------- |
+| Object Store     | Cloudflare R2                                          | Zero egress, S3-compatible API, native CDN, 10 GB free tier       |
+| SDK              | `@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner` | S3-compatible; works out-of-the-box with R2                       |
 | Image Processing | Cloudflare Images (resize rules) + sharp (server-side) | CDN-edge transforms for common sizes; sharp for custom processing |
-| Temp Storage | R2 bucket with 24-hour lifecycle | No ephemeral disk to manage |
+| Temp Storage     | R2 bucket with 24-hour lifecycle                       | No ephemeral disk to manage                                       |
 
 ---
 
@@ -83,15 +83,15 @@ Sprintio uses **three R2 buckets**, each with distinct lifecycle and access poli
 
 ### 2.2 Bucket Configuration
 
-| Setting | `sprintio-production` | `sprintio-temp` | `sprintio-backups` |
-|---------|-----------------------|------------------|--------------------|
-| Region | Auto (R2 selects) | Auto | Auto |
-| Storage Class | Standard | Standard | Infrequent Access |
-| Public Access | Disabled | Disabled | Disabled |
-| CORS | Configured for browser uploads | Same | None |
-| Lifecycle Rules | None (manual cleanup) | 24h expiration | 90-day deletion |
-| Versioning | Enabled (soft delete support) | Disabled | Disabled |
-| Max Object Size | 5 GB | 5 GB | 100 GB |
+| Setting         | `sprintio-production`          | `sprintio-temp` | `sprintio-backups` |
+| --------------- | ------------------------------ | --------------- | ------------------ |
+| Region          | Auto (R2 selects)              | Auto            | Auto               |
+| Storage Class   | Standard                       | Standard        | Infrequent Access  |
+| Public Access   | Disabled                       | Disabled        | Disabled           |
+| CORS            | Configured for browser uploads | Same            | None               |
+| Lifecycle Rules | None (manual cleanup)          | 24h expiration  | 90-day deletion    |
+| Versioning      | Enabled (soft delete support)  | Disabled        | Disabled           |
+| Max Object Size | 5 GB                           | 5 GB            | 100 GB             |
 
 ### 2.3 CORS Configuration for Production Bucket
 
@@ -112,11 +112,7 @@ Sprintio uses **three R2 buckets**, each with distinct lifecycle and access poli
       "x-amz-acl",
       "x-amz-meta-*"
     ],
-    "ExposeHeaders": [
-      "ETag",
-      "x-amz-meta-file-id",
-      "Location"
-    ],
+    "ExposeHeaders": ["ETag", "x-amz-meta-file-id", "Location"],
     "MaxAgeSeconds": 3600
   }
 ]
@@ -155,13 +151,13 @@ Every object in the production bucket follows this path structure:
 {workspace_id}/{category}/{entity_id}/{file_id}/{sanitized_filename}
 ```
 
-| Segment | Description | Example |
-|---------|-------------|---------|
-| `workspace_id` | UUID of the workspace | `ws_a1b2c3d4` |
-| `category` | Content classification | `attachments`, `avatars`, `icons`, `exports`, `media` |
-| `entity_id` | Parent entity UUID (task, doc, project) | `task_x9y8z7` |
-| `file_id` | Unique file UUID (DB primary key) | `f_12345678` |
-| `filename` | Sanitized original filename | `screenshot-2026.png` |
+| Segment        | Description                             | Example                                               |
+| -------------- | --------------------------------------- | ----------------------------------------------------- |
+| `workspace_id` | UUID of the workspace                   | `ws_a1b2c3d4`                                         |
+| `category`     | Content classification                  | `attachments`, `avatars`, `icons`, `exports`, `media` |
+| `entity_id`    | Parent entity UUID (task, doc, project) | `task_x9y8z7`                                         |
+| `file_id`      | Unique file UUID (DB primary key)       | `f_12345678`                                          |
+| `filename`     | Sanitized original filename             | `screenshot-2026.png`                                 |
 
 ### 3.2 Path Structure Diagram
 
@@ -220,11 +216,11 @@ const MULTIPLE_DASHES = /-{2,}/g;
 export function sanitizeFilename(raw: string): string {
   const ext = raw.split('.').pop()?.toLowerCase() ?? '';
   const base = raw
-    .replace(/\.[^.]+$/, '')          // strip extension
-    .replace(DANGEROUS_CHARS, '-')     // replace unsafe chars
-    .replace(MULTIPLE_DASHES, '-')     // collapse dashes
-    .replace(/^-|-$/g, '')             // trim leading/trailing dashes
-    .slice(0, 200);                    // limit length
+    .replace(/\.[^.]+$/, '') // strip extension
+    .replace(DANGEROUS_CHARS, '-') // replace unsafe chars
+    .replace(MULTIPLE_DASHES, '-') // collapse dashes
+    .replace(/^-|-$/g, '') // trim leading/trailing dashes
+    .slice(0, 200); // limit length
   return `${base}.${ext}`;
 }
 
@@ -267,11 +263,11 @@ Sprintio supports three upload strategies depending on file size and origin.
                 └────────────┘  └──────────────┘
 ```
 
-| Strategy | File Size | Use Case |
-|----------|-----------|----------|
-| Presigned PUT | < 5 MB | Avatars, icons, small attachments |
-| Presigned multipart | 5 MB – 500 MB | Large documents, images, design files |
-| Server-side (streaming) | Any | Exports generated server-side, webhooks |
+| Strategy                | File Size     | Use Case                                |
+| ----------------------- | ------------- | --------------------------------------- |
+| Presigned PUT           | < 5 MB        | Avatars, icons, small attachments       |
+| Presigned multipart     | 5 MB – 500 MB | Large documents, images, design files   |
+| Server-side (streaming) | Any           | Exports generated server-side, webhooks |
 
 ### 4.2 Step 1: Request Upload (API)
 
@@ -599,10 +595,7 @@ export const R2_BACKUPS_BUCKET = process.env.R2_BUCKET_BACKUPS!;
 
 const PRESIGNED_URL_TTL = 15 * 60; // 15 minutes
 
-export async function getPresignedPutUrl(
-  key: string,
-  contentType: string,
-): Promise<string> {
+export async function getPresignedPutUrl(key: string, contentType: string): Promise<string> {
   const command = new PutObjectCommand({
     Bucket: R2_PRODUCTION_BUCKET,
     Key: key,
@@ -650,10 +643,7 @@ export async function deleteObject(key: string): Promise<void> {
   );
 }
 
-export async function copyObject(
-  sourceKey: string,
-  destinationKey: string,
-): Promise<void> {
+export async function copyObject(sourceKey: string, destinationKey: string): Promise<void> {
   await r2Client.send(
     new CopyObjectCommand({
       Bucket: R2_PRODUCTION_BUCKET,
@@ -670,16 +660,16 @@ export async function copyObject(
 
 ### 5.1 Access Control Matrix
 
-| Resource | Authenticated User | Workspace Member | Public (CDN) |
-|----------|--------------------|------------------|--------------|
-| Task attachment | Signed URL (1h) | Signed URL (1h) | No |
-| Document media | Signed URL (1h) | Signed URL (1h) | No |
-| User avatar | Signed URL (1h) | Signed URL (1h) | CDN-cached (if shared profile) |
-| Avatar thumbnails | Signed URL (1h) | Signed URL (1h) | CDN-cached (if shared profile) |
-| Project icon | Signed URL (1h) | Signed URL (1h) | No |
-| Export files | Signed URL (15m) | Signed URL (15m) | No |
-| Shared export link | Signed URL (24h, token-gated) | Signed URL (24h) | No |
-| Default avatar | N/A | N/A | CDN-cached (public) |
+| Resource           | Authenticated User            | Workspace Member | Public (CDN)                   |
+| ------------------ | ----------------------------- | ---------------- | ------------------------------ |
+| Task attachment    | Signed URL (1h)               | Signed URL (1h)  | No                             |
+| Document media     | Signed URL (1h)               | Signed URL (1h)  | No                             |
+| User avatar        | Signed URL (1h)               | Signed URL (1h)  | CDN-cached (if shared profile) |
+| Avatar thumbnails  | Signed URL (1h)               | Signed URL (1h)  | CDN-cached (if shared profile) |
+| Project icon       | Signed URL (1h)               | Signed URL (1h)  | No                             |
+| Export files       | Signed URL (15m)              | Signed URL (15m) | No                             |
+| Shared export link | Signed URL (24h, token-gated) | Signed URL (24h) | No                             |
+| Default avatar     | N/A                           | N/A              | CDN-cached (public)            |
 
 ### 5.2 Signed URL Generation
 
@@ -848,10 +838,13 @@ interface FileProcessPayload {
   fileId: string;
 }
 
-const IMAGE_PROCESSING_CONFIGS: Record<string, {
-  thumbnails: { name: string; width: number; height: number }[];
-  formats: string[];
-}> = {
+const IMAGE_PROCESSING_CONFIGS: Record<
+  string,
+  {
+    thumbnails: { name: string; width: number; height: number }[];
+    formats: string[];
+  }
+> = {
   avatars: {
     thumbnails: [
       { name: 'thumb_64', width: 64, height: 64 },
@@ -875,7 +868,7 @@ const IMAGE_PROCESSING_CONFIGS: Record<string, {
     formats: ['webp'],
   },
   attachments: {
-    thumbnails: [],  // Only process images in attachments
+    thumbnails: [], // Only process images in attachments
     formats: ['webp'],
   },
 };
@@ -912,14 +905,12 @@ export async function processFile(payload: FileProcessPayload): Promise<void> {
 
   // 3. Strip EXIF data (security: remove GPS, camera info, etc.)
   const sanitizedBuffer = await sharp(imageBuffer)
-    .rotate()  // Auto-rotate based on EXIF, then strip EXIF
+    .rotate() // Auto-rotate based on EXIF, then strip EXIF
     .toBuffer();
 
   // 4. Generate WebP version
   if (config.formats.includes('webp')) {
-    const webpBuffer = await sharp(sanitizedBuffer)
-      .webp({ quality: 85, effort: 4 })
-      .toBuffer();
+    const webpBuffer = await sharp(sanitizedBuffer).webp({ quality: 85, effort: 4 }).toBuffer();
 
     // Upload WebP version (same key but with .webp extension)
     const webpKey = file.r2Key.replace(/\.[^.]+$/, '.webp');
@@ -1113,14 +1104,14 @@ R2 Dashboard → sprintio-production → Settings → Custom Domains → Connect
 
 Set per-object via R2 Metadata during upload:
 
-| Content Type | Cache-Control | Rationale |
-|-------------|---------------|-----------|
-| Avatar thumbnails | `public, max-age=31536000, immutable` | Content-addressed (key includes file ID); safe to cache forever |
-| Document images | `public, max-age=31536000, immutable` | Same as above |
-| Original uploads | `private, max-age=0, no-cache` | Never cache originals — they may be replaced |
-| Exports | `private, max-age=0, no-store` | Never cache exports — time-sensitive |
-| Default avatars | `public, max-age=86400, s-maxage=604800` | Cache at edge for 1 week, browser for 1 day |
-| System assets | `public, max-age=86400, s-maxage=604800` | Infrequently changing templates |
+| Content Type      | Cache-Control                            | Rationale                                                       |
+| ----------------- | ---------------------------------------- | --------------------------------------------------------------- |
+| Avatar thumbnails | `public, max-age=31536000, immutable`    | Content-addressed (key includes file ID); safe to cache forever |
+| Document images   | `public, max-age=31536000, immutable`    | Same as above                                                   |
+| Original uploads  | `private, max-age=0, no-cache`           | Never cache originals — they may be replaced                    |
+| Exports           | `private, max-age=0, no-store`           | Never cache exports — time-sensitive                            |
+| Default avatars   | `public, max-age=86400, s-maxage=604800` | Cache at edge for 1 week, browser for 1 day                     |
+| System assets     | `public, max-age=86400, s-maxage=604800` | Infrequently changing templates                                 |
 
 ### 7.4 Cloudflare Page Rules / Cache Rules
 
@@ -1171,17 +1162,14 @@ Set per-object via R2 Metadata during upload:
  * updates like avatar replacements where the key stays the same.
  */
 export async function purgeCdnCache(urls: string[]): Promise<void> {
-  await fetch(
-    `https://api.cloudflare.com/client/v4/zones/${process.env.CF_ZONE_ID}/purge_cache`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.CF_API_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ files: urls }),
+  await fetch(`https://api.cloudflare.com/client/v4/zones/${process.env.CF_ZONE_ID}/purge_cache`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.CF_API_TOKEN}`,
+      'Content-Type': 'application/json',
     },
-  );
+    body: JSON.stringify({ files: urls }),
+  });
 }
 
 // When an avatar is replaced, purge the CDN for the old key
@@ -1411,25 +1399,25 @@ CREATE TRIGGER trg_files_storage_usage
 
 ### 9.1 Per-Workspace Limits
 
-| Limit | Free Plan | Pro Plan | Enterprise |
-|-------|-----------|----------|------------|
-| Storage quota | 1 GB | 50 GB | Custom |
-| Max file size (upload) | 10 MB | 100 MB | 500 MB |
-| Max files per workspace | 500 | 50,000 | Unlimited |
-| Allowed file types | Images, PDFs | All except executables | All except executables |
-| Retention (deleted files) | 7 days | 30 days | 90 days |
-| Export expiration | 24 hours | 7 days | 30 days |
-| Concurrent uploads | 3 | 10 | 25 |
+| Limit                     | Free Plan    | Pro Plan               | Enterprise             |
+| ------------------------- | ------------ | ---------------------- | ---------------------- |
+| Storage quota             | 1 GB         | 50 GB                  | Custom                 |
+| Max file size (upload)    | 10 MB        | 100 MB                 | 500 MB                 |
+| Max files per workspace   | 500          | 50,000                 | Unlimited              |
+| Allowed file types        | Images, PDFs | All except executables | All except executables |
+| Retention (deleted files) | 7 days       | 30 days                | 90 days                |
+| Export expiration         | 24 hours     | 7 days                 | 30 days                |
+| Concurrent uploads        | 3            | 10                     | 25                     |
 
 ### 9.2 Per-Entity Limits
 
-| Entity | Max Attachments | Max Inline Images |
-|--------|----------------|-------------------|
-| Task | 10 | — |
-| Document | — | 50 |
-| Comment | 5 | — |
-| User (avatar) | 1 (latest only) | — |
-| Project (icon) | 1 (latest only) | — |
+| Entity         | Max Attachments | Max Inline Images |
+| -------------- | --------------- | ----------------- |
+| Task           | 10              | —                 |
+| Document       | —               | 50                |
+| Comment        | 5               | —                 |
+| User (avatar)  | 1 (latest only) | —                 |
+| Project (icon) | 1 (latest only) | —                 |
 
 ### 9.3 File Type Allowlist
 
@@ -1439,7 +1427,11 @@ CREATE TRIGGER trg_files_storage_usage
 const ALLOWED_TYPES: Record<string, string[]> = {
   attachments: [
     // Images
-    'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/svg+xml',
     // Documents
     'application/pdf',
     'application/msword',
@@ -1449,28 +1441,19 @@ const ALLOWED_TYPES: Record<string, string[]> = {
     'application/vnd.ms-powerpoint',
     'application/vnd.openxmlformats-officedocument.presentationml.presentation',
     // Text
-    'text/plain', 'text/csv', 'text/markdown',
+    'text/plain',
+    'text/csv',
+    'text/markdown',
     // Archives
-    'application/zip', 'application/x-rar-compressed',
+    'application/zip',
+    'application/x-rar-compressed',
     // Design
     'application/octet-stream', // .fig, .sketch (detected by extension)
   ],
-  media: [
-    'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
-  ],
-  avatars: [
-    'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-  ],
-  icons: [
-    'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
-  ],
-  exports: [
-    'text/csv',
-    'application/pdf',
-    'text/plain',
-    'application/json',
-    'text/html',
-  ],
+  media: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'],
+  avatars: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+  icons: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'],
+  exports: ['text/csv', 'application/pdf', 'text/plain', 'application/json', 'text/html'],
 };
 
 export function isAllowedContentType(contentType: string, category: string): boolean {
@@ -1483,11 +1466,11 @@ export function isAllowedContentType(contentType: string, category: string): boo
 }
 
 export const FILE_SIZE_LIMITS: Record<string, number> = {
-  attachments: 100 * 1024 * 1024,  // 100 MB
-  media:       10  * 1024 * 1024,  // 10 MB
-  avatars:     5   * 1024 * 1024,  // 5 MB
-  icons:       2   * 1024 * 1024,  // 2 MB
-  exports:     50  * 1024 * 1024,  // 50 MB
+  attachments: 100 * 1024 * 1024, // 100 MB
+  media: 10 * 1024 * 1024, // 10 MB
+  avatars: 5 * 1024 * 1024, // 5 MB
+  icons: 2 * 1024 * 1024, // 2 MB
+  exports: 50 * 1024 * 1024, // 50 MB
 };
 ```
 
@@ -1532,9 +1515,12 @@ export async function checkWorkspaceQuota(
 
 function getStorageLimit(plan: string): number {
   switch (plan) {
-    case 'pro':        return 50 * 1024 * 1024 * 1024;  // 50 GB
-    case 'enterprise': return 1024 * 1024 * 1024 * 1024; // 1 TB (configurable)
-    default:           return 1 * 1024 * 1024 * 1024;    // 1 GB
+    case 'pro':
+      return 50 * 1024 * 1024 * 1024; // 50 GB
+    case 'enterprise':
+      return 1024 * 1024 * 1024 * 1024; // 1 TB (configurable)
+    default:
+      return 1 * 1024 * 1024 * 1024; // 1 GB
   }
 }
 ```
@@ -1628,10 +1614,7 @@ export async function garbageCollectDeletedFiles(): Promise<void> {
   for (const file of staleFiles) {
     try {
       // 1. Delete all R2 objects (original + variants)
-      const keysToDelete = [
-        file.r2Key,
-        ...file.variants.map((v) => v.r2Key),
-      ];
+      const keysToDelete = [file.r2Key, ...file.variants.map((v) => v.r2Key)];
 
       await Promise.all(
         keysToDelete.map((key) =>
@@ -1682,7 +1665,9 @@ export async function detectOrphanedFiles(): Promise<void> {
     const entityChecks = files.map(async (file) => {
       const exists = await checkEntityExists(file.entityType, file.entityId);
       if (!exists) {
-        console.log(`[ORPHAN] File ${file.id} references missing ${file.entityType}:${file.entityId}`);
+        console.log(
+          `[ORPHAN] File ${file.id} references missing ${file.entityType}:${file.entityId}`,
+        );
         await db.file.update({
           where: { id: file.id },
           data: { deletedAt: new Date() },
@@ -2043,35 +2028,39 @@ echo "[BACKUP] Complete"
 
 ```typescript
 // ─── Upload (small file) ─────────────────────────────────────
-const url = await getSignedUrl(r2Client,
-  new PutObjectCommand({ Bucket, Key, ContentType }),
-  { expiresIn: 900 }
-);
+const url = await getSignedUrl(r2Client, new PutObjectCommand({ Bucket, Key, ContentType }), {
+  expiresIn: 900,
+});
 await fetch(url, { method: 'PUT', body: file });
 
 // ─── Upload (large file, multipart) ──────────────────────────
-const { UploadId } = await r2Client.send(
-  new CreateMultipartUploadCommand({ Bucket, Key })
-);
+const { UploadId } = await r2Client.send(new CreateMultipartUploadCommand({ Bucket, Key }));
 // ... upload parts with signed URLs ...
-await r2Client.send(new CompleteMultipartUploadCommand({
-  Bucket, Key, UploadId, MultipartUpload: { Parts }
-}));
+await r2Client.send(
+  new CompleteMultipartUploadCommand({
+    Bucket,
+    Key,
+    UploadId,
+    MultipartUpload: { Parts },
+  }),
+);
 
 // ─── Download (signed URL) ───────────────────────────────────
-const url = await getSignedUrl(r2Client,
-  new GetObjectCommand({ Bucket, Key }),
-  { expiresIn: 3600 }
-);
+const url = await getSignedUrl(r2Client, new GetObjectCommand({ Bucket, Key }), {
+  expiresIn: 3600,
+});
 
 // ─── Delete ──────────────────────────────────────────────────
 await r2Client.send(new DeleteObjectCommand({ Bucket, Key }));
 
 // ─── Copy ────────────────────────────────────────────────────
-await r2Client.send(new CopyObjectCommand({
-  Bucket, Key: destKey,
-  CopySource: `${Bucket}/${srcKey}`
-}));
+await r2Client.send(
+  new CopyObjectCommand({
+    Bucket,
+    Key: destKey,
+    CopySource: `${Bucket}/${srcKey}`,
+  }),
+);
 ```
 
 ### Path Structure
@@ -2099,13 +2088,13 @@ PENDING_UPLOAD → UPLOADING → UPLOADED → PROCESSING → READY
 
 ### Cron Jobs
 
-| Schedule | Job | Purpose |
-|----------|-----|---------|
-| Hourly (`0 * * * *`) | `cleanupStaleUploads` | Abort expired multipart uploads |
-| Hourly (`0 * * * *`) | `cleanupExpiredShareLinks` | Remove expired share link DB records |
-| Daily 03:00 (`0 3 * * *`) | `detectOrphanedFiles` | Soft-delete files with missing parent entities |
-| Daily 03:00 (`0 3 * * *`) | `garbageCollectDeletedFiles` | Hard-delete files past retention period |
-| Weekly Sun 04:00 (`0 4 * * 0`) | `rebuildStorageUsageCounts` | Consistency check on workspace storage usage |
+| Schedule                       | Job                          | Purpose                                        |
+| ------------------------------ | ---------------------------- | ---------------------------------------------- |
+| Hourly (`0 * * * *`)           | `cleanupStaleUploads`        | Abort expired multipart uploads                |
+| Hourly (`0 * * * *`)           | `cleanupExpiredShareLinks`   | Remove expired share link DB records           |
+| Daily 03:00 (`0 3 * * *`)      | `detectOrphanedFiles`        | Soft-delete files with missing parent entities |
+| Daily 03:00 (`0 3 * * *`)      | `garbageCollectDeletedFiles` | Hard-delete files past retention period        |
+| Weekly Sun 04:00 (`0 4 * * 0`) | `rebuildStorageUsageCounts`  | Consistency check on workspace storage usage   |
 
 ### Environment Variables
 
@@ -2130,19 +2119,19 @@ MAX_FILE_SIZE_MB=100
 
 ### Key Design Decisions
 
-| Decision | Choice | Why |
-|----------|--------|-----|
-| Direct upload via presigned URLs | Client → R2 | Server never touches file bytes; scales horizontally |
-| Soft delete + GC | `deleted_at` column | Undelete support; safe recovery; configurable retention |
-| Content-addressed cache keys | File ID in path | Update = new path = instant CDN cache invalidation |
-| Three buckets | production / temp / backups | Independent lifecycle rules and access policies |
-| Workspace ID prefix | `ws_xxx/category/entity/file` | Hard isolation; easy bulk operations per workspace |
-| Trigger-based usage tracking | PostgreSQL trigger | Always-consistent quota numbers; no background sync |
-| Sharp for image processing | Server-side worker | Consistent output; EXIF stripping; thumbnail generation |
-| 24h multipart upload expiry | Upload session TTL | No abandoned uploads consuming storage |
-| DB-backed upload sessions | `upload_sessions` table | Track in-progress uploads; clean up reliably |
-| JSONB metadata column | Flexible metadata | Per-category metadata (dimensions, page count) without schema changes |
+| Decision                         | Choice                        | Why                                                                   |
+| -------------------------------- | ----------------------------- | --------------------------------------------------------------------- |
+| Direct upload via presigned URLs | Client → R2                   | Server never touches file bytes; scales horizontally                  |
+| Soft delete + GC                 | `deleted_at` column           | Undelete support; safe recovery; configurable retention               |
+| Content-addressed cache keys     | File ID in path               | Update = new path = instant CDN cache invalidation                    |
+| Three buckets                    | production / temp / backups   | Independent lifecycle rules and access policies                       |
+| Workspace ID prefix              | `ws_xxx/category/entity/file` | Hard isolation; easy bulk operations per workspace                    |
+| Trigger-based usage tracking     | PostgreSQL trigger            | Always-consistent quota numbers; no background sync                   |
+| Sharp for image processing       | Server-side worker            | Consistent output; EXIF stripping; thumbnail generation               |
+| 24h multipart upload expiry      | Upload session TTL            | No abandoned uploads consuming storage                                |
+| DB-backed upload sessions        | `upload_sessions` table       | Track in-progress uploads; clean up reliably                          |
+| JSONB metadata column            | Flexible metadata             | Per-category metadata (dimensions, page count) without schema changes |
 
 ---
 
-*Document Version: 1.0 — Last Updated: 2026-07-08*
+_Document Version: 1.0 — Last Updated: 2026-07-08_

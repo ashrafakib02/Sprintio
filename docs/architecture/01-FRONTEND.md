@@ -2,15 +2,15 @@
 
 ---
 
-| Field          | Value                                                         |
-|----------------|---------------------------------------------------------------|
-| Document Type  | Frontend Architecture                                         |
-| Product        | Sprintio — Sprint fast. Ship together.                  |
-| Version        | 1.0                                                           |
-| Status         | Finalized                                              |
-| Date           | 2026-07-08                                                    |
-| Author         | Engineering Team                                              |
-| Related Docs   | [MVP Definition](../MVP_DEFINITION.md), [PRD](../PRD.md), [Design System](../Design-System/DESIGN-SYSTEM-CONSOLIDATED.md), [NFRs](../NON_FUNCTIONAL_REQUIREMENTS.md), [Future Roadmap](../FUTURE_ROADMAP.md) |
+| Field         | Value                                                                                                                                                                                                        |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Document Type | Frontend Architecture                                                                                                                                                                                        |
+| Product       | Sprintio — Sprint fast. Ship together.                                                                                                                                                                       |
+| Version       | 1.0                                                                                                                                                                                                          |
+| Status        | Finalized                                                                                                                                                                                                    |
+| Date          | 2026-07-08                                                                                                                                                                                                   |
+| Author        | Engineering Team                                                                                                                                                                                             |
+| Related Docs  | [MVP Definition](../MVP_DEFINITION.md), [PRD](../PRD.md), [Design System](../Design-System/DESIGN-SYSTEM-CONSOLIDATED.md), [NFRs](../NON_FUNCTIONAL_REQUIREMENTS.md), [Future Roadmap](../FUTURE_ROADMAP.md) |
 
 ---
 
@@ -42,14 +42,14 @@ The frontend is a **React 18 SPA** built with **TypeScript**, **Vite**, **TanSta
 
 ### Design Principles
 
-| # | Principle | Application |
-|---|-----------|-------------|
-| 1 | **Server state is the source of truth** | TanStack Query owns all server-derived data. Redux Toolkit owns only ephemeral UI state. Never duplicate server data in Redux Toolkit. |
-| 2 | **Offline-first, connected-by-default** | Yjs CRDTs queue local changes. WebSocket syncs when connected. Users never see "offline" banners — work just continues. |
-| 3 | **Composition over configuration** | Components are small, focused, and composable. No "god components" with 20+ props. |
-| 4 | **Lazy everything** | Routes, heavy components (editor, board, calendar), and panels are lazy-loaded. The initial bundle is under 300KB gzipped (NFR-PERF-13). |
-| 5 | **Token-first styling** | Every color, spacing, and sizing value references a design token from the 3-layer system. Never raw hex/px/rem in component code. |
-| 6 | **Progressive disclosure** | The UI reveals complexity only when needed. Default views are simple. Power features (custom fields, automations) are opt-in. |
+| #   | Principle                               | Application                                                                                                                              |
+| --- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Server state is the source of truth** | TanStack Query owns all server-derived data. Redux Toolkit owns only ephemeral UI state. Never duplicate server data in Redux Toolkit.   |
+| 2   | **Offline-first, connected-by-default** | Yjs CRDTs queue local changes. WebSocket syncs when connected. Users never see "offline" banners — work just continues.                  |
+| 3   | **Composition over configuration**      | Components are small, focused, and composable. No "god components" with 20+ props.                                                       |
+| 4   | **Lazy everything**                     | Routes, heavy components (editor, board, calendar), and panels are lazy-loaded. The initial bundle is under 300KB gzipped (NFR-PERF-13). |
+| 5   | **Token-first styling**                 | Every color, spacing, and sizing value references a design token from the 3-layer system. Never raw hex/px/rem in component code.        |
+| 6   | **Progressive disclosure**              | The UI reveals complexity only when needed. Default views are simple. Power features (custom fields, automations) are opt-in.            |
 
 ---
 
@@ -131,23 +131,23 @@ function RootLayout() {
 
 ### 2.3 Shell Surfaces
 
-| Surface | Component | Behavior | State Owner |
-|---------|-----------|----------|-------------|
-| **Sidebar** | `<Sidebar />` | Collapsible (icon-only mode). Workspace tree, nav links, starred items. Resizable width (240px default, 48px collapsed). | RTK (`useAppSelector`/`useDispatch`) |
-| **Header** | `<Header />` | Workspace name, search trigger, notification bell, user avatar/menu, ⌘K hint. Fixed height (48px). | Static |
-| **Content Area** | `<Outlet />` | Router outlet. Fills remaining space. Scrollable. | Router |
-| **AI Panel** | `<AiPanel />` | Slide-in from right. 360px width. Context-aware (knows current task/doc). Collapsible. | RTK (`useAppSelector`/`useDispatch`) |
-| **Command Palette** | `<CommandPalette />` | Modal overlay. ⌘K opens. Search-first with categorized results. Keyboard navigable. | RTK (`useAppSelector`/`useDispatch`) |
-| **Toast Container** | `<Toaster />` | Bottom-right. Auto-dismiss. Stacked. Supports action buttons. | React Hot Toast / Sonner |
+| Surface             | Component            | Behavior                                                                                                                 | State Owner                          |
+| ------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
+| **Sidebar**         | `<Sidebar />`        | Collapsible (icon-only mode). Workspace tree, nav links, starred items. Resizable width (240px default, 48px collapsed). | RTK (`useAppSelector`/`useDispatch`) |
+| **Header**          | `<Header />`         | Workspace name, search trigger, notification bell, user avatar/menu, ⌘K hint. Fixed height (48px).                       | Static                               |
+| **Content Area**    | `<Outlet />`         | Router outlet. Fills remaining space. Scrollable.                                                                        | Router                               |
+| **AI Panel**        | `<AiPanel />`        | Slide-in from right. 360px width. Context-aware (knows current task/doc). Collapsible.                                   | RTK (`useAppSelector`/`useDispatch`) |
+| **Command Palette** | `<CommandPalette />` | Modal overlay. ⌘K opens. Search-first with categorized results. Keyboard navigable.                                      | RTK (`useAppSelector`/`useDispatch`) |
+| **Toast Container** | `<Toaster />`        | Bottom-right. Auto-dismiss. Stacked. Supports action buttons.                                                            | React Hot Toast / Sonner             |
 
 ### 2.4 Responsive Behavior
 
-| Breakpoint | Sidebar | AI Panel | Content | Board View |
-|------------|---------|----------|---------|------------|
-| `< 768px` (mobile) | Hidden (slide-over) | Hidden (full-screen modal) | Full width | Single column |
-| `768–1023px` (tablet) | Collapsed (icons) | Hidden (slide-over) | Full width | 2 columns |
-| `1024–1439px` (laptop) | Expanded | Collapsible | Fills space | 3–4 columns |
-| `≥ 1440px` (desktop) | Expanded | Persistent | Fills space | 5+ columns |
+| Breakpoint             | Sidebar             | AI Panel                   | Content     | Board View    |
+| ---------------------- | ------------------- | -------------------------- | ----------- | ------------- |
+| `< 768px` (mobile)     | Hidden (slide-over) | Hidden (full-screen modal) | Full width  | Single column |
+| `768–1023px` (tablet)  | Collapsed (icons)   | Hidden (slide-over)        | Full width  | 2 columns     |
+| `1024–1439px` (laptop) | Expanded            | Collapsible                | Fills space | 3–4 columns   |
+| `≥ 1440px` (desktop)   | Expanded            | Persistent                 | Fills space | 5+ columns    |
 
 ---
 
@@ -220,9 +220,7 @@ const workspaceLayout = new Route({
   component: WorkspaceLayout,
   beforeLoad: async ({ params }) => {
     // Prefetch workspace data, set active workspace
-    const workspace = await queryClient.ensureQueryData(
-      workspaceQueryOptions(params.workspaceId)
-    );
+    const workspace = await queryClient.ensureQueryData(workspaceQueryOptions(params.workspaceId));
     return { workspace };
   },
 });
@@ -232,31 +230,32 @@ const listViewRoute = new Route({
   getParentRoute: () => workspaceLayout,
   path: '/s/$spaceId/list/$listId',
   component: ListView,
-  validateSearch: (search) => z.object({
-    view: z.enum(['board', 'list', 'calendar', 'timeline']).default('list'),
-    status: z.string().optional(),
-    assignee: z.string().optional(),
-    priority: z.string().optional(),
-    sort: z.string().optional(),
-  }).parse(search),
+  validateSearch: (search) =>
+    z
+      .object({
+        view: z.enum(['board', 'list', 'calendar', 'timeline']).default('list'),
+        status: z.string().optional(),
+        assignee: z.string().optional(),
+        priority: z.string().optional(),
+        sort: z.string().optional(),
+      })
+      .parse(search),
   loader: async ({ params, search }) => {
     // Prefetch list data based on view type
-    await queryClient.ensureQueryData(
-      listQueryOptions(params.listId, search)
-    );
+    await queryClient.ensureQueryData(listQueryOptions(params.listId, search));
   },
 });
 ```
 
 ### 3.3 Route Loaders & Prefetching
 
-| Route | Loader Strategy | Prefetch Target |
-|-------|----------------|-----------------|
-| `/ws/$workspaceId` | `beforeLoad` — fetch workspace + spaces tree | Workspace summary, space list |
-| `/s/$spaceId/list/$listId` | `loader` — fetch list tasks based on view/filter params | Task list, filters, view config |
-| `/task/$taskId` | `loader` — fetch task detail + comments + activity | Full task, comments, activity log |
-| `/doc/$docId` | `loader` — fetch document + Yjs awareness | Document content, collaborators |
-| `/settings/*` | No loader — lazy load settings module | Settings data on demand |
+| Route                      | Loader Strategy                                         | Prefetch Target                   |
+| -------------------------- | ------------------------------------------------------- | --------------------------------- |
+| `/ws/$workspaceId`         | `beforeLoad` — fetch workspace + spaces tree            | Workspace summary, space list     |
+| `/s/$spaceId/list/$listId` | `loader` — fetch list tasks based on view/filter params | Task list, filters, view config   |
+| `/task/$taskId`            | `loader` — fetch task detail + comments + activity      | Full task, comments, activity log |
+| `/doc/$docId`              | `loader` — fetch document + Yjs awareness               | Document content, collaborators   |
+| `/settings/*`              | No loader — lazy load settings module                   | Settings data on demand           |
 
 ### 3.4 Prefetching Strategy
 
@@ -286,14 +285,14 @@ Sprintio separates **server state** (TanStack Query) from **client state** (Redu
 
 ### 4.1 State Ownership Matrix
 
-| State Category | Owner | Storage | Example |
-|----------------|-------|---------|---------|
-| **Server data** (tasks, users, projects) | TanStack Query | Query cache | Task list, user profile, workspace settings |
-| **UI ephemeral state** (sidebar open, panel width) | Redux Toolkit | In-memory | Sidebar collapsed, AI panel open, modal stack |
-| **Form state** (unsubmitted edits) | React Hook Form / local state | Component state | Task edit form, filter builder |
-| **Real-time state** (cursors, presence) | Yjs awareness | Yjs Doc | User cursors, selection highlights, online status |
-| **Auth state** (token, user session) | React Context + cookie | HTTP-only cookie | Current user, workspace role |
-| **Theme state** (dark/light) | Redux Toolkit (redux-persist) | Persisted | Theme preference, locale |
+| State Category                                     | Owner                         | Storage          | Example                                           |
+| -------------------------------------------------- | ----------------------------- | ---------------- | ------------------------------------------------- |
+| **Server data** (tasks, users, projects)           | TanStack Query                | Query cache      | Task list, user profile, workspace settings       |
+| **UI ephemeral state** (sidebar open, panel width) | Redux Toolkit                 | In-memory        | Sidebar collapsed, AI panel open, modal stack     |
+| **Form state** (unsubmitted edits)                 | React Hook Form / local state | Component state  | Task edit form, filter builder                    |
+| **Real-time state** (cursors, presence)            | Yjs awareness                 | Yjs Doc          | User cursors, selection highlights, online status |
+| **Auth state** (token, user session)               | React Context + cookie        | HTTP-only cookie | Current user, workspace role                      |
+| **Theme state** (dark/light)                       | Redux Toolkit (redux-persist) | Persisted        | Theme preference, locale                          |
 
 ### 4.2 Redux Toolkit Store Definitions
 
@@ -342,14 +341,14 @@ export const { toggle, setWidth, toggleSection } = sidebarSlice.actions;
 // Persisted reducer — equivalent to persist middleware from the previous stack
 export const persistedSidebarReducer = persistReducer(
   { key: 'sprintio-sidebar', storage },
-  sidebarSlice.reducer
+  sidebarSlice.reducer,
 );
 
 // src/slices/ai-panel.slice.ts
 interface AiPanelState {
   open: boolean;
   width: number;
-  context: AiContext | null;        // Current task/doc context
+  context: AiContext | null; // Current task/doc context
   conversationId: string | null;
 }
 
@@ -442,7 +441,8 @@ const viewFiltersSlice = createSlice({
       state.sorting[action.payload.listId] = action.payload.sorting;
     },
     setViewMode(state, action: PayloadAction<{ listId: string; mode: string }>) {
-      state.viewMode[action.payload.listId] = action.payload.mode as ViewFiltersState['viewMode'][string];
+      state.viewMode[action.payload.listId] = action.payload
+        .mode as ViewFiltersState['viewMode'][string];
     },
   },
 });
@@ -451,7 +451,7 @@ export const { setFilters, setSorting, setViewMode } = viewFiltersSlice.actions;
 
 export const persistedViewFiltersReducer = persistReducer(
   { key: 'sprintio-view-filters', storage },
-  viewFiltersSlice.reducer
+  viewFiltersSlice.reducer,
 );
 
 // src/store.ts — configureStore assembles all slices
@@ -480,24 +480,24 @@ export const useAppSelector = useSelector.withTypes<RootState>();
 
 ### 4.3 Store Selection Guide
 
-| Question | Answer |
-|----------|--------|
-| Does this data come from the API? | → TanStack Query |
-| Does this data need to persist across sessions? | → Redux Toolkit (`redux-persist`) |
-| Is this data ephemeral (UI open/close, hover state)? | → Redux Toolkit (no persist) |
-| Is this form data not yet submitted? | → React Hook Form or local `useState` |
-| Is this real-time collaborative state? | → Yjs awareness |
-| Is this auth/session data? | → React Context + cookie |
+| Question                                             | Answer                                |
+| ---------------------------------------------------- | ------------------------------------- |
+| Does this data come from the API?                    | → TanStack Query                      |
+| Does this data need to persist across sessions?      | → Redux Toolkit (`redux-persist`)     |
+| Is this data ephemeral (UI open/close, hover state)? | → Redux Toolkit (no persist)          |
+| Is this form data not yet submitted?                 | → React Hook Form or local `useState` |
+| Is this real-time collaborative state?               | → Yjs awareness                       |
+| Is this auth/session data?                           | → React Context + cookie              |
 
 ### 4.4 Anti-Patterns to Avoid
 
-| Anti-Pattern | Why It's Bad | Correct Approach |
-|--------------|-------------|------------------|
-| Storing API data in Redux Toolkit | Duplicates TanStack Query cache, stale data, no background refetch | Use `useQuery` / `useSuspenseQuery` |
-| Redux Toolkit slice with 50+ fields | God slice, hard to reason about, causes unnecessary re-renders | Split into focused slices by domain |
-| Global state for component-local UI | Unnecessary complexity, hard to test | Use `useState` / `useReducer` in component |
-| Storing derived data | Can be recomputed, wastes memory | Use `useMemo` / selector functions |
-| Mixing auth state with UI state | Security concerns, different lifecycles | Separate Context for auth, Redux Toolkit for UI |
+| Anti-Pattern                        | Why It's Bad                                                       | Correct Approach                                |
+| ----------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------- |
+| Storing API data in Redux Toolkit   | Duplicates TanStack Query cache, stale data, no background refetch | Use `useQuery` / `useSuspenseQuery`             |
+| Redux Toolkit slice with 50+ fields | God slice, hard to reason about, causes unnecessary re-renders     | Split into focused slices by domain             |
+| Global state for component-local UI | Unnecessary complexity, hard to test                               | Use `useState` / `useReducer` in component      |
+| Storing derived data                | Can be recomputed, wastes memory                                   | Use `useMemo` / selector functions              |
+| Mixing auth state with UI state     | Security concerns, different lifecycles                            | Separate Context for auth, Redux Toolkit for UI |
 
 ---
 
@@ -540,17 +540,13 @@ export const workspaceKeys = {
 // src/lib/query-options.ts
 
 // Task list query — used by Board and List views
-export function listTasksQueryOptions(
-  listId: string,
-  filters: TaskFilters,
-  sort: SortState
-) {
+export function listTasksQueryOptions(listId: string, filters: TaskFilters, sort: SortState) {
   return queryOptions({
     queryKey: taskKeys.list({ listId, ...filters, sort }),
     queryFn: () => api.tasks.list(listId, { filters, sort }),
-    staleTime: 30_000,         // 30s — data is fresh
-    gcTime: 5 * 60_000,       // 5min — keep in cache
-    placeholderData: keepPreviousData,  // Smooth filter transitions
+    staleTime: 30_000, // 30s — data is fresh
+    gcTime: 5 * 60_000, // 5min — keep in cache
+    placeholderData: keepPreviousData, // Smooth filter transitions
   });
 }
 
@@ -559,7 +555,7 @@ export function taskDetailQueryOptions(taskId: string) {
   return queryOptions({
     queryKey: taskKeys.detail(taskId),
     queryFn: () => api.tasks.get(taskId),
-    staleTime: 10_000,         // 10s — task detail updates frequently
+    staleTime: 10_000, // 10s — task detail updates frequently
     enabled: !!taskId,
   });
 }
@@ -569,7 +565,7 @@ export function documentQueryOptions(docId: string) {
   return queryOptions({
     queryKey: ['documents', docId],
     queryFn: () => api.documents.get(docId),
-    staleTime: Infinity,       // Docs are managed by Yjs CRDT, not polling
+    staleTime: Infinity, // Docs are managed by Yjs CRDT, not polling
     enabled: !!docId,
   });
 }
@@ -604,10 +600,7 @@ export function useUpdateTask() {
 
     // 2. If mutation fails, roll back
     onError: (err, data, context) => {
-      queryClient.setQueryData(
-        taskKeys.detail(data.id),
-        context?.previousTask
-      );
+      queryClient.setQueryData(taskKeys.detail(data.id), context?.previousTask);
       toast.error('Failed to update task. Changes reverted.');
     },
 
@@ -627,15 +620,15 @@ export function useUpdateTask() {
 
 ### 5.4 Cache Invalidation Strategy
 
-| Event | Invalidation Scope | Rationale |
-|-------|-------------------|-----------|
-| Task updated | `taskKeys.detail(id)` + `taskKeys.lists()` | Task detail + any list containing this task |
-| Task created | `taskKeys.lists()` + `listKeys.tasks(listId)` | List views need refresh |
-| Task deleted | `taskKeys.lists()` + `taskKeys.detail(id)` | Remove from list + clean detail cache |
-| Comment added | `taskKeys.comments(taskId)` | Only comment thread needs refresh |
-| Space renamed | `workspaceKeys.spaces(wsId)` | Sidebar tree needs refresh |
-| Settings changed | Specific settings key | Only the changed settings section |
-| Real-time update received | Invalidate affected query keys via Yjs sync | CRDT merge triggers selective invalidation |
+| Event                     | Invalidation Scope                            | Rationale                                   |
+| ------------------------- | --------------------------------------------- | ------------------------------------------- |
+| Task updated              | `taskKeys.detail(id)` + `taskKeys.lists()`    | Task detail + any list containing this task |
+| Task created              | `taskKeys.lists()` + `listKeys.tasks(listId)` | List views need refresh                     |
+| Task deleted              | `taskKeys.lists()` + `taskKeys.detail(id)`    | Remove from list + clean detail cache       |
+| Comment added             | `taskKeys.comments(taskId)`                   | Only comment thread needs refresh           |
+| Space renamed             | `workspaceKeys.spaces(wsId)`                  | Sidebar tree needs refresh                  |
+| Settings changed          | Specific settings key                         | Only the changed settings section           |
+| Real-time update received | Invalidate affected query keys via Yjs sync   | CRDT merge triggers selective invalidation  |
 
 ### 5.5 API Client Setup
 
@@ -647,7 +640,7 @@ import { QueryClient } from '@tanstack/query-client';
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
     ...options,
-    credentials: 'include',       // Send cookies
+    credentials: 'include', // Send cookies
     headers: {
       'Content-Type': 'application/json',
       ...options?.headers,
@@ -666,12 +659,12 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30_000,           // 30s default
-      gcTime: 5 * 60_000,          // 5min cache
-      retry: 2,                     // Retry twice on failure
+      staleTime: 30_000, // 30s default
+      gcTime: 5 * 60_000, // 5min cache
+      retry: 2, // Retry twice on failure
       retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30_000),
-      refetchOnWindowFocus: true,   // Refetch when tab gains focus
-      refetchOnReconnect: true,     // Refetch when network reconnects
+      refetchOnWindowFocus: true, // Refetch when tab gains focus
+      refetchOnReconnect: true, // Refetch when network reconnects
     },
     mutations: {
       retry: 1,
@@ -750,8 +743,8 @@ class SprintioWebSocketManager {
         token: getAuthToken(),
         workspaceId: getCurrentWorkspaceId(),
       },
-      resyncInterval: 30_000,     // Resync every 30s
-      maxBackoffTime: 30_000,     // Max 30s between reconnects
+      resyncInterval: 30_000, // Resync every 30s
+      maxBackoffTime: 30_000, // Max 30s between reconnects
     });
 
     // Connection status events
@@ -813,7 +806,7 @@ interface PresenceState {
     id: string;
     name: string;
     avatar: string;
-    color: string;          // Unique cursor color
+    color: string; // Unique cursor color
   };
   cursor: {
     clientId: string;
@@ -825,8 +818,8 @@ interface PresenceState {
     from: number;
     to: number;
   } | null;
-  activeView: string;       // Which view this user is on
-  lastActive: number;       // Timestamp
+  activeView: string; // Which view this user is on
+  lastActive: number; // Timestamp
 }
 
 // Yjs awareness for presence
@@ -857,8 +850,14 @@ export function setupPresence(provider: WebsocketProvider) {
 // Cursor color generator — unique per user, consistent across sessions
 function generateCursorColor(userId: string): string {
   const colors = [
-    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
-    '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F',
+    '#FF6B6B',
+    '#4ECDC4',
+    '#45B7D1',
+    '#96CEB4',
+    '#FFEAA7',
+    '#DDA0DD',
+    '#98D8C8',
+    '#F7DC6F',
   ];
   let hash = 0;
   for (let i = 0; i < userId.length; i++) {
@@ -947,9 +946,8 @@ type RealtimeEvent =
 function handleRealtimeEvent(event: RealtimeEvent) {
   switch (event.type) {
     case 'task.updated':
-      queryClient.setQueryData(
-        taskKeys.detail(event.taskId),
-        (old: Task | undefined) => old ? { ...old, ...event.changes } : old
+      queryClient.setQueryData(taskKeys.detail(event.taskId), (old: Task | undefined) =>
+        old ? { ...old, ...event.changes } : old,
       );
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
       break;
@@ -1124,9 +1122,7 @@ export function BoardCard({ task }: { task: Task }) {
           <TaskIdBadge id={task.identifier} />
         </div>
 
-        <h4 className="mt-2 text-sm font-medium line-clamp-2">
-          {task.title}
-        </h4>
+        <h4 className="mt-2 text-sm font-medium line-clamp-2">{task.title}</h4>
 
         {task.description && (
           <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
@@ -1162,14 +1158,14 @@ export function BoardCard({ task }: { task: Task }) {
 
 ### 7.4 Component Naming Conventions
 
-| Pattern | Convention | Example |
-|---------|-----------|---------|
-| UI primitives | `noun` (lowercase) | `button.tsx`, `dialog.tsx`, `input.tsx` |
-| Domain components | `noun` or `noun-noun` (lowercase) | `task-card.tsx`, `board-column.tsx` |
-| Layout components | `noun` (lowercase) | `sidebar.tsx`, `header.tsx` |
-| Hook files | `use-noun.ts` | `use-sortable.ts`, `use-realtime.ts` |
-| Provider files | `noun-provider.tsx` | `yjs-provider.tsx`, `theme-provider.tsx` |
-| Type files | `noun.types.ts` | `task.types.ts`, `board.types.ts` |
+| Pattern           | Convention                        | Example                                  |
+| ----------------- | --------------------------------- | ---------------------------------------- |
+| UI primitives     | `noun` (lowercase)                | `button.tsx`, `dialog.tsx`, `input.tsx`  |
+| Domain components | `noun` or `noun-noun` (lowercase) | `task-card.tsx`, `board-column.tsx`      |
+| Layout components | `noun` (lowercase)                | `sidebar.tsx`, `header.tsx`              |
+| Hook files        | `use-noun.ts`                     | `use-sortable.ts`, `use-realtime.ts`     |
+| Provider files    | `noun-provider.tsx`               | `yjs-provider.tsx`, `theme-provider.tsx` |
+| Type files        | `noun.types.ts`                   | `task.types.ts`, `board.types.ts`        |
 
 ---
 
@@ -1292,11 +1288,11 @@ import { SprintioEmbedComponent } from './sprintio-embed-component';
 export const SprintioEmbed = Node.create({
   name: 'sprintioEmbed',
   group: 'block',
-  atom: true,                      // Cannot be edited inline
+  atom: true, // Cannot be edited inline
 
   addAttributes() {
     return {
-      type: { default: 'task' },   // 'task' | 'doc'
+      type: { default: 'task' }, // 'task' | 'doc'
       id: { default: null },
       title: { default: '' },
     };
@@ -1307,9 +1303,12 @@ export const SprintioEmbed = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['div', mergeAttributes(HTMLAttributes, {
-      'data-sprintio-embed': '',
-    })];
+    return [
+      'div',
+      mergeAttributes(HTMLAttributes, {
+        'data-sprintio-embed': '',
+      }),
+    ];
   },
 
   addNodeView() {
@@ -1587,13 +1586,13 @@ export function BoardCard({ task }: { task: Task }) {
 
 ### 9.2 Drag & Drop Patterns
 
-| Interaction | Library | Strategy | Accessible |
-|-------------|---------|----------|------------|
-| Board cards between columns | @dnd-kit | `closestCorners` collision + `verticalListSortingStrategy` | Yes — keyboard sensor |
-| List row reorder | @dnd-kit | `verticalListSortingStrategy` | Yes — keyboard sensor |
-| Sidebar item reorder | @dnd-kit | `verticalListSortingStrategy` | Yes |
-| Calendar date drag | Phase 2 | Custom or @dnd-kit | TBD |
-| File upload drag | Native HTML5 drag | `onDragOver` / `onDrop` | N/A |
+| Interaction                 | Library           | Strategy                                                   | Accessible            |
+| --------------------------- | ----------------- | ---------------------------------------------------------- | --------------------- |
+| Board cards between columns | @dnd-kit          | `closestCorners` collision + `verticalListSortingStrategy` | Yes — keyboard sensor |
+| List row reorder            | @dnd-kit          | `verticalListSortingStrategy`                              | Yes — keyboard sensor |
+| Sidebar item reorder        | @dnd-kit          | `verticalListSortingStrategy`                              | Yes                   |
+| Calendar date drag          | Phase 2           | Custom or @dnd-kit                                         | TBD                   |
+| File upload drag            | Native HTML5 drag | `onDragOver` / `onDrop`                                    | N/A                   |
 
 ---
 
@@ -1603,15 +1602,15 @@ Performance is Sprintio's primary brand differentiator. The frontend must meet s
 
 ### 10.1 Performance Targets
 
-| Metric | Target | Strategy |
-|--------|--------|----------|
-| Cold load (NFR-PERF-01) | < 2s (p95) | Code splitting, tree shaking, critical CSS |
-| Warm load (NFR-PERF-02) | < 500ms (p95) | Service worker, query cache persistence |
-| TTI (NFR-PERF-03) | < 1.5s (p95) | Streaming SSR (if applicable), deferred scripts |
-| Bundle size (NFR-PERF-13) | < 300KB gzipped | Route-level code splitting, dynamic imports |
-| API latency (NFR-PERF-04) | < 200ms (p95) | Prefetching, optimistic updates |
-| Real-time sync (NFR-PERF-06) | < 100ms (p95) | Yjs CRDT, WebSocket batching |
-| First AI token (NFR-PERF-08) | < 500ms | Streaming SSE |
+| Metric                       | Target          | Strategy                                        |
+| ---------------------------- | --------------- | ----------------------------------------------- |
+| Cold load (NFR-PERF-01)      | < 2s (p95)      | Code splitting, tree shaking, critical CSS      |
+| Warm load (NFR-PERF-02)      | < 500ms (p95)   | Service worker, query cache persistence         |
+| TTI (NFR-PERF-03)            | < 1.5s (p95)    | Streaming SSR (if applicable), deferred scripts |
+| Bundle size (NFR-PERF-13)    | < 300KB gzipped | Route-level code splitting, dynamic imports     |
+| API latency (NFR-PERF-04)    | < 200ms (p95)   | Prefetching, optimistic updates                 |
+| Real-time sync (NFR-PERF-06) | < 100ms (p95)   | Yjs CRDT, WebSocket batching                    |
+| First AI token (NFR-PERF-08) | < 500ms         | Streaming SSE                                   |
 
 ### 10.2 Code Splitting Strategy
 
@@ -1631,8 +1630,8 @@ const CalendarView = lazy(() => import('@/components/sprintio/calendar'));
 const TimelineView = lazy(() => import('@/components/sprintio/timeline'));
 
 // Editor extensions — load only when needed
-const SprintioEmbed = lazy(() =>
-  import('@/components/sprintio/editor/editor-extensions/sprintio-embed')
+const SprintioEmbed = lazy(
+  () => import('@/components/sprintio/editor/editor-extensions/sprintio-embed'),
 );
 ```
 
@@ -1684,14 +1683,14 @@ export function VirtualTaskList({ tasks }: { tasks: Task[] }) {
 
 ### 10.4 Memo Strategy
 
-| Component | Memo Strategy | Rationale |
-|-----------|---------------|-----------|
-| `BoardCard` | `React.memo` + stable props | Re-renders only when task data changes |
-| `BoardColumn` | `React.memo` | Re-renders only when column tasks change |
-| `TaskRow` | `React.memo` + `useCallback` for handlers | High-frequency re-render target |
-| `EditorWrapper` | No memo (TipTap manages own updates) | TipTap handles its own DOM updates |
-| `Sidebar` | No memo (rarely re-renders) | Only updates on workspace change |
-| `Header` | No memo (static) | Almost never re-renders |
+| Component       | Memo Strategy                             | Rationale                                |
+| --------------- | ----------------------------------------- | ---------------------------------------- |
+| `BoardCard`     | `React.memo` + stable props               | Re-renders only when task data changes   |
+| `BoardColumn`   | `React.memo`                              | Re-renders only when column tasks change |
+| `TaskRow`       | `React.memo` + `useCallback` for handlers | High-frequency re-render target          |
+| `EditorWrapper` | No memo (TipTap manages own updates)      | TipTap handles its own DOM updates       |
+| `Sidebar`       | No memo (rarely re-renders)               | Only updates on workspace change         |
+| `Header`        | No memo (static)                          | Almost never re-renders                  |
 
 ```typescript
 // Stable selectors to prevent unnecessary re-renders
@@ -1788,20 +1787,22 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.hasError) {
-      return this.props.fallback ?? (
-        <div className="flex flex-col items-center justify-center gap-4 p-8">
-          <AlertTriangle className="h-8 w-8 text-destructive" />
-          <h3 className="text-lg font-semibold">Something went wrong</h3>
-          <p className="text-sm text-muted-foreground">
-            {this.state.error?.message || 'An unexpected error occurred.'}
-          </p>
-          <Button
-            variant="outline"
-            onClick={() => this.setState({ hasError: false, error: null })}
-          >
-            Try again
-          </Button>
-        </div>
+      return (
+        this.props.fallback ?? (
+          <div className="flex flex-col items-center justify-center gap-4 p-8">
+            <AlertTriangle className="h-8 w-8 text-destructive" />
+            <h3 className="text-lg font-semibold">Something went wrong</h3>
+            <p className="text-sm text-muted-foreground">
+              {this.state.error?.message || 'An unexpected error occurred.'}
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => this.setState({ hasError: false, error: null })}
+            >
+              Try again
+            </Button>
+          </div>
+        )
       );
     }
 
@@ -1818,9 +1819,7 @@ export function RouteErrorBoundary({ children }: { children: ReactNode }) {
         <div className="flex h-full items-center justify-center">
           <div className="text-center">
             <h2 className="text-xl font-bold">Page Error</h2>
-            <p className="mt-2 text-muted-foreground">
-              This page encountered an error.
-            </p>
+            <p className="mt-2 text-muted-foreground">This page encountered an error.</p>
             <Button asChild className="mt-4">
               <Link to="/">Go Home</Link>
             </Button>
@@ -1845,7 +1844,7 @@ export class ApiError extends Error {
     public status: number,
     message: string,
     public code?: string,
-    public details?: Record<string, string[]>
+    public details?: Record<string, string[]>,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -1875,7 +1874,7 @@ queryClient.getQueryCache().config.onError = (error) => {
       // Session expired — redirect to login
       window.location.href = '/auth/login';
     } else if (error.status === 403) {
-      toast.error('You don\'t have permission for this action.');
+      toast.error("You don't have permission for this action.");
     } else if (error.status >= 500) {
       toast.error('Server error. Please try again later.');
     }
@@ -1887,15 +1886,15 @@ queryClient.getQueryCache().config.onError = (error) => {
 
 ### 11.4 Retry Logic
 
-| Error Type | Retry Count | Backoff | User Feedback |
-|------------|-------------|---------|---------------|
-| Network timeout | 2 | Exponential (1s, 2s) | Toast: "Retrying..." |
-| 5xx Server Error | 2 | Exponential (1s, 2s) | Toast: "Server error, retrying..." |
-| 4xx Client Error | 0 | None | Toast with specific message |
-| 401 Unauthorized | 0 | None | Redirect to login |
-| 403 Forbidden | 0 | None | Toast: "Insufficient permissions" |
-| 429 Rate Limited | 1 | Wait for Retry-After header | Toast: "Rate limited, please wait" |
-| WebSocket disconnect | 10 | Exponential (1s → 30s max) | Status bar: "Reconnecting..." |
+| Error Type           | Retry Count | Backoff                     | User Feedback                      |
+| -------------------- | ----------- | --------------------------- | ---------------------------------- |
+| Network timeout      | 2           | Exponential (1s, 2s)        | Toast: "Retrying..."               |
+| 5xx Server Error     | 2           | Exponential (1s, 2s)        | Toast: "Server error, retrying..." |
+| 4xx Client Error     | 0           | None                        | Toast with specific message        |
+| 401 Unauthorized     | 0           | None                        | Redirect to login                  |
+| 403 Forbidden        | 0           | None                        | Toast: "Insufficient permissions"  |
+| 429 Rate Limited     | 1           | Wait for Retry-After header | Toast: "Rate limited, please wait" |
+| WebSocket disconnect | 10          | Exponential (1s → 30s max)  | Status bar: "Reconnecting..."      |
 
 ---
 
@@ -1917,10 +1916,25 @@ interface ShortcutDefinition {
 // Shortcut definitions organized by category
 export const shortcuts: ShortcutDefinition[] = [
   // Global
-  { keys: 'mod+k', description: 'Open command palette', category: 'Global', handler: openCmdPalette },
-  { keys: 'mod+shift+p', description: 'Toggle AI panel', category: 'Global', handler: toggleAiPanel },
+  {
+    keys: 'mod+k',
+    description: 'Open command palette',
+    category: 'Global',
+    handler: openCmdPalette,
+  },
+  {
+    keys: 'mod+shift+p',
+    description: 'Toggle AI panel',
+    category: 'Global',
+    handler: toggleAiPanel,
+  },
   { keys: 'mod+/', description: 'Toggle sidebar', category: 'Global', handler: toggleSidebar },
-  { keys: 'Escape', description: 'Close modal/panel', category: 'Global', handler: closeCurrentModal },
+  {
+    keys: 'Escape',
+    description: 'Close modal/panel',
+    category: 'Global',
+    handler: closeCurrentModal,
+  },
 
   // Navigation
   { keys: 'g', description: 'Go to (opens submenu)', category: 'Navigation', handler: openGoMenu },
@@ -1932,10 +1946,20 @@ export const shortcuts: ShortcutDefinition[] = [
   // Task
   { keys: 'c', description: 'Create new task', category: 'Task', handler: openCreateTask },
   { keys: 'e', description: 'Edit selected task', category: 'Task', handler: editSelectedTask },
-  { keys: 'mod+backspace', description: 'Delete task', category: 'Task', handler: deleteSelectedTask },
+  {
+    keys: 'mod+backspace',
+    description: 'Delete task',
+    category: 'Task',
+    handler: deleteSelectedTask,
+  },
   { keys: 'j', description: 'Select next task', category: 'Board', handler: selectNextTask },
   { keys: 'k', description: 'Select previous task', category: 'Board', handler: selectPrevTask },
-  { keys: 'Enter', description: 'Open selected task', category: 'Board', handler: openSelectedTask },
+  {
+    keys: 'Enter',
+    description: 'Open selected task',
+    category: 'Board',
+    handler: openSelectedTask,
+  },
 
   // Editor
   { keys: 'mod+b', description: 'Bold', category: 'Editor', handler: toggleBold },
@@ -1947,9 +1971,7 @@ export const shortcuts: ShortcutDefinition[] = [
 
 // Hook for registering shortcuts in components
 export function useSprintioShortcuts(category?: string) {
-  const filtered = category
-    ? shortcuts.filter((s) => s.category === category)
-    : shortcuts;
+  const filtered = category ? shortcuts.filter((s) => s.category === category) : shortcuts;
 
   filtered.forEach((shortcut) => {
     useHotkeys(shortcut.keys, shortcut.handler, {
@@ -1979,7 +2001,12 @@ const commandGroups = [
     label: 'Actions',
     commands: [
       { id: 'action:create-task', label: 'Create Task', shortcut: 'c', icon: <Plus /> },
-      { id: 'action:ai-panel', label: 'Toggle AI Panel', shortcut: 'mod+shift+p', icon: <Sparkles /> },
+      {
+        id: 'action:ai-panel',
+        label: 'Toggle AI Panel',
+        shortcut: 'mod+shift+p',
+        icon: <Sparkles />,
+      },
       { id: 'action:sidebar', label: 'Toggle Sidebar', shortcut: 'mod+/', icon: <PanelLeft /> },
     ],
   },
@@ -1994,11 +2021,11 @@ const commandGroups = [
 
 Sprintio supports **English (en)** at MVP launch. Internationalization infrastructure is built in from day one to avoid costly refactors later. Additional languages are added post-MVP.
 
-| Phase | Languages | Approach |
-|-------|-----------|----------|
-| MVP (Phase 1) | English only | i18n infrastructure in place, all strings externalized |
-| Phase 2 | + Spanish, French, German, Japanese | Community + professional translation |
-| Phase 3 | + Portuguese, Chinese, Korean | Professional translation + AI-assisted |
+| Phase         | Languages                           | Approach                                               |
+| ------------- | ----------------------------------- | ------------------------------------------------------ |
+| MVP (Phase 1) | English only                        | i18n infrastructure in place, all strings externalized |
+| Phase 2       | + Spanish, French, German, Japanese | Community + professional translation                   |
+| Phase 3       | + Portuguese, Chinese, Korean       | Professional translation + AI-assisted                 |
 
 ### 13.2 Setup
 
@@ -2039,14 +2066,14 @@ function TaskCard({ task }: { task: Task }) {
 
 ### 13.3 String Externalization Rules
 
-| Category | Location | Example Key |
-|----------|----------|-------------|
-| UI labels | `en.json` → `ui.*` | `ui.sidebar.workspaces` |
-| Action labels | `en.json` → `actions.*` | `actions.createTask` |
-| Error messages | `en.json` → `errors.*` | `errors.networkError` |
-| Validation | `en.json` → `validation.*` | `validation.required` |
-| Time relative | `en.json` → `time.*` | `time.hoursAgo` |
-| AI responses | Not translated (AI generates in user language) | N/A |
+| Category       | Location                                       | Example Key             |
+| -------------- | ---------------------------------------------- | ----------------------- |
+| UI labels      | `en.json` → `ui.*`                             | `ui.sidebar.workspaces` |
+| Action labels  | `en.json` → `actions.*`                        | `actions.createTask`    |
+| Error messages | `en.json` → `errors.*`                         | `errors.networkError`   |
+| Validation     | `en.json` → `validation.*`                     | `validation.required`   |
+| Time relative  | `en.json` → `time.*`                           | `time.hoursAgo`         |
+| AI responses   | Not translated (AI generates in user language) | N/A                     |
 
 ---
 
@@ -2184,31 +2211,31 @@ Is it auth/session data?
 
 ### Component Layer Quick Reference
 
-| Layer | Location | Use For | Example |
-|-------|----------|---------|---------|
-| **UI Primitives** | `src/components/ui/` | Base building blocks | `Button`, `Input`, `Dialog`, `Card` |
-| **Domain Components** | `src/components/sprintio/` | Sprintio-specific compositions | `TaskCard`, `BoardColumn`, `AiPanel` |
-| **Route Compositions** | `src/routes/` | Page-level layouts | `BoardView`, `ListView`, `DocumentEditor` |
+| Layer                  | Location                   | Use For                        | Example                                   |
+| ---------------------- | -------------------------- | ------------------------------ | ----------------------------------------- |
+| **UI Primitives**      | `src/components/ui/`       | Base building blocks           | `Button`, `Input`, `Dialog`, `Card`       |
+| **Domain Components**  | `src/components/sprintio/` | Sprintio-specific compositions | `TaskCard`, `BoardColumn`, `AiPanel`      |
+| **Route Compositions** | `src/routes/`              | Page-level layouts             | `BoardView`, `ListView`, `DocumentEditor` |
 
 ### Route Quick Reference
 
-| Pattern | Example | Purpose |
-|---------|---------|---------|
-| `$param` | `/ws/$workspaceId` | Dynamic segment |
-| `__layout` | `__root.tsx` | Layout route (wraps children) |
-| `index` | `index.tsx` | Default child route |
-| `_group` | `auth/_layout.tsx` | Pathless layout group |
-| `search` | `?view=board` | URL search params (validated) |
+| Pattern    | Example            | Purpose                       |
+| ---------- | ------------------ | ----------------------------- |
+| `$param`   | `/ws/$workspaceId` | Dynamic segment               |
+| `__layout` | `__root.tsx`       | Layout route (wraps children) |
+| `index`    | `index.tsx`        | Default child route           |
+| `_group`   | `auth/_layout.tsx` | Pathless layout group         |
+| `search`   | `?view=board`      | URL search params (validated) |
 
 ### Query Key Quick Reference
 
-| Operation | Key Pattern | Example |
-|-----------|-------------|---------|
-| List | `['domain', 'list', filters]` | `['tasks', 'list', { status: 'todo' }]` |
-| Detail | `['domain', 'detail', id]` | `['tasks', 'detail', 'task_123']` |
-| Sub-resource | `['domain', 'detail', id, 'sub']` | `['tasks', 'detail', 'task_123', 'comments']` |
-| Invalidate list | `invalidateQueries({ queryKey: ['tasks', 'list'] })` | Refreshes all task lists |
-| Invalidate detail | `invalidateQueries({ queryKey: ['tasks', 'detail', id] })` | Refreshes one task |
+| Operation         | Key Pattern                                                | Example                                       |
+| ----------------- | ---------------------------------------------------------- | --------------------------------------------- |
+| List              | `['domain', 'list', filters]`                              | `['tasks', 'list', { status: 'todo' }]`       |
+| Detail            | `['domain', 'detail', id]`                                 | `['tasks', 'detail', 'task_123']`             |
+| Sub-resource      | `['domain', 'detail', id, 'sub']`                          | `['tasks', 'detail', 'task_123', 'comments']` |
+| Invalidate list   | `invalidateQueries({ queryKey: ['tasks', 'list'] })`       | Refreshes all task lists                      |
+| Invalidate detail | `invalidateQueries({ queryKey: ['tasks', 'detail', id] })` | Refreshes one task                            |
 
 ### Performance Checklist
 
@@ -2225,35 +2252,35 @@ Is it auth/session data?
 
 ### Error Handling Quick Reference
 
-| Scenario | Handler | Fallback |
-|----------|---------|----------|
-| Route crash | `ErrorBoundary` per route | Route-specific error page |
-| Component crash | `ErrorBoundary` per feature | Inline fallback, rest works |
-| API 4xx | Query `retry: false` | Toast with specific message |
-| API 5xx | Query `retry: 2` | Toast + retry |
-| 401 Unauthorized | Global handler | Redirect to `/auth/login` |
-| WebSocket disconnect | Auto-reconnect (y-websocket) | Status bar indicator |
-| Offline | CRDT queues changes | Work continues, syncs on reconnect |
+| Scenario             | Handler                      | Fallback                           |
+| -------------------- | ---------------------------- | ---------------------------------- |
+| Route crash          | `ErrorBoundary` per route    | Route-specific error page          |
+| Component crash      | `ErrorBoundary` per feature  | Inline fallback, rest works        |
+| API 4xx              | Query `retry: false`         | Toast with specific message        |
+| API 5xx              | Query `retry: 2`             | Toast + retry                      |
+| 401 Unauthorized     | Global handler               | Redirect to `/auth/login`          |
+| WebSocket disconnect | Auto-reconnect (y-websocket) | Status bar indicator               |
+| Offline              | CRDT queues changes          | Work continues, syncs on reconnect |
 
 ### Tech Stack Quick Reference
 
-| Concern | Library | Import |
-|---------|---------|--------|
-| Routing | TanStack Router | `@tanstack/react-router` |
-| Data fetching | TanStack Query | `@tanstack/react-query` |
-| Client state | Redux Toolkit | `@reduxjs/toolkit` + `react-redux` |
-| Styling | Tailwind CSS | `tailwindcss` |
-| UI primitives | 21st.dev (shadcn/ui-compatible) | `21st.dev` |
-| Rich text | TipTap | `@tiptap/react` |
-| Real-time | Yjs | `yjs`, `y-websocket` |
-| Drag & drop | @dnd-kit | `@dnd-kit/core` |
-| Forms | React Hook Form + Zod | `react-hook-form`, `zod` |
-| Toasts | Sonner | `sonner` |
-| Keyboard | react-hotkeys-hook | `react-hotkeys-hook` |
-| i18n | react-i18next | `react-i18next` |
-| Virtual scroll | @tanstack/react-virtual | `@tanstack/react-virtual` |
-| Icons | Lucide React | `lucide-react` |
+| Concern        | Library                         | Import                             |
+| -------------- | ------------------------------- | ---------------------------------- |
+| Routing        | TanStack Router                 | `@tanstack/react-router`           |
+| Data fetching  | TanStack Query                  | `@tanstack/react-query`            |
+| Client state   | Redux Toolkit                   | `@reduxjs/toolkit` + `react-redux` |
+| Styling        | Tailwind CSS                    | `tailwindcss`                      |
+| UI primitives  | 21st.dev (shadcn/ui-compatible) | `21st.dev`                         |
+| Rich text      | TipTap                          | `@tiptap/react`                    |
+| Real-time      | Yjs                             | `yjs`, `y-websocket`               |
+| Drag & drop    | @dnd-kit                        | `@dnd-kit/core`                    |
+| Forms          | React Hook Form + Zod           | `react-hook-form`, `zod`           |
+| Toasts         | Sonner                          | `sonner`                           |
+| Keyboard       | react-hotkeys-hook              | `react-hotkeys-hook`               |
+| i18n           | react-i18next                   | `react-i18next`                    |
+| Virtual scroll | @tanstack/react-virtual         | `@tanstack/react-virtual`          |
+| Icons          | Lucide React                    | `lucide-react`                     |
 
 ---
 
-*This document is the single source of truth for Sprintio's frontend architecture. All frontend code should conform to the patterns, conventions, and decisions defined here. For component-level design tokens and styling rules, see [Design System](../Design-System/DESIGN-SYSTEM-CONSOLIDATED.md). For performance targets and constraints, see [NFRs](../NON_FUNCTIONAL_REQUIREMENTS.md).*
+_This document is the single source of truth for Sprintio's frontend architecture. All frontend code should conform to the patterns, conventions, and decisions defined here. For component-level design tokens and styling rules, see [Design System](../Design-System/DESIGN-SYSTEM-CONSOLIDATED.md). For performance targets and constraints, see [NFRs](../NON_FUNCTIONAL_REQUIREMENTS.md)._

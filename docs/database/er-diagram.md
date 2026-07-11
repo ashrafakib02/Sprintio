@@ -10,26 +10,26 @@ This document contains the complete ER diagram for all Sprintio database tables,
 
 ## Legend
 
-| Symbol | Meaning |
-| ------ | ------- |
-| `PK` | Primary Key |
-| `FK` | Foreign Key |
-| `UQ` | Unique Constraint |
-| `NN` | NOT NULL |
-| `{}` | Array (e.g., `TEXT[]`) |
-| `>>` | JSONB / complex type |
+| Symbol      | Meaning                           |
+| ----------- | --------------------------------- |
+| `PK`        | Primary Key                       |
+| `FK`        | Foreign Key                       |
+| `UQ`        | Unique Constraint                 |
+| `NN`        | NOT NULL                          |
+| `{}`        | Array (e.g., `TEXT[]`)            |
+| `>>`        | JSONB / complex type              |
 | `vector(n)` | pgvector embedding of dimension n |
-| `TSTZ` | `TIMESTAMPTZ` |
+| `TSTZ`      | `TIMESTAMPTZ`                     |
 
 ### Cardinality Notation
 
-| ER Symbol | SQL Equivalent | Meaning |
-| --------- | -------------- | ------- |
-| `\|\|--\|\|` | 1..1 ↔ 1..1 | Exactly one to exactly one |
-| `}o--\|\|` | 0..* ↔ 1..1 | Zero or many to exactly one |
-| `\|o--\|\|` | 1..* ↔ 1..1 | One or many to exactly one (FK NOT NULL) |
-| `}o--o{` | 0..* ↔ 0..* | Zero or many to zero or many (junction) |
-| `}o--o|` | 0..* ↔ 0..1 | Zero or many to zero or one |
+| ER Symbol    | SQL Equivalent | Meaning                                  |
+| ------------ | -------------- | ---------------------------------------- |
+| `\|\|--\|\|` | 1..1 ↔ 1..1    | Exactly one to exactly one               |
+| `}o--\|\|`   | 0..* ↔ 1..1    | Zero or many to exactly one              |
+| `\|o--\|\|`  | 1..* ↔ 1..1    | One or many to exactly one (FK NOT NULL) |
+| `}o--o{`     | 0..* ↔ 0..*    | Zero or many to zero or many (junction)  |
+| `}o--o       | `              | 0..* ↔ 0..1                              | Zero or many to zero or one |
 
 ### Notes on Column Display
 
@@ -553,6 +553,7 @@ erDiagram
 ```
 
 > **`AUTOMATIONS.flow`** structure:
+>
 > ```jsonc
 > {
 >   "trigger": { "type": "task.status_changed", "config": {...} },
@@ -560,6 +561,7 @@ erDiagram
 >   "actions": [ { "type": "send_notification", "config": {...} } ]
 > }
 > ```
+>
 > **`AUTOMATION_RUNS.step_results`**: Array of per-action outcomes for debugging and audit.  
 > **`trigger_count`** is denormalized for fast dashboard queries; actual runs live in `automation_runs`.
 
@@ -679,12 +681,14 @@ erDiagram
 
 > **`AI_EMBEDDINGS`**: Uses `pgvector` extension. The `vector(1536)` column supports HNSW and IVFFlat indexes for semantic search. Polymorphic via `entity_type` + `entity_id`.  
 > **`AI_EMBEDDINGS` recommended indexes**:
+>
 > ```sql
 > CREATE INDEX idx_ai_embeddings_hnsw ON analytics.ai_embeddings
 >   USING hnsw (embedding vector_cosine_ops);
 > CREATE INDEX idx_ai_embeddings_entity ON analytics.ai_embeddings
 >   (entity_type, entity_id);
 > ```
+>
 > **`AI_USAGE`**: Tracks token consumption and costs for billing dashboards and usage limits.
 
 ---
@@ -719,17 +723,23 @@ erDiagram
 ```
 
 > **TimescaleDB hypertable**: `activity_log` is partitioned by `created_at` for efficient time-range queries.
+>
 > ```sql
 > SELECT create_hypertable('timeseries.activity_log', 'created_at');
 > ```
+>
 > **Retention policy** (suggested):
+>
 > ```sql
 > SELECT add_retention_policy('timeseries.activity_log', INTERVAL '1 year');
 > ```
+>
 > **Compression policy** (suggested):
+>
 > ```sql
 > SELECT add_compression_policy('timeseries.activity_log', INTERVAL '7 days');
 > ```
+>
 > **`changes`** JSONB captures a `{ before: {...}, after: {...} }` diff for full audit trail.  
 > **`entity_type` + `entity_id`** is polymorphic — same pattern as `attachments` and `ai_embeddings`.
 
@@ -786,78 +796,78 @@ erDiagram
 
 ### Cross-Schema FK Summary
 
-| Source Table | FK Column | Target Schema | Target Table | Notes |
-| --- | --- | --- | --- | --- |
-| `workspace.workspaces` | `owner_id` | `auth` | `users` | Required FK |
-| `workspace.memberships` | `user_id` | `auth` | `users` | Required FK |
-| `workspace.teams` | (indirect via team_members) | `auth` | `users` | Via `team_members.user_id` |
-| `workspace.tasks` | `assignee_id` | `auth` | `users` | Nullable FK |
-| `workspace.tasks` | `created_by` | `auth` | `users` | Required FK |
-| `workspace.comments` | `author_id` | `auth` | `users` | Required FK |
-| `workspace.documents` | `created_by` | `auth` | `users` | Required FK |
-| `workspace.attachments` | `uploaded_by` | `auth` | `users` | Required FK |
-| `auth.api_keys` | `workspace_id` | `workspace` | `workspaces` | Required FK |
-| `automation.automations` | `workspace_id` | `workspace` | `workspaces` | Required FK |
-| `automation.automations` | `created_by` | `auth` | `users` | Required FK |
-| `integration.webhooks` | `workspace_id` | `workspace` | `workspaces` | Required FK |
-| `integration.webhooks` | `created_by` | `auth` | `users` | Required FK |
-| `integration.connected_integrations` | `workspace_id` | `workspace` | `workspaces` | Required FK |
-| `integration.connected_integrations` | `connected_by` | `auth` | `users` | Required FK |
-| `analytics.ai_usage` | `user_id` | `auth` | `users` | Required FK |
-| `analytics.ai_usage` | `workspace_id` | `workspace` | `workspaces` | Required FK |
-| `timeseries.activity_log` | `actor_id` | `auth` | `users` | Required FK |
-| `timeseries.activity_log` | `workspace_id` | `workspace` | `workspaces` | Required FK |
+| Source Table                         | FK Column                   | Target Schema | Target Table | Notes                      |
+| ------------------------------------ | --------------------------- | ------------- | ------------ | -------------------------- |
+| `workspace.workspaces`               | `owner_id`                  | `auth`        | `users`      | Required FK                |
+| `workspace.memberships`              | `user_id`                   | `auth`        | `users`      | Required FK                |
+| `workspace.teams`                    | (indirect via team_members) | `auth`        | `users`      | Via `team_members.user_id` |
+| `workspace.tasks`                    | `assignee_id`               | `auth`        | `users`      | Nullable FK                |
+| `workspace.tasks`                    | `created_by`                | `auth`        | `users`      | Required FK                |
+| `workspace.comments`                 | `author_id`                 | `auth`        | `users`      | Required FK                |
+| `workspace.documents`                | `created_by`                | `auth`        | `users`      | Required FK                |
+| `workspace.attachments`              | `uploaded_by`               | `auth`        | `users`      | Required FK                |
+| `auth.api_keys`                      | `workspace_id`              | `workspace`   | `workspaces` | Required FK                |
+| `automation.automations`             | `workspace_id`              | `workspace`   | `workspaces` | Required FK                |
+| `automation.automations`             | `created_by`                | `auth`        | `users`      | Required FK                |
+| `integration.webhooks`               | `workspace_id`              | `workspace`   | `workspaces` | Required FK                |
+| `integration.webhooks`               | `created_by`                | `auth`        | `users`      | Required FK                |
+| `integration.connected_integrations` | `workspace_id`              | `workspace`   | `workspaces` | Required FK                |
+| `integration.connected_integrations` | `connected_by`              | `auth`        | `users`      | Required FK                |
+| `analytics.ai_usage`                 | `user_id`                   | `auth`        | `users`      | Required FK                |
+| `analytics.ai_usage`                 | `workspace_id`              | `workspace`   | `workspaces` | Required FK                |
+| `timeseries.activity_log`            | `actor_id`                  | `auth`        | `users`      | Required FK                |
+| `timeseries.activity_log`            | `workspace_id`              | `workspace`   | `workspaces` | Required FK                |
 
 ---
 
 ## Table Count by Schema
 
-| Schema | Table Count | Tables |
-| --- | --- | --- |
-| `auth` | 4 | users, user_accounts, sessions, api_keys |
-| `workspace` | 18 | workspaces, memberships, teams, team_members, spaces, folders, lists, tasks, task_relationships, custom_field_definitions, custom_field_values, labels, comments, documents, document_versions, attachments, saved_views, recurring_tasks |
-| `workspace` (notifications) | 3 | notifications, notification_preferences, — (included in workspace schema) |
-| `automation` | 2 | automations, automation_runs |
-| `integration` | 3 | webhooks, webhook_deliveries, connected_integrations |
-| `analytics` | 2 | ai_embeddings, ai_usage |
-| `timeseries` | 1 | activity_log |
-| **Total** | **~33** | |
+| Schema                      | Table Count | Tables                                                                                                                                                                                                                                    |
+| --------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `auth`                      | 4           | users, user_accounts, sessions, api_keys                                                                                                                                                                                                  |
+| `workspace`                 | 18          | workspaces, memberships, teams, team_members, spaces, folders, lists, tasks, task_relationships, custom_field_definitions, custom_field_values, labels, comments, documents, document_versions, attachments, saved_views, recurring_tasks |
+| `workspace` (notifications) | 3           | notifications, notification_preferences, — (included in workspace schema)                                                                                                                                                                 |
+| `automation`                | 2           | automations, automation_runs                                                                                                                                                                                                              |
+| `integration`               | 3           | webhooks, webhook_deliveries, connected_integrations                                                                                                                                                                                      |
+| `analytics`                 | 2           | ai_embeddings, ai_usage                                                                                                                                                                                                                   |
+| `timeseries`                | 1           | activity_log                                                                                                                                                                                                                              |
+| **Total**                   | **~33**     |                                                                                                                                                                                                                                           |
 
 ---
 
 ## Full Table Reference (Alphabetical)
 
-| # | Schema | Table | PK Type | Notable Columns |
-| --- | --- | --- | --- | --- |
-| 1 | `analytics` | ai_embeddings | UUID | `embedding vector(1536)`, polymorphic |
-| 2 | `analytics` | ai_usage | UUID | `credits_used`, `cost_usd`, token counts |
-| 3 | `automation` | automation_runs | UUID | `step_results JSONB`, `duration_ms` |
-| 4 | `automation` | automations | UUID | `flow JSONB` (trigger+conditions+actions) |
-| 5 | `auth` | api_keys | UUID | `key_prefix`, `key_hash`, `scopes TEXT[]` |
-| 6 | `auth` | sessions | UUID | `token_hash`, `revoked_at` (soft delete) |
-| 7 | `auth` | user_accounts | UUID | OAuth provider linking |
-| 8 | `auth` | users | UUID | Core identity; `email` unique |
-| 9 | `integration` | connected_integrations | UUID | `access_token` encrypted, `sync_config` |
-| 10 | `integration` | webhook_deliveries | UUID | Delivery audit trail with retries |
-| 11 | `integration` | webhooks | UUID | `secret` HMAC, `events TEXT[]` |
-| 12 | `timeseries` | activity_log | BIGSERIAL | TimescaleDB hypertable, `changes JSONB` |
-| 13 | `workspace` | attachments | UUID | Polymorphic (`entity_type`+`entity_id`), R2 storage |
-| 14 | `workspace` | comments | UUID | Threaded (self-FK), `reactions JSONB` |
-| 15 | `workspace` | custom_field_definitions | UUID | 12 field types, `config JSONB` |
-| 16 | `workspace` | custom_field_values | UUID | Nullable typed columns per field type |
-| 17 | `workspace` | document_versions | UUID | Immutable content snapshots |
-| 18 | `workspace` | documents | UUID | `tsvector` search, `yjs_state BYTEA`, polymorphic |
-| 19 | `workspace` | folders | UUID | Materialized path, self-referencing |
-| 20 | `workspace` | labels | UUID | Workspace-scoped, `UNIQUE(workspace_id, name)` |
-| 21 | `workspace` | lists | UUID | `view_config JSONB`, optional folder |
-| 22 | `workspace` | memberships | UUID | 5 roles, 3 statuses, `guest_scopes` |
-| 23 | `workspace` | notification_preferences | UUID | Per-event `in_app`/`email` toggles |
-| 24 | `workspace` | notifications | UUID | Polymorphic, actor + recipient |
-| 25 | `workspace` | recurring_tasks | UUID | Cron expression, next/last run |
-| 26 | `workspace` | saved_views | UUID | `config JSONB` (filters, sorts, grouping) |
-| 27 | `workspace` | spaces | UUID | `statuses JSONB` (custom workflow) |
-| 28 | `workspace` | task_relationships | UUID | 4 relationship types |
-| 29 | `workspace` | tasks | UUID | TipTap JSONB description, per-list numbering |
-| 30 | `workspace` | team_members | UUID | M:N junction, `UNIQUE(team_id, user_id)` |
-| 31 | `workspace` | teams | UUID | Self-referencing hierarchy |
-| 32 | `workspace` | workspaces | UUID | `plan`, `settings JSONB`, slug unique |
+| #   | Schema        | Table                    | PK Type   | Notable Columns                                     |
+| --- | ------------- | ------------------------ | --------- | --------------------------------------------------- |
+| 1   | `analytics`   | ai_embeddings            | UUID      | `embedding vector(1536)`, polymorphic               |
+| 2   | `analytics`   | ai_usage                 | UUID      | `credits_used`, `cost_usd`, token counts            |
+| 3   | `automation`  | automation_runs          | UUID      | `step_results JSONB`, `duration_ms`                 |
+| 4   | `automation`  | automations              | UUID      | `flow JSONB` (trigger+conditions+actions)           |
+| 5   | `auth`        | api_keys                 | UUID      | `key_prefix`, `key_hash`, `scopes TEXT[]`           |
+| 6   | `auth`        | sessions                 | UUID      | `token_hash`, `revoked_at` (soft delete)            |
+| 7   | `auth`        | user_accounts            | UUID      | OAuth provider linking                              |
+| 8   | `auth`        | users                    | UUID      | Core identity; `email` unique                       |
+| 9   | `integration` | connected_integrations   | UUID      | `access_token` encrypted, `sync_config`             |
+| 10  | `integration` | webhook_deliveries       | UUID      | Delivery audit trail with retries                   |
+| 11  | `integration` | webhooks                 | UUID      | `secret` HMAC, `events TEXT[]`                      |
+| 12  | `timeseries`  | activity_log             | BIGSERIAL | TimescaleDB hypertable, `changes JSONB`             |
+| 13  | `workspace`   | attachments              | UUID      | Polymorphic (`entity_type`+`entity_id`), R2 storage |
+| 14  | `workspace`   | comments                 | UUID      | Threaded (self-FK), `reactions JSONB`               |
+| 15  | `workspace`   | custom_field_definitions | UUID      | 12 field types, `config JSONB`                      |
+| 16  | `workspace`   | custom_field_values      | UUID      | Nullable typed columns per field type               |
+| 17  | `workspace`   | document_versions        | UUID      | Immutable content snapshots                         |
+| 18  | `workspace`   | documents                | UUID      | `tsvector` search, `yjs_state BYTEA`, polymorphic   |
+| 19  | `workspace`   | folders                  | UUID      | Materialized path, self-referencing                 |
+| 20  | `workspace`   | labels                   | UUID      | Workspace-scoped, `UNIQUE(workspace_id, name)`      |
+| 21  | `workspace`   | lists                    | UUID      | `view_config JSONB`, optional folder                |
+| 22  | `workspace`   | memberships              | UUID      | 5 roles, 3 statuses, `guest_scopes`                 |
+| 23  | `workspace`   | notification_preferences | UUID      | Per-event `in_app`/`email` toggles                  |
+| 24  | `workspace`   | notifications            | UUID      | Polymorphic, actor + recipient                      |
+| 25  | `workspace`   | recurring_tasks          | UUID      | Cron expression, next/last run                      |
+| 26  | `workspace`   | saved_views              | UUID      | `config JSONB` (filters, sorts, grouping)           |
+| 27  | `workspace`   | spaces                   | UUID      | `statuses JSONB` (custom workflow)                  |
+| 28  | `workspace`   | task_relationships       | UUID      | 4 relationship types                                |
+| 29  | `workspace`   | tasks                    | UUID      | TipTap JSONB description, per-list numbering        |
+| 30  | `workspace`   | team_members             | UUID      | M:N junction, `UNIQUE(team_id, user_id)`            |
+| 31  | `workspace`   | teams                    | UUID      | Self-referencing hierarchy                          |
+| 32  | `workspace`   | workspaces               | UUID      | `plan`, `settings JSONB`, slug unique               |

@@ -88,14 +88,14 @@
 
 ### 1.2 Service Boundaries
 
-| Service | Runtime | Responsibility | Port(s) |
-|---------|---------|----------------|---------|
-| **API Server** | Node.js / Express | REST API, auth, business logic | `3000` (HTTP) |
-| **WebSocket Server** | Node.js / ws + Yjs | Real-time sync, presence, awareness | `3001` (WS) |
-| **BullMQ Workers** | Node.js (child process/worker thread) | Background jobs, notifications, webhooks | N/A (in-process) |
-| **AI Sidecar** | Python / FastAPI | Copilot, embeddings, summarization | `8000` |
-| **Temporal Worker** | TypeScript | Durable workflows, automations, cron | N/A (Temporal SDK) |
-| **Observability** | Grafana stack | Metrics, logs, traces | `9090` (Prometheus) |
+| Service              | Runtime                               | Responsibility                           | Port(s)             |
+| -------------------- | ------------------------------------- | ---------------------------------------- | ------------------- |
+| **API Server**       | Node.js / Express                     | REST API, auth, business logic           | `3000` (HTTP)       |
+| **WebSocket Server** | Node.js / ws + Yjs                    | Real-time sync, presence, awareness      | `3001` (WS)         |
+| **BullMQ Workers**   | Node.js (child process/worker thread) | Background jobs, notifications, webhooks | N/A (in-process)    |
+| **AI Sidecar**       | Python / FastAPI                      | Copilot, embeddings, summarization       | `8000`              |
+| **Temporal Worker**  | TypeScript                            | Durable workflows, automations, cron     | N/A (Temporal SDK)  |
+| **Observability**    | Grafana stack                         | Metrics, logs, traces                    | `9090` (Prometheus) |
 
 ### 1.3 Deployment Model
 
@@ -225,26 +225,32 @@ export function createApp({ db, redis }: AppContext): Express {
   // ─── Global Middleware (order matters) ──────────────────────
   app.set('trust proxy', config.TRUST_PROXY);
 
-  app.use(helmet({
-    contentSecurityPolicy: config.NODE_ENV === 'production' ? undefined : false,
-  }));
+  app.use(
+    helmet({
+      contentSecurityPolicy: config.NODE_ENV === 'production' ? undefined : false,
+    }),
+  );
 
-  app.use(cors({
-    origin: config.CORS_ORIGINS,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id', 'Idempotency-Key'],
-    exposedHeaders: ['X-Request-Id', 'X-RateLimit-Remaining', 'X-Total-Count'],
-    maxAge: 86400,
-  }));
+  app.use(
+    cors({
+      origin: config.CORS_ORIGINS,
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id', 'Idempotency-Key'],
+      exposedHeaders: ['X-Request-Id', 'X-RateLimit-Remaining', 'X-Total-Count'],
+      maxAge: 86400,
+    }),
+  );
 
-  app.use(compression({
-    filter: (req, res) => {
-      if (req.headers['x-no-compression']) return false;
-      return compression.filter(req, res);
-    },
-    threshold: 1024,
-  }));
+  app.use(
+    compression({
+      filter: (req, res) => {
+        if (req.headers['x-no-compression']) return false;
+        return compression.filter(req, res);
+      },
+      threshold: 1024,
+    }),
+  );
 
   // ─── Request Identity & Logging ─────────────────────────────
   app.use(requestId);
@@ -328,7 +334,10 @@ const envSchema = z.object({
   TEMPORAL_NAMESPACE: z.string().default('sprintio'),
 
   // CORS
-  CORS_ORIGINS: z.string().transform((s) => s.split(',')).default('http://localhost:3000'),
+  CORS_ORIGINS: z
+    .string()
+    .transform((s) => s.split(','))
+    .default('http://localhost:3000'),
 
   // Rate Limiting
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(60_000),
@@ -582,35 +591,19 @@ const controller = new IssueController();
 // All issue routes require auth + workspace context
 router.use(authenticate, requireWorkspace);
 
-router.get(
-  '/',
-  validate({ query: listIssuesQuerySchema }),
-  controller.listIssues
-);
+router.get('/', validate({ query: listIssuesQuerySchema }), controller.listIssues);
 
-router.post(
-  '/',
-  validate({ body: createIssueSchema }),
-  controller.createIssue
-);
+router.post('/', validate({ body: createIssueSchema }), controller.createIssue);
 
-router.get(
-  '/:issueId',
-  validate({ params: issueIdParamSchema }),
-  controller.getIssue
-);
+router.get('/:issueId', validate({ params: issueIdParamSchema }), controller.getIssue);
 
 router.patch(
   '/:issueId',
   validate({ params: issueIdParamSchema, body: updateIssueSchema }),
-  controller.updateIssue
+  controller.updateIssue,
 );
 
-router.delete(
-  '/:issueId',
-  validate({ params: issueIdParamSchema }),
-  controller.deleteIssue
-);
+router.delete('/:issueId', validate({ params: issueIdParamSchema }), controller.deleteIssue);
 
 export { router as issueRouter };
 ```
@@ -854,7 +847,7 @@ export class AppError extends Error {
       isOperational?: boolean;
       details?: unknown;
       cause?: Error;
-    }
+    },
   ) {
     super(message);
     this.name = this.constructor.name;
@@ -958,12 +951,7 @@ import { ZodError } from 'zod';
 import { AppError, InternalError } from '../lib/errors';
 import { logger } from '../lib/logger';
 
-export function errorHandler(
-  err: Error,
-  req: Request,
-  res: Response,
-  _next: NextFunction
-): void {
+export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction): void {
   // Normalize to AppError
   let error: AppError;
 
@@ -1004,9 +992,10 @@ export function errorHandler(
       code: error.code,
       message: error.message,
       ...(error.details && { details: error.details }),
-      ...(!isProduction && error.cause && {
-        stack: error.cause.stack,
-      }),
+      ...(!isProduction &&
+        error.cause && {
+          stack: error.cause.stack,
+        }),
     },
     meta: {
       requestId: req.requestId,
@@ -1027,7 +1016,7 @@ import type { Request, Response, NextFunction, RequestHandler } from 'express';
  * and forward them to Express's error handler.
  */
 export function asyncHandler<T extends Request = Request>(
-  fn: (req: T, res: Response, next: NextFunction) => Promise<void>
+  fn: (req: T, res: Response, next: NextFunction) => Promise<void>,
 ): RequestHandler<T> {
   return (req: T, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
@@ -1122,17 +1111,17 @@ export class IssueController {
 
 ### 5.4 Error Taxonomy
 
-| Error Code | HTTP Status | When | Retryable |
-|------------|-------------|------|-----------|
-| `BAD_REQUEST` | 400 | Malformed JSON, missing fields | No |
-| `UNAUTHORIZED` | 401 | Missing/expired JWT | No (re-auth) |
-| `FORBIDDEN` | 403 | Valid token, insufficient role | No |
-| `NOT_FOUND` | 404 | Resource doesn't exist | No |
-| `CONFLICT` | 409 | Duplicate, optimistic lock fail | Yes (lock) |
-| `VALIDATION_ERROR` | 422 | Zod schema failure | No |
-| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests | Yes (after delay) |
-| `EXTERNAL_SERVICE_ERROR` | 502 | R2, AI service, email provider | Yes |
-| `INTERNAL_ERROR` | 500 | Unhandled / programmer error | Yes |
+| Error Code               | HTTP Status | When                            | Retryable         |
+| ------------------------ | ----------- | ------------------------------- | ----------------- |
+| `BAD_REQUEST`            | 400         | Malformed JSON, missing fields  | No                |
+| `UNAUTHORIZED`           | 401         | Missing/expired JWT             | No (re-auth)      |
+| `FORBIDDEN`              | 403         | Valid token, insufficient role  | No                |
+| `NOT_FOUND`              | 404         | Resource doesn't exist          | No                |
+| `CONFLICT`               | 409         | Duplicate, optimistic lock fail | Yes (lock)        |
+| `VALIDATION_ERROR`       | 422         | Zod schema failure              | No                |
+| `RATE_LIMIT_EXCEEDED`    | 429         | Too many requests               | Yes (after delay) |
+| `EXTERNAL_SERVICE_ERROR` | 502         | R2, AI service, email provider  | Yes               |
+| `INTERNAL_ERROR`         | 500         | Unhandled / programmer error    | Yes               |
 
 ---
 
@@ -1217,7 +1206,7 @@ export const createIssueSchema = z.object({
   status: IssueStatus.default('backlog'),
   assigneeId: z.string().uuid().nullable().optional(),
   projectId: z.string().uuid().optional(),
-  parentId: z.string().uuid().optional(),         // for sub-issues
+  parentId: z.string().uuid().optional(), // for sub-issues
   labelIds: z.array(z.string().uuid()).max(10).default([]),
   dueDate: z.coerce.date().nullable().optional(),
   estimate: z.number().min(0).max(9999).optional(), // story points
@@ -1227,25 +1216,27 @@ export const createIssueSchema = z.object({
 export type CreateIssueInput = z.infer<typeof createIssueSchema>;
 
 // ─── Update Issue (partial) ───────────────────────────────────
-export const updateIssueSchema = z.object({
-  title: z.string().min(1).max(255).trim().optional(),
-  description: z.string().max(10_000).optional(),
-  type: IssueType.optional(),
-  priority: IssuePriority.optional(),
-  status: IssueStatus.optional(),
-  assigneeId: z.string().uuid().nullable().optional(),
-  projectId: z.string().uuid().nullable().optional(),
-  parentId: z.string().uuid().nullable().optional(),
-  labelIds: z.array(z.string().uuid()).max(10).optional(),
-  dueDate: z.coerce.date().nullable().optional(),
-  estimate: z.number().min(0).max(9999).nullable().optional(),
-  sortOrder: z.number().int().optional(),
-  // Optimistic concurrency
-  version: z.number().int(),
-}).refine(
-  (data) => Object.keys(data).length > 1, // must have at least one field besides `version`
-  { message: 'At least one field must be provided for update' }
-);
+export const updateIssueSchema = z
+  .object({
+    title: z.string().min(1).max(255).trim().optional(),
+    description: z.string().max(10_000).optional(),
+    type: IssueType.optional(),
+    priority: IssuePriority.optional(),
+    status: IssueStatus.optional(),
+    assigneeId: z.string().uuid().nullable().optional(),
+    projectId: z.string().uuid().nullable().optional(),
+    parentId: z.string().uuid().nullable().optional(),
+    labelIds: z.array(z.string().uuid()).max(10).optional(),
+    dueDate: z.coerce.date().nullable().optional(),
+    estimate: z.number().min(0).max(9999).nullable().optional(),
+    sortOrder: z.number().int().optional(),
+    // Optimistic concurrency
+    version: z.number().int(),
+  })
+  .refine(
+    (data) => Object.keys(data).length > 1, // must have at least one field besides `version`
+    { message: 'At least one field must be provided for update' },
+  );
 
 export type UpdateIssueInput = z.infer<typeof updateIssueSchema>;
 
@@ -1259,7 +1250,8 @@ export const listIssuesQuerySchema = z.object({
   assigneeId: z.string().uuid().optional(),
   projectId: z.string().uuid().optional(),
   search: z.string().max(100).optional(),
-  sortBy: z.enum(['createdAt', 'updatedAt', 'priority', 'status', 'sortOrder'])
+  sortBy: z
+    .enum(['createdAt', 'updatedAt', 'priority', 'status', 'sortOrder'])
     .default('sortOrder'),
   sortOrder: z.enum(['asc', 'desc']).default('asc'),
 });
@@ -1281,10 +1273,9 @@ export const issueIdParamSchema = z.object({
 export const ulidField = z.string().ulid();
 export const uuidField = z.string().uuid();
 export const emailField = z.string().email().max(320);
-export const slugField = z.string().regex(
-  /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-  'Slug must be lowercase alphanumeric with hyphens'
-);
+export const slugField = z
+  .string()
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be lowercase alphanumeric with hyphens');
 
 // Pagination schema (reusable across all list endpoints)
 export const paginationSchema = z.object({
@@ -1293,13 +1284,14 @@ export const paginationSchema = z.object({
 });
 
 // Date range filter
-export const dateRangeSchema = z.object({
-  from: z.coerce.date().optional(),
-  to: z.coerce.date().optional(),
-}).refine(
-  (data) => !data.from || !data.to || data.from <= data.to,
-  { message: 'Start date must be before end date' }
-);
+export const dateRangeSchema = z
+  .object({
+    from: z.coerce.date().optional(),
+    to: z.coerce.date().optional(),
+  })
+  .refine((data) => !data.from || !data.to || data.from <= data.to, {
+    message: 'Start date must be before end date',
+  });
 
 // ─── Type inference from schema (single source of truth) ─────
 export type PaginationQuery = z.infer<typeof paginationSchema>;
@@ -1323,16 +1315,20 @@ const issueResponseSchema = z.object({
   type: IssueType,
   createdAt: z.date(),
   updatedAt: z.date(),
-  assignee: z.object({
-    id: z.string().uuid(),
-    name: z.string(),
-    avatarUrl: z.string().url().nullable(),
-  }).nullable(),
-  project: z.object({
-    id: z.string().uuid(),
-    name: z.string(),
-    identifier: z.string(),
-  }).nullable(),
+  assignee: z
+    .object({
+      id: z.string().uuid(),
+      name: z.string(),
+      avatarUrl: z.string().url().nullable(),
+    })
+    .nullable(),
+  project: z
+    .object({
+      id: z.string().uuid(),
+      name: z.string(),
+      identifier: z.string(),
+    })
+    .nullable(),
 });
 
 // Validate in development, skip in production for performance
@@ -1402,10 +1398,7 @@ interface WsServerContext {
   redis: Redis;
 }
 
-export function startWebSocketServer(
-  httpServer: Server,
-  ctx: WsServerContext
-): WebSocketServer {
+export function startWebSocketServer(httpServer: Server, ctx: WsServerContext): WebSocketServer {
   const wss = new WebSocketServer({
     server: httpServer,
     path: '/ws',
@@ -1482,7 +1475,6 @@ export function startWebSocketServer(
           error: err.message,
         });
       });
-
     } catch (err) {
       logger.error('WebSocket connection failed', { error: err });
       ws.close(4000, 'Connection failed');
@@ -1524,7 +1516,7 @@ export function setupYjsHandler(
   ws: WebSocket,
   yDoc: Y.Doc,
   roomName: string,
-  redis: Redis
+  redis: Redis,
 ): () => void {
   // Create a awareness instance for this connection
   const awareness = syncProtocol.createAwareness(yDoc);
@@ -1589,7 +1581,7 @@ interface RoomUser {
   id: string;
   name: string;
   avatarUrl?: string;
-  color: string;  // assigned for cursor colors
+  color: string; // assigned for cursor colors
 }
 
 interface Room {
@@ -1615,11 +1607,7 @@ export class RoomManager {
     return true;
   }
 
-  async joinRoom(
-    roomName: string,
-    ws: WebSocket,
-    user: RoomUser
-  ): Promise<Room> {
+  async joinRoom(roomName: string, ws: WebSocket, user: RoomUser): Promise<Room> {
     let room = this.rooms.get(roomName);
 
     if (!room) {
@@ -1643,13 +1631,16 @@ export class RoomManager {
 
     // Garbage collect empty rooms after 5 minutes
     if (room.connections.size === 0) {
-      setTimeout(() => {
-        const current = this.rooms.get(roomName);
-        if (current && current.connections.size === 0) {
-          current.doc.destroy();
-          this.rooms.delete(roomName);
-        }
-      }, 5 * 60 * 1000);
+      setTimeout(
+        () => {
+          const current = this.rooms.get(roomName);
+          if (current && current.connections.size === 0) {
+            current.doc.destroy();
+            this.rooms.delete(roomName);
+          }
+        },
+        5 * 60 * 1000,
+      );
     }
   }
 
@@ -1697,30 +1688,36 @@ export class PresenceManager {
         joinedAt: Date.now(),
         cursor: null,
         selection: null,
-      })
+      }),
     );
 
     // Broadcast presence update to room
-    await this.redis.publish(`presence:${roomName}`, JSON.stringify({
-      type: 'join',
-      user,
-    }));
+    await this.redis.publish(
+      `presence:${roomName}`,
+      JSON.stringify({
+        type: 'join',
+        user,
+      }),
+    );
   }
 
   async removeUser(roomName: string, userId: string): Promise<void> {
     const key = `presence:${roomName}:${userId}`;
     await this.redis.del(key);
 
-    await this.redis.publish(`presence:${roomName}`, JSON.stringify({
-      type: 'leave',
-      userId,
-    }));
+    await this.redis.publish(
+      `presence:${roomName}`,
+      JSON.stringify({
+        type: 'leave',
+        userId,
+      }),
+    );
   }
 
   async updateCursor(
     roomName: string,
     userId: string,
-    cursor: { x: number; y: number; elementId: string }
+    cursor: { x: number; y: number; elementId: string },
   ): Promise<void> {
     const key = `presence:${roomName}:${userId}`;
     const data = await this.redis.get(key);
@@ -1731,11 +1728,14 @@ export class PresenceManager {
 
     await this.redis.setex(key, PRESENCE_TTL, JSON.stringify(parsed));
 
-    await this.redis.publish(`presence:${roomName}`, JSON.stringify({
-      type: 'cursor',
-      userId,
-      cursor,
-    }));
+    await this.redis.publish(
+      `presence:${roomName}`,
+      JSON.stringify({
+        type: 'cursor',
+        userId,
+        cursor,
+      }),
+    );
   }
 
   async getActiveUsers(roomName: string): Promise<RoomUser[]> {
@@ -1779,10 +1779,10 @@ export const notificationQueue = new Queue('notifications', {
     attempts: 3,
     backoff: {
       type: 'exponential',
-      delay: 1000,   // 1s, 2s, 4s
+      delay: 1000, // 1s, 2s, 4s
     },
-    removeOnComplete: { age: 7 * 24 * 3600 },  // keep 7 days
-    removeOnFail: { age: 30 * 24 * 3600 },     // keep 30 days
+    removeOnComplete: { age: 7 * 24 * 3600 }, // keep 7 days
+    removeOnFail: { age: 30 * 24 * 3600 }, // keep 30 days
   },
 });
 ```
@@ -1827,21 +1827,21 @@ export const webhookQueue = new Queue('webhooks', {
 
 ### 8.2 Job Types Table
 
-| Queue | Job Type | Handler | Retry | Timeout | Priority |
-|-------|----------|---------|-------|---------|----------|
-| `notifications` | `push` | Send push notification via FCM/APNs | 3x exp | 10s | Normal |
-| `notifications` | `in-app` | Create in-app notification record | 2x | 5s | Low |
-| `emails` | `send` | Send transactional email (SendGrid/SES) | 5x exp | 30s | Normal |
-| `emails` | `digest` | Batch daily digest emails | 3x | 60s | Low |
-| `webhooks` | `deliver` | POST to webhook endpoint | 5x exp | 15s | High |
-| `webhooks` | `retry-failed` | Re-deliver failed webhooks | 3x | 15s | Low |
-| `ai` | `copilot` | Forward to AI sidecar | 2x | 60s | Normal |
-| `ai` | `embedding` | Generate embeddings for search | 2x | 30s | Low |
-| `ai` | `summarize` | Summarize issue/comment thread | 2x | 45s | Low |
-| `file-processing` | `resize-image` | Generate thumbnails for uploads | 3x | 20s | Low |
-| `file-processing` | `extract-text` | OCR / text extraction | 2x | 30s | Low |
-| `analytics` | `track-event` | Write event to TimescaleDB | 2x | 5s | Low |
-| `analytics` | `rollup` | Aggregate metrics (hourly/daily) | 3x | 120s | Low |
+| Queue             | Job Type       | Handler                                 | Retry  | Timeout | Priority |
+| ----------------- | -------------- | --------------------------------------- | ------ | ------- | -------- |
+| `notifications`   | `push`         | Send push notification via FCM/APNs     | 3x exp | 10s     | Normal   |
+| `notifications`   | `in-app`       | Create in-app notification record       | 2x     | 5s      | Low      |
+| `emails`          | `send`         | Send transactional email (SendGrid/SES) | 5x exp | 30s     | Normal   |
+| `emails`          | `digest`       | Batch daily digest emails               | 3x     | 60s     | Low      |
+| `webhooks`        | `deliver`      | POST to webhook endpoint                | 5x exp | 15s     | High     |
+| `webhooks`        | `retry-failed` | Re-deliver failed webhooks              | 3x     | 15s     | Low      |
+| `ai`              | `copilot`      | Forward to AI sidecar                   | 2x     | 60s     | Normal   |
+| `ai`              | `embedding`    | Generate embeddings for search          | 2x     | 30s     | Low      |
+| `ai`              | `summarize`    | Summarize issue/comment thread          | 2x     | 45s     | Low      |
+| `file-processing` | `resize-image` | Generate thumbnails for uploads         | 3x     | 20s     | Low      |
+| `file-processing` | `extract-text` | OCR / text extraction                   | 2x     | 30s     | Low      |
+| `analytics`       | `track-event`  | Write event to TimescaleDB              | 2x     | 5s      | Low      |
+| `analytics`       | `rollup`       | Aggregate metrics (hourly/daily)        | 3x     | 120s    | Low      |
 
 ### 8.3 Worker Implementation
 
@@ -1868,11 +1868,7 @@ export const webhookWorker = new Worker<WebhookJobData>(
     const { webhookId, event, payload, attempt } = job.data;
 
     // 1. Fetch webhook config from database
-    const [webhook] = await db
-      .select()
-      .from(webhooks)
-      .where(eq(webhooks.id, webhookId))
-      .limit(1);
+    const [webhook] = await db.select().from(webhooks).where(eq(webhooks.id, webhookId)).limit(1);
 
     if (!webhook || !webhook.active) {
       logger.warn('Webhook not found or inactive', { webhookId });
@@ -1886,10 +1882,7 @@ export const webhookWorker = new Worker<WebhookJobData>(
       data: payload,
     });
 
-    const signature = crypto
-      .createHmac('sha256', webhook.secret)
-      .update(body)
-      .digest('hex');
+    const signature = crypto.createHmac('sha256', webhook.secret).update(body).digest('hex');
 
     // 3. Send HTTP request
     const controller = new AbortController();
@@ -1949,7 +1942,7 @@ export const webhookWorker = new Worker<WebhookJobData>(
       max: 50,
       duration: 1000, // max 50 jobs/sec per webhook endpoint
     },
-  }
+  },
 );
 
 // Event listeners for monitoring
@@ -1989,9 +1982,7 @@ const allWorkers: Worker[] = [
   analyticsWorker,
 ];
 
-export async function startBullMQWorkers(
-  ctx: { db: any; redis: any }
-): Promise<Worker[]> {
+export async function startBullMQWorkers(ctx: { db: any; redis: any }): Promise<Worker[]> {
   logger.info(`Starting ${allWorkers.length} BullMQ workers`);
 
   for (const worker of allWorkers) {
@@ -2296,7 +2287,7 @@ export class AIService {
   async copilotChat(
     message: string,
     context: Record<string, unknown>,
-    conversationId?: string
+    conversationId?: string,
   ): Promise<{ response: string; model: string; tokens: number }> {
     try {
       const response = await fetch(`${this.baseUrl}/v1/copilot/chat`, {
@@ -2332,7 +2323,7 @@ export class AIService {
 
   async summarize(
     text: string,
-    style: 'concise' | 'detailed' | 'bullet' = 'concise'
+    style: 'concise' | 'detailed' | 'bullet' = 'concise',
   ): Promise<string> {
     const response = await fetch(`${this.baseUrl}/v1/summarize`, {
       method: 'POST',
@@ -2363,7 +2354,7 @@ export class AIService {
    */
   async *streamCopilotChat(
     message: string,
-    context: Record<string, unknown>
+    context: Record<string, unknown>,
   ): AsyncGenerator<string> {
     const response = await fetch(`${this.baseUrl}/v1/copilot/chat`, {
       method: 'POST',
@@ -2573,12 +2564,12 @@ import { fileProcessingQueue } from '../../jobs/queues/file-processing.queue';
 
 // Allowed file types and size limits
 const ALLOWED_TYPES: Record<string, { maxSize: number; category: string }> = {
-  'image/jpeg':    { maxSize: 10 * 1024 * 1024,  category: 'image' },
-  'image/png':     { maxSize: 10 * 1024 * 1024,  category: 'image' },
-  'image/gif':     { maxSize: 10 * 1024 * 1024,  category: 'image' },
-  'image/webp':    { maxSize: 10 * 1024 * 1024,  category: 'image' },
+  'image/jpeg': { maxSize: 10 * 1024 * 1024, category: 'image' },
+  'image/png': { maxSize: 10 * 1024 * 1024, category: 'image' },
+  'image/gif': { maxSize: 10 * 1024 * 1024, category: 'image' },
+  'image/webp': { maxSize: 10 * 1024 * 1024, category: 'image' },
   'application/pdf': { maxSize: 25 * 1024 * 1024, category: 'document' },
-  'text/plain':    { maxSize: 5 * 1024 * 1024,   category: 'document' },
+  'text/plain': { maxSize: 5 * 1024 * 1024, category: 'document' },
   'application/zip': { maxSize: 50 * 1024 * 1024, category: 'archive' },
   // Add more as needed
 };
@@ -2777,7 +2768,7 @@ interface AutomationAction {
  */
 export async function automationWorkflow(
   trigger: AutomationTrigger,
-  actions: AutomationAction[]
+  actions: AutomationAction[],
 ): Promise<{ completed: number; failed: number; errors: string[] }> {
   let completed = 0;
   let failed = 0;
@@ -2901,28 +2892,28 @@ export const SCHEDULES = [
   {
     name: 'daily-digest',
     workflowId: 'dailyDigestWorkflow',
-    schedule: '0 9 * * *',  // 9:00 AM UTC daily
+    schedule: '0 9 * * *', // 9:00 AM UTC daily
     // In production: per-workspace schedules with timezone
   },
   {
     name: 'sla-monitor',
     workflowId: 'slaMonitorWorkflow',
-    schedule: '*/5 * * * *',  // every 5 minutes
+    schedule: '*/5 * * * *', // every 5 minutes
   },
   {
     name: 'analytics-rollup-hourly',
     workflowId: 'analyticsRollupWorkflow',
-    schedule: '5 * * * *',  // 5 min past every hour
+    schedule: '5 * * * *', // 5 min past every hour
   },
   {
     name: 'cleanup-expired-tokens',
     workflowId: 'cleanupTokensWorkflow',
-    schedule: '0 2 * * *',  // 2:00 AM UTC daily
+    schedule: '0 2 * * *', // 2:00 AM UTC daily
   },
   {
     name: 'git-sync',
     workflowId: 'gitSyncWorkflow',
-    schedule: '*/15 * * * *',  // every 15 minutes
+    schedule: '*/15 * * * *', // every 15 minutes
   },
 ];
 ```
@@ -3001,7 +2992,7 @@ healthRouter.get('/ready', async (_req: Request, res: Response) => {
 
   const allHealthy = Object.values(checks).every((c) => c.status === 'healthy');
   const someHealthy = Object.values(checks).some(
-    (c) => c.status === 'healthy' || c.status === 'degraded'
+    (c) => c.status === 'healthy' || c.status === 'degraded',
   );
 
   res.status(allHealthy ? 200 : someHealthy ? 200 : 503).json({
@@ -3029,11 +3020,11 @@ healthRouter.get('/info', async (_req: Request, res: Response) => {
 
 ### 12.2 Health Check Summary
 
-| Endpoint | Purpose | k8s Probe | Success Code | Failure Code |
-|----------|---------|-----------|-------------|--------------|
-| `GET /health/live` | Process is alive | `livenessProbe` | `200` | `500` |
-| `GET /health/ready` | Ready for traffic | `readinessProbe` | `200` | `503` |
-| `GET /health/info` | Internal diagnostics | none | `200` | — |
+| Endpoint            | Purpose              | k8s Probe        | Success Code | Failure Code |
+| ------------------- | -------------------- | ---------------- | ------------ | ------------ |
+| `GET /health/live`  | Process is alive     | `livenessProbe`  | `200`        | `500`        |
+| `GET /health/ready` | Ready for traffic    | `readinessProbe` | `200`        | `503`        |
+| `GET /health/info`  | Internal diagnostics | none             | `200`        | —            |
 
 ### 12.3 Kubernetes Probe Configuration
 
@@ -3063,7 +3054,7 @@ startupProbe:
     port: 3000
   initialDelaySeconds: 5
   periodSeconds: 5
-  failureThreshold: 30  # 2.5 minutes max startup
+  failureThreshold: 30 # 2.5 minutes max startup
 ```
 
 ---
@@ -3142,7 +3133,6 @@ export function gracefulShutdown(ctx: ShutdownContext): void {
       ctx.logger.info('✅ Graceful shutdown complete');
       clearTimeout(forceExitTimer);
       process.exit(0);
-
     } catch (err) {
       ctx.logger.error('❌ Error during shutdown', { error: err });
       clearTimeout(forceExitTimer);
@@ -3214,13 +3204,13 @@ export function gracefulShutdown(ctx: ShutdownContext): void {
 
 ### 14.1 Port Map
 
-| Service | Internal Port | Exposed via |
-|---------|---------------|-------------|
-| Express API | `3000` | Cloudflare → LB → Pod |
-| WebSocket | `3001` (or `3000/ws`) | Cloudflare → LB → Pod |
-| AI Sidecar | `8000` | Internal only (node-to-node) |
-| Prometheus | `9090` | Internal only |
-| Temporal | `7233` | Internal only |
+| Service     | Internal Port         | Exposed via                  |
+| ----------- | --------------------- | ---------------------------- |
+| Express API | `3000`                | Cloudflare → LB → Pod        |
+| WebSocket   | `3001` (or `3000/ws`) | Cloudflare → LB → Pod        |
+| AI Sidecar  | `8000`                | Internal only (node-to-node) |
+| Prometheus  | `9090`                | Internal only                |
+| Temporal    | `7233`                | Internal only                |
 
 ### 14.2 Middleware Order (Express)
 
@@ -3232,17 +3222,17 @@ BodyParser → Context Injection → [Auth] → [Workspace] → [Validate] →
 
 ### 14.3 Error Code → HTTP Status
 
-| Code | Status | Example |
-|------|--------|---------|
-| `BAD_REQUEST` | 400 | Malformed JSON |
-| `UNAUTHORIZED` | 401 | Expired JWT |
-| `FORBIDDEN` | 403 | No workspace access |
-| `NOT_FOUND` | 404 | Issue doesn't exist |
-| `CONFLICT` | 409 | Duplicate slug |
-| `VALIDATION_ERROR` | 422 | Zod failure |
-| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests |
-| `EXTERNAL_SERVICE_ERROR` | 502 | R2 / AI down |
-| `INTERNAL_ERROR` | 500 | Unhandled exception |
+| Code                     | Status | Example             |
+| ------------------------ | ------ | ------------------- |
+| `BAD_REQUEST`            | 400    | Malformed JSON      |
+| `UNAUTHORIZED`           | 401    | Expired JWT         |
+| `FORBIDDEN`              | 403    | No workspace access |
+| `NOT_FOUND`              | 404    | Issue doesn't exist |
+| `CONFLICT`               | 409    | Duplicate slug      |
+| `VALIDATION_ERROR`       | 422    | Zod failure         |
+| `RATE_LIMIT_EXCEEDED`    | 429    | Too many requests   |
+| `EXTERNAL_SERVICE_ERROR` | 502    | R2 / AI down        |
+| `INTERNAL_ERROR`         | 500    | Unhandled exception |
 
 ### 14.4 BullMQ Job Flow
 
@@ -3271,24 +3261,24 @@ Client connects → /ws?room=document:abc&token=xxx
 
 ### 14.6 Key File Locations
 
-| Concern | Path |
-|---------|------|
-| Entry point | `src/server.ts` |
-| App factory | `src/app.ts` |
-| Config | `src/config/index.ts` |
-| Modules | `src/modules/<name>/` |
-| Middleware | `src/middleware/` |
-| DB schema | `drizzle/schema/` |
-| DB migrations | `drizzle/migrations/` |
-| Job queues | `src/jobs/queues/` |
-| Job workers | `src/jobs/workers/` |
-| WebSocket | `src/ws/` |
-| Temporal workflows | `src/workflows/` |
-| AI service | `ai_service/` (Python) |
-| Error classes | `src/lib/errors.ts` |
-| Logging | `src/lib/logger.ts` |
-| Tracing | `src/lib/tracing.ts` |
-| Storage | `src/lib/storage.ts` |
+| Concern            | Path                   |
+| ------------------ | ---------------------- |
+| Entry point        | `src/server.ts`        |
+| App factory        | `src/app.ts`           |
+| Config             | `src/config/index.ts`  |
+| Modules            | `src/modules/<name>/`  |
+| Middleware         | `src/middleware/`      |
+| DB schema          | `drizzle/schema/`      |
+| DB migrations      | `drizzle/migrations/`  |
+| Job queues         | `src/jobs/queues/`     |
+| Job workers        | `src/jobs/workers/`    |
+| WebSocket          | `src/ws/`              |
+| Temporal workflows | `src/workflows/`       |
+| AI service         | `ai_service/` (Python) |
+| Error classes      | `src/lib/errors.ts`    |
+| Logging            | `src/lib/logger.ts`    |
+| Tracing            | `src/lib/tracing.ts`   |
+| Storage            | `src/lib/storage.ts`   |
 
 ### 14.7 Environment Variables (Required)
 

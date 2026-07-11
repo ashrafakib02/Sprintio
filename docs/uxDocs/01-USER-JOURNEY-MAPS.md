@@ -36,6 +36,7 @@ Opp:       Design opportunity
 ```
 
 **Emotion Scale:**
+
 - 😫 Frustrated — blocking friction, workaround needed
 - 😐 Neutral — functional but unremarkable
 - 🙂 Satisfied — task completed efficiently
@@ -87,6 +88,7 @@ Opp:         AI        Dependency    Workload  Auto-     One-click
 ```
 
 **Key Moments:**
+
 - **"Aha" #1:** Dragging a task from backlog to the sprint board and seeing the capacity badge update in real-time
 - **"Aha" #2:** AI warns "This sprint is 15% over your team's historical velocity" — prevents overcommitment
 - **Delight:** One-click sprint summary that auto-generates "Sprint 14: 34/38 pts delivered, 2 carry-forwards"
@@ -121,6 +123,7 @@ Time:         30s     2 min   1 min      1 min  30s
 ```
 
 **Key Moments:**
+
 - **"Aha":** Board loads instantly with yesterday's view preserved — no re-filtering
 - **Delight:** AI summary of overnight activity: "3 tasks moved to In Review, 1 blocker reported on payments-service"
 
@@ -159,6 +162,7 @@ Time:         1 min    30s     10 min  5 min   1 min
 ```
 
 **Key Moments:**
+
 - **Delight:** AI generates a polished sprint summary with velocity charts, completion rates, and risk flags — Sarah just reviews and sends
 - **Before/After:** 2-3 hours manually stitching slides → 20 minutes reviewing AI draft
 
@@ -222,6 +226,7 @@ Time:         15s    15s      30s      hrs   0s
 ```
 
 **Key Moments:**
+
 - **"Aha" #1:** Keyboard shortcut `G M` (Go → My Work) instantly shows filtered tasks — no clicking through menus
 - **"Aha" #2:** PR gets merged on GitHub → task automatically moves to Done → Marcus never touches Sprintio UI
 - **Delight:** Status updates happen as a byproduct of actual work, not as a separate chore
@@ -258,6 +263,7 @@ Time:         30s     20 min  5 min   2 min   1 min
 ```
 
 **Key Moments:**
+
 - **Delight:** Typing `[[` shows autocomplete of all tasks and docs — bidirectional linking feels like a personal wiki
 - **Delight:** Task linked to the RFC auto-shows the doc embed in its detail panel — no copy-paste
 
@@ -295,6 +301,7 @@ Time:         hrs    2 min 10s   0s (auto)   0s
 ```
 
 **Key Moments:**
+
 - **Delight:** Marcus never opens Sprintio to update task status. GitHub PR merge → task done. Zero UI overhead.
 - **Trust Builder:** Activity log shows "PR #456 merged → moved to Done by GitHub integration" — full audit trail without manual work
 
@@ -355,6 +362,7 @@ Time:         5 min   15 min   25 min    10 min 5 min
 ```
 
 **Key Moments:**
+
 - **"Aha":** AI highlights 7 stale items Priya forgot about — prevents backlog rot
 - **Delight:** Every epic in the backlog has a linked spec document — engineers can self-serve clarification
 - **Friction (Phase 2):** Table view for backlog is deferred — Board view is less efficient for bulk prioritization
@@ -393,6 +401,7 @@ Time:         30s     30 min  5 min   5 min  1 min
 ```
 
 **Key Moments:**
+
 - **Delight:** Spec and tasks are bidirectionally linked — no more "where's the spec?" questions
 - **Delight:** AI writing assistant helps rewrite acceptance criteria for clarity
 
@@ -484,6 +493,7 @@ Time:         5 min   20 min   varies   5-10     30s
 ```
 
 **Key Moments:**
+
 - **Delight:** Inline comments anchored to text ranges — feedback is contextual, not scattered across Slack/email
 - **Delight:** Comment resolution tracking — Alex can see "3 open, 5 resolved, 12 total" at a glance
 - **Friction (Phase 2):** AI comment clustering for long threads is deferred
@@ -575,6 +585,7 @@ Time:      1 min   2-3 min       2 min       1-2     1 min
 ```
 
 **Onboarding Checklist** (collapsible in sidebar):
+
 ```
 □ Create a task              (auto-checks on first task)
 □ Assign a task to someone   (auto-checks on first assign)
@@ -585,6 +596,7 @@ Time:      1 min   2-3 min       2 min       1-2     1 min
 ```
 
 **Key Moments:**
+
 - **Friction:** If wizard asks too many questions, user drops. Keep to 3 steps max.
 - **"Aha" Moment:** Board view loads with the user's first task visible and assigned — "this is my team's workspace"
 - **Delight:** Onboarding checklist auto-checks items as the user naturally explores — gamification without being cheesy
@@ -668,11 +680,13 @@ Time:      0s        30s   10s       30s     1 min
 ```
 
 **Trust-Building Moments:**
+
 1. **First NL task creation:** "Create a P1 incident task for checkout latency" → AI parses correctly → user thinks "it understood me"
 2. **Smart triage:** AI suggests priority P1, assignee = me, label = "incident" → user accepts with one tap → "it learned my patterns"
 3. **Smart summary:** One-click sprint summary that's actually useful → user shares with leadership → "this saved me an hour"
 
 **Anti-Patterns to Avoid:**
+
 - AI that gets it wrong on the first try → user never trusts it again
 - AI that requires too many clarification steps → defeats the purpose
 - AI that's hidden behind too many clicks → nobody discovers it
@@ -698,7 +712,7 @@ System:    Shows    Sends to      Streams     Applies
            aware    streams       editor,     changes,
            popup    response      preserves   logs in
            near     in <500ms     original    activity
-           selection                                         
+           selection
 ────────── ───────── ────────────── ──────────── ──────────────
 Emotion:   😐      🙂              😍          😍
 Screen:    Doc      AI Action      Doc         Doc
@@ -717,39 +731,39 @@ Time:      5s       5s             15s         5s
 
 ### Screens Accessed Per Persona
 
-| Screen | Sarah | Marcus | Priya | Alex |
-|--------|-------|--------|-------|------|
-| Board View | ⭐ Primary | ◐ Occasional | ◐ Occasional | ○ Rare |
-| List View | ◐ Secondary | ⭐ Primary | ◐ Secondary | ○ Rare |
-| Task Detail | ⭐ Daily | ⭐ Daily | ◐ During grooming | ⭐ For feedback |
-| Doc Editor | ○ Rare | ⭐ RFCs | ⭐ Specs | ⭐ Handoff |
-| Automation Builder | ⭐ Power user | ◐ Personal auto | ⭐ Process auto | ○ Rare |
-| Copilot Panel | ⭐ Summaries | ⭐ NL create | ⭐ NL create + writing | ○ Rare |
-| Settings | ◐ Admin tasks | ○ Rare | ◐ Workspace config | ○ Rare |
-| Notifications | ⭐ Daily | ◐ As needed | ⭐ Daily | ⭐ Review cycle |
+| Screen             | Sarah         | Marcus          | Priya                  | Alex            |
+| ------------------ | ------------- | --------------- | ---------------------- | --------------- |
+| Board View         | ⭐ Primary    | ◐ Occasional    | ◐ Occasional           | ○ Rare          |
+| List View          | ◐ Secondary   | ⭐ Primary      | ◐ Secondary            | ○ Rare          |
+| Task Detail        | ⭐ Daily      | ⭐ Daily        | ◐ During grooming      | ⭐ For feedback |
+| Doc Editor         | ○ Rare        | ⭐ RFCs         | ⭐ Specs               | ⭐ Handoff      |
+| Automation Builder | ⭐ Power user | ◐ Personal auto | ⭐ Process auto        | ○ Rare          |
+| Copilot Panel      | ⭐ Summaries  | ⭐ NL create    | ⭐ NL create + writing | ○ Rare          |
+| Settings           | ◐ Admin tasks | ○ Rare          | ◐ Workspace config     | ○ Rare          |
+| Notifications      | ⭐ Daily      | ◐ As needed     | ⭐ Daily               | ⭐ Review cycle |
 
 ### Emotion Comparison Across Key Flows
 
-| Flow | Sarah | Marcus | Priya | Alex |
-|------|-------|--------|-------|------|
-| **Onboarding** | 😐→🙂 (wants team onboarded fast) | 😫→😐 (hates another tool) | 🙂 (organizing comes naturally) | 😐→🙂 (wants Figma integration) |
-| **Daily work** | 😍 (board saves hours) | 😍 (auto-update = no UI tax) | 🙂 (backlog is clean) | 🙂 (feedback is organized) |
-| **Status reporting** | 😍 (20 min vs 3 hours) | N/A (doesn't report) | 😍 (15 min vs 1 hour) | 😍 (review cycle < 3 days) |
-| **AI features** | 😍 (summaries) | 😍 (NL create + triage) | 😍 (writing assistant) | 😐 (less AI-dependent) |
-| **Automation** | 😍 (sprint nudges) | 😍 (chore automation) | 😍 (process automation) | 😐 (less needed) |
+| Flow                 | Sarah                             | Marcus                       | Priya                           | Alex                            |
+| -------------------- | --------------------------------- | ---------------------------- | ------------------------------- | ------------------------------- |
+| **Onboarding**       | 😐→🙂 (wants team onboarded fast) | 😫→😐 (hates another tool)   | 🙂 (organizing comes naturally) | 😐→🙂 (wants Figma integration) |
+| **Daily work**       | 😍 (board saves hours)            | 😍 (auto-update = no UI tax) | 🙂 (backlog is clean)           | 🙂 (feedback is organized)      |
+| **Status reporting** | 😍 (20 min vs 3 hours)            | N/A (doesn't report)         | 😍 (15 min vs 1 hour)           | 😍 (review cycle < 3 days)      |
+| **AI features**      | 😍 (summaries)                    | 😍 (NL create + triage)      | 😍 (writing assistant)          | 😐 (less AI-dependent)          |
+| **Automation**       | 😍 (sprint nudges)                | 😍 (chore automation)        | 😍 (process automation)         | 😐 (less needed)                |
 
 ### Friction Points to Design For (MVP)
 
-| # | Friction | Persona | Severity | Design Response |
-|---|----------|---------|----------|-----------------|
-| F1 | Too many items in backlog, hard to triage | Priya | High | Smart filtering, AI stale-item detection, quick-archive |
-| F2 | Status updates feel like theater | Marcus | Critical | GitHub/GitLab auto-sync, NL updates, activity-as-byproduct |
-| F3 | Can't see who's blocked without asking | Sarah | High | Board color-coding for blocked tasks, dependency indicators |
-| F4 | Docs rot because they're disconnected from tasks | Alex | High | Bidirectional wiki-links, orphan detection, status badges |
-| F5 | Onboarding requires too many steps | All | High | 3-step wizard, auto-checking checklist, progressive disclosure |
-| F6 | AI copilot hidden or undiscoverable | All | Medium | Persistent sidebar panel, slash commands in every text field, contextual hints |
-| F7 | Table view missing for bulk operations | Priya | Medium | Board+List views serve most needs; Table is Phase 2 priority |
-| F8 | No native mobile app | Marcus | Low (MVP) | PWA with install prompt, touch-friendly targets |
+| #   | Friction                                         | Persona | Severity  | Design Response                                                                |
+| --- | ------------------------------------------------ | ------- | --------- | ------------------------------------------------------------------------------ |
+| F1  | Too many items in backlog, hard to triage        | Priya   | High      | Smart filtering, AI stale-item detection, quick-archive                        |
+| F2  | Status updates feel like theater                 | Marcus  | Critical  | GitHub/GitLab auto-sync, NL updates, activity-as-byproduct                     |
+| F3  | Can't see who's blocked without asking           | Sarah   | High      | Board color-coding for blocked tasks, dependency indicators                    |
+| F4  | Docs rot because they're disconnected from tasks | Alex    | High      | Bidirectional wiki-links, orphan detection, status badges                      |
+| F5  | Onboarding requires too many steps               | All     | High      | 3-step wizard, auto-checking checklist, progressive disclosure                 |
+| F6  | AI copilot hidden or undiscoverable              | All     | Medium    | Persistent sidebar panel, slash commands in every text field, contextual hints |
+| F7  | Table view missing for bulk operations           | Priya   | Medium    | Board+List views serve most needs; Table is Phase 2 priority                   |
+| F8  | No native mobile app                             | Marcus  | Low (MVP) | PWA with install prompt, touch-friendly targets                                |
 
 ---
 

@@ -14,7 +14,7 @@ app.use(
   cors({
     origin: env.CORS_ORIGIN,
     credentials: true,
-  })
+  }),
 );
 
 // ── Rate limiting ────────────────────────────────────────────
@@ -52,16 +52,9 @@ app.use((_req, res) => {
 });
 
 // ── Error handler ────────────────────────────────────────────
-app.use(
-  (
-    err: Error,
-    _req: express.Request,
-    res: express.Response,
-    _next: express.NextFunction
-  ) => {
-    console.error('Unhandled error:', err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-);
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ error: 'Internal server error' });
+});
 
 export default app;

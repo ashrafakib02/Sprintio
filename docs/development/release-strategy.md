@@ -30,12 +30,12 @@ Sprintio follows a **trunk-based development** model with automated releases pow
 
 ### Key Principles
 
-| Principle | Description |
-|-----------|-------------|
-| **Automated versioning** | Version numbers are determined by commit messages, not manual decisions |
-| **Every merge to main is releasable** | The main branch is always in a deployable state |
-| **Changelog is auto-generated** | Derived from conventional commits, reviewed before release |
-| **Rollback is fast** | Any release can be rolled back in under 5 minutes |
+| Principle                             | Description                                                             |
+| ------------------------------------- | ----------------------------------------------------------------------- |
+| **Automated versioning**              | Version numbers are determined by commit messages, not manual decisions |
+| **Every merge to main is releasable** | The main branch is always in a deployable state                         |
+| **Changelog is auto-generated**       | Derived from conventional commits, reviewed before release              |
+| **Rollback is fast**                  | Any release can be rolled back in under 5 minutes                       |
 
 ---
 
@@ -49,29 +49,29 @@ Sprintio strictly follows [Semantic Versioning 2.0.0](https://semver.org/).
 MAJOR.MINOR.PATCH
 ```
 
-| Component | Incremented When | Example |
-|-----------|-----------------|---------|
+| Component | Incremented When                                                               | Example           |
+| --------- | ------------------------------------------------------------------------------ | ----------------- |
 | **MAJOR** | Breaking changes (incompatible API changes, data migrations, removed features) | `1.0.0` → `2.0.0` |
-| **MINOR** | New features (backward-compatible) | `1.0.0` → `1.1.0` |
-| **PATCH** | Bug fixes (backward-compatible) | `1.0.0` → `1.0.1` |
+| **MINOR** | New features (backward-compatible)                                             | `1.0.0` → `1.1.0` |
+| **PATCH** | Bug fixes (backward-compatible)                                                | `1.0.0` → `1.0.1` |
 
 ### Pre-release Versions
 
-| Type | Format | Example | When |
-|------|--------|---------|------|
-| **Alpha** | `X.Y.Z-alpha.N` | `2.0.0-alpha.1` | Internal testing only |
-| **Beta** | `X.Y.Z-beta.N` | `2.0.0-beta.3` | Limited external testing |
-| **Release Candidate** | `X.Y.Z-rc.N` | `2.0.0-rc.1` | Final testing before stable |
-| **Stable** | `X.Y.Z` | `2.0.0` | Production release |
+| Type                  | Format          | Example         | When                        |
+| --------------------- | --------------- | --------------- | --------------------------- |
+| **Alpha**             | `X.Y.Z-alpha.N` | `2.0.0-alpha.1` | Internal testing only       |
+| **Beta**              | `X.Y.Z-beta.N`  | `2.0.0-beta.3`  | Limited external testing    |
+| **Release Candidate** | `X.Y.Z-rc.N`    | `2.0.0-rc.1`    | Final testing before stable |
+| **Stable**            | `X.Y.Z`         | `2.0.0`         | Production release          |
 
 ### How Commits Drive Versioning
 
-| Commit Type | Version Impact | Example |
-|-------------|---------------|---------|
-| `fix: ...` | PATCH bump | `1.0.0` → `1.0.1` |
-| `feat: ...` | MINOR bump | `1.0.0` → `1.1.0` |
-| `feat!: ...` or `BREAKING CHANGE:` | MAJOR bump | `1.0.0` → `2.0.0` |
-| `chore: ...`, `docs: ...`, `ci: ...` | No bump | — |
+| Commit Type                          | Version Impact | Example           |
+| ------------------------------------ | -------------- | ----------------- |
+| `fix: ...`                           | PATCH bump     | `1.0.0` → `1.0.1` |
+| `feat: ...`                          | MINOR bump     | `1.0.0` → `1.1.0` |
+| `feat!: ...` or `BREAKING CHANGE:`   | MAJOR bump     | `1.0.0` → `2.0.0` |
+| `chore: ...`, `docs: ...`, `ci: ...` | No bump        | —                 |
 
 ---
 
@@ -97,14 +97,14 @@ develop ────────────────────────
 
 ### Branch Descriptions
 
-| Branch | Purpose | Lifetime | Protection |
-|--------|---------|----------|------------|
-| `main` | Production-ready code | Permanent | Strictest (2 approvals, all CI) |
-| `develop` | Integration of completed features | Permanent | Standard (1 approval, all CI) |
-| `feature/*` | Individual feature development | Until merged to develop | None |
-| `fix/*` | Bug fix development | Until merged to develop | None |
-| `release/*` | Release stabilization | Until merged to main + develop | Standard (2 approvals) |
-| `hotfix/*` | Emergency production fix | Until merged to main + develop | Expedited |
+| Branch      | Purpose                           | Lifetime                       | Protection                      |
+| ----------- | --------------------------------- | ------------------------------ | ------------------------------- |
+| `main`      | Production-ready code             | Permanent                      | Strictest (2 approvals, all CI) |
+| `develop`   | Integration of completed features | Permanent                      | Standard (1 approval, all CI)   |
+| `feature/*` | Individual feature development    | Until merged to develop        | None                            |
+| `fix/*`     | Bug fix development               | Until merged to develop        | None                            |
+| `release/*` | Release stabilization             | Until merged to main + develop | Standard (2 approvals)          |
+| `hotfix/*`  | Emergency production fix          | Until merged to main + develop | Expedited                       |
 
 ### Branch Lifecycle
 
@@ -207,11 +207,11 @@ Hotfixes address critical production issues and follow an expedited process.
 
 ### When to Hotfix
 
-| Severity | Example | Process |
-|----------|---------|---------|
-| **P0 — Critical** | Service down, data loss, security breach | Hotfix immediately |
-| **P1 — High** | Major feature broken, significant performance degradation | Hotfix within 4 hours |
-| **P2 — Medium** | Minor feature broken, workaround available | Fix in next regular release |
+| Severity          | Example                                                   | Process                     |
+| ----------------- | --------------------------------------------------------- | --------------------------- |
+| **P0 — Critical** | Service down, data loss, security breach                  | Hotfix immediately          |
+| **P1 — High**     | Major feature broken, significant performance degradation | Hotfix within 4 hours       |
+| **P2 — Medium**   | Minor feature broken, workaround available                | Fix in next regular release |
 
 ### Hotfix Procedure
 
@@ -262,18 +262,18 @@ The CHANGELOG.md is **auto-generated** by semantic-release but can be manually c
 
 ### ⚠ BREAKING CHANGES
 
-* **api:** Remove legacy v1 endpoints (#456)
-* **auth:** Switch from JWT to opaque tokens (#460)
+- **api:** Remove legacy v1 endpoints (#456)
+- **auth:** Switch from JWT to opaque tokens (#460)
 
 ### Features
 
-* **auth:** Add MFA support with TOTP (#440)
-* **web:** Implement real-time collaboration with Yjs (#445)
+- **auth:** Add MFA support with TOTP (#440)
+- **web:** Implement real-time collaboration with Yjs (#445)
 
 ### Bug Fixes
 
-* **api:** Fix race condition in workspace creation (#448)
-* **web:** Fix memory leak in rich text editor (#452)
+- **api:** Fix race condition in workspace creation (#448)
+- **web:** Fix memory leak in rich text editor (#452)
 
 ---
 
@@ -281,20 +281,20 @@ The CHANGELOG.md is **auto-generated** by semantic-release but can be manually c
 
 ### Features
 
-* **dashboard:** Add burndown chart widget (#420)
-* **search:** Implement full-text search with pgvector (#425)
+- **dashboard:** Add burndown chart widget (#420)
+- **search:** Implement full-text search with pgvector (#425)
 ```
 
 ### Changelog Sections
 
-| Section | Commit Types |
-|---------|-------------|
-| **Breaking Changes** | `feat!:` or `BREAKING CHANGE:` footer |
-| **Features** | `feat:` commits |
-| **Bug Fixes** | `fix:` commits |
-| **Performance** | `perf:` commits |
-| **Documentation** | `docs:` commits (included in changelog but below the fold) |
-| **Other** | `chore:`, `refactor:`, `test:`, `ci:` (linked in release, not detailed) |
+| Section              | Commit Types                                                            |
+| -------------------- | ----------------------------------------------------------------------- |
+| **Breaking Changes** | `feat!:` or `BREAKING CHANGE:` footer                                   |
+| **Features**         | `feat:` commits                                                         |
+| **Bug Fixes**        | `fix:` commits                                                          |
+| **Performance**      | `perf:` commits                                                         |
+| **Documentation**    | `docs:` commits (included in changelog but below the fold)              |
+| **Other**            | `chore:`, `refactor:`, `test:`, `ci:` (linked in release, not detailed) |
 
 ### Manual Changelog Edits
 
@@ -311,12 +311,12 @@ For major releases, maintainers may manually edit CHANGELOG.md to:
 
 ### Recommended Cadence
 
-| Release Type | Frequency | Target |
-|-------------|-----------|--------|
-| **Major** | As needed | Major milestones, breaking changes |
-| **Minor** | Every 2-4 weeks | End of sprint |
-| **Patch** | As needed | Bug fixes, security updates |
-| **Hotfix** | Immediately | Critical production issues |
+| Release Type | Frequency       | Target                             |
+| ------------ | --------------- | ---------------------------------- |
+| **Major**    | As needed       | Major milestones, breaking changes |
+| **Minor**    | Every 2-4 weeks | End of sprint                      |
+| **Patch**    | As needed       | Bug fixes, security updates        |
+| **Hotfix**   | Immediately     | Critical production issues         |
 
 ### Sprint-Based Releases
 
@@ -331,11 +331,11 @@ Sprint 3 (Jan 29-Feb 11) → Release v1.3.0 (Feb 12)
 
 ### Release Freeze Periods
 
-| Period | Duration | Rule |
-|--------|----------|------|
-| **Holiday freeze** | Dec 20 - Jan 2 | No non-critical releases |
-| **Quarterly review** | Last week of quarter | Stabilization only, no new features |
-| **Post-major release** | 1 week after major | Monitor, no new majors |
+| Period                 | Duration             | Rule                                |
+| ---------------------- | -------------------- | ----------------------------------- |
+| **Holiday freeze**     | Dec 20 - Jan 2       | No non-critical releases            |
+| **Quarterly review**   | Last week of quarter | Stabilization only, no new features |
+| **Post-major release** | 1 week after major   | Monitor, no new majors              |
 
 ---
 
@@ -361,11 +361,11 @@ Code flows through environments in order, with gates at each stage.
 
 ### Environment Details
 
-| Environment | URL | Deploy Trigger | Data |
-|-------------|-----|----------------|------|
-| **Local** | `localhost:5173` | Manual | Seed data |
-| **Staging** | `staging.sprintio.app` | Push to `main` | Anonymized production data |
-| **Production** | `sprintio.app` | Semantic release (tag) | Real production data |
+| Environment    | URL                    | Deploy Trigger         | Data                       |
+| -------------- | ---------------------- | ---------------------- | -------------------------- |
+| **Local**      | `localhost:5173`       | Manual                 | Seed data                  |
+| **Staging**    | `staging.sprintio.app` | Push to `main`         | Anonymized production data |
+| **Production** | `sprintio.app`         | Semantic release (tag) | Real production data       |
 
 ### Promotion Gates
 
@@ -414,12 +414,12 @@ When a release causes issues, follow these procedures to roll back quickly.
 
 ### Rollback Decision Matrix
 
-| Severity | Detection | Action | Timeline |
-|----------|-----------|--------|----------|
-| **Critical** (service down) | Monitoring alert | Roll back immediately | < 5 minutes |
-| **High** (major regression) | User reports | Roll back within 30 minutes | < 30 minutes |
-| **Medium** (minor regression) | Internal QA | Fix forward in next patch | Next release |
-| **Low** (cosmetic issue) | User feedback | Fix forward | Backlog |
+| Severity                      | Detection        | Action                      | Timeline     |
+| ----------------------------- | ---------------- | --------------------------- | ------------ |
+| **Critical** (service down)   | Monitoring alert | Roll back immediately       | < 5 minutes  |
+| **High** (major regression)   | User reports     | Roll back within 30 minutes | < 30 minutes |
+| **Medium** (minor regression) | Internal QA      | Fix forward in next patch   | Next release |
+| **Low** (cosmetic issue)      | User feedback    | Fix forward                 | Backlog      |
 
 ### Application Rollback (Cloudflare Pages/Workers)
 
@@ -503,29 +503,29 @@ For PostgreSQL (Neon):
 
 ### Rollback Communication
 
-| Stakeholder | Channel | Message Template |
-|-------------|---------|-----------------|
-| **Engineering** | Slack #incidents | "⚠️ Rolling back v1.2.0 to v1.1.0 due to [issue]. ETA: 5 minutes." |
-| **Support** | Slack #support | "We're rolling back a recent update. Known issues: [list]. Workaround: [if any]." |
-| **Users** | Status page | "We identified an issue and have rolled back to a stable version. All services are operational." |
+| Stakeholder     | Channel          | Message Template                                                                                 |
+| --------------- | ---------------- | ------------------------------------------------------------------------------------------------ |
+| **Engineering** | Slack #incidents | "⚠️ Rolling back v1.2.0 to v1.1.0 due to [issue]. ETA: 5 minutes."                               |
+| **Support**     | Slack #support   | "We're rolling back a recent update. Known issues: [list]. Workaround: [if any]."                |
+| **Users**       | Status page      | "We identified an issue and have rolled back to a stable version. All services are operational." |
 
 ---
 
 ## Quick Reference
 
-| Concept | Sprintio Convention |
-|---------|-------------------|
-| **Versioning** | Semantic Versioning 2.0.0 |
-| **Commit format** | Conventional Commits |
-| **Version automation** | semantic-release |
-| **Release trigger** | Push to `main` (squash merge from develop) |
-| **Changelog** | Auto-generated by semantic-release |
-| **Tag format** | `vX.Y.Z` |
-| **Deployment** | Cloudflare Pages (web) + Workers (API) |
-| **Rollback** | Cloudflare dashboard or `git revert` |
-| **Hotfix** | Branch from `main`, expedited review (1 approval) |
-| **Cadence** | Biweekly minor releases, patches as needed |
+| Concept                | Sprintio Convention                               |
+| ---------------------- | ------------------------------------------------- |
+| **Versioning**         | Semantic Versioning 2.0.0                         |
+| **Commit format**      | Conventional Commits                              |
+| **Version automation** | semantic-release                                  |
+| **Release trigger**    | Push to `main` (squash merge from develop)        |
+| **Changelog**          | Auto-generated by semantic-release                |
+| **Tag format**         | `vX.Y.Z`                                          |
+| **Deployment**         | Cloudflare Pages (web) + Workers (API)            |
+| **Rollback**           | Cloudflare dashboard or `git revert`              |
+| **Hotfix**             | Branch from `main`, expedited review (1 approval) |
+| **Cadence**            | Biweekly minor releases, patches as needed        |
 
 ---
 
-*Document maintained by the Sprintio engineering team.*
+_Document maintained by the Sprintio engineering team._

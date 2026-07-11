@@ -28,14 +28,14 @@
 
 ## 1. Design Principles
 
-| Principle | Rule |
-|---|---|
-| **Flat over nested** | No directory deeper than 4 levels unless unavoidable |
-| **Domain-first grouping** | Files grouped by feature/domain, not by technical role |
-| **Co-location** | Tests sit next to source; types live with consumers |
-| **Single source of truth** | Shared types in `packages/shared`; never duplicate across packages |
-| **Explicit barrels** | Every directory has an `index.ts` exporting its public surface |
-| **Config isolation** | All config packages are publishable; consumed via workspace protocol |
+| Principle                  | Rule                                                                       |
+| -------------------------- | -------------------------------------------------------------------------- |
+| **Flat over nested**       | No directory deeper than 4 levels unless unavoidable                       |
+| **Domain-first grouping**  | Files grouped by feature/domain, not by technical role                     |
+| **Co-location**            | Tests sit next to source; types live with consumers                        |
+| **Single source of truth** | Shared types in `packages/shared`; never duplicate across packages         |
+| **Explicit barrels**       | Every directory has an `index.ts` exporting its public surface             |
+| **Config isolation**       | All config packages are publishable; consumed via workspace protocol       |
 | **Screaming architecture** | Directory names reveal intent (`billing/`, `collaboration/`, not `utils/`) |
 
 ---
@@ -742,16 +742,16 @@ sprintio/
 
 ## 3. Top-Level Directory Breakdown
 
-| Directory | Purpose | Consumers |
-|---|---|---|
-| `.github/` | CI/CD workflows, issue templates, CODEOWNERS | GitHub, developers |
-| `.husky/` | Git hooks for commit validation | Developer machines |
-| `apps/` | Deployable application packages | Turborepo, CI/CD |
-| `packages/` | Shared, consumable workspace packages | `apps/*`, other packages |
-| `infrastructure/` | IaC for Cloudflare, Docker, K8s | DevOps, CI/CD |
-| `scripts/` | Operational shell scripts | Developers, CI/CD |
-| `tests/` | Cross-package E2E tests | CI/CD, QA |
-| `docs/` | Architecture docs, ADRs, guides | All team members |
+| Directory         | Purpose                                      | Consumers                |
+| ----------------- | -------------------------------------------- | ------------------------ |
+| `.github/`        | CI/CD workflows, issue templates, CODEOWNERS | GitHub, developers       |
+| `.husky/`         | Git hooks for commit validation              | Developer machines       |
+| `apps/`           | Deployable application packages              | Turborepo, CI/CD         |
+| `packages/`       | Shared, consumable workspace packages        | `apps/*`, other packages |
+| `infrastructure/` | IaC for Cloudflare, Docker, K8s              | DevOps, CI/CD            |
+| `scripts/`        | Operational shell scripts                    | Developers, CI/CD        |
+| `tests/`          | Cross-package E2E tests                      | CI/CD, QA                |
+| `docs/`           | Architecture docs, ADRs, guides              | All team members         |
 
 ---
 
@@ -776,15 +776,15 @@ sprintio/
     "db:migrate": "pnpm --filter @sprintio/db migrate",
     "db:seed": "pnpm --filter @sprintio/db seed",
     "db:studio": "pnpm --filter @sprintio/db studio",
-    "prepare": "husky"
+    "prepare": "husky",
   },
   "devDependencies": {
     "turbo": "^2.1.0",
     "husky": "^9.1.0",
     "lint-staged": "^15.2.0",
     "@commitlint/cli": "^19.4.0",
-    "typescript": "^5.6.0"
-  }
+    "typescript": "^5.6.0",
+  },
 }
 ```
 
@@ -805,32 +805,32 @@ packages:
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**"]
+      "outputs": ["dist/**", ".next/**"],
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
     },
     "lint": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
     },
     "typecheck": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
     },
     "test": {
-      "dependsOn": ["build"]
+      "dependsOn": ["build"],
     },
     "test:integration": {
       "dependsOn": ["build"],
-      "env": ["DATABASE_URL", "REDIS_URL"]
+      "env": ["DATABASE_URL", "REDIS_URL"],
     },
     "clean": {
-      "cache": false
+      "cache": false,
     },
     "db:migrate": {
-      "cache": false
-    }
-  }
+      "cache": false,
+    },
+  },
 }
 ```
 
@@ -848,17 +848,17 @@ Route File (page) → Components → Hooks → Services → API Client → Backe
 
 ### Key Directories Explained
 
-| Directory | Role | Rule |
-|---|---|---|
-| `routes/` | TanStack Router file-based routes | One file per route; layouts use `_` prefix |
-| `components/ui/` | 21st.dev / shadcn/ui primitives | Install via 21st.dev marketplace |
-| `components/layout/` | App shell, sidebar, header | Layout-specific; not reusable outside this app |
-| `components/<domain>/` | Domain components (board, document, etc.) | One directory per business domain |
-| `hooks/` | Custom React hooks | Max 1 hook per file; prefix with `use` |
-| `store/` | Redux Toolkit slices | One slice per domain; use `redux-persist` sparingly |
-| `services/` | TanStack Query hooks wrapping API calls | One service file per API resource |
-| `lib/` | Utility wrappers, config, helpers | No business logic; pure helpers only |
-| `types/` | Frontend-specific types | Types that are NOT shared with backend |
+| Directory              | Role                                      | Rule                                                |
+| ---------------------- | ----------------------------------------- | --------------------------------------------------- |
+| `routes/`              | TanStack Router file-based routes         | One file per route; layouts use `_` prefix          |
+| `components/ui/`       | 21st.dev / shadcn/ui primitives           | Install via 21st.dev marketplace                    |
+| `components/layout/`   | App shell, sidebar, header                | Layout-specific; not reusable outside this app      |
+| `components/<domain>/` | Domain components (board, document, etc.) | One directory per business domain                   |
+| `hooks/`               | Custom React hooks                        | Max 1 hook per file; prefix with `use`              |
+| `store/`               | Redux Toolkit slices                      | One slice per domain; use `redux-persist` sparingly |
+| `services/`            | TanStack Query hooks wrapping API calls   | One service file per API resource                   |
+| `lib/`                 | Utility wrappers, config, helpers         | No business logic; pure helpers only                |
+| `types/`               | Frontend-specific types                   | Types that are NOT shared with backend              |
 
 ### File Patterns
 
@@ -1288,6 +1288,7 @@ export class AppError extends Error {
 ### Schema Organization
 
 Each schema file maps to **one database table** and contains:
+
 - Table definition (`pgTable`)
 - Column types and constraints
 - Indexes
@@ -1340,15 +1341,15 @@ The AI sidecar is a **standalone Python FastAPI service** — it runs as its own
 
 ### Directory Rationale
 
-| Directory | Purpose |
-|---|---|
-| `app/core/` | Config, security, DI — the infrastructure layer |
-| `app/routers/` | HTTP endpoint handlers — thin controllers |
-| `app/services/` | Business logic — LLM calls, RAG, prompt management |
-| `app/models/` | Pydantic schemas (request/response validation) |
-| `app/storage/` | Vector DB, Redis cache access |
-| `app/middleware/` | Cross-cutting: logging, rate limiting, errors |
-| `prompts/` | Jinja2 templates — externalized from code |
+| Directory         | Purpose                                            |
+| ----------------- | -------------------------------------------------- |
+| `app/core/`       | Config, security, DI — the infrastructure layer    |
+| `app/routers/`    | HTTP endpoint handlers — thin controllers          |
+| `app/services/`   | Business logic — LLM calls, RAG, prompt management |
+| `app/models/`     | Pydantic schemas (request/response validation)     |
+| `app/storage/`    | Vector DB, Redis cache access                      |
+| `app/middleware/` | Cross-cutting: logging, rate limiting, errors      |
+| `prompts/`        | Jinja2 templates — externalized from code          |
 
 ### Inter-Service Communication
 
@@ -1356,7 +1357,7 @@ The AI sidecar is a **standalone Python FastAPI service** — it runs as its own
 Frontend ──HTTP──→ Node.js API ──HTTP/Queue──→ Python AI Sidecar
                                     ↑
                             BullMQ Job Queue (Redis)
-                            
+
 Node.js API ──gRPC/WebSocket──→ Yjs Durable Object
 ```
 
@@ -1467,7 +1468,7 @@ services:
       context: ../..
       dockerfile: infrastructure/docker/api.Dockerfile
     ports:
-      - "3001:3001"
+      - '3001:3001'
     environment:
       - DATABASE_URL=postgresql://sprintio:sprintio@db:5432/sprintio
       - REDIS_URL=redis://redis:6379
@@ -1483,7 +1484,7 @@ services:
       context: ../..
       dockerfile: infrastructure/docker/ai.Dockerfile
     ports:
-      - "8000:8000"
+      - '8000:8000'
     environment:
       - DATABASE_URL=postgresql://sprintio:sprintio@db:5432/sprintio
       - REDIS_URL=redis://redis:6379
@@ -1493,7 +1494,7 @@ services:
   db:
     image: postgres:16-alpine
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_DB: sprintio
       POSTGRES_USER: sprintio
@@ -1504,7 +1505,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
 volumes:
   pgdata:
@@ -1524,14 +1525,14 @@ Kubernetes manifests are included for **self-hosted** deployments. The primary d
 scripts/<category>/<action>.sh
 ```
 
-| Category | Purpose |
-|---|---|
-| `dev/` | Local development lifecycle |
-| `db/` | Database operations |
-| `build/` | Build pipeline |
-| `deploy/` | Deployment operations |
-| `ci/` | CI-specific commands |
-| `utils/` | Miscellaneous utilities |
+| Category  | Purpose                     |
+| --------- | --------------------------- |
+| `dev/`    | Local development lifecycle |
+| `db/`     | Database operations         |
+| `build/`  | Build pipeline              |
+| `deploy/` | Deployment operations       |
+| `ci/`     | CI-specific commands        |
+| `utils/`  | Miscellaneous utilities     |
 
 ### Script Requirements
 
@@ -1559,16 +1560,16 @@ scripts/<category>/<action>.sh
 
 ### Test File Locations
 
-| Test Type | Location | Runner | Naming |
-|---|---|---|---|
-| **Unit (frontend)** | `apps/web/src/**/*.test.tsx` | Vitest | `component-name.test.tsx` |
-| **Unit (backend)** | `packages/api/src/**/*.test.ts` | Vitest | `module-name.test.ts` |
-| **Unit (shared)** | `packages/shared/src/**/*.test.ts` | Vitest | `util-name.test.ts` |
-| **Unit (AI)** | `apps/ai/tests/*.py` | pytest | `test_feature_name.py` |
-| **Integration (API)** | `packages/api/src/**/*.integration.test.ts` | Vitest | `module-name.integration.test.ts` |
-| **Integration (DB)** | `packages/db/src/**/*.integration.test.ts` | Vitest | `schema-name.integration.test.ts` |
-| **E2E (Web)** | `tests/e2e/**/*.spec.ts` | Playwright | `feature-name.spec.ts` |
-| **Visual Regression** | `tests/e2e/visual/**/*.spec.ts` | Playwright | `page-name.spec.ts` |
+| Test Type             | Location                                    | Runner     | Naming                            |
+| --------------------- | ------------------------------------------- | ---------- | --------------------------------- |
+| **Unit (frontend)**   | `apps/web/src/**/*.test.tsx`                | Vitest     | `component-name.test.tsx`         |
+| **Unit (backend)**    | `packages/api/src/**/*.test.ts`             | Vitest     | `module-name.test.ts`             |
+| **Unit (shared)**     | `packages/shared/src/**/*.test.ts`          | Vitest     | `util-name.test.ts`               |
+| **Unit (AI)**         | `apps/ai/tests/*.py`                        | pytest     | `test_feature_name.py`            |
+| **Integration (API)** | `packages/api/src/**/*.integration.test.ts` | Vitest     | `module-name.integration.test.ts` |
+| **Integration (DB)**  | `packages/db/src/**/*.integration.test.ts`  | Vitest     | `schema-name.integration.test.ts` |
+| **E2E (Web)**         | `tests/e2e/**/*.spec.ts`                    | Playwright | `feature-name.spec.ts`            |
+| **Visual Regression** | `tests/e2e/visual/**/*.spec.ts`             | Playwright | `page-name.spec.ts`               |
 
 ### Vitest Config (API)
 
@@ -1624,45 +1625,45 @@ export async function cleanupTestData() {
 
 ### Files & Directories
 
-| Category | Convention | Example |
-|---|---|---|
-| **Directories** | kebab-case | `board-components/`, `auth-middleware/` |
-| **React components** | kebab-case, noun-first | `board-card.tsx`, `workspace-switcher.tsx` |
-| **React hooks** | camelCase, `use-` prefix | `use-auth.ts`, `use-debounce.ts` |
-| **Stores** | camelCase, `-Slice` suffix | `authSlice.ts`, `boardSlice.ts` |
-| **Services (FE)** | kebab-case, `.service.ts` | `board.service.ts` |
-| **Routes (FE)** | TanStack file routing convention | `_dashboard.settings.tsx` |
-| **Modules (BE)** | kebab-case, plural noun | `boards/`, `workspaces/`, `cards/` |
-| **Controllers (BE)** | kebab-case, `.controller.ts` | `boards.controller.ts` |
-| **Services (BE)** | kebab-case, `.service.ts` | `boards.service.ts` |
-| **Repositories (BE)** | kebab-case, `.repository.ts` | `boards.repository.ts` |
-| **Middleware (BE)** | kebab-case, `.middleware.ts` | `auth.middleware.ts` |
-| **Schemas (shared)** | kebab-case, `.schema.ts` pattern | `schemas/task.ts` |
-| **Types (shared)** | kebab-case, `.ts` | `types/task.ts` |
-| **Constants** | kebab-case, `.ts` | `constants/roles.ts` |
-| **Errors** | kebab-case, `-error.ts` | `app-error.ts`, `auth-error.ts` |
-| **Python files** | snake_case | `queue_handlers.py`, `vector_store.py` |
-| **Test files** | `*.test.ts` (unit), `*.spec.ts` (e2e) | `boards.test.ts`, `login.spec.ts` |
-| **Config files** | lowercase, no prefix | `vite.config.ts`, `tailwind.config.ts` |
-| **Shell scripts** | kebab-case | `start-all.sh`, `deploy-staging.sh` |
+| Category              | Convention                            | Example                                    |
+| --------------------- | ------------------------------------- | ------------------------------------------ |
+| **Directories**       | kebab-case                            | `board-components/`, `auth-middleware/`    |
+| **React components**  | kebab-case, noun-first                | `board-card.tsx`, `workspace-switcher.tsx` |
+| **React hooks**       | camelCase, `use-` prefix              | `use-auth.ts`, `use-debounce.ts`           |
+| **Stores**            | camelCase, `-Slice` suffix            | `authSlice.ts`, `boardSlice.ts`            |
+| **Services (FE)**     | kebab-case, `.service.ts`             | `board.service.ts`                         |
+| **Routes (FE)**       | TanStack file routing convention      | `_dashboard.settings.tsx`                  |
+| **Modules (BE)**      | kebab-case, plural noun               | `boards/`, `workspaces/`, `cards/`         |
+| **Controllers (BE)**  | kebab-case, `.controller.ts`          | `boards.controller.ts`                     |
+| **Services (BE)**     | kebab-case, `.service.ts`             | `boards.service.ts`                        |
+| **Repositories (BE)** | kebab-case, `.repository.ts`          | `boards.repository.ts`                     |
+| **Middleware (BE)**   | kebab-case, `.middleware.ts`          | `auth.middleware.ts`                       |
+| **Schemas (shared)**  | kebab-case, `.schema.ts` pattern      | `schemas/task.ts`                          |
+| **Types (shared)**    | kebab-case, `.ts`                     | `types/task.ts`                            |
+| **Constants**         | kebab-case, `.ts`                     | `constants/roles.ts`                       |
+| **Errors**            | kebab-case, `-error.ts`               | `app-error.ts`, `auth-error.ts`            |
+| **Python files**      | snake_case                            | `queue_handlers.py`, `vector_store.py`     |
+| **Test files**        | `*.test.ts` (unit), `*.spec.ts` (e2e) | `boards.test.ts`, `login.spec.ts`          |
+| **Config files**      | lowercase, no prefix                  | `vite.config.ts`, `tailwind.config.ts`     |
+| **Shell scripts**     | kebab-case                            | `start-all.sh`, `deploy-staging.sh`        |
 
 ### Variables & Functions
 
-| Category | Convention | Example |
-|---|---|---|
-| **Variables** | camelCase | `boardId`, `isActive`, `userProfile` |
-| **Functions** | camelCase | `createBoard()`, `fetchUserData()` |
-| **React components** | PascalCase | `BoardCard`, `WorkspaceSwitcher` |
-| **Zod schemas** | PascalCase, `Schema` suffix | `CreateBoardSchema`, `UpdateTaskSchema` |
-| **TypeScript types** | PascalCase | `Board`, `CreateTaskInput`, `UserRole` |
-| **Interfaces** | PascalCase, no `I` prefix | `Board`, `UserPreferences` |
-| **Enums** | PascalCase | `UserRole`, `TaskPriority` |
-| **Constants** | UPPER_SNAKE_CASE | `MAX_FILE_SIZE`, `DEFAULT_PAGE_SIZE` |
-| **Database tables** | snake_case, plural | `board_columns`, `workspace_members` |
-| **Database columns** | snake_case | `created_at`, `workspace_id` |
-| **Env vars** | UPPER_SNAKE_CASE | `DATABASE_URL`, `REDIS_URL` |
-| **CSS classes** | Tailwind utility classes | `flex`, `items-center`, `gap-2` |
-| **CSS custom properties** | `--` prefix, kebab-case | `--color-primary`, `--spacing-md` |
+| Category                  | Convention                  | Example                                 |
+| ------------------------- | --------------------------- | --------------------------------------- |
+| **Variables**             | camelCase                   | `boardId`, `isActive`, `userProfile`    |
+| **Functions**             | camelCase                   | `createBoard()`, `fetchUserData()`      |
+| **React components**      | PascalCase                  | `BoardCard`, `WorkspaceSwitcher`        |
+| **Zod schemas**           | PascalCase, `Schema` suffix | `CreateBoardSchema`, `UpdateTaskSchema` |
+| **TypeScript types**      | PascalCase                  | `Board`, `CreateTaskInput`, `UserRole`  |
+| **Interfaces**            | PascalCase, no `I` prefix   | `Board`, `UserPreferences`              |
+| **Enums**                 | PascalCase                  | `UserRole`, `TaskPriority`              |
+| **Constants**             | UPPER_SNAKE_CASE            | `MAX_FILE_SIZE`, `DEFAULT_PAGE_SIZE`    |
+| **Database tables**       | snake_case, plural          | `board_columns`, `workspace_members`    |
+| **Database columns**      | snake_case                  | `created_at`, `workspace_id`            |
+| **Env vars**              | UPPER_SNAKE_CASE            | `DATABASE_URL`, `REDIS_URL`             |
+| **CSS classes**           | Tailwind utility classes    | `flex`, `items-center`, `gap-2`         |
+| **CSS custom properties** | `--` prefix, kebab-case     | `--color-primary`, `--spacing-md`       |
 
 ### Import Ordering
 
@@ -1755,17 +1756,17 @@ export default defineConfig({
 
 ### Alias Summary Table
 
-| Alias | Resolves To | Available In |
-|---|---|---|
-| `@sprintio/shared` | `packages/shared/src/` | All packages |
-| `@sprintio/db` | `packages/db/src/` | Backend, AI (via types) |
-| `@/*` | `src/*` (app-specific) | Frontend, Backend |
-| `@components/*` | `src/components/*` | Frontend |
-| `@hooks/*` | `src/hooks/*` | Frontend |
-| `@store/*` | `src/store/*` | Frontend |
-| `@services/*` | `src/services/*` | Frontend |
-| `@modules/*` | `src/modules/*` | Backend |
-| `@middleware/*` | `src/middleware/*` | Backend |
+| Alias              | Resolves To            | Available In            |
+| ------------------ | ---------------------- | ----------------------- |
+| `@sprintio/shared` | `packages/shared/src/` | All packages            |
+| `@sprintio/db`     | `packages/db/src/`     | Backend, AI (via types) |
+| `@/*`              | `src/*` (app-specific) | Frontend, Backend       |
+| `@components/*`    | `src/components/*`     | Frontend                |
+| `@hooks/*`         | `src/hooks/*`          | Frontend                |
+| `@store/*`         | `src/store/*`          | Frontend                |
+| `@services/*`      | `src/services/*`       | Frontend                |
+| `@modules/*`       | `src/modules/*`        | Backend                 |
+| `@middleware/*`    | `src/middleware/*`     | Backend                 |
 
 ---
 
@@ -1773,18 +1774,18 @@ export default defineConfig({
 
 ### Package Names
 
-| Package | npm Name | Path |
-|---|---|---|
-| Web (Frontend) | `@sprintio/web` | `apps/web/` |
-| API (Backend) | `@sprintio/api` | `packages/api/` |
-| AI Sidecar | `@sprintio/ai` | `apps/ai/` |
-| Shared | `@sprintio/shared` | `packages/shared/` |
-| Database | `@sprintio/db` | `packages/db/` |
-| ESLint Config | `@sprintio/eslint-config` | `packages/config/eslint-config/` |
-| TypeScript Config | `@sprintio/tsconfig` | `packages/config/tsconfig/` |
-| Tailwind Config | `@sprintio/tailwind-config` | `packages/config/tailwind-config/` |
-| Vite Config | `@sprintio/vite-config` | `packages/config/vite-config/` |
-| Turbo Config | `@sprintio/turbo` | `packages/config/turbo/` |
+| Package           | npm Name                    | Path                               |
+| ----------------- | --------------------------- | ---------------------------------- |
+| Web (Frontend)    | `@sprintio/web`             | `apps/web/`                        |
+| API (Backend)     | `@sprintio/api`             | `packages/api/`                    |
+| AI Sidecar        | `@sprintio/ai`              | `apps/ai/`                         |
+| Shared            | `@sprintio/shared`          | `packages/shared/`                 |
+| Database          | `@sprintio/db`              | `packages/db/`                     |
+| ESLint Config     | `@sprintio/eslint-config`   | `packages/config/eslint-config/`   |
+| TypeScript Config | `@sprintio/tsconfig`        | `packages/config/tsconfig/`        |
+| Tailwind Config   | `@sprintio/tailwind-config` | `packages/config/tailwind-config/` |
+| Vite Config       | `@sprintio/vite-config`     | `packages/config/vite-config/`     |
+| Turbo Config      | `@sprintio/turbo`           | `packages/config/turbo/`           |
 
 ### Directory Purpose Matrix
 
@@ -1855,5 +1856,5 @@ Linting:     ESLint | Prettier | Biome (optional)
 
 ---
 
-*Document Version: 1.0 | Last Updated: July 2026*
-*Architecture: Sprintio — AI-Enhanced Collaborative Work Management Platform*
+_Document Version: 1.0 | Last Updated: July 2026_
+_Architecture: Sprintio — AI-Enhanced Collaborative Work Management Platform_

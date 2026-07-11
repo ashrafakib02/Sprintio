@@ -38,21 +38,21 @@ Sprintio exposes a dual-protocol API: **REST** for CRUD operations and **WebSock
 
 ### Design Goals
 
-| Goal | How |
-|------|-----|
-| **Developer experience** | Consistent naming, predictable URLs, rich error messages |
-| **Performance** | Cursor pagination, sparse fieldsets, ETag caching |
-| **Security** | OAuth 2.0 + JWT, API keys, rate limiting, input validation |
-| **Real-time** | WebSocket channels for task updates, comments, presence, and notifications |
-| **Extensibility** | Webhooks, API versioning, OpenAPI-driven code generation |
+| Goal                     | How                                                                        |
+| ------------------------ | -------------------------------------------------------------------------- |
+| **Developer experience** | Consistent naming, predictable URLs, rich error messages                   |
+| **Performance**          | Cursor pagination, sparse fieldsets, ETag caching                          |
+| **Security**             | OAuth 2.0 + JWT, API keys, rate limiting, input validation                 |
+| **Real-time**            | WebSocket channels for task updates, comments, presence, and notifications |
+| **Extensibility**        | Webhooks, API versioning, OpenAPI-driven code generation                   |
 
 ### Protocol Selection
 
-| Protocol | When | Transport |
-|----------|------|-----------|
-| **REST** | CRUD, queries, bulk operations, file transfers | HTTPS (HTTP/2) |
-| **WebSocket** | Live updates, presence, notifications, collaboration cursors | WSS |
-| **Webhooks** | Outbound event delivery to third-party integrations | HTTPS |
+| Protocol      | When                                                         | Transport      |
+| ------------- | ------------------------------------------------------------ | -------------- |
+| **REST**      | CRUD, queries, bulk operations, file transfers               | HTTPS (HTTP/2) |
+| **WebSocket** | Live updates, presence, notifications, collaboration cursors | WSS            |
+| **Webhooks**  | Outbound event delivery to third-party integrations          | HTTPS          |
 
 ---
 
@@ -60,15 +60,15 @@ Sprintio exposes a dual-protocol API: **REST** for CRUD operations and **WebSock
 
 ### 2.1 RESTful Conventions
 
-| Principle | Convention |
-|-----------|------------|
-| **Resources are nouns** | `/tasks`, `/projects`, `/workspaces` — never verbs |
+| Principle                  | Convention                                                                             |
+| -------------------------- | -------------------------------------------------------------------------------------- |
+| **Resources are nouns**    | `/tasks`, `/projects`, `/workspaces` — never verbs                                     |
 | **HTTP methods = actions** | `GET` read, `POST` create, `PUT` full replace, `PATCH` partial update, `DELETE` remove |
-| **Plural nouns** | Always `/tasks`, never `/task` |
-| **Nested for context** | `/workspaces/{wid}/projects/{pid}/tasks` for scoped access |
-| **Flat for direct access** | `/tasks/{id}` for known-resource access |
-| **Idempotency** | `PUT` and `DELETE` are idempotent; `POST` uses `Idempotency-Key` header |
-| **Content negotiation** | Default `application/json`; support `application/vnd.sprintio.v1+json` |
+| **Plural nouns**           | Always `/tasks`, never `/task`                                                         |
+| **Nested for context**     | `/workspaces/{wid}/projects/{pid}/tasks` for scoped access                             |
+| **Flat for direct access** | `/tasks/{id}` for known-resource access                                                |
+| **Idempotency**            | `PUT` and `DELETE` are idempotent; `POST` uses `Idempotency-Key` header                |
+| **Content negotiation**    | Default `application/json`; support `application/vnd.sprintio.v1+json`                 |
 
 ### 2.2 Resource Naming Rules
 
@@ -90,22 +90,22 @@ POST /tasks/{id}/move       ← RIGHT
 
 ### 2.3 HTTP Status Codes
 
-| Code | Usage |
-|------|-------|
+| Code  | Usage                                      |
+| ----- | ------------------------------------------ |
 | `200` | Successful read, update (PATCH), or action |
-| `201` | Successful create (POST) |
-| `204` | Successful delete (no body) |
-| `400` | Validation error / malformed request |
-| `401` | Missing or invalid authentication |
-| `403` | Authenticated but not authorized |
-| `404` | Resource not found |
-| `409` | Conflict (duplicate, version mismatch) |
-| `413` | Payload too large |
-| `415` | Unsupported media type |
-| `422` | Semantic validation error |
-| `429` | Rate limit exceeded |
-| `500` | Internal server error |
-| `503` | Service temporarily unavailable |
+| `201` | Successful create (POST)                   |
+| `204` | Successful delete (no body)                |
+| `400` | Validation error / malformed request       |
+| `401` | Missing or invalid authentication          |
+| `403` | Authenticated but not authorized           |
+| `404` | Resource not found                         |
+| `409` | Conflict (duplicate, version mismatch)     |
+| `413` | Payload too large                          |
+| `415` | Unsupported media type                     |
+| `422` | Semantic validation error                  |
+| `429` | Rate limit exceeded                        |
+| `500` | Internal server error                      |
+| `503` | Service temporarily unavailable            |
 
 ---
 
@@ -238,12 +238,12 @@ POST /tasks/{id}/move       ← RIGHT
 
 ### 3.2 Nested vs Flat Routing Decision Matrix
 
-| Scenario | Route Style | Example |
-|----------|------------|---------|
-| Always accessed via parent | Nested | `/workspaces/{wid}/projects` |
-| Accessed independently with known ID | Flat | `/tasks/{id}` |
-| Cross-parent search | Flat with filters | `/tasks?workspace_id=...&project_id=...` |
-| Deeply nested (4+ levels) | Flatten at 3 | Use flat `/lists/{lid}/tasks` instead of `/workspaces/.../lists/.../tasks` |
+| Scenario                             | Route Style       | Example                                                                    |
+| ------------------------------------ | ----------------- | -------------------------------------------------------------------------- |
+| Always accessed via parent           | Nested            | `/workspaces/{wid}/projects`                                               |
+| Accessed independently with known ID | Flat              | `/tasks/{id}`                                                              |
+| Cross-parent search                  | Flat with filters | `/tasks?workspace_id=...&project_id=...`                                   |
+| Deeply nested (4+ levels)            | Flatten at 3      | Use flat `/lists/{lid}/tasks` instead of `/workspaces/.../lists/.../tasks` |
 
 ### 3.3 Route Depth Limit
 
@@ -272,10 +272,10 @@ Every REST response is wrapped in a consistent envelope:
 interface ApiResponse<T> {
   data: T;
   meta?: {
-    request_id: string;       // UUID, for tracing
-    timestamp: string;        // ISO 8601
-    duration_ms: number;      // Server processing time
-    version: string;          // API version used
+    request_id: string; // UUID, for tracing
+    timestamp: string; // ISO 8601
+    duration_ms: number; // Server processing time
+    version: string; // API version used
   };
   pagination?: PaginationMeta; // Present on list endpoints
 }
@@ -283,10 +283,10 @@ interface ApiResponse<T> {
 // Error response
 interface ApiErrorResponse {
   error: {
-    code: string;             // Machine-readable, e.g. "VALIDATION_ERROR"
-    message: string;          // Human-readable message
-    details?: ErrorDetail[];  // Field-level errors
-    doc_url?: string;         // Link to relevant docs
+    code: string; // Machine-readable, e.g. "VALIDATION_ERROR"
+    message: string; // Human-readable message
+    details?: ErrorDetail[]; // Field-level errors
+    doc_url?: string; // Link to relevant docs
   };
   meta: {
     request_id: string;
@@ -358,7 +358,11 @@ interface ApiErrorResponse {
     {
       "id": "task_8f3k2j1m",
       "type": "task",
-      "attributes": { "title": "Implement OAuth2 login", "status": "in_progress", "priority": "high" }
+      "attributes": {
+        "title": "Implement OAuth2 login",
+        "status": "in_progress",
+        "priority": "high"
+      }
     },
     {
       "id": "task_2g4h5i6j",
@@ -509,11 +513,11 @@ GET /api/v1/workspaces/ws_5e6f7g8h/tasks?limit=25
 
 **Request Parameters:**
 
-| Parameter | Type | Default | Max | Description |
-|-----------|------|---------|-----|-------------|
-| `limit` | integer | 25 | 100 | Number of items per page |
-| `after` | string | — | — | Cursor: items after this point |
-| `before` | string | — | — | Cursor: items before this point |
+| Parameter | Type    | Default | Max | Description                     |
+| --------- | ------- | ------- | --- | ------------------------------- |
+| `limit`   | integer | 25      | 100 | Number of items per page        |
+| `after`   | string  | —       | —   | Cursor: items after this point  |
+| `before`  | string  | —       | —   | Cursor: items before this point |
 
 **Response:**
 
@@ -565,12 +569,12 @@ GET /api/v1/tasks?page=3&per_page=25
 
 ### 5.3 Pagination Limits
 
-| Scenario | Max `limit` | Notes |
-|----------|-------------|-------|
-| Standard endpoints | 100 | Default: 25 |
-| Search results | 50 | Default: 20 |
-| Bulk export endpoints | 1000 | Special endpoint only |
-| Admin endpoints | 200 | Requires admin role |
+| Scenario              | Max `limit` | Notes                 |
+| --------------------- | ----------- | --------------------- |
+| Standard endpoints    | 100         | Default: 25           |
+| Search results        | 50          | Default: 20           |
+| Bulk export endpoints | 1000        | Special endpoint only |
+| Admin endpoints       | 200         | Requires admin role   |
 
 ---
 
@@ -630,20 +634,22 @@ Filter object schema:
 interface FilterExpression {
   and?: FilterExpression[];
   or?: FilterExpression[];
-  [field: string]: {
-    eq?: unknown;
-    neq?: unknown;
-    gt?: unknown;
-    gte?: unknown;
-    lt?: unknown;
-    lte?: unknown;
-    in?: unknown[];
-    nin?: unknown[];
-    contains?: string;
-    starts_with?: string;
-    is_null?: boolean;
-    between?: [unknown, unknown];
-  } | unknown;
+  [field: string]:
+    | {
+        eq?: unknown;
+        neq?: unknown;
+        gt?: unknown;
+        gte?: unknown;
+        lt?: unknown;
+        lte?: unknown;
+        in?: unknown[];
+        nin?: unknown[];
+        contains?: string;
+        starts_with?: string;
+        is_null?: boolean;
+        between?: [unknown, unknown];
+      }
+    | unknown;
 }
 ```
 
@@ -679,12 +685,12 @@ GET /api/v1/search?q=oauth+implementation&types=task,document&workspace_id=ws_5e
 
 **Parameters:**
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `q` | string | Search query (min 2 chars) |
-| `types` | string[] | Resource types to search: `task`, `document`, `comment`, `project` |
-| `workspace_id` | string | Scope to workspace |
-| `project_id` | string | Scope to project |
+| Parameter      | Type     | Description                                                        |
+| -------------- | -------- | ------------------------------------------------------------------ |
+| `q`            | string   | Search query (min 2 chars)                                         |
+| `types`        | string[] | Resource types to search: `task`, `document`, `comment`, `project` |
+| `workspace_id` | string   | Scope to workspace                                                 |
+| `project_id`   | string   | Scope to project                                                   |
 
 **Response:**
 
@@ -724,21 +730,21 @@ GET /api/v2/tasks   # Future breaking change
 
 **Rules:**
 
-| Rule | Detail |
-|------|--------|
-| **Version format** | `/api/v{major}/` — only major versions in URL |
-| **Date stamp** | Each version gets a release date: `2026-07-08` |
+| Rule                | Detail                                                     |
+| ------------------- | ---------------------------------------------------------- |
+| **Version format**  | `/api/v{major}/` — only major versions in URL              |
+| **Date stamp**      | Each version gets a release date: `2026-07-08`             |
 | **Header override** | `Accept: application/vnd.sprintio.v1+json` can pin version |
-| **Default** | Latest stable version if no version specified |
-| **Minimum** | Always serve the latest 2 major versions simultaneously |
+| **Default**         | Latest stable version if no version specified              |
+| **Minimum**         | Always serve the latest 2 major versions simultaneously    |
 
 ### 7.2 Deprecation Policy
 
-| Phase | Duration | Behavior |
-|-------|----------|----------|
-| **Announced** | T-6 months | `Sunset` header added; deprecation warning in response |
+| Phase          | Duration   | Behavior                                                      |
+| -------------- | ---------- | ------------------------------------------------------------- |
+| **Announced**  | T-6 months | `Sunset` header added; deprecation warning in response        |
 | **Deprecated** | T-3 months | Response includes `Deprecation` header; documentation flagged |
-| **Sunset** | T-0 | Returns `410 Gone` with migration guide link |
+| **Sunset**     | T-0        | Returns `410 Gone` with migration guide link                  |
 
 **Deprecation headers:**
 
@@ -808,34 +814,34 @@ These do NOT require a new version:
 
 ### 8.2 Error Code Catalog
 
-| HTTP Status | Error Code | Description |
-|-------------|------------|-------------|
-| `400` | `BAD_REQUEST` | Malformed request syntax |
-| `400` | `MISSING_REQUIRED_FIELD` | Required field not provided |
-| `400` | `INVALID_JSON` | Request body is not valid JSON |
-| `400` | `IDEMPOTENCY_KEY_REUSED` | Same key used for different payload |
-| `401` | `UNAUTHENTICATED` | No authentication provided |
-| `401` | `TOKEN_EXPIRED` | JWT has expired |
-| `401` | `TOKEN_INVALID` | JWT signature verification failed |
-| `401` | `TOKEN_REVOKED` | Token has been revoked |
-| `403` | `FORBIDDEN` | Authenticated but not authorized |
-| `403` | `INSUFFICIENT_PERMISSIONS` | Role lacks required permission |
-| `403` | `ACCOUNT_DISABLED` | Account has been disabled |
-| `404` | `NOT_FOUND` | Resource does not exist |
-| `404` | `ENDPOINT_NOT_FOUND` | API endpoint does not exist |
-| `409` | `CONFLICT` | Resource state conflict |
-| `409` | `VERSION_CONFLICT` | Optimistic lock version mismatch |
-| `409` | `DUPLICATE_RESOURCE` | Resource already exists |
-| `413` | `PAYLOAD_TOO_LARGE` | Request body exceeds limit |
-| `415` | `UNSUPPORTED_MEDIA_TYPE` | Content-Type not accepted |
-| `422` | `UNPROCESSABLE_ENTITY` | Semantically invalid request |
-| `422` | `BUSINESS_RULE_VIOLATION` | Domain constraint violated |
-| `422` | `CIRCULAR_REFERENCE` | Detected circular dependency |
-| `429` | `RATE_LIMITED` | Rate limit exceeded |
-| `500` | `INTERNAL_ERROR` | Unexpected server error |
-| `502` | `BAD_GATEWAY` | Upstream service error |
-| `503` | `SERVICE_UNAVAILABLE` | Service temporarily down |
-| `504` | `GATEWAY_TIMEOUT` | Upstream service timeout |
+| HTTP Status | Error Code                 | Description                         |
+| ----------- | -------------------------- | ----------------------------------- |
+| `400`       | `BAD_REQUEST`              | Malformed request syntax            |
+| `400`       | `MISSING_REQUIRED_FIELD`   | Required field not provided         |
+| `400`       | `INVALID_JSON`             | Request body is not valid JSON      |
+| `400`       | `IDEMPOTENCY_KEY_REUSED`   | Same key used for different payload |
+| `401`       | `UNAUTHENTICATED`          | No authentication provided          |
+| `401`       | `TOKEN_EXPIRED`            | JWT has expired                     |
+| `401`       | `TOKEN_INVALID`            | JWT signature verification failed   |
+| `401`       | `TOKEN_REVOKED`            | Token has been revoked              |
+| `403`       | `FORBIDDEN`                | Authenticated but not authorized    |
+| `403`       | `INSUFFICIENT_PERMISSIONS` | Role lacks required permission      |
+| `403`       | `ACCOUNT_DISABLED`         | Account has been disabled           |
+| `404`       | `NOT_FOUND`                | Resource does not exist             |
+| `404`       | `ENDPOINT_NOT_FOUND`       | API endpoint does not exist         |
+| `409`       | `CONFLICT`                 | Resource state conflict             |
+| `409`       | `VERSION_CONFLICT`         | Optimistic lock version mismatch    |
+| `409`       | `DUPLICATE_RESOURCE`       | Resource already exists             |
+| `413`       | `PAYLOAD_TOO_LARGE`        | Request body exceeds limit          |
+| `415`       | `UNSUPPORTED_MEDIA_TYPE`   | Content-Type not accepted           |
+| `422`       | `UNPROCESSABLE_ENTITY`     | Semantically invalid request        |
+| `422`       | `BUSINESS_RULE_VIOLATION`  | Domain constraint violated          |
+| `422`       | `CIRCULAR_REFERENCE`       | Detected circular dependency        |
+| `429`       | `RATE_LIMITED`             | Rate limit exceeded                 |
+| `500`       | `INTERNAL_ERROR`           | Unexpected server error             |
+| `502`       | `BAD_GATEWAY`              | Upstream service error              |
+| `503`       | `SERVICE_UNAVAILABLE`      | Service temporarily down            |
+| `504`       | `GATEWAY_TIMEOUT`          | Upstream service timeout            |
 
 ### 8.3 Validation Error Details
 
@@ -890,38 +896,38 @@ For security, 404 responses are identical whether the resource exists but is una
 
 ### 9.1 Rate Limit Tiers
 
-| Tier | User Authenticated | API Key Authenticated | Unauthenticated |
-|------|-------------------|----------------------|-----------------|
-| **Free** | 100 req/min | 200 req/min | 20 req/min |
-| **Pro** | 500 req/min | 1,000 req/min | N/A |
-| **Enterprise** | 2,000 req/min | 5,000 req/min | N/A |
-| **Admin** | 5,000 req/min | 10,000 req/min | N/A |
+| Tier           | User Authenticated | API Key Authenticated | Unauthenticated |
+| -------------- | ------------------ | --------------------- | --------------- |
+| **Free**       | 100 req/min        | 200 req/min           | 20 req/min      |
+| **Pro**        | 500 req/min        | 1,000 req/min         | N/A             |
+| **Enterprise** | 2,000 req/min      | 5,000 req/min         | N/A             |
+| **Admin**      | 5,000 req/min      | 10,000 req/min        | N/A             |
 
 ### 9.2 Per-Endpoint Limits
 
 Some endpoints have stricter limits due to resource cost:
 
-| Endpoint Category | Limit | Window |
-|-------------------|-------|--------|
-| **Auth** (`/auth/login`) | 5 | 15 min (sliding) |
-| **Password reset** | 3 | 1 hour |
-| **MFA verify** | 5 | 15 min |
-| **File upload** | 10 | 1 min |
-| **AI endpoints** (`/ai/*`) | 30 | 1 min |
-| **Search** (`/search`) | 60 | 1 min |
-| **Bulk operations** (`/tasks/bulk`) | 10 | 1 min |
-| **Export** (`/exports/*`) | 5 | 1 hour |
-| **Webhook test** | 5 | 5 min |
+| Endpoint Category                   | Limit | Window           |
+| ----------------------------------- | ----- | ---------------- |
+| **Auth** (`/auth/login`)            | 5     | 15 min (sliding) |
+| **Password reset**                  | 3     | 1 hour           |
+| **MFA verify**                      | 5     | 15 min           |
+| **File upload**                     | 10    | 1 min            |
+| **AI endpoints** (`/ai/*`)          | 30    | 1 min            |
+| **Search** (`/search`)              | 60    | 1 min            |
+| **Bulk operations** (`/tasks/bulk`) | 10    | 1 min            |
+| **Export** (`/exports/*`)           | 5     | 1 hour           |
+| **Webhook test**                    | 5     | 5 min            |
 
 ### 9.3 Per-Workspace Limits
 
 Additional workspace-level throttling:
 
-| Tier | Requests/min | Concurrent connections |
-|------|-------------|----------------------|
-| Free workspace | 500 | 5 |
-| Pro workspace | 5,000 | 25 |
-| Enterprise workspace | 50,000 | 100 |
+| Tier                 | Requests/min | Concurrent connections |
+| -------------------- | ------------ | ---------------------- |
+| Free workspace       | 500          | 5                      |
+| Pro workspace        | 5,000        | 25                     |
+| Enterprise workspace | 50,000       | 100                    |
 
 ### 9.4 Rate Limit Headers
 
@@ -935,12 +941,12 @@ X-RateLimit-Reset: 1751990520
 X-RateLimit-Policy: 100;w=60
 ```
 
-| Header | Description |
-|--------|-------------|
-| `X-RateLimit-Limit` | Maximum requests allowed in window |
+| Header                  | Description                          |
+| ----------------------- | ------------------------------------ |
+| `X-RateLimit-Limit`     | Maximum requests allowed in window   |
 | `X-RateLimit-Remaining` | Requests remaining in current window |
-| `X-RateLimit-Reset` | Unix timestamp when window resets |
-| `X-RateLimit-Policy` | Rate limit policy (for debugging) |
+| `X-RateLimit-Reset`     | Unix timestamp when window resets    |
+| `X-RateLimit-Policy`    | Rate limit policy (for debugging)    |
 
 ### 9.5 Rate Limit Exceeded Response
 
@@ -966,9 +972,9 @@ X-RateLimit-Reset: 1751990520
 ```typescript
 // Pseudocode for token bucket rate limiter
 interface RateLimiter {
-  key: string;           // e.g., "user:usr_123:tasks"
-  capacity: number;      // Max tokens (burst size)
-  refillRate: number;    // Tokens added per second
+  key: string; // e.g., "user:usr_123:tasks"
+  capacity: number; // Max tokens (burst size)
+  refillRate: number; // Tokens added per second
   refillInterval: number; // Refill check interval (ms)
 }
 
@@ -1007,7 +1013,7 @@ src/
 openapi: 3.1.0
 info:
   title: Sprintio API
-  version: "2026-07-08"
+  version: '2026-07-08'
   description: |
     AI-enhanced collaborative work management platform API.
     Supports REST for CRUD operations and WebSocket for real-time collaboration.
@@ -1037,12 +1043,12 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: "JWT access token from /auth/login"
+      description: 'JWT access token from /auth/login'
     apiKeyAuth:
       type: apiKey
       in: header
       name: X-API-Key
-      description: "API key for programmatic access"
+      description: 'API key for programmatic access'
 
   schemas:
     Task:
@@ -1051,14 +1057,14 @@ components:
       properties:
         id:
           type: string
-          example: "task_8f3k2j1m"
+          example: 'task_8f3k2j1m'
         type:
           type: string
           enum: [task]
         attributes:
-          $ref: "#/components/schemas/TaskAttributes"
+          $ref: '#/components/schemas/TaskAttributes'
         relationships:
-          $ref: "#/components/schemas/TaskRelationships"
+          $ref: '#/components/schemas/TaskRelationships'
         links:
           type: object
           properties:
@@ -1073,25 +1079,25 @@ components:
           type: string
           minLength: 3
           maxLength: 500
-          example: "Implement OAuth2 login"
+          example: 'Implement OAuth2 login'
         description:
           type: string
           maxLength: 50000
           nullable: true
         status:
-          $ref: "#/components/schemas/TaskStatus"
+          $ref: '#/components/schemas/TaskStatus'
         priority:
-          $ref: "#/components/schemas/TaskPriority"
+          $ref: '#/components/schemas/TaskPriority'
         assignee_id:
           type: string
           nullable: true
-          example: "user_9x8w7v6u"
+          example: 'user_9x8w7v6u'
         list_id:
           type: string
-          example: "list_4t5y6z7a"
+          example: 'list_4t5y6z7a'
         project_id:
           type: string
-          example: "proj_1b2c3d4e"
+          example: 'proj_1b2c3d4e'
         labels:
           type: array
           items:
@@ -1145,12 +1151,12 @@ components:
             details:
               type: array
               items:
-                $ref: "#/components/schemas/ErrorDetail"
+                $ref: '#/components/schemas/ErrorDetail'
             doc_url:
               type: string
               format: uri
         meta:
-          $ref: "#/components/schemas/ResponseMeta"
+          $ref: '#/components/schemas/ResponseMeta'
 
     ErrorDetail:
       type: object
@@ -1203,25 +1209,25 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Error"
+            $ref: '#/components/schemas/Error'
     Unauthorized:
       description: Authentication required
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Error"
+            $ref: '#/components/schemas/Error'
     Forbidden:
       description: Insufficient permissions
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Error"
+            $ref: '#/components/schemas/Error'
     NotFound:
       description: Resource not found
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Error"
+            $ref: '#/components/schemas/Error'
     RateLimited:
       description: Rate limit exceeded
       headers:
@@ -1231,7 +1237,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Error"
+            $ref: '#/components/schemas/Error'
 
 tags:
   - name: Auth
@@ -1288,17 +1294,17 @@ paths:
         - bearerAuth: []
         - apiKeyAuth: []
       parameters:
-        - $ref: "#/components/parameters/LimitParam"
-        - $ref: "#/components/parameters/AfterCursor"
-        - $ref: "#/components/parameters/BeforeCursor"
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/AfterCursor'
+        - $ref: '#/components/parameters/BeforeCursor'
         - name: status
           in: query
           schema:
-            $ref: "#/components/schemas/TaskStatus"
+            $ref: '#/components/schemas/TaskStatus'
         - name: priority
           in: query
           schema:
-            $ref: "#/components/schemas/TaskPriority"
+            $ref: '#/components/schemas/TaskPriority'
         - name: assignee_id
           in: query
           schema:
@@ -1311,7 +1317,7 @@ paths:
           in: query
           schema:
             type: string
-            default: "-updated_at"
+            default: '-updated_at'
         - name: fields
           in: query
           schema:
@@ -1328,7 +1334,7 @@ paths:
             type: string
           description: JSON-encoded complex filter expression
       responses:
-        "200":
+        '200':
           description: Paginated task list
           headers:
             X-RateLimit-Limit:
@@ -1343,15 +1349,15 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Task"
+                      $ref: '#/components/schemas/Task'
                   meta:
-                    $ref: "#/components/schemas/ResponseMeta"
+                    $ref: '#/components/schemas/ResponseMeta'
                   pagination:
-                    $ref: "#/components/schemas/PaginationMeta"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "429":
-          $ref: "#/components/responses/RateLimited"
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
 
     post:
       operationId: createTask
@@ -1371,9 +1377,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateTaskRequest"
+              $ref: '#/components/schemas/CreateTaskRequest'
       responses:
-        "201":
+        '201':
           description: Task created
           content:
             application/json:
@@ -1381,25 +1387,25 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: "#/components/schemas/Task"
+                    $ref: '#/components/schemas/Task'
                   meta:
-                    $ref: "#/components/schemas/ResponseMeta"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
+                    $ref: '#/components/schemas/ResponseMeta'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 ```
 
 ### 10.4 Documentation & Tooling
 
-| Tool | Purpose | Integration |
-|------|---------|-------------|
-| **Scalar** | Interactive API docs UI | Served at `/docs` |
-| **zod-to-openapi** | Zod → OpenAPI schema generation | Build step |
-| **openapi-typescript** | OpenAPI → TypeScript client gen | `npm run gen:client` |
-| **openapi-generator** | Multi-language SDK generation | CI/CD pipeline |
-| **Prism** | Mock server from OpenAPI spec | `npx prism mock openapi.yaml` |
-| **Spectral** | OpenAPI linting / style rules | Pre-commit hook |
+| Tool                   | Purpose                         | Integration                   |
+| ---------------------- | ------------------------------- | ----------------------------- |
+| **Scalar**             | Interactive API docs UI         | Served at `/docs`             |
+| **zod-to-openapi**     | Zod → OpenAPI schema generation | Build step                    |
+| **openapi-typescript** | OpenAPI → TypeScript client gen | `npm run gen:client`          |
+| **openapi-generator**  | Multi-language SDK generation   | CI/CD pipeline                |
+| **Prism**              | Mock server from OpenAPI spec   | `npx prism mock openapi.yaml` |
+| **Spectral**           | OpenAPI linting / style rules   | Pre-commit hook               |
 
 ---
 
@@ -1407,12 +1413,12 @@ paths:
 
 ### 11.1 Authentication Methods
 
-| Method | Use Case | Header |
-|--------|----------|--------|
-| **JWT Bearer** | User sessions (web, mobile) | `Authorization: Bearer <token>` |
-| **API Key** | Programmatic access, integrations | `X-API-Key: <key>` |
-| **OAuth 2.0** | Third-party login (GitHub, Google) | OAuth flow |
-| **Session Cookie** | Web app (same-origin) | `Cookie: session=<token>` |
+| Method             | Use Case                           | Header                          |
+| ------------------ | ---------------------------------- | ------------------------------- |
+| **JWT Bearer**     | User sessions (web, mobile)        | `Authorization: Bearer <token>` |
+| **API Key**        | Programmatic access, integrations  | `X-API-Key: <key>`              |
+| **OAuth 2.0**      | Third-party login (GitHub, Google) | OAuth flow                      |
+| **Session Cookie** | Web app (same-origin)              | `Cookie: session=<token>`       |
 
 ### 11.2 JWT Token Structure
 
@@ -1468,13 +1474,13 @@ Authorization: Bearer <access_token>
 
 ### 11.4 Role-Based Access Control (RBAC)
 
-| Role | Scope | Permissions |
-|------|-------|-------------|
-| **Owner** | Workspace | Full control, billing, delete workspace |
-| **Admin** | Workspace | Manage members, settings, all resources |
-| **Member** | Workspace | Create/edit own resources, comment, view |
-| **Viewer** | Workspace/Project | Read-only access |
-| **Guest** | Project | Limited read/write on assigned tasks |
+| Role       | Scope             | Permissions                              |
+| ---------- | ----------------- | ---------------------------------------- |
+| **Owner**  | Workspace         | Full control, billing, delete workspace  |
+| **Admin**  | Workspace         | Manage members, settings, all resources  |
+| **Member** | Workspace         | Create/edit own resources, comment, view |
+| **Viewer** | Workspace/Project | Read-only access                         |
+| **Guest**  | Project           | Limited read/write on assigned tasks     |
 
 Permission format: `{resource}:{action}`
 
@@ -1523,17 +1529,17 @@ All messages follow a uniform envelope:
 ```typescript
 // Client → Server
 interface ClientMessage {
-  type: string;          // Message type
-  payload: unknown;      // Message data
-  id?: string;           // Optional client message ID for ack
+  type: string; // Message type
+  payload: unknown; // Message data
+  id?: string; // Optional client message ID for ack
 }
 
 // Server → Client
 interface ServerMessage {
-  type: string;          // Message type
-  payload: unknown;      // Message data
-  id?: string;           // Correlated client message ID
-  timestamp: string;     // Server timestamp
+  type: string; // Message type
+  payload: unknown; // Message data
+  id?: string; // Correlated client message ID
+  timestamp: string; // Server timestamp
 }
 ```
 
@@ -1569,29 +1575,29 @@ Clients subscribe to scoped channels for real-time updates:
 
 ### 12.5 Event Catalog
 
-| Event Type | Channel Pattern | Description | Payload |
-|------------|----------------|-------------|---------|
-| `task.created` | `task:{project_id}` | New task created | Task object |
-| `task.updated` | `task:{project_id}` | Task fields changed | Changed fields |
-| `task.moved` | `task:{project_id}` | Task moved between lists | {from_list, to_list, position} |
-| `task.deleted` | `task:{project_id}` | Task deleted | {task_id} |
-| `task.assigned` | `task:{project_id}` | Assignee changed | {task_id, assignee_id} |
-| `task.status_changed` | `task:{project_id}` | Status updated | {task_id, from_status, to_status} |
-| `comment.created` | `task:{task_id}` | New comment | Comment object |
-| `comment.updated` | `task:{task_id}` | Comment edited | Comment object |
-| `comment.deleted` | `task:{task_id}` | Comment deleted | {comment_id} |
-| `reaction.added` | `task:{task_id}` | Emoji reaction added | {comment_id, user_id, emoji} |
-| `reaction.removed` | `task:{task_id}` | Emoji reaction removed | {comment_id, user_id, emoji} |
-| `document.updated` | `document:{doc_id}` | Document content changed | Operational transform |
-| `document.cursor` | `document:{doc_id}` | Collaborator cursor position | {user_id, position, selection} |
-| `presence.joined` | `presence:{workspace_id}` | User came online | {user_id, name, avatar} |
-| `presence.left` | `presence:{workspace_id}` | User went offline | {user_id} |
-| `presence.typing` | `task:{task_id}` | User typing in comment | {user_id, is_typing} |
-| `notification.new` | `notifications:{user_id}` | New notification | Notification object |
-| `notification.read` | `notifications:{user_id}` | Notification marked read | {notification_id} |
-| `attachment.uploaded` | `task:{task_id}` | File attachment added | Attachment object |
-| `activity.logged` | `activity:{project_id}` | Activity entry created | Activity object |
-| `automation.triggered` | `task:{project_id}` | Automation ran | {automation_id, task_id, result} |
+| Event Type             | Channel Pattern           | Description                  | Payload                           |
+| ---------------------- | ------------------------- | ---------------------------- | --------------------------------- |
+| `task.created`         | `task:{project_id}`       | New task created             | Task object                       |
+| `task.updated`         | `task:{project_id}`       | Task fields changed          | Changed fields                    |
+| `task.moved`           | `task:{project_id}`       | Task moved between lists     | {from_list, to_list, position}    |
+| `task.deleted`         | `task:{project_id}`       | Task deleted                 | {task_id}                         |
+| `task.assigned`        | `task:{project_id}`       | Assignee changed             | {task_id, assignee_id}            |
+| `task.status_changed`  | `task:{project_id}`       | Status updated               | {task_id, from_status, to_status} |
+| `comment.created`      | `task:{task_id}`          | New comment                  | Comment object                    |
+| `comment.updated`      | `task:{task_id}`          | Comment edited               | Comment object                    |
+| `comment.deleted`      | `task:{task_id}`          | Comment deleted              | {comment_id}                      |
+| `reaction.added`       | `task:{task_id}`          | Emoji reaction added         | {comment_id, user_id, emoji}      |
+| `reaction.removed`     | `task:{task_id}`          | Emoji reaction removed       | {comment_id, user_id, emoji}      |
+| `document.updated`     | `document:{doc_id}`       | Document content changed     | Operational transform             |
+| `document.cursor`      | `document:{doc_id}`       | Collaborator cursor position | {user_id, position, selection}    |
+| `presence.joined`      | `presence:{workspace_id}` | User came online             | {user_id, name, avatar}           |
+| `presence.left`        | `presence:{workspace_id}` | User went offline            | {user_id}                         |
+| `presence.typing`      | `task:{task_id}`          | User typing in comment       | {user_id, is_typing}              |
+| `notification.new`     | `notifications:{user_id}` | New notification             | Notification object               |
+| `notification.read`    | `notifications:{user_id}` | Notification marked read     | {notification_id}                 |
+| `attachment.uploaded`  | `task:{task_id}`          | File attachment added        | Attachment object                 |
+| `activity.logged`      | `activity:{project_id}`   | Activity entry created       | Activity object                   |
+| `automation.triggered` | `task:{project_id}`       | Automation ran               | {automation_id, task_id, result}  |
 
 ### 12.6 Presence System
 
@@ -1696,11 +1702,11 @@ Client                          Server
   │<──── missed events (catchup) ─│  (events since last_event_id)
 ```
 
-| Parameter | Value |
-|-----------|-------|
-| Ping interval | 30 seconds |
-| Pong timeout | 10 seconds |
-| Reconnect window | 5 minutes |
+| Parameter           | Value                       |
+| ------------------- | --------------------------- |
+| Ping interval       | 30 seconds                  |
+| Pong timeout        | 10 seconds                  |
+| Reconnect window    | 5 minutes                   |
 | Missed event buffer | Last 100 events per channel |
 
 ---
@@ -1728,24 +1734,24 @@ Content-Type: application/json
 
 ### 13.2 Supported Webhook Events
 
-| Event | Description |
-|-------|-------------|
-| `task.created` | New task created |
-| `task.updated` | Task fields modified |
-| `task.moved` | Task moved between lists |
-| `task.deleted` | Task deleted |
-| `task.assigned` | Task assigned/unassigned |
-| `task.status_changed` | Task status changed |
-| `project.created` | New project created |
-| `project.updated` | Project updated |
-| `project.deleted` | Project deleted |
-| `comment.created` | New comment |
-| `comment.updated` | Comment edited |
-| `comment.deleted` | Comment deleted |
-| `member.added` | Member added to workspace |
-| `member.removed` | Member removed |
-| `automation.triggered` | Automation executed |
-| `*` | All events (wildcard) |
+| Event                  | Description               |
+| ---------------------- | ------------------------- |
+| `task.created`         | New task created          |
+| `task.updated`         | Task fields modified      |
+| `task.moved`           | Task moved between lists  |
+| `task.deleted`         | Task deleted              |
+| `task.assigned`        | Task assigned/unassigned  |
+| `task.status_changed`  | Task status changed       |
+| `project.created`      | New project created       |
+| `project.updated`      | Project updated           |
+| `project.deleted`      | Project deleted           |
+| `comment.created`      | New comment               |
+| `comment.updated`      | Comment edited            |
+| `comment.deleted`      | Comment deleted           |
+| `member.added`         | Member added to workspace |
+| `member.removed`       | Member removed            |
+| `automation.triggered` | Automation executed       |
+| `*`                    | All events (wildcard)     |
 
 ### 13.3 Webhook Payload
 
@@ -1798,44 +1804,39 @@ function verifyWebhookSignature(
   payload: string,
   signature: string,
   timestamp: string,
-  secret: string
+  secret: string,
 ): boolean {
   // Reject if timestamp is older than 5 minutes (replay protection)
   const age = Date.now() / 1000 - parseInt(timestamp);
   if (age > 300) return false;
 
-  const expected = createHmac('sha256', secret)
-    .update(`${timestamp}.${payload}`)
-    .digest('hex');
+  const expected = createHmac('sha256', secret).update(`${timestamp}.${payload}`).digest('hex');
 
-  return timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expected)
-  );
+  return timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
 }
 ```
 
 ### 13.5 Delivery Guarantees
 
-| Guarantee | Detail |
-|-----------|--------|
-| **At-least-once** | Webhooks may be delivered more than once; consumers must be idempotent |
-| **Ordering** | Events within a single resource are ordered; cross-resource events are not |
-| **Timeout** | 10-second response timeout |
-| **Retry policy** | Exponential backoff: 1min, 5min, 30min, 2hr, 12hr, 24hr |
-| **Max retries** | 6 attempts total |
-| **Delivery window** | Events retained for 7 days; undelivered events are dropped |
+| Guarantee           | Detail                                                                     |
+| ------------------- | -------------------------------------------------------------------------- |
+| **At-least-once**   | Webhooks may be delivered more than once; consumers must be idempotent     |
+| **Ordering**        | Events within a single resource are ordered; cross-resource events are not |
+| **Timeout**         | 10-second response timeout                                                 |
+| **Retry policy**    | Exponential backoff: 1min, 5min, 30min, 2hr, 12hr, 24hr                    |
+| **Max retries**     | 6 attempts total                                                           |
+| **Delivery window** | Events retained for 7 days; undelivered events are dropped                 |
 
 **Retry schedule:**
 
-| Attempt | Delay | Cumulative |
-|---------|-------|------------|
-| 1 | Immediate | 0 |
-| 2 | 1 min | 1 min |
-| 3 | 5 min | 6 min |
-| 4 | 30 min | 36 min |
-| 5 | 2 hours | 2.5 hours |
-| 6 | 12 hours | 14.5 hours |
+| Attempt | Delay     | Cumulative |
+| ------- | --------- | ---------- |
+| 1       | Immediate | 0          |
+| 2       | 1 min     | 1 min      |
+| 3       | 5 min     | 6 min      |
+| 4       | 30 min    | 36 min     |
+| 5       | 2 hours   | 2.5 hours  |
+| 6       | 12 hours  | 14.5 hours |
 
 ### 13.6 Delivery Log
 
@@ -1931,12 +1932,12 @@ POST /api/v1/auth/device/token
 
 All CLI commands support `--output` flag:
 
-| Format | Flag | Use Case |
-|--------|------|----------|
-| Table | `--output table` (default) | Human-readable terminal |
-| JSON | `--output json` | Programmatic consumption |
-| YAML | `--output yaml` | Configuration files |
-| CSV | `--output csv` | Spreadsheet import |
+| Format | Flag                       | Use Case                 |
+| ------ | -------------------------- | ------------------------ |
+| Table  | `--output table` (default) | Human-readable terminal  |
+| JSON   | `--output json`            | Programmatic consumption |
+| YAML   | `--output yaml`            | Configuration files      |
+| CSV    | `--output csv`             | Spreadsheet import       |
 
 **Example:**
 
@@ -2013,8 +2014,8 @@ const corsOptions = {
   origin: [
     'https://app.sprintio.app',
     'https://staging.sprintio.app',
-    'http://localhost:3000',    // Local dev only
-    'http://localhost:5173',    // Vite dev server
+    'http://localhost:3000', // Local dev only
+    'http://localhost:5173', // Vite dev server
   ],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
@@ -2066,17 +2067,17 @@ const CreateTaskSchema = z.object({
     .min(3, 'Title must be at least 3 characters')
     .max(500, 'Title must be at most 500 characters')
     .trim()
-    .refine(
-      (val) => !/[<>{}]/.test(val),
-      'Title contains disallowed characters'
-    ),
+    .refine((val) => !/[<>{}]/.test(val), 'Title contains disallowed characters'),
   description: z
     .string()
     .max(50000)
     .optional()
-    .transform((val) => sanitizeHtml(val)),  // Strip HTML
+    .transform((val) => sanitizeHtml(val)), // Strip HTML
   priority: z.enum(['none', 'low', 'medium', 'high', 'urgent']),
-  assignee_id: z.string().regex(/^usr_[a-z0-9]+$/).optional(),
+  assignee_id: z
+    .string()
+    .regex(/^usr_[a-z0-9]+$/)
+    .optional(),
   due_date: z.coerce.date().min(new Date()).optional(),
   labels: z.array(z.string().max(50)).max(20).default([]),
   estimated_hours: z.number().min(0).max(1000).optional(),
@@ -2085,13 +2086,13 @@ const CreateTaskSchema = z.object({
 
 **SQL Injection Prevention:**
 
-| Layer | Mechanism |
-|-------|-----------|
-| **ORM** | Prisma generates parameterized queries |
-| **Raw queries** | Always use `$1`, `$2` parameterized syntax |
-| **Input validation** | Zod schemas reject unexpected types |
-| **UUID validation** | Regex check on all resource IDs: `/^[a-z0-9_]+$/` |
-| **No string interpolation** | ESLint rule禁止 template literals in queries |
+| Layer                       | Mechanism                                         |
+| --------------------------- | ------------------------------------------------- |
+| **ORM**                     | Prisma generates parameterized queries            |
+| **Raw queries**             | Always use `$1`, `$2` parameterized syntax        |
+| **Input validation**        | Zod schemas reject unexpected types               |
+| **UUID validation**         | Regex check on all resource IDs: `/^[a-z0-9_]+$/` |
+| **No string interpolation** | ESLint rule禁止 template literals in queries      |
 
 ```typescript
 // WRONG — vulnerable
@@ -2108,7 +2109,7 @@ const tasks = await prisma.task.findMany({
 ```typescript
 // Helmet.js configuration
 const helmetConfig = {
-  contentSecurityPolicy: { /* see above */ },
+  contentSecurityPolicy: {/* see above */},
   crossOriginEmbedderPolicy: true,
   crossOriginOpenerPolicy: true,
   crossOriginResourcePolicy: { policy: 'same-site' },
@@ -2124,13 +2125,13 @@ const helmetConfig = {
 
 ### 15.5 Request Size Limits
 
-| Content Type | Limit | Config |
-|-------------|-------|--------|
-| JSON body | 1 MB | `express.json({ limit: '1mb' })` |
-| Multipart upload | 50 MB | `multer({ limits: { fileSize: 50 * 1024 * 1024 } })` |
-| URL length | 2,048 chars | Cloudflare limit |
-| WebSocket message | 64 KB | WS library config |
-| Query string | 4,096 chars | Express default |
+| Content Type      | Limit       | Config                                               |
+| ----------------- | ----------- | ---------------------------------------------------- |
+| JSON body         | 1 MB        | `express.json({ limit: '1mb' })`                     |
+| Multipart upload  | 50 MB       | `multer({ limits: { fileSize: 50 * 1024 * 1024 } })` |
+| URL length        | 2,048 chars | Cloudflare limit                                     |
+| WebSocket message | 64 KB       | WS library config                                    |
+| Query string      | 4,096 chars | Express default                                      |
 
 ### 15.6 Idempotency
 
@@ -2224,7 +2225,7 @@ describe('CreateTaskSchema', () => {
   it('rejects invalid priority', () => {
     const result = CreateTaskSchema.safeParse({
       title: 'Valid task title',
-      priority: 'critical',  // not in enum
+      priority: 'critical', // not in enum
     });
     expect(result.success).toBe(false);
   });
@@ -2364,9 +2365,9 @@ import { check, sleep } from 'k6';
 
 export const options = {
   stages: [
-    { duration: '1m', target: 50 },   // Ramp up
-    { duration: '3m', target: 100 },   // Sustained load
-    { duration: '1m', target: 0 },     // Ramp down
+    { duration: '1m', target: 50 }, // Ramp up
+    { duration: '3m', target: 100 }, // Sustained load
+    { duration: '1m', target: 0 }, // Ramp down
   ],
   thresholds: {
     http_req_duration: ['p(95)<500', 'p(99)<1000'],
@@ -2391,12 +2392,12 @@ export default function () {
 
 ### 16.7 Test Environment Matrix
 
-| Environment | Purpose | Data | Deploy |
-|-------------|---------|------|--------|
-| **Local** | Development | SQLite / Docker PG | Local machine |
-| **Test** | CI/CD unit + integration | PostgreSQL in Docker | CI runner |
-| **Staging** | Contract + E2E + load | Production snapshot (anonymized) | Cloudflare |
-| **Production** | Live | Real data | Cloudflare |
+| Environment    | Purpose                  | Data                             | Deploy        |
+| -------------- | ------------------------ | -------------------------------- | ------------- |
+| **Local**      | Development              | SQLite / Docker PG               | Local machine |
+| **Test**       | CI/CD unit + integration | PostgreSQL in Docker             | CI runner     |
+| **Staging**    | Contract + E2E + load    | Production snapshot (anonymized) | Cloudflare    |
+| **Production** | Live                     | Real data                        | Cloudflare    |
 
 ---
 
@@ -2404,205 +2405,205 @@ export default function () {
 
 ### 17.1 Auth Endpoints
 
-| Method | Path | Description | Auth | Rate Limit |
-|--------|------|-------------|------|------------|
-| `POST` | `/auth/register` | Register new account | None | 5/hr |
-| `POST` | `/auth/login` | Email + password login | None | 5/15min |
-| `POST` | `/auth/logout` | Revoke tokens | Bearer | Unlimited |
-| `POST` | `/auth/refresh` | Refresh access token | Cookie | 20/min |
-| `POST` | `/auth/forgot-password` | Request password reset | None | 3/hr |
-| `POST` | `/auth/reset-password` | Reset with token | None | 5/hr |
-| `GET` | `/auth/oauth/:provider` | Initiate OAuth flow | None | 10/hr |
-| `GET` | `/auth/oauth/:provider/callback` | OAuth callback | None | 10/hr |
-| `POST` | `/auth/mfa/setup` | Enable MFA | Bearer | 5/hr |
-| `POST` | `/auth/mfa/verify` | Verify MFA code | Bearer | 5/15min |
-| `POST` | `/auth/mfa/disable` | Disable MFA | Bearer | 5/hr |
-| `POST` | `/auth/device/code` | CLI device auth flow | None | 10/hr |
-| `POST` | `/auth/device/token` | Poll device auth status | None | 20/min |
+| Method | Path                             | Description             | Auth   | Rate Limit |
+| ------ | -------------------------------- | ----------------------- | ------ | ---------- |
+| `POST` | `/auth/register`                 | Register new account    | None   | 5/hr       |
+| `POST` | `/auth/login`                    | Email + password login  | None   | 5/15min    |
+| `POST` | `/auth/logout`                   | Revoke tokens           | Bearer | Unlimited  |
+| `POST` | `/auth/refresh`                  | Refresh access token    | Cookie | 20/min     |
+| `POST` | `/auth/forgot-password`          | Request password reset  | None   | 3/hr       |
+| `POST` | `/auth/reset-password`           | Reset with token        | None   | 5/hr       |
+| `GET`  | `/auth/oauth/:provider`          | Initiate OAuth flow     | None   | 10/hr      |
+| `GET`  | `/auth/oauth/:provider/callback` | OAuth callback          | None   | 10/hr      |
+| `POST` | `/auth/mfa/setup`                | Enable MFA              | Bearer | 5/hr       |
+| `POST` | `/auth/mfa/verify`               | Verify MFA code         | Bearer | 5/15min    |
+| `POST` | `/auth/mfa/disable`              | Disable MFA             | Bearer | 5/hr       |
+| `POST` | `/auth/device/code`              | CLI device auth flow    | None   | 10/hr      |
+| `POST` | `/auth/device/token`             | Poll device auth status | None   | 20/min     |
 
 ### 17.2 User Endpoints
 
-| Method | Path | Description | Auth | Rate Limit |
-|--------|------|-------------|------|------------|
-| `GET` | `/users/me` | Get current user profile | Bearer | 100/min |
-| `PATCH` | `/users/me` | Update profile | Bearer | 30/min |
-| `POST` | `/users/me/avatar` | Upload avatar | Bearer | 10/min |
-| `DELETE` | `/users/me/avatar` | Remove avatar | Bearer | 10/min |
-| `GET` | `/users/me/preferences` | Get preferences | Bearer | 100/min |
-| `PUT` | `/users/me/preferences` | Update preferences | Bearer | 30/min |
-| `GET` | `/users/me/notification-settings` | Get notification prefs | Bearer | 100/min |
-| `PUT` | `/users/me/notification-settings` | Update notification prefs | Bearer | 30/min |
+| Method   | Path                              | Description               | Auth   | Rate Limit |
+| -------- | --------------------------------- | ------------------------- | ------ | ---------- |
+| `GET`    | `/users/me`                       | Get current user profile  | Bearer | 100/min    |
+| `PATCH`  | `/users/me`                       | Update profile            | Bearer | 30/min     |
+| `POST`   | `/users/me/avatar`                | Upload avatar             | Bearer | 10/min     |
+| `DELETE` | `/users/me/avatar`                | Remove avatar             | Bearer | 10/min     |
+| `GET`    | `/users/me/preferences`           | Get preferences           | Bearer | 100/min    |
+| `PUT`    | `/users/me/preferences`           | Update preferences        | Bearer | 30/min     |
+| `GET`    | `/users/me/notification-settings` | Get notification prefs    | Bearer | 100/min    |
+| `PUT`    | `/users/me/notification-settings` | Update notification prefs | Bearer | 30/min     |
 
 ### 17.3 Workspace Endpoints
 
-| Method | Path | Description | Auth | Rate Limit |
-|--------|------|-------------|------|------------|
-| `GET` | `/workspaces` | List user's workspaces | Bearer | 100/min |
-| `POST` | `/workspaces` | Create workspace | Bearer | 5/hr |
-| `GET` | `/workspaces/:wid` | Get workspace details | Bearer | 100/min |
-| `PATCH` | `/workspaces/:wid` | Update workspace | Bearer/Admin | 30/min |
-| `DELETE` | `/workspaces/:wid` | Delete workspace | Bearer/Owner | 1/day |
-| `GET` | `/workspaces/:wid/members` | List members | Bearer | 100/min |
-| `POST` | `/workspaces/:wid/members` | Invite member | Bearer/Admin | 20/min |
-| `PATCH` | `/workspaces/:wid/members/:uid` | Update member role | Bearer/Admin | 30/min |
-| `DELETE` | `/workspaces/:wid/members/:uid` | Remove member | Bearer/Admin | 30/min |
-| `GET` | `/workspaces/:wid/roles` | List roles | Bearer | 100/min |
-| `POST` | `/workspaces/:wid/roles` | Create role | Bearer/Admin | 10/min |
-| `PATCH` | `/workspaces/:wid/roles/:rid` | Update role | Bearer/Admin | 10/min |
-| `DELETE` | `/workspaces/:wid/roles/:rid` | Delete role | Bearer/Admin | 10/min |
-| `GET` | `/workspaces/:wid/settings` | Get settings | Bearer | 100/min |
-| `PUT` | `/workspaces/:wid/settings` | Update settings | Bearer/Admin | 10/min |
-| `GET` | `/workspaces/:wid/billing` | Get billing info | Bearer/Owner | 10/hr |
-| `PATCH` | `/workspaces/:wid/billing` | Update billing | Bearer/Owner | 5/hr |
+| Method   | Path                            | Description            | Auth         | Rate Limit |
+| -------- | ------------------------------- | ---------------------- | ------------ | ---------- |
+| `GET`    | `/workspaces`                   | List user's workspaces | Bearer       | 100/min    |
+| `POST`   | `/workspaces`                   | Create workspace       | Bearer       | 5/hr       |
+| `GET`    | `/workspaces/:wid`              | Get workspace details  | Bearer       | 100/min    |
+| `PATCH`  | `/workspaces/:wid`              | Update workspace       | Bearer/Admin | 30/min     |
+| `DELETE` | `/workspaces/:wid`              | Delete workspace       | Bearer/Owner | 1/day      |
+| `GET`    | `/workspaces/:wid/members`      | List members           | Bearer       | 100/min    |
+| `POST`   | `/workspaces/:wid/members`      | Invite member          | Bearer/Admin | 20/min     |
+| `PATCH`  | `/workspaces/:wid/members/:uid` | Update member role     | Bearer/Admin | 30/min     |
+| `DELETE` | `/workspaces/:wid/members/:uid` | Remove member          | Bearer/Admin | 30/min     |
+| `GET`    | `/workspaces/:wid/roles`        | List roles             | Bearer       | 100/min    |
+| `POST`   | `/workspaces/:wid/roles`        | Create role            | Bearer/Admin | 10/min     |
+| `PATCH`  | `/workspaces/:wid/roles/:rid`   | Update role            | Bearer/Admin | 10/min     |
+| `DELETE` | `/workspaces/:wid/roles/:rid`   | Delete role            | Bearer/Admin | 10/min     |
+| `GET`    | `/workspaces/:wid/settings`     | Get settings           | Bearer       | 100/min    |
+| `PUT`    | `/workspaces/:wid/settings`     | Update settings        | Bearer/Admin | 10/min     |
+| `GET`    | `/workspaces/:wid/billing`      | Get billing info       | Bearer/Owner | 10/hr      |
+| `PATCH`  | `/workspaces/:wid/billing`      | Update billing         | Bearer/Owner | 5/hr       |
 
 ### 17.4 Project Endpoints
 
-| Method | Path | Description | Auth | Rate Limit |
-|--------|------|-------------|------|------------|
-| `GET` | `/workspaces/:wid/projects` | List projects | Bearer | 100/min |
-| `POST` | `/workspaces/:wid/projects` | Create project | Bearer | 20/min |
-| `GET` | `/workspaces/:wid/projects/:pid` | Get project | Bearer | 100/min |
-| `PATCH` | `/workspaces/:wid/projects/:pid` | Update project | Bearer/Admin | 30/min |
-| `DELETE` | `/workspaces/:wid/projects/:pid` | Delete project | Bearer/Admin | 10/hr |
-| `GET` | `/workspaces/:wid/projects/:pid/members` | List members | Bearer | 100/min |
-| `POST` | `/workspaces/:wid/projects/:pid/members` | Add member | Bearer/Admin | 20/min |
-| `PATCH` | `/workspaces/:wid/projects/:pid/members/:uid` | Update member | Bearer/Admin | 30/min |
-| `DELETE` | `/workspaces/:wid/projects/:pid/members/:uid` | Remove member | Bearer/Admin | 30/min |
-| `GET` | `/workspaces/:wid/projects/:pid/labels` | List labels | Bearer | 100/min |
-| `POST` | `/workspaces/:wid/projects/:pid/labels` | Create label | Bearer | 20/min |
-| `PATCH` | `/workspaces/:wid/projects/:pid/labels/:lid` | Update label | Bearer | 20/min |
-| `DELETE` | `/workspaces/:wid/projects/:pid/labels/:lid` | Delete label | Bearer | 20/min |
-| `GET` | `/workspaces/:wid/projects/:pid/settings` | Get settings | Bearer | 100/min |
-| `PUT` | `/workspaces/:wid/projects/:pid/settings` | Update settings | Bearer/Admin | 10/min |
+| Method   | Path                                          | Description     | Auth         | Rate Limit |
+| -------- | --------------------------------------------- | --------------- | ------------ | ---------- |
+| `GET`    | `/workspaces/:wid/projects`                   | List projects   | Bearer       | 100/min    |
+| `POST`   | `/workspaces/:wid/projects`                   | Create project  | Bearer       | 20/min     |
+| `GET`    | `/workspaces/:wid/projects/:pid`              | Get project     | Bearer       | 100/min    |
+| `PATCH`  | `/workspaces/:wid/projects/:pid`              | Update project  | Bearer/Admin | 30/min     |
+| `DELETE` | `/workspaces/:wid/projects/:pid`              | Delete project  | Bearer/Admin | 10/hr      |
+| `GET`    | `/workspaces/:wid/projects/:pid/members`      | List members    | Bearer       | 100/min    |
+| `POST`   | `/workspaces/:wid/projects/:pid/members`      | Add member      | Bearer/Admin | 20/min     |
+| `PATCH`  | `/workspaces/:wid/projects/:pid/members/:uid` | Update member   | Bearer/Admin | 30/min     |
+| `DELETE` | `/workspaces/:wid/projects/:pid/members/:uid` | Remove member   | Bearer/Admin | 30/min     |
+| `GET`    | `/workspaces/:wid/projects/:pid/labels`       | List labels     | Bearer       | 100/min    |
+| `POST`   | `/workspaces/:wid/projects/:pid/labels`       | Create label    | Bearer       | 20/min     |
+| `PATCH`  | `/workspaces/:wid/projects/:pid/labels/:lid`  | Update label    | Bearer       | 20/min     |
+| `DELETE` | `/workspaces/:wid/projects/:pid/labels/:lid`  | Delete label    | Bearer       | 20/min     |
+| `GET`    | `/workspaces/:wid/projects/:pid/settings`     | Get settings    | Bearer       | 100/min    |
+| `PUT`    | `/workspaces/:wid/projects/:pid/settings`     | Update settings | Bearer/Admin | 10/min     |
 
 ### 17.5 Folder Endpoints
 
-| Method | Path | Description | Auth | Rate Limit |
-|--------|------|-------------|------|------------|
-| `GET` | `/workspaces/:wid/projects/:pid/folders` | List folders | Bearer | 100/min |
-| `POST` | `/workspaces/:wid/projects/:pid/folders` | Create folder | Bearer | 20/min |
-| `GET` | `/workspaces/:wid/projects/:pid/folders/:fid` | Get folder | Bearer | 100/min |
-| `PATCH` | `/workspaces/:wid/projects/:pid/folders/:fid` | Update folder | Bearer | 20/min |
-| `DELETE` | `/workspaces/:wid/projects/:pid/folders/:fid` | Delete folder | Bearer | 10/hr |
-| `GET` | `/workspaces/:wid/projects/:pid/folders/:fid/subfolders` | Get subfolders | Bearer | 100/min |
+| Method   | Path                                                     | Description    | Auth   | Rate Limit |
+| -------- | -------------------------------------------------------- | -------------- | ------ | ---------- |
+| `GET`    | `/workspaces/:wid/projects/:pid/folders`                 | List folders   | Bearer | 100/min    |
+| `POST`   | `/workspaces/:wid/projects/:pid/folders`                 | Create folder  | Bearer | 20/min     |
+| `GET`    | `/workspaces/:wid/projects/:pid/folders/:fid`            | Get folder     | Bearer | 100/min    |
+| `PATCH`  | `/workspaces/:wid/projects/:pid/folders/:fid`            | Update folder  | Bearer | 20/min     |
+| `DELETE` | `/workspaces/:wid/projects/:pid/folders/:fid`            | Delete folder  | Bearer | 10/hr      |
+| `GET`    | `/workspaces/:wid/projects/:pid/folders/:fid/subfolders` | Get subfolders | Bearer | 100/min    |
 
 ### 17.6 List Endpoints
 
-| Method | Path | Description | Auth | Rate Limit |
-|--------|------|-------------|------|------------|
-| `GET` | `/workspaces/:wid/projects/:pid/lists` | List all lists | Bearer | 100/min |
-| `POST` | `/workspaces/:wid/projects/:pid/lists` | Create list | Bearer | 20/min |
-| `GET` | `/workspaces/:wid/projects/:pid/lists/:lid` | Get list | Bearer | 100/min |
-| `PATCH` | `/workspaces/:wid/projects/:pid/lists/:lid` | Update list | Bearer | 20/min |
-| `DELETE` | `/workspaces/:wid/projects/:pid/lists/:lid` | Delete list | Bearer | 10/hr |
-| `GET` | `/workspaces/:wid/projects/:pid/lists/:lid/views` | List views | Bearer | 100/min |
-| `POST` | `/workspaces/:wid/projects/:pid/lists/:lid/views` | Create view | Bearer | 20/min |
-| `GET` | `.../views/:vid` | Get view | Bearer | 100/min |
-| `PATCH` | `.../views/:vid` | Update view | Bearer | 20/min |
-| `DELETE` | `.../views/:vid` | Delete view | Bearer | 10/hr |
-| `GET` | `/workspaces/:wid/projects/:pid/lists/:lid/filters` | List saved filters | Bearer | 100/min |
-| `POST` | `/workspaces/:wid/projects/:pid/lists/:lid/filters` | Save filter | Bearer | 20/min |
-| `DELETE` | `.../filters/:fid` | Delete filter | Bearer | 20/min |
+| Method   | Path                                                | Description        | Auth   | Rate Limit |
+| -------- | --------------------------------------------------- | ------------------ | ------ | ---------- |
+| `GET`    | `/workspaces/:wid/projects/:pid/lists`              | List all lists     | Bearer | 100/min    |
+| `POST`   | `/workspaces/:wid/projects/:pid/lists`              | Create list        | Bearer | 20/min     |
+| `GET`    | `/workspaces/:wid/projects/:pid/lists/:lid`         | Get list           | Bearer | 100/min    |
+| `PATCH`  | `/workspaces/:wid/projects/:pid/lists/:lid`         | Update list        | Bearer | 20/min     |
+| `DELETE` | `/workspaces/:wid/projects/:pid/lists/:lid`         | Delete list        | Bearer | 10/hr      |
+| `GET`    | `/workspaces/:wid/projects/:pid/lists/:lid/views`   | List views         | Bearer | 100/min    |
+| `POST`   | `/workspaces/:wid/projects/:pid/lists/:lid/views`   | Create view        | Bearer | 20/min     |
+| `GET`    | `.../views/:vid`                                    | Get view           | Bearer | 100/min    |
+| `PATCH`  | `.../views/:vid`                                    | Update view        | Bearer | 20/min     |
+| `DELETE` | `.../views/:vid`                                    | Delete view        | Bearer | 10/hr      |
+| `GET`    | `/workspaces/:wid/projects/:pid/lists/:lid/filters` | List saved filters | Bearer | 100/min    |
+| `POST`   | `/workspaces/:wid/projects/:pid/lists/:lid/filters` | Save filter        | Bearer | 20/min     |
+| `DELETE` | `.../filters/:fid`                                  | Delete filter      | Bearer | 20/min     |
 
 ### 17.7 Task Endpoints
 
-| Method | Path | Description | Auth | Rate Limit |
-|--------|------|-------------|------|------------|
-| `GET` | `/tasks` | List tasks (global) | Bearer | 100/min |
-| `POST` | `/lists/:lid/tasks` | Create task in list | Bearer | 30/min |
-| `GET` | `/tasks/:tid` | Get task | Bearer | 100/min |
-| `PATCH` | `/tasks/:tid` | Update task | Bearer | 60/min |
-| `DELETE` | `/tasks/:tid` | Delete task | Bearer | 20/min |
-| `GET` | `/tasks/:tid/subtasks` | List subtasks | Bearer | 100/min |
-| `POST` | `/tasks/:tid/subtasks` | Create subtask | Bearer | 30/min |
-| `POST` | `/tasks/:tid/assign` | Assign user | Bearer | 30/min |
-| `DELETE` | `/tasks/:tid/assign/:uid` | Unassign user | Bearer | 30/min |
-| `POST` | `/tasks/:tid/move` | Move task to list | Bearer | 30/min |
-| `GET` | `/tasks/:tid/time-entries` | List time entries | Bearer | 100/min |
-| `POST` | `/tasks/:tid/time-entries` | Log time | Bearer | 30/min |
-| `PATCH` | `/tasks/bulk` | Bulk update tasks | Bearer | 10/min |
-| `DELETE` | `/tasks/bulk` | Bulk delete tasks | Bearer | 10/min |
-| `POST` | `/tasks/bulk/move` | Bulk move tasks | Bearer | 10/min |
-| `POST` | `/tasks/bulk/assign` | Bulk assign tasks | Bearer | 10/min |
+| Method   | Path                       | Description         | Auth   | Rate Limit |
+| -------- | -------------------------- | ------------------- | ------ | ---------- |
+| `GET`    | `/tasks`                   | List tasks (global) | Bearer | 100/min    |
+| `POST`   | `/lists/:lid/tasks`        | Create task in list | Bearer | 30/min     |
+| `GET`    | `/tasks/:tid`              | Get task            | Bearer | 100/min    |
+| `PATCH`  | `/tasks/:tid`              | Update task         | Bearer | 60/min     |
+| `DELETE` | `/tasks/:tid`              | Delete task         | Bearer | 20/min     |
+| `GET`    | `/tasks/:tid/subtasks`     | List subtasks       | Bearer | 100/min    |
+| `POST`   | `/tasks/:tid/subtasks`     | Create subtask      | Bearer | 30/min     |
+| `POST`   | `/tasks/:tid/assign`       | Assign user         | Bearer | 30/min     |
+| `DELETE` | `/tasks/:tid/assign/:uid`  | Unassign user       | Bearer | 30/min     |
+| `POST`   | `/tasks/:tid/move`         | Move task to list   | Bearer | 30/min     |
+| `GET`    | `/tasks/:tid/time-entries` | List time entries   | Bearer | 100/min    |
+| `POST`   | `/tasks/:tid/time-entries` | Log time            | Bearer | 30/min     |
+| `PATCH`  | `/tasks/bulk`              | Bulk update tasks   | Bearer | 10/min     |
+| `DELETE` | `/tasks/bulk`              | Bulk delete tasks   | Bearer | 10/min     |
+| `POST`   | `/tasks/bulk/move`         | Bulk move tasks     | Bearer | 10/min     |
+| `POST`   | `/tasks/bulk/assign`       | Bulk assign tasks   | Bearer | 10/min     |
 
 ### 17.8 Document Endpoints
 
-| Method | Path | Description | Auth | Rate Limit |
-|--------|------|-------------|------|------------|
-| `GET` | `/documents` | List documents | Bearer | 100/min |
-| `POST` | `/documents` | Create document | Bearer | 20/min |
-| `GET` | `/documents/:did` | Get document | Bearer | 100/min |
-| `PATCH` | `/documents/:did` | Update document meta | Bearer | 30/min |
-| `DELETE` | `/documents/:did` | Delete document | Bearer | 10/hr |
-| `GET` | `/documents/:did/blocks` | List blocks | Bearer | 100/min |
-| `POST` | `/documents/:did/blocks` | Create block | Bearer | 60/min |
-| `GET` | `/documents/:did/blocks/:bid` | Get block | Bearer | 100/min |
-| `PATCH` | `/documents/:did/blocks/:bid` | Update block | Bearer | 120/min |
-| `DELETE` | `/documents/:did/blocks/:bid` | Delete block | Bearer | 20/min |
+| Method   | Path                          | Description          | Auth   | Rate Limit |
+| -------- | ----------------------------- | -------------------- | ------ | ---------- |
+| `GET`    | `/documents`                  | List documents       | Bearer | 100/min    |
+| `POST`   | `/documents`                  | Create document      | Bearer | 20/min     |
+| `GET`    | `/documents/:did`             | Get document         | Bearer | 100/min    |
+| `PATCH`  | `/documents/:did`             | Update document meta | Bearer | 30/min     |
+| `DELETE` | `/documents/:did`             | Delete document      | Bearer | 10/hr      |
+| `GET`    | `/documents/:did/blocks`      | List blocks          | Bearer | 100/min    |
+| `POST`   | `/documents/:did/blocks`      | Create block         | Bearer | 60/min     |
+| `GET`    | `/documents/:did/blocks/:bid` | Get block            | Bearer | 100/min    |
+| `PATCH`  | `/documents/:did/blocks/:bid` | Update block         | Bearer | 120/min    |
+| `DELETE` | `/documents/:did/blocks/:bid` | Delete block         | Bearer | 20/min     |
 
 ### 17.9 Comment Endpoints
 
-| Method | Path | Description | Auth | Rate Limit |
-|--------|------|-------------|------|------------|
-| `GET` | `/comments` | List comments (with task_id filter) | Bearer | 100/min |
-| `POST` | `/comments` | Create comment | Bearer | 60/min |
-| `GET` | `/comments/:cid` | Get comment | Bearer | 100/min |
-| `PATCH` | `/comments/:cid` | Edit comment | Bearer | 30/min |
-| `DELETE` | `/comments/:cid` | Delete comment | Bearer | 20/min |
-| `POST` | `/comments/:cid/reactions` | Add reaction | Bearer | 60/min |
-| `DELETE` | `/comments/:cid/reactions/:emoji` | Remove reaction | Bearer | 60/min |
+| Method   | Path                              | Description                         | Auth   | Rate Limit |
+| -------- | --------------------------------- | ----------------------------------- | ------ | ---------- |
+| `GET`    | `/comments`                       | List comments (with task_id filter) | Bearer | 100/min    |
+| `POST`   | `/comments`                       | Create comment                      | Bearer | 60/min     |
+| `GET`    | `/comments/:cid`                  | Get comment                         | Bearer | 100/min    |
+| `PATCH`  | `/comments/:cid`                  | Edit comment                        | Bearer | 30/min     |
+| `DELETE` | `/comments/:cid`                  | Delete comment                      | Bearer | 20/min     |
+| `POST`   | `/comments/:cid/reactions`        | Add reaction                        | Bearer | 60/min     |
+| `DELETE` | `/comments/:cid/reactions/:emoji` | Remove reaction                     | Bearer | 60/min     |
 
 ### 17.10 Attachment Endpoints
 
-| Method | Path | Description | Auth | Rate Limit |
-|--------|------|-------------|------|------------|
-| `GET` | `/attachments` | List attachments (with filters) | Bearer | 100/min |
-| `POST` | `/attachments/upload` | Upload file (multipart) | Bearer | 10/min |
-| `GET` | `/attachments/:aid` | Download file | Bearer | 100/min |
-| `DELETE` | `/attachments/:aid` | Delete attachment | Bearer | 20/min |
+| Method   | Path                  | Description                     | Auth   | Rate Limit |
+| -------- | --------------------- | ------------------------------- | ------ | ---------- |
+| `GET`    | `/attachments`        | List attachments (with filters) | Bearer | 100/min    |
+| `POST`   | `/attachments/upload` | Upload file (multipart)         | Bearer | 10/min     |
+| `GET`    | `/attachments/:aid`   | Download file                   | Bearer | 100/min    |
+| `DELETE` | `/attachments/:aid`   | Delete attachment               | Bearer | 20/min     |
 
 ### 17.11 Search, Activity & Automations
 
-| Method | Path | Description | Auth | Rate Limit |
-|--------|------|-------------|------|------------|
-| `GET` | `/search` | Full-text search | Bearer | 60/min |
-| `GET` | `/activity/feed` | Activity feed | Bearer | 100/min |
-| `GET` | `/activity/audit-log` | Audit log (admin) | Bearer/Admin | 30/min |
-| `GET` | `/automations` | List automations | Bearer | 100/min |
-| `POST` | `/automations` | Create automation | Bearer | 10/min |
-| `GET` | `/automations/:aid` | Get automation | Bearer | 100/min |
-| `PATCH` | `/automations/:aid` | Update automation | Bearer | 10/min |
-| `DELETE` | `/automations/:aid` | Delete automation | Bearer | 10/hr |
-| `POST` | `/automations/:aid/toggle` | Enable/disable | Bearer | 10/min |
-| `POST` | `/automations/:aid/test` | Test automation | Bearer | 5/min |
+| Method   | Path                       | Description       | Auth         | Rate Limit |
+| -------- | -------------------------- | ----------------- | ------------ | ---------- |
+| `GET`    | `/search`                  | Full-text search  | Bearer       | 60/min     |
+| `GET`    | `/activity/feed`           | Activity feed     | Bearer       | 100/min    |
+| `GET`    | `/activity/audit-log`      | Audit log (admin) | Bearer/Admin | 30/min     |
+| `GET`    | `/automations`             | List automations  | Bearer       | 100/min    |
+| `POST`   | `/automations`             | Create automation | Bearer       | 10/min     |
+| `GET`    | `/automations/:aid`        | Get automation    | Bearer       | 100/min    |
+| `PATCH`  | `/automations/:aid`        | Update automation | Bearer       | 10/min     |
+| `DELETE` | `/automations/:aid`        | Delete automation | Bearer       | 10/hr      |
+| `POST`   | `/automations/:aid/toggle` | Enable/disable    | Bearer       | 10/min     |
+| `POST`   | `/automations/:aid/test`   | Test automation   | Bearer       | 5/min      |
 
 ### 17.12 Webhook, Notification, AI & Admin Endpoints
 
-| Method | Path | Description | Auth | Rate Limit |
-|--------|------|-------------|------|------------|
-| `GET` | `/webhooks` | List webhooks | Bearer | 100/min |
-| `POST` | `/webhooks` | Create webhook | Bearer | 10/hr |
-| `GET` | `/webhooks/:whid` | Get webhook | Bearer | 100/min |
-| `PATCH` | `/webhooks/:whid` | Update webhook | Bearer | 10/min |
-| `DELETE` | `/webhooks/:whid` | Delete webhook | Bearer | 10/hr |
-| `GET` | `/webhooks/:whid/deliveries` | Delivery log | Bearer | 30/min |
-| `POST` | `/webhooks/:whid/test` | Send test event | Bearer | 5/min |
-| `GET` | `/notifications` | List notifications | Bearer | 100/min |
-| `POST` | `/notifications/:nid/read` | Mark read | Bearer | 100/min |
-| `POST` | `/notifications/read-all` | Mark all read | Bearer | 10/min |
-| `GET` | `/notifications/preferences` | Get prefs | Bearer | 100/min |
-| `PUT` | `/notifications/preferences` | Update prefs | Bearer | 10/min |
-| `POST` | `/ai/chat` | AI chat assistant | Bearer | 30/min |
-| `POST` | `/ai/summarize` | Summarize resource | Bearer | 30/min |
-| `POST` | `/ai/auto-assign` | AI auto-assign | Bearer | 10/min |
-| `GET` | `/admin/stats` | Workspace stats | Bearer/Admin | 10/min |
-| `GET` | `/admin/users` | List all users | Bearer/Admin | 30/min |
-| `PATCH` | `/admin/users/:uid` | Update user | Bearer/Admin | 10/min |
-| `GET` | `/admin/feature-flags` | Feature flags | Bearer/Admin | 60/min |
-| `PATCH` | `/admin/feature-flags/:flag` | Toggle flag | Bearer/Admin | 10/min |
-| `GET` | `/admin/system-health` | System health | Bearer/Admin | 10/min |
-| `POST` | `/exports/csv` | Export CSV | Bearer | 5/hr |
-| `POST` | `/exports/pdf` | Export PDF | Bearer | 5/hr |
+| Method   | Path                         | Description        | Auth         | Rate Limit |
+| -------- | ---------------------------- | ------------------ | ------------ | ---------- |
+| `GET`    | `/webhooks`                  | List webhooks      | Bearer       | 100/min    |
+| `POST`   | `/webhooks`                  | Create webhook     | Bearer       | 10/hr      |
+| `GET`    | `/webhooks/:whid`            | Get webhook        | Bearer       | 100/min    |
+| `PATCH`  | `/webhooks/:whid`            | Update webhook     | Bearer       | 10/min     |
+| `DELETE` | `/webhooks/:whid`            | Delete webhook     | Bearer       | 10/hr      |
+| `GET`    | `/webhooks/:whid/deliveries` | Delivery log       | Bearer       | 30/min     |
+| `POST`   | `/webhooks/:whid/test`       | Send test event    | Bearer       | 5/min      |
+| `GET`    | `/notifications`             | List notifications | Bearer       | 100/min    |
+| `POST`   | `/notifications/:nid/read`   | Mark read          | Bearer       | 100/min    |
+| `POST`   | `/notifications/read-all`    | Mark all read      | Bearer       | 10/min     |
+| `GET`    | `/notifications/preferences` | Get prefs          | Bearer       | 100/min    |
+| `PUT`    | `/notifications/preferences` | Update prefs       | Bearer       | 10/min     |
+| `POST`   | `/ai/chat`                   | AI chat assistant  | Bearer       | 30/min     |
+| `POST`   | `/ai/summarize`              | Summarize resource | Bearer       | 30/min     |
+| `POST`   | `/ai/auto-assign`            | AI auto-assign     | Bearer       | 10/min     |
+| `GET`    | `/admin/stats`               | Workspace stats    | Bearer/Admin | 10/min     |
+| `GET`    | `/admin/users`               | List all users     | Bearer/Admin | 30/min     |
+| `PATCH`  | `/admin/users/:uid`          | Update user        | Bearer/Admin | 10/min     |
+| `GET`    | `/admin/feature-flags`       | Feature flags      | Bearer/Admin | 60/min     |
+| `PATCH`  | `/admin/feature-flags/:flag` | Toggle flag        | Bearer/Admin | 10/min     |
+| `GET`    | `/admin/system-health`       | System health      | Bearer/Admin | 10/min     |
+| `POST`   | `/exports/csv`               | Export CSV         | Bearer       | 5/hr       |
+| `POST`   | `/exports/pdf`               | Export PDF         | Bearer       | 5/hr       |
 
 ---
 
@@ -2677,27 +2678,27 @@ curl -X POST https://api.sprintio.app/api/v1/exports/csv \
 
 ### 18.3 ID Format Reference
 
-| Resource | Prefix | Example | Length |
-|----------|--------|---------|--------|
-| User | `usr_` | `usr_9x8w7v6u` | 16 |
-| Workspace | `ws_` | `ws_5e6f7g8h` | 14 |
-| Project | `proj_` | `proj_1b2c3d4e` | 16 |
-| Folder | `folder_` | `folder_3a4b5c6d` | 18 |
-| List | `list_` | `list_4t5y6z7a` | 15 |
-| Task | `task_` | `task_8f3k2j1m` | 14 |
-| Document | `doc_` | `doc_7h8i9j0k` | 13 |
-| Comment | `cmt_` | `cmt_1a2b3c4d` | 13 |
-| Attachment | `att_` | `att_9e8f7g6h` | 13 |
-| Label | `lbl_` | `lbl_2d3e4f5a` | 13 |
-| Automation | `auto_` | `auto_6b7c8d9e` | 14 |
-| Webhook | `wh_` | `wh_a1b2c3d4` | 12 |
-| Role | `role_` | `role_e5f6a7b8` | 14 |
-| View | `view_` | `view_c9d0e1f2` | 14 |
-| Filter | `flt_` | `flt_a3b4c5d6` | 13 |
-| Time Entry | `te_` | `te_1a2b3c4d` | 12 |
-| Notification | `ntf_` | `ntf_5e6f7a8b` | 13 |
-| Event | `evt_` | `evt_1a2b3c4d` | 13 |
-| Request | `req_` | `req_a1b2c3d4-e5f6-7890-abcd-ef1234567890` | UUID |
+| Resource     | Prefix    | Example                                    | Length |
+| ------------ | --------- | ------------------------------------------ | ------ |
+| User         | `usr_`    | `usr_9x8w7v6u`                             | 16     |
+| Workspace    | `ws_`     | `ws_5e6f7g8h`                              | 14     |
+| Project      | `proj_`   | `proj_1b2c3d4e`                            | 16     |
+| Folder       | `folder_` | `folder_3a4b5c6d`                          | 18     |
+| List         | `list_`   | `list_4t5y6z7a`                            | 15     |
+| Task         | `task_`   | `task_8f3k2j1m`                            | 14     |
+| Document     | `doc_`    | `doc_7h8i9j0k`                             | 13     |
+| Comment      | `cmt_`    | `cmt_1a2b3c4d`                             | 13     |
+| Attachment   | `att_`    | `att_9e8f7g6h`                             | 13     |
+| Label        | `lbl_`    | `lbl_2d3e4f5a`                             | 13     |
+| Automation   | `auto_`   | `auto_6b7c8d9e`                            | 14     |
+| Webhook      | `wh_`     | `wh_a1b2c3d4`                              | 12     |
+| Role         | `role_`   | `role_e5f6a7b8`                            | 14     |
+| View         | `view_`   | `view_c9d0e1f2`                            | 14     |
+| Filter       | `flt_`    | `flt_a3b4c5d6`                             | 13     |
+| Time Entry   | `te_`     | `te_1a2b3c4d`                              | 12     |
+| Notification | `ntf_`    | `ntf_5e6f7a8b`                             | 13     |
+| Event        | `evt_`    | `evt_1a2b3c4d`                             | 13     |
+| Request      | `req_`    | `req_a1b2c3d4-e5f6-7890-abcd-ef1234567890` | UUID   |
 
 ### 18.4 Status Enums
 
@@ -2715,21 +2716,23 @@ type ProjectStatus = 'active' | 'on_hold' | 'archived' | 'deleted';
 type MemberRole = 'owner' | 'admin' | 'member' | 'viewer' | 'guest';
 
 // Automation trigger types
-type AutomationTrigger = 'status_change' | 'assignee_change' | 'due_date_approaching' | 'label_added' | 'schedule';
+type AutomationTrigger =
+  'status_change' | 'assignee_change' | 'due_date_approaching' | 'label_added' | 'schedule';
 
 // Automation action types
-type AutomationAction = 'assign' | 'move_to_list' | 'add_label' | 'remove_label' | 'set_priority' | 'notify' | 'webhook';
+type AutomationAction =
+  'assign' | 'move_to_list' | 'add_label' | 'remove_label' | 'set_priority' | 'notify' | 'webhook';
 ```
 
 ### 18.5 Date & Time Conventions
 
-| Convention | Format | Example |
-|------------|--------|---------|
-| Timestamps | ISO 8601 UTC | `2026-07-08T14:22:00Z` |
-| Dates only | ISO 8601 date | `2026-07-08` |
+| Convention        | Format            | Example                                       |
+| ----------------- | ----------------- | --------------------------------------------- |
+| Timestamps        | ISO 8601 UTC      | `2026-07-08T14:22:00Z`                        |
+| Dates only        | ISO 8601 date     | `2026-07-08`                                  |
 | Relative (filter) | Relative notation | `7d` (7 days), `2w` (2 weeks), `1m` (1 month) |
-| Durations | ISO 8601 duration | `PT4H30M` (4 hours 30 minutes) |
-| Time zones | Always UTC in API | Client converts to local |
+| Durations         | ISO 8601 duration | `PT4H30M` (4 hours 30 minutes)                |
+| Time zones        | Always UTC in API | Client converts to local                      |
 
 ---
 

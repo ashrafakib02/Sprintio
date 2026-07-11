@@ -4,7 +4,12 @@
 import { createRootRoute, createRoute } from '@tanstack/react-router';
 
 const rootRoute = createRootRoute({
-  component: () => <div className="p-8"><h1>Sprintio</h1><p>AI-Enhanced Collaborative Work Management Platform</p></div>,
+  component: () => (
+    <div className="p-8">
+      <h1>Sprintio</h1>
+      <p>AI-Enhanced Collaborative Work Management Platform</p>
+    </div>
+  ),
 });
 
 const indexRoute = createRoute({

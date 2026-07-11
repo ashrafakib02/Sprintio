@@ -167,6 +167,7 @@ The foundational layout. Every screen lives inside this shell.
 ```
 
 **Keyboard Shortcuts (Global):**
+
 ```
 [G] [H]    →  Go to Home
 [G] [M]    →  Go to My Work
@@ -488,7 +489,7 @@ Real-time collaborative editor (TipTap + Yjs). First-class document entity.
 
 ### 6.1 Doc Editor — Full View
 
-```
+````
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │  ◄ Back to Docs    RFC: Auth v2 Refresh Token Design     Draft● In Review ○ │
 │  ─────────────────────────────────────────────────────────────────────────── │
@@ -537,7 +538,7 @@ Real-time collaborative editor (TipTap + Yjs). First-class document entity.
 ├───────────────────────────────────────────────┴──────────────────────────────┤
 │  ⌨ / for slash commands   [[ for wiki-links   @ to mention                  │
 └──────────────────────────────────────────────────────────────────────────────┘
-```
+````
 
 ### 6.2 Doc Editor — Inline Comment
 

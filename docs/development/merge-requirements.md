@@ -29,16 +29,16 @@ Every pull request in Sprintio must satisfy all requirements below before it can
 
 ### Merge Policy by Branch
 
-| Requirement | `develop` | `main` |
-|-------------|-----------|--------|
-| CI passes (all jobs) | Required | Required |
-| Code review approval | 1 approval | 2 approvals |
-| No merge conflicts | Required | Required |
-| Branch up-to-date | Required | Required |
-| Linear history | Required | Required |
-| Commit convention | Enforced | Enforced |
-| Coverage threshold | 80% minimum | 80% minimum |
-| Conversation resolution | Required | Required |
+| Requirement             | `develop`   | `main`      |
+| ----------------------- | ----------- | ----------- |
+| CI passes (all jobs)    | Required    | Required    |
+| Code review approval    | 1 approval  | 2 approvals |
+| No merge conflicts      | Required    | Required    |
+| Branch up-to-date       | Required    | Required    |
+| Linear history          | Required    | Required    |
+| Commit convention       | Enforced    | Enforced    |
+| Coverage threshold      | 80% minimum | 80% minimum |
+| Conversation resolution | Required    | Required    |
 
 ---
 
@@ -48,13 +48,13 @@ All CI jobs must pass before a PR can be merged. This is enforced by GitHub bran
 
 ### Required Status Checks
 
-| Job | What It Validates | Failure Means |
-|-----|-------------------|---------------|
-| **`lint`** | ESLint rules + Prettier formatting | Code style violations |
-| **`type-check`** | TypeScript strict type checking | Type errors in the codebase |
-| **`test`** | Unit tests pass + 80% coverage | Failing tests or insufficient coverage |
-| **`build`** | Production build succeeds | Build-breaking changes |
-| **`Quality Gate`** | All of the above passed | Aggregate gate failure |
+| Job                | What It Validates                  | Failure Means                          |
+| ------------------ | ---------------------------------- | -------------------------------------- |
+| **`lint`**         | ESLint rules + Prettier formatting | Code style violations                  |
+| **`type-check`**   | TypeScript strict type checking    | Type errors in the codebase            |
+| **`test`**         | Unit tests pass + 80% coverage     | Failing tests or insufficient coverage |
+| **`build`**        | Production build succeeds          | Build-breaking changes                 |
+| **`Quality Gate`** | All of the above passed            | Aggregate gate failure                 |
 
 ### What Happens on Failure
 
@@ -75,24 +75,24 @@ Code review is mandatory for all changes. No exceptions.
 
 ### Approval Requirements
 
-| Target Branch | Required Approvals | Who Can Approve |
-|---------------|-------------------|-----------------|
-| `develop` | 1 | Any team member with write access |
-| `main` | 2 | At least 1 must be a CODEOWNERS-designated reviewer |
+| Target Branch | Required Approvals | Who Can Approve                                     |
+| ------------- | ------------------ | --------------------------------------------------- |
+| `develop`     | 1                  | Any team member with write access                   |
+| `main`        | 2                  | At least 1 must be a CODEOWNERS-designated reviewer |
 
 ### Review Quality Standards
 
 A code review must evaluate:
 
-| Category | What to Check |
-|----------|---------------|
-| **Correctness** | Does the code do what the PR description says? |
-| **Security** | No SQL injection, XSS, auth bypass, secrets in code |
-| **Performance** | No N+1 queries, unnecessary re-renders, memory leaks |
-| **Testing** | Adequate test coverage for new code paths |
-| **Readability** | Clear naming, appropriate comments, simple logic |
-| **Architecture** | Follows established patterns, no unnecessary coupling |
-| **Error handling** | Edge cases handled, graceful degradation |
+| Category           | What to Check                                         |
+| ------------------ | ----------------------------------------------------- |
+| **Correctness**    | Does the code do what the PR description says?        |
+| **Security**       | No SQL injection, XSS, auth bypass, secrets in code   |
+| **Performance**    | No N+1 queries, unnecessary re-renders, memory leaks  |
+| **Testing**        | Adequate test coverage for new code paths             |
+| **Readability**    | Clear naming, appropriate comments, simple logic      |
+| **Architecture**   | Follows established patterns, no unnecessary coupling |
+| **Error handling** | Edge cases handled, graceful degradation              |
 
 ### Review Process
 
@@ -106,12 +106,12 @@ A code review must evaluate:
 
 ### Review Turnaround
 
-| Priority | Expected Turnaround |
-|----------|-------------------|
-| **Hotfix** | Within 1 hour during business hours |
-| **Regular PR** | Within 4 business hours |
-| **Large PR (>500 lines)** | Within 8 business hours |
-| **Documentation** | Within 24 hours |
+| Priority                  | Expected Turnaround                 |
+| ------------------------- | ----------------------------------- |
+| **Hotfix**                | Within 1 hour during business hours |
+| **Regular PR**            | Within 4 business hours             |
+| **Large PR (>500 lines)** | Within 8 business hours             |
+| **Documentation**         | Within 24 hours                     |
 
 ---
 
@@ -143,11 +143,11 @@ git merge origin/develop
 
 ### Stale PR Policy
 
-| Age | Action |
-|-----|--------|
-| **< 7 days** | Normal — author may be working on it |
+| Age           | Action                                                    |
+| ------------- | --------------------------------------------------------- |
+| **< 7 days**  | Normal — author may be working on it                      |
 | **7-14 days** | Bot comments: "This PR is stale — please update or close" |
-| **> 14 days** | Auto-close if no activity (author can reopen) |
+| **> 14 days** | Auto-close if no activity (author can reopen)             |
 
 ---
 
@@ -167,18 +167,18 @@ All commits must follow the [Conventional Commits](https://www.conventionalcommi
 
 ### Allowed Types
 
-| Type | When to Use | Example |
-|------|-------------|---------|
-| `feat` | New feature | `feat(auth): add MFA support` |
-| `fix` | Bug fix | `fix(api): handle null user in profile` |
-| `docs` | Documentation only | `docs: update deployment guide` |
-| `style` | Formatting (no logic change) | `style: fix indentation in config` |
-| `refactor` | Code restructure (no feature/fix) | `refactor(db): extract query builder` |
-| `perf` | Performance improvement | `perf(query): add index for user search` |
-| `test` | Adding or updating tests | `test(auth): add token refresh tests` |
-| `chore` | Build, deps, tooling | `chore: update eslint to v9` |
-| `ci` | CI/CD changes | `ci: add release workflow` |
-| `revert` | Revert a previous commit | `revert: feat(auth): add MFA support` |
+| Type       | When to Use                       | Example                                  |
+| ---------- | --------------------------------- | ---------------------------------------- |
+| `feat`     | New feature                       | `feat(auth): add MFA support`            |
+| `fix`      | Bug fix                           | `fix(api): handle null user in profile`  |
+| `docs`     | Documentation only                | `docs: update deployment guide`          |
+| `style`    | Formatting (no logic change)      | `style: fix indentation in config`       |
+| `refactor` | Code restructure (no feature/fix) | `refactor(db): extract query builder`    |
+| `perf`     | Performance improvement           | `perf(query): add index for user search` |
+| `test`     | Adding or updating tests          | `test(auth): add token refresh tests`    |
+| `chore`    | Build, deps, tooling              | `chore: update eslint to v9`             |
+| `ci`       | CI/CD changes                     | `ci: add release workflow`               |
+| `revert`   | Revert a previous commit          | `revert: feat(auth): add MFA support`    |
 
 ### Commit Message Rules
 
@@ -213,11 +213,11 @@ Maintaining adequate test coverage prevents regressions and ensures code quality
 
 ### Thresholds
 
-| Metric | Minimum | Target |
-|--------|---------|--------|
-| **Line coverage** | 80% | 90% |
-| **Branch coverage** | 80% | 85% |
-| **Function coverage** | 80% | 95% |
+| Metric                | Minimum | Target |
+| --------------------- | ------- | ------ |
+| **Line coverage**     | 80%     | 90%    |
+| **Branch coverage**   | 80%     | 85%    |
+| **Function coverage** | 80%     | 95%    |
 
 ### Enforcement
 
@@ -234,12 +234,12 @@ Maintaining adequate test coverage prevents regressions and ensures code quality
 
 ### Coverage Exceptions
 
-| Exception | Process |
-|-----------|---------|
-| **Generated code** | Exclude from coverage via config (Drizzle, auto-generated types) |
-| **Configuration files** | Exclude `*.config.*` from coverage |
-| **Type definitions** | Exclude `*.d.ts` — no runtime code |
-| **Test helpers** | Exclude test utilities from coverage calculation |
+| Exception               | Process                                                          |
+| ----------------------- | ---------------------------------------------------------------- |
+| **Generated code**      | Exclude from coverage via config (Drizzle, auto-generated types) |
+| **Configuration files** | Exclude `*.config.*` from coverage                               |
+| **Type definitions**    | Exclude `*.d.ts` — no runtime code                               |
+| **Test helpers**        | Exclude test utilities from coverage calculation                 |
 
 ---
 
@@ -249,19 +249,19 @@ Sprintio uses **squash merge** as the default merge strategy to maintain a clean
 
 ### Why Squash Merge?
 
-| Benefit | Explanation |
-|---------|-------------|
-| **Clean history** | One commit per feature/fix on the main/develop branch |
-| **Easy revert** | Each feature is a single commit to revert |
-| **Linear history** | No merge commit pollution |
-| **CI-friendly** | Each commit is independently testable |
+| Benefit            | Explanation                                           |
+| ------------------ | ----------------------------------------------------- |
+| **Clean history**  | One commit per feature/fix on the main/develop branch |
+| **Easy revert**    | Each feature is a single commit to revert             |
+| **Linear history** | No merge commit pollution                             |
+| **CI-friendly**    | Each commit is independently testable                 |
 
 ### When to Use Each Strategy
 
-| Strategy | When |
-|----------|------|
-| **Squash merge** | Default for all PRs (features, fixes, chores) |
-| **Rebase merge** | Rare — when preserving individual commits is important |
+| Strategy         | When                                                     |
+| ---------------- | -------------------------------------------------------- |
+| **Squash merge** | Default for all PRs (features, fixes, chores)            |
+| **Rebase merge** | Rare — when preserving individual commits is important   |
 | **Merge commit** | Never — prohibited by branch protection (linear history) |
 
 ### Squash Commit Message
@@ -315,4 +315,4 @@ Use this checklist before approving a PR. All items must pass.
 
 ---
 
-*Document maintained by the Sprintio engineering team.*
+_Document maintained by the Sprintio engineering team._

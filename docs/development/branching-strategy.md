@@ -32,59 +32,59 @@ main (production)
 
 ### `main` — Production
 
-| Property       | Value                                    |
-| -------------- | ---------------------------------------- |
-| **Purpose**    | Reflects the production-ready state     |
-| **Protected**  | Yes — no direct commits                  |
-| **Receives**   | Merge commits from `release/*` and `hotfix/*` |
-| **Deploys**    | Auto-deploys to production               |
+| Property      | Value                                         |
+| ------------- | --------------------------------------------- |
+| **Purpose**   | Reflects the production-ready state           |
+| **Protected** | Yes — no direct commits                       |
+| **Receives**  | Merge commits from `release/*` and `hotfix/*` |
+| **Deploys**   | Auto-deploys to production                    |
 
 ### `develop` — Integration
 
-| Property       | Value                                    |
-| -------------- | ---------------------------------------- |
-| **Purpose**    | Integration branch for next release      |
-| **Protected**  | Recommended — PRs only                   |
-| **Receives**   | Squash merges from `feature/*`, `bugfix/*`, `docs/*`, `chore/*` |
-| **Deploys**    | Auto-deploys to staging/preview          |
+| Property      | Value                                                           |
+| ------------- | --------------------------------------------------------------- |
+| **Purpose**   | Integration branch for next release                             |
+| **Protected** | Recommended — PRs only                                          |
+| **Receives**  | Squash merges from `feature/*`, `bugfix/*`, `docs/*`, `chore/*` |
+| **Deploys**   | Auto-deploys to staging/preview                                 |
 
 ### `feature/*` — New Features
 
-| Property       | Value                                    |
-| -------------- | ---------------------------------------- |
-| **Purpose**    | Develop new features                     |
-| **Branches from** | `develop`                             |
-| **Merges into** | `develop` (squash merge)                |
-| **Naming**     | `feat/<short-description>`               |
+| Property          | Value                      |
+| ----------------- | -------------------------- |
+| **Purpose**       | Develop new features       |
+| **Branches from** | `develop`                  |
+| **Merges into**   | `develop` (squash merge)   |
+| **Naming**        | `feat/<short-description>` |
 
 ### `bugfix/*` — Bug Fixes (non-urgent)
 
-| Property       | Value                                    |
-| -------------- | ---------------------------------------- |
-| **Purpose**    | Fix non-critical bugs on develop         |
-| **Branches from** | `develop`                             |
-| **Merges into** | `develop` (squash merge)                |
-| **Naming**     | `fix/<short-description>`                |
+| Property          | Value                            |
+| ----------------- | -------------------------------- |
+| **Purpose**       | Fix non-critical bugs on develop |
+| **Branches from** | `develop`                        |
+| **Merges into**   | `develop` (squash merge)         |
+| **Naming**        | `fix/<short-description>`        |
 
 ### `release/*` — Release Preparation
 
-| Property       | Value                                    |
-| -------------- | ---------------------------------------- |
-| **Purpose**    | Finalize a release (version bump, changelog, QA) |
-| **Branches from** | `develop`                             |
-| **Merges into** | `main` AND back-merges into `develop`  |
-| **Naming**     | `release/v<semver>`                      |
-| **Tagged**     | Yes — creates a Git tag                  |
+| Property          | Value                                            |
+| ----------------- | ------------------------------------------------ |
+| **Purpose**       | Finalize a release (version bump, changelog, QA) |
+| **Branches from** | `develop`                                        |
+| **Merges into**   | `main` AND back-merges into `develop`            |
+| **Naming**        | `release/v<semver>`                              |
+| **Tagged**        | Yes — creates a Git tag                          |
 
 ### `hotfix/*` — Emergency Fixes
 
-| Property       | Value                                    |
-| -------------- | ---------------------------------------- |
-| **Purpose**    | Fix critical bugs in production          |
-| **Branches from** | `main`                               |
-| **Merges into** | `main` AND back-merges into `develop`  |
-| **Naming**     | `hotfix/<short-description>`             |
-| **Tagged**     | Yes — creates a Git tag                  |
+| Property          | Value                                 |
+| ----------------- | ------------------------------------- |
+| **Purpose**       | Fix critical bugs in production       |
+| **Branches from** | `main`                                |
+| **Merges into**   | `main` AND back-merges into `develop` |
+| **Naming**        | `hotfix/<short-description>`          |
+| **Tagged**        | Yes — creates a Git tag               |
 
 ---
 
@@ -106,13 +106,13 @@ main (production)
 
 ### Examples
 
-| Good                        | Bad                              |
-| --------------------------- | -------------------------------- |
-| `feat/user-authentication`  | `feat/User_Authentication`      |
-| `fix/sprint-timer-drift`    | `fix sprint timer`              |
-| `docs/api-rate-limiting`     | `docs/API Rate Limiting`        |
-| `chore/update-dependencies` | `chore/update_deps!!`           |
-| `release/v1.2.0`            | `release/v1.2`                  |
+| Good                        | Bad                        |
+| --------------------------- | -------------------------- |
+| `feat/user-authentication`  | `feat/User_Authentication` |
+| `fix/sprint-timer-drift`    | `fix sprint timer`         |
+| `docs/api-rate-limiting`    | `docs/API Rate Limiting`   |
+| `chore/update-dependencies` | `chore/update_deps!!`      |
+| `release/v1.2.0`            | `release/v1.2`             |
 
 ---
 
@@ -157,16 +157,16 @@ main (production)
 
 ## Merge Strategy
 
-| Source Branch      | Target Branch | Strategy          | Rationale                          |
-| ------------------ | ------------- | ----------------- | ---------------------------------- |
-| `feat/*`           | `develop`     | **Squash merge**  | Clean, atomic commits on develop   |
-| `fix/*`            | `develop`     | **Squash merge**  | Same as feature                    |
-| `docs/*`           | `develop`     | **Squash merge**  | Same as feature                    |
-| `chore/*`          | `develop`     | **Squash merge**  | Same as feature                    |
-| `release/*`        | `main`        | **Merge commit**  | Preserve full release history      |
-| `release/*`        | `develop`     | **Merge commit**  | Sync release changes back          |
-| `hotfix/*`         | `main`        | **Merge commit**  | Preserve hotfix history            |
-| `hotfix/*`         | `develop`     | **Merge commit**  | Sync hotfix changes back           |
+| Source Branch | Target Branch | Strategy         | Rationale                        |
+| ------------- | ------------- | ---------------- | -------------------------------- |
+| `feat/*`      | `develop`     | **Squash merge** | Clean, atomic commits on develop |
+| `fix/*`       | `develop`     | **Squash merge** | Same as feature                  |
+| `docs/*`      | `develop`     | **Squash merge** | Same as feature                  |
+| `chore/*`     | `develop`     | **Squash merge** | Same as feature                  |
+| `release/*`   | `main`        | **Merge commit** | Preserve full release history    |
+| `release/*`   | `develop`     | **Merge commit** | Sync release changes back        |
+| `hotfix/*`    | `main`        | **Merge commit** | Preserve hotfix history          |
+| `hotfix/*`    | `develop`     | **Merge commit** | Sync hotfix changes back         |
 
 ### Why Squash for Features?
 

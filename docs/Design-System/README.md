@@ -7,24 +7,24 @@
 
 ## Files
 
-| File | Topic | Sections |
-|------|-------|----------|
-| [01-SPACING.md](./01-SPACING.md) | Spacing system | 4px grid, 24 tokens, semantic tokens, element map, responsive |
-| [02-TOKENS.md](./02-TOKENS.md) | Design tokens | Colors, typography, shadows, borders, motion, CSS variables |
-| [03-TAILWIND-CONFIG.md](./03-TAILWIND-CONFIG.md) | Tailwind config | Vite setup, @theme, dark mode, responsive, utilities |
-| [04-21ST-DEV-STRATEGY.md](./04-21ST-DEV-STRATEGY.md) | Component library | 21st.dev integration, inventory, brand customization |
-| [05-BUTTONS.md](./05-BUTTONS.md) | Button | 7 variants, 7 sizes, CVA defs, accessibility |
-| [06-CARDS.md](./06-CARDS.md) | Card | 6 variants, composable primitives, Sprintio task cards |
-| [07-INPUTS.md](./07-INPUTS.md) | Input components | Text, textarea, select, checkbox, form fields, validation |
-| [08-MODALS.md](./08-MODALS.md) | Modal / Dialog | 5 dialog variants, command palette, confirmations |
+| File                                                 | Topic             | Sections                                                      |
+| ---------------------------------------------------- | ----------------- | ------------------------------------------------------------- |
+| [01-SPACING.md](./01-SPACING.md)                     | Spacing system    | 4px grid, 24 tokens, semantic tokens, element map, responsive |
+| [02-TOKENS.md](./02-TOKENS.md)                       | Design tokens     | Colors, typography, shadows, borders, motion, CSS variables   |
+| [03-TAILWIND-CONFIG.md](./03-TAILWIND-CONFIG.md)     | Tailwind config   | Vite setup, @theme, dark mode, responsive, utilities          |
+| [04-21ST-DEV-STRATEGY.md](./04-21ST-DEV-STRATEGY.md) | Component library | 21st.dev integration, inventory, brand customization          |
+| [05-BUTTONS.md](./05-BUTTONS.md)                     | Button            | 7 variants, 7 sizes, CVA defs, accessibility                  |
+| [06-CARDS.md](./06-CARDS.md)                         | Card              | 6 variants, composable primitives, Sprintio task cards        |
+| [07-INPUTS.md](./07-INPUTS.md)                       | Input components  | Text, textarea, select, checkbox, form fields, validation     |
+| [08-MODALS.md](./08-MODALS.md)                       | Modal / Dialog    | 5 dialog variants, command palette, confirmations             |
 
 ## Source Documents
 
-| File | Description |
-|------|-------------|
+| File                                                             | Description                                 |
+| ---------------------------------------------------------------- | ------------------------------------------- |
 | [DESIGN-SYSTEM-CONSOLIDATED.md](./DESIGN-SYSTEM-CONSOLIDATED.md) | Master consolidated reference (~1200 lines) |
-| [../uxDocs/05-COLOR-SYSTEM.md](../uxDocs/05-COLOR-SYSTEM.md) | Sprintio color palette |
-| [../uxDocs/06-TYPOGRAPHY.md](../uxDocs/06-TYPOGRAPHY.md) | Sprintio typography system |
+| [../uxDocs/05-COLOR-SYSTEM.md](../uxDocs/05-COLOR-SYSTEM.md)     | Sprintio color palette                      |
+| [../uxDocs/06-TYPOGRAPHY.md](../uxDocs/06-TYPOGRAPHY.md)         | Sprintio typography system                  |
 
 ## Architecture
 

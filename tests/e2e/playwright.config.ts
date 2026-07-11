@@ -12,9 +12,7 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
-  projects: [
-    { name: 'chromium', use: { browserName: 'chromium' } },
-  ],
+  projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
   webServer: {
     command: 'pnpm --filter @sprintio/web dev',
     url: 'http://localhost:5173',

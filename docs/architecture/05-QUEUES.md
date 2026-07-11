@@ -31,14 +31,14 @@ Sprintio's asynchronous processing backbone is built on **BullMQ** (Redis-backed
 
 ### Design Principles
 
-| Principle | Rationale |
-|---|---|
-| **Fail fast, retry smart** | No silent failures. Every job has an exhaustively defined retry policy with dead-letter fallback. |
-| **Isolation by concern** | Each job category lives in its own queue with independent concurrency and rate limits. |
-| **Observe everything** | Every job emits structured telemetry — progress, timing, errors, payload hash. |
-| **Graceful degradation** | A failed email job never blocks webhook delivery. Queue failures are contained. |
-| **Idempotent by default** | Every job handler must be safe to re-execute. Idempotency keys are enforced. |
-| **Durable workflows for the rest** | Simple fan-out → BullMQ. Multi-step, conditional, long-running → Temporal. |
+| Principle                          | Rationale                                                                                         |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------- |
+| **Fail fast, retry smart**         | No silent failures. Every job has an exhaustively defined retry policy with dead-letter fallback. |
+| **Isolation by concern**           | Each job category lives in its own queue with independent concurrency and rate limits.            |
+| **Observe everything**             | Every job emits structured telemetry — progress, timing, errors, payload hash.                    |
+| **Graceful degradation**           | A failed email job never blocks webhook delivery. Queue failures are contained.                   |
+| **Idempotent by default**          | Every job handler must be safe to re-execute. Idempotency keys are enforced.                      |
+| **Durable workflows for the rest** | Simple fan-out → BullMQ. Multi-step, conditional, long-running → Temporal.                        |
 
 ### When to Use What
 
@@ -69,16 +69,16 @@ Sprintio's asynchronous processing backbone is built on **BullMQ** (Redis-backed
 
 ## 2. Technology Stack
 
-| Component | Technology | Version | Purpose |
-|---|---|---|---|
-| **Job Queue** | BullMQ | ^5.x | Redis-backed job queue with Redis Streams |
-| **Message Broker** | Redis | 7.2+ | Queue backend, pub/sub, caching |
-| **Workflow Engine** | Temporal.io | 1.24+ | Durable execution for complex workflows |
-| **Workflow SDK** | @temporalio/workflow + /activity | 1.11+ | TypeScript workflow/activity definitions |
-| **Worker Runtime** | @temporalio/worker | 1.11+ | Temporal worker processes |
-| **Scheduler** | node-cron / BullMQ repeat | — | Cron-based recurring jobs |
-| **Monitoring** | BullMQ Board (Pro) / Bull Board (OSS) | — | Dashboard for queue inspection |
-| **Metrics** | Prometheus + Grafana | — | Queue depth, throughput, latency |
+| Component           | Technology                            | Version | Purpose                                   |
+| ------------------- | ------------------------------------- | ------- | ----------------------------------------- |
+| **Job Queue**       | BullMQ                                | ^5.x    | Redis-backed job queue with Redis Streams |
+| **Message Broker**  | Redis                                 | 7.2+    | Queue backend, pub/sub, caching           |
+| **Workflow Engine** | Temporal.io                           | 1.24+   | Durable execution for complex workflows   |
+| **Workflow SDK**    | @temporalio/workflow + /activity      | 1.11+   | TypeScript workflow/activity definitions  |
+| **Worker Runtime**  | @temporalio/worker                    | 1.11+   | Temporal worker processes                 |
+| **Scheduler**       | node-cron / BullMQ repeat             | —       | Cron-based recurring jobs                 |
+| **Monitoring**      | BullMQ Board (Pro) / Bull Board (OSS) | —       | Dashboard for queue inspection            |
+| **Metrics**         | Prometheus + Grafana                  | —       | Queue depth, throughput, latency          |
 
 ---
 
@@ -155,7 +155,7 @@ export const REDIS_CONNECTION_OPTIONS: ConnectionOptions = {
   port: parseInt(process.env.REDIS_PORT || '6379', 10),
   password: process.env.REDIS_PASSWORD || undefined,
   db: parseInt(process.env.REDIS_QUEUE_DB || '0', 10),
-  maxRetriesPerRequest: null,          // Required by BullMQ
+  maxRetriesPerRequest: null, // Required by BullMQ
   enableReadyCheck: true,
   retryStrategy(times: number) {
     const delay = Math.min(times * 200, 5000);
@@ -189,8 +189,8 @@ export function createQueueOptions(
     connection: createProducerRedisConnection(),
     prefix: `sprintio:${queueName}`,
     defaultJobOptions: {
-      removeOnComplete: { age: 7 * 24 * 3600, count: 1000 },   // Keep 7 days or 1000 jobs
-      removeOnFail: { age: 30 * 24 * 3600, count: 5000 },      // Keep 30 days or 5000 jobs
+      removeOnComplete: { age: 7 * 24 * 3600, count: 1000 }, // Keep 7 days or 1000 jobs
+      removeOnFail: { age: 30 * 24 * 3600, count: 5000 }, // Keep 30 days or 5000 jobs
       attempts: 3,
       backoff: { type: 'exponential', delay: 2000 },
     },
@@ -207,7 +207,7 @@ export function createWorkerOptions(
     connection: createWorkerRedisConnection(),
     prefix: `sprintio:${queueName}`,
     concurrency: 5,
-    limiter: undefined,  // Set per-queue in queue definitions
+    limiter: undefined, // Set per-queue in queue definitions
     lockDuration: 30_000,
     lockRenewTime: 15_000,
     stalledInterval: 30_000,
@@ -227,27 +227,24 @@ export function createWorkerOptions(
 // src/queues/registry.ts
 
 import { Queue } from 'bullmq';
-import {
-  createQueueOptions,
-  createProducerRedisConnection,
-} from './connection';
+import { createQueueOptions, createProducerRedisConnection } from './connection';
 
 // ─── Queue Name Constants ────────────────────────────────────────
 export const QUEUES = {
-  EMAIL:          'email',
-  FILE_PROCESS:   'file-process',
-  WEBHOOK:        'webhook',
-  AI_PROCESS:     'ai-process',
-  SEARCH_INDEX:   'search-index',
-  EXPORT:         'export',
-  ACTIVITY_LOG:   'activity-log',
-  NOTIFICATION:   'notification',
-  CRON_TASKS:     'cron-tasks',
-  CLEANUP:        'cleanup',
+  EMAIL: 'email',
+  FILE_PROCESS: 'file-process',
+  WEBHOOK: 'webhook',
+  AI_PROCESS: 'ai-process',
+  SEARCH_INDEX: 'search-index',
+  EXPORT: 'export',
+  ACTIVITY_LOG: 'activity-log',
+  NOTIFICATION: 'notification',
+  CRON_TASKS: 'cron-tasks',
+  CLEANUP: 'cleanup',
   // Dead Letter Queue (one per critical queue)
-  DLQ_EMAIL:      'dlq:email',
-  DLQ_WEBHOOK:    'dlq:webhook',
-  DLQ_AI:         'dlq:ai-process',
+  DLQ_EMAIL: 'dlq:email',
+  DLQ_WEBHOOK: 'dlq:webhook',
+  DLQ_AI: 'dlq:ai-process',
 } as const;
 
 export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];
@@ -292,7 +289,12 @@ export async function getQueuesHealth(): Promise<QueueHealth[]> {
     criticalQueues.map(async (name) => {
       const queue = getQueue(name);
       const counts = await queue.getJobCounts(
-        'waiting', 'active', 'completed', 'failed', 'delayed', 'paused',
+        'waiting',
+        'active',
+        'completed',
+        'failed',
+        'delayed',
+        'paused',
       );
       const isPaused = await queue.isPaused();
       return { name, counts, isPaused };
@@ -302,9 +304,7 @@ export async function getQueuesHealth(): Promise<QueueHealth[]> {
 
 // ─── Graceful Queue Closure ──────────────────────────────────────
 export async function closeAllQueues(): Promise<void> {
-  await Promise.all(
-    Array.from(queueInstances.values()).map((q) => q.close()),
-  );
+  await Promise.all(Array.from(queueInstances.values()).map((q) => q.close()));
   await connection.quit();
 }
 ```
@@ -313,18 +313,18 @@ export async function closeAllQueues(): Promise<void> {
 
 Each queue gets its own configuration tuned for its workload:
 
-| Queue | Concurrency | Rate Limit | Lock Duration | Timeout | Backoff |
-|---|---|---|---|---|---|
-| `email` | 10 | 100/min | 30s | 30s | Exponential, 3 attempts |
-| `file-process` | 3 | 20/min | 120s | 120s | Exponential, 5 attempts |
-| `webhook` | 10 | 200/min | 15s | 15s | Exponential, 8 attempts |
-| `ai-process` | 2 | 10/min | 300s | 300s | Exponential, 4 attempts |
-| `search-index` | 5 | — | 30s | 30s | Exponential, 3 attempts |
-| `export` | 2 | 5/min | 300s | 600s | Linear, 3 attempts |
-| `activity-log` | 10 | — | 15s | 10s | Exponential, 5 attempts |
-| `notification` | 5 | — | 30s | 15s | Exponential, 4 attempts |
-| `cron-tasks` | 2 | — | 60s | 120s | Exponential, 3 attempts |
-| `cleanup` | 1 | 1/min | 300s | 600s | Linear, 2 attempts |
+| Queue          | Concurrency | Rate Limit | Lock Duration | Timeout | Backoff                 |
+| -------------- | ----------- | ---------- | ------------- | ------- | ----------------------- |
+| `email`        | 10          | 100/min    | 30s           | 30s     | Exponential, 3 attempts |
+| `file-process` | 3           | 20/min     | 120s          | 120s    | Exponential, 5 attempts |
+| `webhook`      | 10          | 200/min    | 15s           | 15s     | Exponential, 8 attempts |
+| `ai-process`   | 2           | 10/min     | 300s          | 300s    | Exponential, 4 attempts |
+| `search-index` | 5           | —          | 30s           | 30s     | Exponential, 3 attempts |
+| `export`       | 2           | 5/min      | 300s          | 600s    | Linear, 3 attempts      |
+| `activity-log` | 10          | —          | 15s           | 10s     | Exponential, 5 attempts |
+| `notification` | 5           | —          | 30s           | 15s     | Exponential, 4 attempts |
+| `cron-tasks`   | 2           | —          | 60s           | 120s    | Exponential, 3 attempts |
+| `cleanup`      | 1           | 1/min      | 300s          | 600s    | Linear, 2 attempts      |
 
 ---
 
@@ -338,15 +338,15 @@ Each queue gets its own configuration tuned for its workload:
 import { Job } from 'bullmq';
 
 export interface EmailJobData {
-  idempotencyKey: string;          // Ensures deduplication
+  idempotencyKey: string; // Ensures deduplication
   to: string | string[];
   cc?: string[];
   bcc?: string[];
   template: EmailTemplate;
   variables: Record<string, unknown>;
   organizationId: string;
-  scheduledAt?: Date;              // For delayed sends
-  priority?: number;               // 1 (highest) — 25 (lowest)
+  scheduledAt?: Date; // For delayed sends
+  priority?: number; // 1 (highest) — 25 (lowest)
 }
 
 export type EmailTemplate =
@@ -422,7 +422,7 @@ export interface FileProcessJobData {
   fileId: string;
   organizationId: string;
   operations: FileOperation[];
-  sourceUrl: string;                // S3/R2 signed URL or internal path
+  sourceUrl: string; // S3/R2 signed URL or internal path
   metadata: {
     originalName: string;
     mimeType: string;
@@ -449,9 +449,7 @@ export interface FileProcessJobResult {
   processingTimeMs: number;
 }
 
-export async function processFileJob(
-  job: Job<FileProcessJobData>,
-): Promise<FileProcessJobResult> {
+export async function processFileJob(job: Job<FileProcessJobData>): Promise<FileProcessJobResult> {
   const { fileId, operations, sourceUrl, metadata } = job.data;
   const startTime = Date.now();
   const totalOps = operations.length;
@@ -465,7 +463,7 @@ export async function processFileJob(
 
   for (let i = 0; i < operations.length; i++) {
     const operation = operations[i];
-    const baseProgress = 10 + ((i / totalOps) * 85);
+    const baseProgress = 10 + (i / totalOps) * 85;
 
     await job.updateProgress(Math.round(baseProgress));
     job.log(`Executing operation ${i + 1}/${totalOps}: ${operation.type}`);
@@ -476,9 +474,7 @@ export async function processFileJob(
 
   // Step 3: Upload processed files to storage
   await job.updateProgress(98);
-  const uploadedOutputs = await Promise.all(
-    outputs.map((out) => uploadToStorage(out, fileId)),
-  );
+  const uploadedOutputs = await Promise.all(outputs.map((out) => uploadToStorage(out, fileId)));
 
   await job.updateProgress(100);
 
@@ -514,9 +510,9 @@ export interface WebhookJobData {
   method: 'POST' | 'PUT' | 'PATCH';
   headers: Record<string, string>;
   payload: Record<string, unknown>;
-  secret: string;                   // For HMAC signature
-  attempt?: number;                 // Current attempt number (for manual retries)
-  timeout?: number;                 // Per-request timeout, default 10s
+  secret: string; // For HMAC signature
+  attempt?: number; // Current attempt number (for manual retries)
+  timeout?: number; // Per-request timeout, default 10s
 }
 
 export interface WebhookJobResult {
@@ -526,18 +522,13 @@ export interface WebhookJobResult {
   success: boolean;
 }
 
-export async function processWebhookJob(
-  job: Job<WebhookJobData>,
-): Promise<WebhookJobResult> {
+export async function processWebhookJob(job: Job<WebhookJobData>): Promise<WebhookJobResult> {
   const { url, method, headers, payload, secret, timeout = 10_000 } = job.data;
   const startTime = Date.now();
 
   // Step 1: Generate HMAC signature
   const body = JSON.stringify(payload);
-  const signature = crypto
-    .createHmac('sha256', secret)
-    .update(body)
-    .digest('hex');
+  const signature = crypto.createHmac('sha256', secret).update(body).digest('hex');
 
   // Step 2: Fire webhook with timeout
   await job.updateProgress(10);
@@ -551,7 +542,7 @@ export async function processWebhookJob(
       headers: {
         'Content-Type': 'application/json',
         'X-Sprintio-Signature': `sha256=${signature}`,
-        'X-Sprintio-Event': payload.event as string || 'unknown',
+        'X-Sprintio-Event': (payload.event as string) || 'unknown',
         'X-Sprintio-Delivery': job.data.idempotencyKey,
         'User-Agent': 'Sprintio-Webhook/1.0',
         ...headers,
@@ -597,7 +588,7 @@ export async function processWebhookJob(
 }
 
 export const WEBHOOK_JOB_CONFIG = {
-  attempts: 8,                       // Webhooks get more retries — external services are flaky
+  attempts: 8, // Webhooks get more retries — external services are flaky
   backoff: { type: 'exponential' as const, delay: 5_000 },
   timeout: 30_000,
   removeOnComplete: { age: 14 * 24 * 3600, count: 1000 },
@@ -618,7 +609,7 @@ export interface AIProcessJobData {
   organizationId: string;
   userId: string;
   operation: AIOperation;
-  model?: string;                   // Optional model override
+  model?: string; // Optional model override
   timeout?: number;
 }
 
@@ -658,9 +649,7 @@ export interface AIProcessJobResult {
   durationMs: number;
 }
 
-export async function processAIJob(
-  job: Job<AIProcessJobData>,
-): Promise<AIProcessJobResult> {
+export async function processAIJob(job: Job<AIProcessJobData>): Promise<AIProcessJobResult> {
   const { operation, organizationId, userId } = job.data;
   const startTime = Date.now();
 
@@ -743,7 +732,7 @@ async function handleSummarize(
 export const AI_PROCESS_JOB_CONFIG = {
   attempts: 4,
   backoff: { type: 'exponential' as const, delay: 10_000 },
-  timeout: 300_000,                 // 5 minutes — AI inference can be slow
+  timeout: 300_000, // 5 minutes — AI inference can be slow
   removeOnComplete: { age: 7 * 24 * 3600, count: 500 },
   removeOnFail: { age: 30 * 24 * 3600, count: 1000 },
 };
@@ -759,7 +748,7 @@ export interface SearchIndexJobData {
   entityType: 'task' | 'comment' | 'document' | 'project';
   entityId: string;
   organizationId: string;
-  data?: Record<string, unknown>;     // Full data for index/update, omitted for delete
+  data?: Record<string, unknown>; // Full data for index/update, omitted for delete
 }
 
 // src/queues/jobs/export.job.ts
@@ -777,11 +766,11 @@ export interface ExportJobData {
 export interface ActivityLogJobData {
   organizationId: string;
   userId: string;
-  action: string;                    // e.g., 'task.created', 'comment.added'
+  action: string; // e.g., 'task.created', 'comment.added'
   entityType: string;
   entityId: string;
   metadata: Record<string, unknown>;
-  timestamp: string;                 // ISO timestamp from the originating request
+  timestamp: string; // ISO timestamp from the originating request
 }
 
 // src/queues/jobs/notification.job.ts
@@ -802,7 +791,7 @@ export interface NotificationJobData {
 export interface CronTaskJobData {
   idempotencyKey: string;
   organizationId: string;
-  cronExpression: string;            // Standard cron syntax
+  cronExpression: string; // Standard cron syntax
   action: CronAction;
   enabled: boolean;
 }
@@ -815,40 +804,68 @@ export type CronAction =
 // src/queues/jobs/cleanup.job.ts
 export interface CleanupJobData {
   type: 'expired-sessions' | 'soft-deleted' | 'temp-files' | 'orphaned-uploads';
-  organizationId?: string;           // Scoped cleanup, or undefined for global
+  organizationId?: string; // Scoped cleanup, or undefined for global
   olderThanDays?: number;
   batchSize?: number;
 }
 
 // All job configs
 export const JOB_CONFIGS = {
-  'email':           { attempts: 3, backoff: { type: 'exponential' as const, delay: 2_000 },  timeout: 30_000 },
-  'file-process':    { attempts: 5, backoff: { type: 'exponential' as const, delay: 5_000 },  timeout: 120_000 },
-  'webhook':         { attempts: 8, backoff: { type: 'exponential' as const, delay: 5_000 },  timeout: 30_000 },
-  'ai-process':      { attempts: 4, backoff: { type: 'exponential' as const, delay: 10_000 }, timeout: 300_000 },
-  'search-index':    { attempts: 3, backoff: { type: 'exponential' as const, delay: 2_000 },  timeout: 30_000 },
-  'export':          { attempts: 3, backoff: { type: 'linear' as const, delay: 10_000 },      timeout: 600_000 },
-  'activity-log':    { attempts: 5, backoff: { type: 'exponential' as const, delay: 1_000 },  timeout: 10_000 },
-  'notification':    { attempts: 4, backoff: { type: 'exponential' as const, delay: 2_000 },  timeout: 15_000 },
-  'cron-tasks':      { attempts: 3, backoff: { type: 'exponential' as const, delay: 5_000 },  timeout: 120_000 },
-  'cleanup':         { attempts: 2, backoff: { type: 'linear' as const, delay: 30_000 },      timeout: 600_000 },
+  email: { attempts: 3, backoff: { type: 'exponential' as const, delay: 2_000 }, timeout: 30_000 },
+  'file-process': {
+    attempts: 5,
+    backoff: { type: 'exponential' as const, delay: 5_000 },
+    timeout: 120_000,
+  },
+  webhook: {
+    attempts: 8,
+    backoff: { type: 'exponential' as const, delay: 5_000 },
+    timeout: 30_000,
+  },
+  'ai-process': {
+    attempts: 4,
+    backoff: { type: 'exponential' as const, delay: 10_000 },
+    timeout: 300_000,
+  },
+  'search-index': {
+    attempts: 3,
+    backoff: { type: 'exponential' as const, delay: 2_000 },
+    timeout: 30_000,
+  },
+  export: { attempts: 3, backoff: { type: 'linear' as const, delay: 10_000 }, timeout: 600_000 },
+  'activity-log': {
+    attempts: 5,
+    backoff: { type: 'exponential' as const, delay: 1_000 },
+    timeout: 10_000,
+  },
+  notification: {
+    attempts: 4,
+    backoff: { type: 'exponential' as const, delay: 2_000 },
+    timeout: 15_000,
+  },
+  'cron-tasks': {
+    attempts: 3,
+    backoff: { type: 'exponential' as const, delay: 5_000 },
+    timeout: 120_000,
+  },
+  cleanup: { attempts: 2, backoff: { type: 'linear' as const, delay: 30_000 }, timeout: 600_000 },
 };
 ```
 
 ### 5.6 Complete Job Configuration Reference
 
-| Job Type | Attempts | Backoff | Delay | Timeout | Max Memory | DLQ |
-|---|---|---|---|---|---|---|
-| Email | 3 | Exponential | 2s → 4s → 8s | 30s | 50MB | Yes |
-| File Processing | 5 | Exponential | 5s → 10s → … → 80s | 120s | 512MB | No |
-| Webhook | 8 | Exponential | 5s → 10s → … → 640s | 30s | 20MB | Yes |
-| AI Processing | 4 | Exponential | 10s → 20s → … → 80s | 300s | 256MB | Yes |
-| Search Index | 3 | Exponential | 2s → 4s → 8s | 30s | 50MB | No |
-| Export | 3 | Linear | 10s → 20s → 30s | 600s | 256MB | No |
-| Activity Log | 5 | Exponential | 1s → 2s → … → 16s | 10s | 10MB | No |
-| Notification | 4 | Exponential | 2s → 4s → … → 16s | 15s | 20MB | No |
-| Cron Tasks | 3 | Exponential | 5s → 10s → 20s | 120s | 50MB | No |
-| Cleanup | 2 | Linear | 30s → 60s | 600s | 128MB | No |
+| Job Type        | Attempts | Backoff     | Delay               | Timeout | Max Memory | DLQ |
+| --------------- | -------- | ----------- | ------------------- | ------- | ---------- | --- |
+| Email           | 3        | Exponential | 2s → 4s → 8s        | 30s     | 50MB       | Yes |
+| File Processing | 5        | Exponential | 5s → 10s → … → 80s  | 120s    | 512MB      | No  |
+| Webhook         | 8        | Exponential | 5s → 10s → … → 640s | 30s     | 20MB       | Yes |
+| AI Processing   | 4        | Exponential | 10s → 20s → … → 80s | 300s    | 256MB      | Yes |
+| Search Index    | 3        | Exponential | 2s → 4s → 8s        | 30s     | 50MB       | No  |
+| Export          | 3        | Linear      | 10s → 20s → 30s     | 600s    | 256MB      | No  |
+| Activity Log    | 5        | Exponential | 1s → 2s → … → 16s   | 10s     | 10MB       | No  |
+| Notification    | 4        | Exponential | 2s → 4s → … → 16s   | 15s     | 20MB       | No  |
+| Cron Tasks      | 3        | Exponential | 5s → 10s → 20s      | 120s    | 50MB       | No  |
+| Cleanup         | 2        | Linear      | 30s → 60s           | 600s    | 128MB      | No  |
 
 ---
 
@@ -872,7 +889,7 @@ interface WorkerDefinition {
   concurrency: number;
   rateLimit?: {
     max: number;
-    duration: number;  // milliseconds
+    duration: number; // milliseconds
   };
 }
 
@@ -937,9 +954,7 @@ export function createWorker(definition: WorkerDefinition): Worker {
       lockRenewTime: 15_000,
       stalledInterval: 30_000,
       maxStalledCount: 3,
-      limiter: rateLimit
-        ? { max: rateLimit.max, duration: rateLimit.duration }
-        : undefined,
+      limiter: rateLimit ? { max: rateLimit.max, duration: rateLimit.duration } : undefined,
       settings: {
         stalledInterval: 30_000,
         maxStalledCount: 3,
@@ -990,13 +1005,13 @@ export const WORKERS = [
     queueName: QUEUES.EMAIL,
     handler: processEmailJob,
     concurrency: 10,
-    rateLimit: { max: 100, duration: 60_000 },   // 100 emails/minute
+    rateLimit: { max: 100, duration: 60_000 }, // 100 emails/minute
   }),
 
   createWorker({
     queueName: QUEUES.FILE_PROCESS,
     handler: processFileJob,
-    concurrency: 3,                               // CPU-intensive, keep low
+    concurrency: 3, // CPU-intensive, keep low
     // No rate limit — throughput-limited by concurrency
   }),
 
@@ -1004,14 +1019,14 @@ export const WORKERS = [
     queueName: QUEUES.WEBHOOK,
     handler: processWebhookJob,
     concurrency: 10,
-    rateLimit: { max: 200, duration: 60_000 },   // 200 webhooks/minute
+    rateLimit: { max: 200, duration: 60_000 }, // 200 webhooks/minute
   }),
 
   createWorker({
     queueName: QUEUES.AI_PROCESS,
     handler: processAIJob,
-    concurrency: 2,                               // AI inference is expensive
-    rateLimit: { max: 10, duration: 60_000 },    // 10 AI jobs/minute
+    concurrency: 2, // AI inference is expensive
+    rateLimit: { max: 10, duration: 60_000 }, // 10 AI jobs/minute
   }),
 
   createWorker({
@@ -1023,7 +1038,7 @@ export const WORKERS = [
   createWorker({
     queueName: QUEUES.EXPORT,
     handler: processExportJob,
-    concurrency: 2,                               // Memory-intensive
+    concurrency: 2, // Memory-intensive
   }),
 
   createWorker({
@@ -1047,8 +1062,8 @@ export const WORKERS = [
   createWorker({
     queueName: QUEUES.CLEANUP,
     handler: processCleanupJob,
-    concurrency: 1,                               // Only one cleanup at a time
-    rateLimit: { max: 1, duration: 60_000 },      // Max once per minute
+    concurrency: 1, // Only one cleanup at a time
+    rateLimit: { max: 1, duration: 60_000 }, // Max once per minute
   }),
 ];
 ```
@@ -1091,21 +1106,18 @@ export class JobProgress {
     this.job.log(`[${this.stages[this.currentStageIndex].name}] ${progress}%`);
     await this.job.updateProgress(progress);
 
-    this.currentStageIndex = Math.min(
-      this.currentStageIndex + 1,
-      this.stages.length - 1,
-    );
+    this.currentStageIndex = Math.min(this.currentStageIndex + 1, this.stages.length - 1);
   }
 }
 
 // Usage in a worker:
 async function processExportJob(job: Job<ExportJobData>): Promise<ExportResult> {
   const progress = new JobProgress(job, [
-    { name: 'validating',   weight: 5 },
-    { name: 'querying',     weight: 25 },
-    { name: 'generating',   weight: 50 },
-    { name: 'uploading',    weight: 15 },
-    { name: 'notifying',    weight: 5 },
+    { name: 'validating', weight: 5 },
+    { name: 'querying', weight: 25 },
+    { name: 'generating', weight: 50 },
+    { name: 'uploading', weight: 15 },
+    { name: 'notifying', weight: 5 },
   ]);
 
   await progress.advance('validating');
@@ -1192,8 +1204,8 @@ interface DLQEntry {
 }
 
 const DLQ_QUEUE_MAP: Record<string, string> = {
-  [QUEUES.EMAIL]:     QUEUES.DLQ_EMAIL,
-  [QUEUES.WEBHOOK]:   QUEUES.DLQ_WEBHOOK,
+  [QUEUES.EMAIL]: QUEUES.DLQ_EMAIL,
+  [QUEUES.WEBHOOK]: QUEUES.DLQ_WEBHOOK,
   [QUEUES.AI_PROCESS]: QUEUES.DLQ_AI,
 };
 
@@ -1233,8 +1245,8 @@ export async function moveToDLQ(job: Job, error: Error): Promise<void> {
   };
 
   await dlq.add('failed-job', entry, {
-    removeOnComplete: { age: 90 * 24 * 3600 },  // Keep DLQ entries for 90 days
-    removeOnFail: false,                          // Never auto-remove failed DLQ entries
+    removeOnComplete: { age: 90 * 24 * 3600 }, // Keep DLQ entries for 90 days
+    removeOnFail: false, // Never auto-remove failed DLQ entries
   });
 
   logger.warn('Job moved to DLQ', {
@@ -1269,13 +1281,17 @@ export async function retryFromDLQ(
   const originalQueue = getQueue(entry.originalQueue as any);
 
   // Re-add to the original queue
-  await originalQueue.add(entry.jobName, {
-    ...entry.data,
-    ...options.modifyData,
-  }, {
-    attempts: 3,                                // Fresh retry count
-    backoff: { type: 'exponential', delay: 2_000 },
-  });
+  await originalQueue.add(
+    entry.jobName,
+    {
+      ...entry.data,
+      ...options.modifyData,
+    },
+    {
+      attempts: 3, // Fresh retry count
+      backoff: { type: 'exponential', delay: 2_000 },
+    },
+  );
 
   // Remove from DLQ
   await job.remove();
@@ -1290,11 +1306,7 @@ export async function retryFromDLQ(
 /**
  * List all jobs in a DLQ for admin inspection.
  */
-export async function listDLQJobs(
-  dlqName: string,
-  start = 0,
-  end = 50,
-): Promise<DLQEntry[]> {
+export async function listDLQJobs(dlqName: string, start = 0, end = 50): Promise<DLQEntry[]> {
   const dlq = getQueue(dlqName as any);
   const jobs = await dlq.getJobs(['waiting'], start, end);
 
@@ -1308,9 +1320,9 @@ export async function listDLQJobs(
 // src/workers/error-classification.ts
 
 export enum ErrorClassification {
-  RETRYABLE      = 'retryable',
-  NON_RETRYABLE  = 'non-retryable',
-  TRANSIENT      = 'transient',        // Retryable, but alert on repeated occurrence
+  RETRYABLE = 'retryable',
+  NON_RETRYABLE = 'non-retryable',
+  TRANSIENT = 'transient', // Retryable, but alert on repeated occurrence
 }
 
 const NON_RETRYABLE_PATTERNS = [
@@ -1396,11 +1408,11 @@ export function withRetryClassification<T>(
  * Lower number = higher priority.
  */
 export const JOB_PRIORITIES = {
-  CRITICAL:      1,    // Password reset, security alerts, account lockout
-  HIGH:          5,    // Webhook delivery (first attempt), AI task assignment
-  NORMAL:        10,   // Email notifications, search indexing, activity logs
-  LOW:           15,   // Digest emails, bulk exports, analytics events
-  BACKGROUND:    20,   // Cleanup jobs, cache warming, telemetry aggregation
+  CRITICAL: 1, // Password reset, security alerts, account lockout
+  HIGH: 5, // Webhook delivery (first attempt), AI task assignment
+  NORMAL: 10, // Email notifications, search indexing, activity logs
+  LOW: 15, // Digest emails, bulk exports, analytics events
+  BACKGROUND: 20, // Cleanup jobs, cache warming, telemetry aggregation
 } as const;
 
 export type JobPriority = (typeof JOB_PRIORITIES)[keyof typeof JOB_PRIORITIES];
@@ -1410,9 +1422,9 @@ export function resolvePriority(jobType: string, context?: Record<string, unknow
   switch (jobType) {
     case 'email':
       if (context?.template === 'password-reset') return JOB_PRIORITIES.CRITICAL;
-      if (context?.template === 'magic-link')      return JOB_PRIORITIES.CRITICAL;
-      if (context?.template === 'welcome')          return JOB_PRIORITIES.HIGH;
-      if (context?.template?.includes('digest'))    return JOB_PRIORITIES.LOW;
+      if (context?.template === 'magic-link') return JOB_PRIORITIES.CRITICAL;
+      if (context?.template === 'welcome') return JOB_PRIORITIES.HIGH;
+      if (context?.template?.includes('digest')) return JOB_PRIORITIES.LOW;
       return JOB_PRIORITIES.NORMAL;
 
     case 'webhook':
@@ -1455,7 +1467,7 @@ import { logger } from '../lib/logger';
 export interface EnqueueOptions {
   delay?: number;
   priority?: number;
-  jobId?: string;                    // Custom job ID for deduplication
+  jobId?: string; // Custom job ID for deduplication
   attempts?: number;
   backoff?: { type: string; delay: number };
   removeOnComplete?: boolean | { age?: number; count?: number };
@@ -1602,16 +1614,16 @@ export class JobProducer {
 
 ### 9.1 When to Use Temporal
 
-| Scenario | BullMQ | Temporal |
-|---|---|---|
-| Single-step email send | ✅ | |
-| Single webhook delivery | ✅ | |
-| Multi-step automation trigger | | ✅ |
-| Project import (validate → parse → create → index → notify) | | ✅ |
-| AI pipeline (analyze → suggest → apply → confirm) | | ✅ |
-| Onboarding workflow (invite → wait → remind → escalate) | | ✅ |
-| Scheduled report generation with branching logic | | ✅ |
-| Long-running export with progress tracking | | ✅ |
+| Scenario                                                    | BullMQ | Temporal |
+| ----------------------------------------------------------- | ------ | -------- |
+| Single-step email send                                      | ✅     |          |
+| Single webhook delivery                                     | ✅     |          |
+| Multi-step automation trigger                               |        | ✅       |
+| Project import (validate → parse → create → index → notify) |        | ✅       |
+| AI pipeline (analyze → suggest → apply → confirm)           |        | ✅       |
+| Onboarding workflow (invite → wait → remind → escalate)     |        | ✅       |
+| Scheduled report generation with branching logic            |        | ✅       |
+| Long-running export with progress tracking                  |        | ✅       |
 
 ### 9.2 Temporal Setup
 
@@ -1629,9 +1641,7 @@ export async function getTemporalClient(): Promise<Client> {
   const connection = await Connection.connect({
     address: process.env.TEMPORAL_HOST || 'localhost:7233',
     namespace: process.env.TEMPORAL_NAMESPACE || 'sprintio',
-    tls: process.env.TEMPORAL_TLS === 'true'
-      ? {}
-      : undefined,
+    tls: process.env.TEMPORAL_TLS === 'true' ? {} : undefined,
   });
 
   temporalClient = new Client({
@@ -1674,12 +1684,7 @@ const {
   },
 });
 
-const {
-  sendEmail,
-  processAIOperation,
-  updateSearchIndex,
-  deliverWebhook,
-} = proxyActivities({
+const { sendEmail, processAIOperation, updateSearchIndex, deliverWebhook } = proxyActivities({
   startToCloseTimeout: '2 minutes',
   retry: {
     maximumAttempts: 3,
@@ -1692,7 +1697,7 @@ const {
 export interface AutomationWorkflowInput {
   automationId: string;
   organizationId: string;
-  triggerEvent: string;              // e.g., 'task.status_changed'
+  triggerEvent: string; // e.g., 'task.status_changed'
   triggerData: {
     entityType: string;
     entityId: string;
@@ -1716,14 +1721,24 @@ export interface AutomationRule {
 export type AutomationAction =
   | { type: 'assign-task'; userId: string }
   | { type: 'move-to-status'; statusId: string }
-  | { type: 'send-email'; template: string; recipients: string[]; variables: Record<string, unknown> }
+  | {
+      type: 'send-email';
+      template: string;
+      recipients: string[];
+      variables: Record<string, unknown>;
+    }
   | { type: 'send-notification'; userId: string; title: string; body: string }
   | { type: 'create-subtask'; title: string; assignTo?: string }
   | { type: 'call-webhook'; url: string; payload: Record<string, unknown> }
   | { type: 'run-ai-operation'; operation: string; input: Record<string, unknown> }
   | { type: 'add-label'; labelId: string }
-  | { type: 'wait'; duration: string }      // e.g., '24h'
-  | { type: 'condition'; condition: AutomationRule['condition']; then: AutomationAction[]; else: AutomationAction[] };
+  | { type: 'wait'; duration: string } // e.g., '24h'
+  | {
+      type: 'condition';
+      condition: AutomationRule['condition'];
+      then: AutomationAction[];
+      else: AutomationAction[];
+    };
 
 export interface AutomationWorkflowResult {
   automationId: string;
@@ -1752,7 +1767,7 @@ export async function automationWorkflow(
   // ─── Step 1: Acquire execution lock (prevent concurrent runs) ──
   const lockAcquired = await acquireLock(
     `automation:${input.automationId}`,
-    30,  // seconds
+    30, // seconds
   );
 
   if (!lockAcquired) {
@@ -1809,7 +1824,6 @@ export async function automationWorkflow(
       result,
       executedAt: startTimeStr,
     });
-
   } finally {
     // ─── Step 5: Release lock ─────────────────────────────────────
     await releaseLock(`automation:${input.automationId}`);
@@ -1964,7 +1978,7 @@ export async function onboardingWorkflow(
   const accepted = await condition(
     () => false, // Placeholder — in reality this would check a signal or external event
     // Temporal signals would be used to update this state
-    7 * 24 * 60 * 60 * 1000,  // 7 days timeout
+    7 * 24 * 60 * 60 * 1000, // 7 days timeout
   );
 
   if (!accepted) {
@@ -1978,10 +1992,7 @@ export async function onboardingWorkflow(
     });
 
     // Wait remaining 4 days
-    const acceptedAfterReminder = await condition(
-      () => false,
-      4 * 24 * 60 * 60 * 1000,
-    );
+    const acceptedAfterReminder = await condition(() => false, 4 * 24 * 60 * 60 * 1000);
 
     if (!acceptedAfterReminder) {
       // Step 4: Expire — notify inviter
@@ -2149,7 +2160,7 @@ export const metrics = {
   queueDepth: new Gauge({
     name: 'sprintio_queue_depth',
     help: 'Number of jobs waiting in queue',
-    labelNames: ['queue', 'status'] as const,  // status: waiting|active|delayed|failed
+    labelNames: ['queue', 'status'] as const, // status: waiting|active|delayed|failed
   }),
 
   dlqDepth: new Gauge({
@@ -2237,8 +2248,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "High failure rate in queue {{ $labels.queue }}"
-          description: "Failure rate is {{ $value | humanizePercentage }} over the last 5 minutes"
+          summary: 'High failure rate in queue {{ $labels.queue }}'
+          description: 'Failure rate is {{ $value | humanizePercentage }} over the last 5 minutes'
 
       # ─── Queue Depth Warning ─────────────────────────────────
       - alert: QueueDepthHigh
@@ -2247,8 +2258,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Queue {{ $labels.queue }} has {{ $value }} waiting jobs"
-          description: "Queue backlog is growing — investigate worker health"
+          summary: 'Queue {{ $labels.queue }} has {{ $value }} waiting jobs'
+          description: 'Queue backlog is growing — investigate worker health'
 
       # ─── Queue Depth Critical ────────────────────────────────
       - alert: QueueDepthCritical
@@ -2257,7 +2268,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Queue {{ $labels.queue }} critically backed up with {{ $value }} jobs"
+          summary: 'Queue {{ $labels.queue }} critically backed up with {{ $value }} jobs'
 
       # ─── DLQ Growing ────────────────────────────────────────
       - alert: DLQDepthGrowing
@@ -2266,7 +2277,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "DLQ for {{ $labels.dlq }} grew by {{ $value }} jobs in the last hour"
+          summary: 'DLQ for {{ $labels.dlq }} grew by {{ $value }} jobs in the last hour'
 
       # ─── Worker Stalled ──────────────────────────────────────
       - alert: JobsStalled
@@ -2275,8 +2286,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Jobs stalling in queue {{ $labels.queue }}"
-          description: "{{ $value }} jobs stalled in the last 5 minutes"
+          summary: 'Jobs stalling in queue {{ $labels.queue }}'
+          description: '{{ $value }} jobs stalled in the last 5 minutes'
 
       # ─── No Workers Active ───────────────────────────────────
       - alert: QueueNoWorkers
@@ -2285,8 +2296,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "No active workers for queue {{ $labels.queue }}"
-          description: "Queue has been idle for 2+ minutes despite pending jobs"
+          summary: 'No active workers for queue {{ $labels.queue }}'
+          description: 'Queue has been idle for 2+ minutes despite pending jobs'
 ```
 
 ### 10.4 Grafana Dashboard Specification
@@ -2366,7 +2377,7 @@ import { Worker } from 'bullmq';
 import { getQueue, QUEUES } from '../queues/registry';
 import { logger } from '../lib/logger';
 
-const DRAIN_TIMEOUT_MS = 30_000;  // 30 seconds to drain before force stop
+const DRAIN_TIMEOUT_MS = 30_000; // 30 seconds to drain before force stop
 
 interface ShutdownManager {
   workers: Worker[];
@@ -2401,10 +2412,7 @@ export function createShutdownManager(workers: Worker[]): ShutdownManager {
   return manager;
 }
 
-async function gracefulShutdown(
-  manager: ShutdownManager,
-  emergency = false,
-): Promise<void> {
+async function gracefulShutdown(manager: ShutdownManager, emergency = false): Promise<void> {
   const deadline = Date.now() + (emergency ? 10_000 : DRAIN_TIMEOUT_MS);
 
   logger.info('Starting graceful shutdown', {
@@ -2440,7 +2448,7 @@ async function gracefulShutdown(
       logger.warn(`Worker ${queueName} drain failed, force-closing`, {
         error: (error as Error).message,
       });
-      await worker.close().catch(() => {});  // Force close, ignore errors
+      await worker.close().catch(() => {}); // Force close, ignore errors
     }
   });
 
@@ -2576,10 +2584,14 @@ export class DebouncedProducer {
       }
 
       // Add the new debounced job
-      await this.queue.add(jobName, { ...data, _debounceKey: key }, {
-        jobId: options?.jobId || `debounced:${key}`,
-        priority: options?.priority,
-      });
+      await this.queue.add(
+        jobName,
+        { ...data, _debounceKey: key },
+        {
+          jobId: options?.jobId || `debounced:${key}`,
+          priority: options?.priority,
+        },
+      );
     }, this.delayMs);
 
     this.pendingTimers.set(key, timer);
@@ -2868,7 +2880,7 @@ export class IdempotencyGuard {
   constructor(
     private redis: Redis,
     private prefix: string = 'idempotency',
-    private ttlSeconds: number = 86400,   // 24 hours default
+    private ttlSeconds: number = 86400, // 24 hours default
   ) {}
 
   /**
@@ -2885,7 +2897,7 @@ export class IdempotencyGuard {
       }),
       'EX',
       this.ttlSeconds,
-      'NX',   // Only set if Not eXists
+      'NX', // Only set if Not eXists
     );
     return result === 'OK';
   }
@@ -2966,7 +2978,7 @@ async function processEmailJob(job: Job<EmailJobData>): Promise<unknown> {
 // Pattern 1: Fixed Window — max N jobs per time window
 const fixedWindowWorker = {
   limiter: {
-    max: 100,        // 100 jobs
+    max: 100, // 100 jobs
     duration: 60000, // per 60 seconds
   },
 };
@@ -2975,7 +2987,7 @@ const fixedWindowWorker = {
 const slidingWindowWorker = {
   limiter: {
     max: 10,
-    duration: 1000,  // 10 jobs per second (effectively 10/sec average)
+    duration: 1000, // 10 jobs per second (effectively 10/sec average)
   },
 };
 
@@ -2984,14 +2996,14 @@ const groupRateLimitWorker = {
   limiter: {
     max: 5,
     duration: 60000,
-    groupKey: 'organizationId',  // Each org gets its own limit
+    groupKey: 'organizationId', // Each org gets its own limit
   },
 };
 
 // Pattern 4: External API rate limit matching
 const externalAPILimit = {
   limiter: {
-    max: 10,         // OpenAI: 10 RPM for standard tier
+    max: 10, // OpenAI: 10 RPM for standard tier
     duration: 60000,
   },
 };
@@ -3042,15 +3054,15 @@ describe('Email Worker', () => {
     const result = await processEmailJob(job);
 
     expect(result.messageId).toBe('msg-123');
-    expect(job.updateProgress).toHaveBeenCalledWith(20);  // Template rendered
-    expect(job.updateProgress).toHaveBeenCalledWith(60);  // Email sent
-    expect(job.updateProgress).toHaveBeenCalledWith(90);  // Idempotency recorded
+    expect(job.updateProgress).toHaveBeenCalledWith(20); // Template rendered
+    expect(job.updateProgress).toHaveBeenCalledWith(60); // Email sent
+    expect(job.updateProgress).toHaveBeenCalledWith(90); // Idempotency recorded
     expect(job.updateProgress).toHaveBeenCalledWith(100); // Done
   });
 
   it('should skip duplicate emails (idempotency)', async () => {
     const { checkIdempotency } = await import('../../src/lib/idempotency');
-    vi.mocked(checkIdempotency).mockResolvedValue(true);  // Already sent
+    vi.mocked(checkIdempotency).mockResolvedValue(true); // Already sent
 
     const job = createMockJob({
       idempotencyKey: 'duplicate-key',
@@ -3232,9 +3244,7 @@ describe('Webhook Integration', () => {
     });
 
     // Should fail after retries
-    await expect(
-      job.waitUntilFinished(worker.events, 15_000),
-    ).rejects.toThrow();
+    await expect(job.waitUntilFinished(worker.events, 15_000)).rejects.toThrow();
 
     expect(job.attemptsMade).toBe(2); // Initial + 1 retry
   }, 20_000);
@@ -3250,12 +3260,10 @@ describe('Webhook Integration', () => {
       headers: {},
       payload: { event: 'task.created' },
       secret: 'test-secret',
-      timeout: 2_000,  // 2 second timeout
+      timeout: 2_000, // 2 second timeout
     });
 
-    await expect(
-      job.waitUntilFinished(worker.events, 10_000),
-    ).rejects.toThrow();
+    await expect(job.waitUntilFinished(worker.events, 10_000)).rejects.toThrow();
   }, 15_000);
 });
 ```
@@ -3288,19 +3296,23 @@ describe('Priority Queue Ordering', () => {
   it('should process higher priority jobs first', async () => {
     const processingOrder: number[] = [];
 
-    const worker = new Worker('test-priority', async (job: Job) => {
-      processingOrder.push(job.data.priority);
-      return true;
-    }, {
-      connection: redis,
-      concurrency: 1,
-    });
+    const worker = new Worker(
+      'test-priority',
+      async (job: Job) => {
+        processingOrder.push(job.data.priority);
+        return true;
+      },
+      {
+        connection: redis,
+        concurrency: 1,
+      },
+    );
 
     // Add jobs out of priority order
-    await queue.add('low',    { priority: 20 }, { priority: 20 });
-    await queue.add('high',   { priority: 1 },  { priority: 1 });
+    await queue.add('low', { priority: 20 }, { priority: 20 });
+    await queue.add('high', { priority: 1 }, { priority: 1 });
     await queue.add('normal', { priority: 10 }, { priority: 10 });
-    await queue.add('crit',   { priority: 1 },  { priority: 1 });
+    await queue.add('crit', { priority: 1 }, { priority: 1 });
 
     // Wait for all jobs to complete
     await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -3358,14 +3370,14 @@ BULL_BOARD_PORT=3001
 
 ### 14.2 Production Scaling Guide
 
-| Metric | Small (<1K jobs/hr) | Medium (1K-50K/hr) | Large (50K+/hr) |
-|---|---|---|---|
-| **Redis** | Single instance | Redis Sentinel (3 nodes) | Redis Cluster (6+ nodes) |
-| **Worker Instances** | 1 | 2-3 | 5+ (auto-scaled) |
-| **Concurrency per Worker** | Default (5) | Tuned per queue | Aggressively tuned |
-| **Temporal Workers** | 1 | 2-3 | 5+ |
-| **BullMQ Board** | Embedded | Separate process | Dedicated service |
-| **Monitoring** | Logs only | Prometheus + Grafana | Full observability stack |
+| Metric                     | Small (<1K jobs/hr) | Medium (1K-50K/hr)       | Large (50K+/hr)          |
+| -------------------------- | ------------------- | ------------------------ | ------------------------ |
+| **Redis**                  | Single instance     | Redis Sentinel (3 nodes) | Redis Cluster (6+ nodes) |
+| **Worker Instances**       | 1                   | 2-3                      | 5+ (auto-scaled)         |
+| **Concurrency per Worker** | Default (5)         | Tuned per queue          | Aggressively tuned       |
+| **Temporal Workers**       | 1                   | 2-3                      | 5+                       |
+| **BullMQ Board**           | Embedded            | Separate process         | Dedicated service        |
+| **Monitoring**             | Logs only           | Prometheus + Grafana     | Full observability stack |
 
 ---
 
@@ -3499,20 +3511,20 @@ npx bullmq clean --queue email --grace 24h --limit 100
 
 ### Command Reference
 
-| Command | Description |
-|---|---|
-| `JobProducer.enqueueEmail(data)` | Add email job with auto-priority |
-| `JobProducer.enqueueWebhook(data)` | Add webhook delivery job |
-| `JobProducer.enqueueAI(data)` | Add AI processing job |
-| `JobProducer.enqueueFileProcess(data)` | Add file processing job |
-| `JobProducer.enqueueExport(data)` | Add export generation job |
-| `getQueuesHealth()` | Get health status for all critical queues |
-| `moveToDLQ(job, error)` | Move failed job to dead letter queue |
-| `retryFromDLQ(dlqName, jobId)` | Retry a job from DLQ |
-| `listDLQJobs(dlqName)` | List jobs in DLQ for inspection |
-| `DebouncedProducer.add(key, data)` | Debounce rapid-fire jobs |
-| `BatchProcessor.add(item)` | Batch items for bulk processing |
-| `IdempotencyGuard.tryAcquire(key)` | Acquire idempotency lock |
+| Command                                | Description                               |
+| -------------------------------------- | ----------------------------------------- |
+| `JobProducer.enqueueEmail(data)`       | Add email job with auto-priority          |
+| `JobProducer.enqueueWebhook(data)`     | Add webhook delivery job                  |
+| `JobProducer.enqueueAI(data)`          | Add AI processing job                     |
+| `JobProducer.enqueueFileProcess(data)` | Add file processing job                   |
+| `JobProducer.enqueueExport(data)`      | Add export generation job                 |
+| `getQueuesHealth()`                    | Get health status for all critical queues |
+| `moveToDLQ(job, error)`                | Move failed job to dead letter queue      |
+| `retryFromDLQ(dlqName, jobId)`         | Retry a job from DLQ                      |
+| `listDLQJobs(dlqName)`                 | List jobs in DLQ for inspection           |
+| `DebouncedProducer.add(key, data)`     | Debounce rapid-fire jobs                  |
+| `BatchProcessor.add(item)`             | Batch items for bulk processing           |
+| `IdempotencyGuard.tryAcquire(key)`     | Acquire idempotency lock                  |
 
 ---
 

@@ -8,17 +8,17 @@ module.exports = {
       2,
       'always',
       [
-        'feat',     // A new feature
-        'fix',      // A bug fix
-        'docs',     // Documentation only changes
-        'style',    // Code style changes (formatting, missing semicolons, etc.)
+        'feat', // A new feature
+        'fix', // A bug fix
+        'docs', // Documentation only changes
+        'style', // Code style changes (formatting, missing semicolons, etc.)
         'refactor', // Code change that neither fixes a bug nor adds a feature
-        'perf',     // A code change that improves performance
-        'test',     // Adding or correcting tests
-        'build',    // Changes to build process or external dependencies
-        'ci',       // Changes to CI configuration files and scripts
-        'chore',    // Other changes that don't modify src or test files
-        'revert',   // Reverts a previous commit
+        'perf', // A code change that improves performance
+        'test', // Adding or correcting tests
+        'build', // Changes to build process or external dependencies
+        'ci', // Changes to CI configuration files and scripts
+        'chore', // Other changes that don't modify src or test files
+        'revert', // Reverts a previous commit
       ],
     ],
     'type-case': [2, 'always', 'lower-case'],

@@ -40,15 +40,13 @@ export interface LoginResult {
 async function createTokenPair(
   userId: string,
   email: string,
-  sessionId: string
+  sessionId: string,
 ): Promise<AuthTokens> {
   const accessToken = await generateAccessToken({ userId, email });
   const refreshToken = await generateRefreshToken({ userId, sessionId });
 
   const now = new Date();
-  const expiresAt = new Date(
-    now.getTime() + env.JWT_REFRESH_EXPIRY_MS
-  );
+  const expiresAt = new Date(now.getTime() + env.JWT_REFRESH_EXPIRY_MS);
 
   // Hash the refresh token before storing
   const tokenHash = await hashToken(refreshToken);
@@ -71,10 +69,7 @@ async function createTokenPair(
  * Register a new user with email and password.
  * Creates the user, a session, and a token pair.
  */
-export async function registerUser(
-  email: string,
-  password: string
-): Promise<RegisterResult> {
+export async function registerUser(email: string, password: string): Promise<RegisterResult> {
   // Check if user already exists
   const existingUser = await db
     .select({ id: users.id })
@@ -104,9 +99,7 @@ export async function registerUser(
 
   // Create session
   const now = new Date();
-  const sessionExpiresAt = new Date(
-    now.getTime() + env.JWT_REFRESH_EXPIRY_MS
-  );
+  const sessionExpiresAt = new Date(now.getTime() + env.JWT_REFRESH_EXPIRY_MS);
 
   const [session] = await db
     .insert(sessions)
@@ -117,11 +110,7 @@ export async function registerUser(
     .returning({ id: sessions.id });
 
   // Create token pair
-  const tokens = await createTokenPair(
-    newUser.id,
-    newUser.email,
-    session.id
-  );
+  const tokens = await createTokenPair(newUser.id, newUser.email, session.id);
 
   return {
     user: {
@@ -141,14 +130,10 @@ export async function loginUser(
   email: string,
   password: string,
   userAgent?: string,
-  ipAddress?: string
+  ipAddress?: string,
 ): Promise<LoginResult> {
   // Find user by email
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
+  const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
   if (!user) {
     throw new Error('Invalid email or password');
@@ -162,9 +147,7 @@ export async function loginUser(
 
   // Create session
   const now = new Date();
-  const sessionExpiresAt = new Date(
-    now.getTime() + env.JWT_REFRESH_EXPIRY_MS
-  );
+  const sessionExpiresAt = new Date(now.getTime() + env.JWT_REFRESH_EXPIRY_MS);
 
   const [session] = await db
     .insert(sessions)
@@ -177,11 +160,7 @@ export async function loginUser(
     .returning({ id: sessions.id });
 
   // Create token pair
-  const tokens = await createTokenPair(
-    user.id,
-    user.email,
-    session.id
-  );
+  const tokens = await createTokenPair(user.id, user.email, session.id);
 
   return {
     user: {
@@ -197,9 +176,7 @@ export async function loginUser(
  * Refresh an existing token pair.
  * Verifies the refresh token, deletes it, and issues a new pair.
  */
-export async function refreshTokens(
-  refreshTokenValue: string
-): Promise<AuthTokens> {
+export async function refreshTokens(refreshTokenValue: string): Promise<AuthTokens> {
   // Verify the JWT signature and expiry first
   const payload = await verifyRefreshToken(refreshTokenValue);
   if (!payload) {
@@ -214,10 +191,7 @@ export async function refreshTokens(
     .select()
     .from(refreshTokenTable)
     .where(
-      and(
-        eq(refreshTokenTable.tokenHash, tokenHash),
-        gt(refreshTokenTable.expiresAt, new Date())
-      )
+      and(eq(refreshTokenTable.tokenHash, tokenHash), gt(refreshTokenTable.expiresAt, new Date())),
     )
     .limit(1);
 
@@ -226,20 +200,14 @@ export async function refreshTokens(
   }
 
   // Delete the old refresh token (rotation)
-  await db
-    .delete(refreshTokenTable)
-    .where(eq(refreshTokenTable.id, storedToken.id));
+  await db.delete(refreshTokenTable).where(eq(refreshTokenTable.id, storedToken.id));
 
   // Delete the old session as well
-  await db
-    .delete(sessions)
-    .where(eq(sessions.id, storedToken.sessionId));
+  await db.delete(sessions).where(eq(sessions.id, storedToken.sessionId));
 
   // Create a new session
   const now = new Date();
-  const sessionExpiresAt = new Date(
-    now.getTime() + env.JWT_REFRESH_EXPIRY_MS
-  );
+  const sessionExpiresAt = new Date(now.getTime() + env.JWT_REFRESH_EXPIRY_MS);
 
   const [newSession] = await db
     .insert(sessions)
@@ -261,11 +229,7 @@ export async function refreshTokens(
   }
 
   // Create new token pair
-  return createTokenPair(
-    storedToken.userId,
-    user.email,
-    newSession.id
-  );
+  return createTokenPair(storedToken.userId, user.email, newSession.id);
 }
 
 /**
@@ -282,9 +246,7 @@ export async function logoutUser(refreshTokenValue: string): Promise<void> {
 
   // Also delete the associated session
   if (deletedToken) {
-    await db
-      .delete(sessions)
-      .where(eq(sessions.id, deletedToken.sessionId));
+    await db.delete(sessions).where(eq(sessions.id, deletedToken.sessionId));
   }
 }
 
@@ -293,22 +255,16 @@ export async function logoutUser(refreshTokenValue: string): Promise<void> {
  */
 export async function logoutAllSessions(userId: string): Promise<void> {
   // Delete all refresh tokens for this user
-  await db
-    .delete(refreshTokenTable)
-    .where(eq(refreshTokenTable.userId, userId));
+  await db.delete(refreshTokenTable).where(eq(refreshTokenTable.userId, userId));
 
   // Delete all sessions for this user
-  await db
-    .delete(sessions)
-    .where(eq(sessions.userId, userId));
+  await db.delete(sessions).where(eq(sessions.userId, userId));
 }
 
 /**
  * Get the current user's profile.
  */
-export async function getCurrentUser(
-  userId: string
-): Promise<UserPayload | null> {
+export async function getCurrentUser(userId: string): Promise<UserPayload | null> {
   const [user] = await db
     .select({
       id: users.id,

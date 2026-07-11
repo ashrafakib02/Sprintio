@@ -2,15 +2,15 @@
 
 ---
 
-| Field          | Value                                                                          |
-|----------------|--------------------------------------------------------------------------------|
-| Document Type  | Deployment Architecture                                                        |
-| Product        | Sprintio — Sprint fast. Ship together.                                         |
-| Version        | 1.0                                                                            |
-| Status         | Finalized                                                                      |
-| Date           | 2026-07-08                                                                     |
-| Author         | Engineering Team                                                               |
-| Related Docs   | [Frontend](01-FRONTEND.md), [Backend](02-BACKEND.md), [Database](03-DATABASE.md), [Storage](06-STORAGE.md), [Folder Structure](09-FOLDER-STRUCTURE.md) |
+| Field         | Value                                                                                                                                                  |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Document Type | Deployment Architecture                                                                                                                                |
+| Product       | Sprintio — Sprint fast. Ship together.                                                                                                                 |
+| Version       | 1.0                                                                                                                                                    |
+| Status        | Finalized                                                                                                                                              |
+| Date          | 2026-07-08                                                                                                                                             |
+| Author        | Engineering Team                                                                                                                                       |
+| Related Docs  | [Frontend](01-FRONTEND.md), [Backend](02-BACKEND.md), [Database](03-DATABASE.md), [Storage](06-STORAGE.md), [Folder Structure](09-FOLDER-STRUCTURE.md) |
 
 ---
 
@@ -44,28 +44,28 @@ Sprintio deploys on **Cloudflare's edge infrastructure** as the primary platform
 
 ### Design Principles
 
-| # | Principle | Application |
-|---|-----------|-------------|
-| 1 | **Edge-first, origin-fallback** | Static assets and API routes run on Cloudflare's edge. Origin servers are the exception, not the rule. |
-| 2 | **Environment parity** | Dev, staging, and production use identical infrastructure stacks — only scale and data differ. |
-| 3 | **Zero-downtime deploys** | All deploys use rolling or instant-swap strategies. No maintenance windows for code changes. |
-| 4 | **Secrets are never in code** | Environment variables are injected at build/runtime via Cloudflare dashboard, wrangler secrets, or CI/CD vaults. |
-| 5 | **Infrastructure as Code** | Every resource is defined in `wrangler.toml`, `docker-compose.yml`, or Terraform. No manual console clicks. |
-| 6 | **Defense in depth** | DDoS at the edge, WAF rules, CORS at the API, RBAC at the service layer, encryption at rest. |
+| #   | Principle                       | Application                                                                                                      |
+| --- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 1   | **Edge-first, origin-fallback** | Static assets and API routes run on Cloudflare's edge. Origin servers are the exception, not the rule.           |
+| 2   | **Environment parity**          | Dev, staging, and production use identical infrastructure stacks — only scale and data differ.                   |
+| 3   | **Zero-downtime deploys**       | All deploys use rolling or instant-swap strategies. No maintenance windows for code changes.                     |
+| 4   | **Secrets are never in code**   | Environment variables are injected at build/runtime via Cloudflare dashboard, wrangler secrets, or CI/CD vaults. |
+| 5   | **Infrastructure as Code**      | Every resource is defined in `wrangler.toml`, `docker-compose.yml`, or Terraform. No manual console clicks.      |
+| 6   | **Defense in depth**            | DDoS at the edge, WAF rules, CORS at the API, RBAC at the service layer, encryption at rest.                     |
 
 ### Technology Choices
 
-| Layer | Technology | Rationale |
-|-------|-----------|-----------|
-| Frontend Hosting | Cloudflare Pages | Zero-config SPA hosting, preview deploys, edge CDN, free bandwidth |
-| Backend Runtime | Cloudflare Workers (V8 isolates) | Sub-50ms cold starts, global edge execution, DDoS built-in |
-| Database | Neon PostgreSQL 16 | Serverless Postgres, branching for previews, autoscaling, free tier |
-| Cache | Upstash Redis 7 | Serverless Redis, per-command pricing, global replication |
-| Queue | Upstash Redis + BullMQ | Compatible with existing Redis, no separate queue infra |
-| AI Sidecar | Railway (containerized) | Managed containers, GPU support, simple scaling |
-| File Storage | Cloudflare R2 | Zero egress, S3-compatible, native CDN |
-| DNS/SSL | Cloudflare DNS | Instant propagation, free SSL, DDoS protection |
-| CI/CD | GitHub Actions | Native integration, free minutes, matrix builds |
+| Layer            | Technology                       | Rationale                                                           |
+| ---------------- | -------------------------------- | ------------------------------------------------------------------- |
+| Frontend Hosting | Cloudflare Pages                 | Zero-config SPA hosting, preview deploys, edge CDN, free bandwidth  |
+| Backend Runtime  | Cloudflare Workers (V8 isolates) | Sub-50ms cold starts, global edge execution, DDoS built-in          |
+| Database         | Neon PostgreSQL 16               | Serverless Postgres, branching for previews, autoscaling, free tier |
+| Cache            | Upstash Redis 7                  | Serverless Redis, per-command pricing, global replication           |
+| Queue            | Upstash Redis + BullMQ           | Compatible with existing Redis, no separate queue infra             |
+| AI Sidecar       | Railway (containerized)          | Managed containers, GPU support, simple scaling                     |
+| File Storage     | Cloudflare R2                    | Zero egress, S3-compatible, native CDN                              |
+| DNS/SSL          | Cloudflare DNS                   | Instant propagation, free SSL, DDoS protection                      |
+| CI/CD            | GitHub Actions                   | Native integration, free minutes, matrix builds                     |
 
 ---
 
@@ -237,20 +237,20 @@ Sprintio deploys on **Cloudflare's edge infrastructure** as the primary platform
 
 ### 3.2 Environment Details
 
-| Property | Local | Development | Staging | Production |
-|----------|-------|-------------|---------|------------|
-| **Frontend URL** | `http://localhost:5173` | `*.sprintio.pages.dev` | `staging.sprintio.app` | `sprintio.app` |
-| **API URL** | `http://localhost:3001` | `api-dev.sprintio.workers.dev` | `api-staging.sprintio.workers.dev` | `api.sprintio.app` |
-| **Database** | Docker PostgreSQL | Neon branch (dev) | Neon branch (staging) | Neon main branch |
-| **Redis** | Docker Redis | Upstash (dev tenant) | Upstash (staging tenant) | Upstash (prod tenant) |
-| **AI Sidecar** | Docker container | Railway (dev) | Railway (staging) | Railway (prod) |
-| **File Storage** | Local volume | R2 bucket (dev) | R2 bucket (staging) | R2 bucket (prod) |
-| **DNS** | localhost | Cloudflare Pages preview | CNAME to Pages | A + CNAME proxy |
-| **SSL** | Self-signed / http | Auto (Cloudflare) | Auto (Cloudflare) | Auto (Cloudflare) |
-| **Data** | Seed scripts | Test data | Anonymized prod clone | Real data |
-| **Access** | Open | Team only | Team + QA | Public + Auth |
-| **Deploy Trigger** | Manual | Branch push | Merge to `staging` | Merge to `main` + approval |
-| **Uptime SLA** | N/A | Best effort | 99.5% | 99.99% |
+| Property           | Local                   | Development                    | Staging                            | Production                 |
+| ------------------ | ----------------------- | ------------------------------ | ---------------------------------- | -------------------------- |
+| **Frontend URL**   | `http://localhost:5173` | `*.sprintio.pages.dev`         | `staging.sprintio.app`             | `sprintio.app`             |
+| **API URL**        | `http://localhost:3001` | `api-dev.sprintio.workers.dev` | `api-staging.sprintio.workers.dev` | `api.sprintio.app`         |
+| **Database**       | Docker PostgreSQL       | Neon branch (dev)              | Neon branch (staging)              | Neon main branch           |
+| **Redis**          | Docker Redis            | Upstash (dev tenant)           | Upstash (staging tenant)           | Upstash (prod tenant)      |
+| **AI Sidecar**     | Docker container        | Railway (dev)                  | Railway (staging)                  | Railway (prod)             |
+| **File Storage**   | Local volume            | R2 bucket (dev)                | R2 bucket (staging)                | R2 bucket (prod)           |
+| **DNS**            | localhost               | Cloudflare Pages preview       | CNAME to Pages                     | A + CNAME proxy            |
+| **SSL**            | Self-signed / http      | Auto (Cloudflare)              | Auto (Cloudflare)                  | Auto (Cloudflare)          |
+| **Data**           | Seed scripts            | Test data                      | Anonymized prod clone              | Real data                  |
+| **Access**         | Open                    | Team only                      | Team + QA                          | Public + Auth              |
+| **Deploy Trigger** | Manual                  | Branch push                    | Merge to `staging`                 | Merge to `main` + approval |
+| **Uptime SLA**     | N/A                     | Best effort                    | 99.5%                              | 99.99%                     |
 
 ### 3.3 Branch Strategy
 
@@ -266,12 +266,12 @@ main (production)
   └── feat/big-feature (development preview)
 ```
 
-| Branch | Environment | Database Branch | Auto-Deploy |
-|--------|-------------|-----------------|-------------|
-| `main` | Production | `main` | Yes (with approval gate) |
-| `staging` | Staging | `staging` | Yes (automatic) |
-| `feat/*` | Dev Preview | `preview/<branch>` (ephemeral) | Yes (automatic) |
-| `fix/*` | Dev Preview | `preview/<branch>` (ephemeral) | Yes (automatic) |
+| Branch    | Environment | Database Branch                | Auto-Deploy              |
+| --------- | ----------- | ------------------------------ | ------------------------ |
+| `main`    | Production  | `main`                         | Yes (with approval gate) |
+| `staging` | Staging     | `staging`                      | Yes (automatic)          |
+| `feat/*`  | Dev Preview | `preview/<branch>` (ephemeral) | Yes (automatic)          |
+| `fix/*`   | Dev Preview | `preview/<branch>` (ephemeral) | Yes (automatic)          |
 
 ---
 
@@ -361,14 +361,14 @@ main (production)
 
 Set in Cloudflare Pages dashboard under **Settings → Environment Variables**:
 
-| Variable | Preview | Staging | Production | Description |
-|----------|---------|---------|------------|-------------|
-| `VITE_API_URL` | `https://api-dev.sprintio.workers.dev` | `https://api-staging.sprintio.workers.dev` | `https://api.sprintio.app` | Backend API base URL |
-| `VITE_WS_URL` | `wss://api-dev.sprintio.workers.dev` | `wss://api-staging.sprintio.workers.dev` | `wss://api.sprintio.app` | WebSocket endpoint |
-| `VITE_APP_URL` | Auto (preview URL) | `https://staging.sprintio.app` | `https://sprintio.app` | Application base URL |
-| `VITE_SENTRY_DSN` | *(empty)* | Sentry staging DSN | Sentry production DSN | Error tracking DSN |
-| `VITE_POSTHOG_KEY` | *(empty)* | PostHog staging key | PostHog production key | Analytics key |
-| `VITE_FEATURE_FLAGS` | `{"ai":true,"analytics":true}` | `{"ai":true,"analytics":true}` | `{"ai":true,"analytics":true}` | Feature flag overrides |
+| Variable             | Preview                                | Staging                                    | Production                     | Description            |
+| -------------------- | -------------------------------------- | ------------------------------------------ | ------------------------------ | ---------------------- |
+| `VITE_API_URL`       | `https://api-dev.sprintio.workers.dev` | `https://api-staging.sprintio.workers.dev` | `https://api.sprintio.app`     | Backend API base URL   |
+| `VITE_WS_URL`        | `wss://api-dev.sprintio.workers.dev`   | `wss://api-staging.sprintio.workers.dev`   | `wss://api.sprintio.app`       | WebSocket endpoint     |
+| `VITE_APP_URL`       | Auto (preview URL)                     | `https://staging.sprintio.app`             | `https://sprintio.app`         | Application base URL   |
+| `VITE_SENTRY_DSN`    | _(empty)_                              | Sentry staging DSN                         | Sentry production DSN          | Error tracking DSN     |
+| `VITE_POSTHOG_KEY`   | _(empty)_                              | PostHog staging key                        | PostHog production key         | Analytics key          |
+| `VITE_FEATURE_FLAGS` | `{"ai":true,"analytics":true}`         | `{"ai":true,"analytics":true}`             | `{"ai":true,"analytics":true}` | Feature flag overrides |
 
 > **Note:** Vite prefix `VITE_` is required for client-exposed variables. Never expose secrets (API keys, tokens) in frontend env vars — they are embedded in the bundle.
 
@@ -381,13 +381,10 @@ import react from '@vitejs/plugin-react';
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 
 export default defineConfig({
-  plugins: [
-    react(),
-    TanStackRouterVite(),
-  ],
+  plugins: [react(), TanStackRouterVite()],
   build: {
     outDir: 'dist',
-    sourcemap: true,        // Source maps for error tracking
+    sourcemap: true, // Source maps for error tracking
     rollupOptions: {
       output: {
         manualChunks: {
@@ -398,7 +395,7 @@ export default defineConfig({
         },
       },
     },
-    chunkSizeWarningLimit: 500,  // KB
+    chunkSizeWarningLimit: 500, // KB
   },
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
@@ -682,10 +679,13 @@ const app = new Hono<{ Bindings: Env }>();
 
 // Global middleware
 app.use('*', logger());
-app.use('*', cors({
-  origin: (c) => c.env.CORS_ORIGIN,
-  credentials: true,
-}));
+app.use(
+  '*',
+  cors({
+    origin: (c) => c.env.CORS_ORIGIN,
+    credentials: true,
+  }),
+);
 app.use('/api/*', rateLimiter);
 app.onError(errorHandler);
 
@@ -848,10 +848,7 @@ export function getDb(env: Env) {
 
 // For migrations — use direct connection (not pooled)
 export function getDbDirect(env: Env) {
-  const directUrl = env.DATABASE_URL.replace(
-    /\.cloudneon\.tech/,
-    '.cloudneon.tech'
-  );
+  const directUrl = env.DATABASE_URL.replace(/\.cloudneon\.tech/, '.cloudneon.tech');
   const sql = neon(directUrl);
   return drizzle(sql, { schema });
 }
@@ -859,11 +856,11 @@ export function getDbDirect(env: Env) {
 
 ### 6.4 Environment-Specific Database Config
 
-| Environment | Neon Branch | Compute Size | Auto-Suspend | Max Connections |
-|-------------|-------------|--------------|--------------|-----------------|
-| Production | `main` | 0.25–4 CU | 5 min idle | 64 |
-| Staging | `staging` | 0.25–1 CU | 2 min idle | 32 |
-| Dev Preview | `preview/<branch>` | 0.25–0.5 CU | 30s idle | 16 |
+| Environment | Neon Branch        | Compute Size | Auto-Suspend | Max Connections |
+| ----------- | ------------------ | ------------ | ------------ | --------------- |
+| Production  | `main`             | 0.25–4 CU    | 5 min idle   | 64              |
+| Staging     | `staging`          | 0.25–1 CU    | 2 min idle   | 32              |
+| Dev Preview | `preview/<branch>` | 0.25–0.5 CU  | 30s idle     | 16              |
 
 ---
 
@@ -918,8 +915,8 @@ export function getRedis(env: Env): Redis {
     redis = new Redis({
       url: env.REDIS_URL,
       // Upstash provides the token in the URL or separately
-      automaticDeserialization: false,  // Better performance
-      enableAutoPipelining: true,       // Batch commands automatically
+      automaticDeserialization: false, // Better performance
+      enableAutoPipelining: true, // Batch commands automatically
     });
   }
   return redis;
@@ -949,17 +946,17 @@ export function getRateLimitRedis(env: Env) {
 
 ### 7.3 Redis Usage Patterns
 
-| Use Case | Data Structure | TTL | Key Pattern |
-|----------|---------------|-----|-------------|
-| API Response Cache | String (JSON) | 5 min | `cache:api:{hash}` |
-| User Session | Hash | 24 hours | `session:{sessionId}` |
-| BullMQ Job Queue | Stream | None | `bull:{queueName}:*` |
-| Online Presence | Sorted Set | 60s (heartbeat) | `presence:{workspaceId}` |
-| Rate Limit Counter | String (sorted set) | 60s window | `ratelimit:{ip}:{window}` |
-| CSRF Token | String | 1 hour | `csrf:{token}` |
-| Email Verification | String | 24 hours | `verify:{token}` |
-| Password Reset | String | 1 hour | `reset:{token}` |
-| Feature Flags Cache | Hash | 5 min | `features:{workspaceId}` |
+| Use Case            | Data Structure      | TTL             | Key Pattern               |
+| ------------------- | ------------------- | --------------- | ------------------------- |
+| API Response Cache  | String (JSON)       | 5 min           | `cache:api:{hash}`        |
+| User Session        | Hash                | 24 hours        | `session:{sessionId}`     |
+| BullMQ Job Queue    | Stream              | None            | `bull:{queueName}:*`      |
+| Online Presence     | Sorted Set          | 60s (heartbeat) | `presence:{workspaceId}`  |
+| Rate Limit Counter  | String (sorted set) | 60s window      | `ratelimit:{ip}:{window}` |
+| CSRF Token          | String              | 1 hour          | `csrf:{token}`            |
+| Email Verification  | String              | 24 hours        | `verify:{token}`          |
+| Password Reset      | String              | 1 hour          | `reset:{token}`           |
+| Feature Flags Cache | Hash                | 5 min           | `features:{workspaceId}`  |
 
 ---
 
@@ -1093,16 +1090,16 @@ async def semantic_search(request: SearchRequest):
 
 ### 8.4 AI Service Scaling Strategy
 
-| Metric | Production | Staging |
-|--------|-----------|---------|
-| Min instances | 0 (sleep mode) | 0 |
-| Max instances | 2 | 1 |
-| CPU | 4 vCPU | 2 vCPU |
-| RAM | 8 GB | 4 GB |
-| Sleep timeout | 10 min | 5 min |
-| Keep-warm cron | Every 10 min | None |
-| Cold start time | 30–60s | 30–60s |
-| Avg response time | 1–5s | 1–5s |
+| Metric            | Production     | Staging |
+| ----------------- | -------------- | ------- |
+| Min instances     | 0 (sleep mode) | 0       |
+| Max instances     | 2              | 1       |
+| CPU               | 4 vCPU         | 2 vCPU  |
+| RAM               | 8 GB           | 4 GB    |
+| Sleep timeout     | 10 min         | 5 min   |
+| Keep-warm cron    | Every 10 min   | None    |
+| Cold start time   | 30–60s         | 30–60s  |
+| Avg response time | 1–5s           | 1–5s    |
 
 ---
 
@@ -1294,58 +1291,58 @@ async def semantic_search(request: SearchRequest):
 
 #### Frontend (Vite — Client-Side)
 
-| Variable | Type | Description | Example |
-|----------|------|-------------|---------|
-| `VITE_API_URL` | Runtime | Backend API base URL | `https://api.sprintio.app` |
-| `VITE_WS_URL` | Runtime | WebSocket URL | `wss://api.sprintio.app` |
-| `VITE_APP_URL` | Runtime | App base URL | `https://sprintio.app` |
-| `VITE_SENTRY_DSN` | Runtime | Sentry DSN | `https://xxx@sentry.io/xxx` |
-| `VITE_POSTHOG_KEY` | Runtime | PostHog analytics key | `phc_xxx` |
-| `VITE_POSTHOG_HOST` | Runtime | PostHog endpoint | `https://app.posthog.com` |
-| `VITE_BUILD_TIME` | Build | Build timestamp | Auto-generated |
-| `VITE_APP_VERSION` | Build | Package version | From package.json |
+| Variable            | Type    | Description           | Example                     |
+| ------------------- | ------- | --------------------- | --------------------------- |
+| `VITE_API_URL`      | Runtime | Backend API base URL  | `https://api.sprintio.app`  |
+| `VITE_WS_URL`       | Runtime | WebSocket URL         | `wss://api.sprintio.app`    |
+| `VITE_APP_URL`      | Runtime | App base URL          | `https://sprintio.app`      |
+| `VITE_SENTRY_DSN`   | Runtime | Sentry DSN            | `https://xxx@sentry.io/xxx` |
+| `VITE_POSTHOG_KEY`  | Runtime | PostHog analytics key | `phc_xxx`                   |
+| `VITE_POSTHOG_HOST` | Runtime | PostHog endpoint      | `https://app.posthog.com`   |
+| `VITE_BUILD_TIME`   | Build   | Build timestamp       | Auto-generated              |
+| `VITE_APP_VERSION`  | Build   | Package version       | From package.json           |
 
 #### Backend (Cloudflare Worker — Non-Secret)
 
-| Variable | Environment | Description |
-|----------|-------------|-------------|
-| `ENVIRONMENT` | All | Environment name (`development`, `staging`, `production`) |
-| `LOG_LEVEL` | All | Logging level (`debug`, `info`, `warn`, `error`) |
-| `CORS_ORIGIN` | All | Allowed CORS origin |
-| `AI_MODEL_DEFAULT` | All | Default AI model for requests |
+| Variable           | Environment | Description                                               |
+| ------------------ | ----------- | --------------------------------------------------------- |
+| `ENVIRONMENT`      | All         | Environment name (`development`, `staging`, `production`) |
+| `LOG_LEVEL`        | All         | Logging level (`debug`, `info`, `warn`, `error`)          |
+| `CORS_ORIGIN`      | All         | Allowed CORS origin                                       |
+| `AI_MODEL_DEFAULT` | All         | Default AI model for requests                             |
 
 #### Backend (Cloudflare Worker — Secrets)
 
-| Variable | Environment | Description | Rotation |
-|----------|-------------|-------------|----------|
-| `DATABASE_URL` | All | Neon PostgreSQL connection string | Quarterly |
-| `DATABASE_URL_DIRECT` | All | Neon direct connection (migrations) | Quarterly |
-| `REDIS_URL` | All | Upstash Redis connection string | Quarterly |
-| `JWT_SECRET` | All | JWT signing secret (256-bit) | Monthly |
-| `JWT_REFRESH_SECRET` | All | Refresh token signing secret | Monthly |
-| `R2_ACCESS_KEY_ID` | All | R2 API access key | Quarterly |
-| `R2_SECRET_ACCESS_KEY` | All | R2 API secret key | Quarterly |
-| `AI_SIDECAR_URL` | All | Railway service URL | On change |
-| `AI_API_KEY` | All | Shared auth for AI sidecar | Monthly |
-| `SENTRY_DSN` | All | Sentry error tracking DSN | On change |
-| `STRIPE_SECRET_KEY` | Production | Stripe API key | Quarterly |
-| `STRIPE_WEBHOOK_SECRET` | Production | Stripe webhook signing secret | Quarterly |
-| `RESEND_API_KEY` | All | Resend email API key | Quarterly |
-| `GITHUB_APP_PRIVATE_KEY` | Production | GitHub integration private key | Annually |
-| `SLACK_BOT_TOKEN` | Production | Slack integration token | Quarterly |
+| Variable                 | Environment | Description                         | Rotation  |
+| ------------------------ | ----------- | ----------------------------------- | --------- |
+| `DATABASE_URL`           | All         | Neon PostgreSQL connection string   | Quarterly |
+| `DATABASE_URL_DIRECT`    | All         | Neon direct connection (migrations) | Quarterly |
+| `REDIS_URL`              | All         | Upstash Redis connection string     | Quarterly |
+| `JWT_SECRET`             | All         | JWT signing secret (256-bit)        | Monthly   |
+| `JWT_REFRESH_SECRET`     | All         | Refresh token signing secret        | Monthly   |
+| `R2_ACCESS_KEY_ID`       | All         | R2 API access key                   | Quarterly |
+| `R2_SECRET_ACCESS_KEY`   | All         | R2 API secret key                   | Quarterly |
+| `AI_SIDECAR_URL`         | All         | Railway service URL                 | On change |
+| `AI_API_KEY`             | All         | Shared auth for AI sidecar          | Monthly   |
+| `SENTRY_DSN`             | All         | Sentry error tracking DSN           | On change |
+| `STRIPE_SECRET_KEY`      | Production  | Stripe API key                      | Quarterly |
+| `STRIPE_WEBHOOK_SECRET`  | Production  | Stripe webhook signing secret       | Quarterly |
+| `RESEND_API_KEY`         | All         | Resend email API key                | Quarterly |
+| `GITHUB_APP_PRIVATE_KEY` | Production  | GitHub integration private key      | Annually  |
+| `SLACK_BOT_TOKEN`        | Production  | Slack integration token             | Quarterly |
 
 #### AI Sidecar (Railway)
 
-| Variable | Description |
-|----------|-------------|
-| `DATABASE_URL` | Neon PostgreSQL (read/write) |
-| `REDIS_URL` | Upstash Redis |
-| `AI_API_KEY` | Shared auth key (matches Worker) |
-| `OPENAI_API_KEY` | OpenAI API key (embeddings) |
-| `ANTHROPIC_API_KEY` | Anthropic API key (chat) |
-| `MODEL_CACHE_DIR` | Local model cache path |
-| `ENVIRONMENT` | `development`, `staging`, `production` |
-| `LOG_LEVEL` | Logging verbosity |
+| Variable            | Description                            |
+| ------------------- | -------------------------------------- |
+| `DATABASE_URL`      | Neon PostgreSQL (read/write)           |
+| `REDIS_URL`         | Upstash Redis                          |
+| `AI_API_KEY`        | Shared auth key (matches Worker)       |
+| `OPENAI_API_KEY`    | OpenAI API key (embeddings)            |
+| `ANTHROPIC_API_KEY` | Anthropic API key (chat)               |
+| `MODEL_CACHE_DIR`   | Local model cache path                 |
+| `ENVIRONMENT`       | `development`, `staging`, `production` |
+| `LOG_LEVEL`         | Logging verbosity                      |
 
 ### 11.3 Secrets Rotation Procedure
 
@@ -1467,18 +1464,18 @@ curl -s https://api.sprintio.app/api/health | jq .
 
 ### 12.3 Alert Rules
 
-| Alert | Condition | Severity | Channel |
-|-------|-----------|----------|---------|
-| API Error Rate | > 5% of requests (5 min window) | Critical | PagerDuty |
-| API Latency P99 | > 2000ms (5 min window) | Warning | Slack |
-| Database CPU | > 80% (10 min window) | Warning | Slack |
-| Database Connections | > 50 (5 min window) | Warning | Slack |
-| Redis Memory | > 80% (15 min window) | Warning | Slack |
-| AI Service Down | Health check fails 3x | Critical | PagerDuty |
-| SSL Certificate | Expires in < 14 days | Warning | Email |
-| DDoS Attack | Activated Cloudflare mitigation | Critical | PagerDuty |
-| Deployment Failed | CI/CD pipeline failure | Warning | Slack |
-| Error Budget Burn | > 10% in 1 hour | Critical | PagerDuty |
+| Alert                | Condition                       | Severity | Channel   |
+| -------------------- | ------------------------------- | -------- | --------- |
+| API Error Rate       | > 5% of requests (5 min window) | Critical | PagerDuty |
+| API Latency P99      | > 2000ms (5 min window)         | Warning  | Slack     |
+| Database CPU         | > 80% (10 min window)           | Warning  | Slack     |
+| Database Connections | > 50 (5 min window)             | Warning  | Slack     |
+| Redis Memory         | > 80% (15 min window)           | Warning  | Slack     |
+| AI Service Down      | Health check fails 3x           | Critical | PagerDuty |
+| SSL Certificate      | Expires in < 14 days            | Warning  | Email     |
+| DDoS Attack          | Activated Cloudflare mitigation | Critical | PagerDuty |
+| Deployment Failed    | CI/CD pipeline failure          | Warning  | Slack     |
+| Error Budget Burn    | > 10% in 1 hour                 | Critical | PagerDuty |
 
 ### 12.4 Structured Logging
 
@@ -1492,17 +1489,19 @@ export const structuredLogger = logger((c, next) => {
   return next().then(() => {
     const duration = Date.now() - start;
 
-    console.log(JSON.stringify({
-      timestamp: new Date().toISOString(),
-      level: c.res.status >= 500 ? 'error' : 'info',
-      method: c.req.method,
-      path: c.req.path,
-      status: c.res.status,
-      duration_ms: duration,
-      request_id: c.req.header('x-request-id'),
-      user_id: c.get('userId'),
-      environment: c.env.ENVIRONMENT,
-    }));
+    console.log(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: c.res.status >= 500 ? 'error' : 'info',
+        method: c.req.method,
+        path: c.req.path,
+        status: c.res.status,
+        duration_ms: duration,
+        request_id: c.req.header('x-request-id'),
+        user_id: c.get('userId'),
+        environment: c.env.ENVIRONMENT,
+      }),
+    );
   });
 });
 ```
@@ -1599,22 +1598,22 @@ export const structuredLogger = logger((c, next) => {
 
 ### 13.2 Platform Limits
 
-| Resource | Free Tier | Paid Tier (Recommended) | Hard Limit |
-|----------|-----------|------------------------|------------|
-| CF Workers Request Duration | 10ms CPU | 50ms CPU (paid) | 30s wall time |
-| CF Workers Memory | 128 MB | 128 MB | 128 MB |
-| CF Workers Size | 1 MB | 10 MB (bundled) | 10 MB |
-| CF Workers Cron | 1/day | Unlimited | N/A |
-| CF Pages Bandwidth | 100 GB/mo | Unlimited | N/A |
-| CF Pages Build Minutes | 500/mo | 5000/mo | N/A |
-| R2 Storage | 10 GB | Pay per GB ($0.015/GB) | Unlimited |
-| R2 Requests | 10M/mo free | Pay per 1M | Unlimited |
-| Neon Compute Hours | 191.9 hr/mo | Pay per CU-hour | N/A |
-| Neon Storage | 0.5 GB | Pay per GB ($0.35/GB) | N/A |
-| Upstash Commands | 500K/day | Pay per 1M ($0.30) | Unlimited |
-| Upstash Storage | 256 MB | Pay per GB ($0.25/GB) | N/A |
-| Railway CPU | N/A | $20/mo per vCPU | 32 vCPU |
-| Railway RAM | N/A | $20/mo per GB | 64 GB |
+| Resource                    | Free Tier   | Paid Tier (Recommended) | Hard Limit    |
+| --------------------------- | ----------- | ----------------------- | ------------- |
+| CF Workers Request Duration | 10ms CPU    | 50ms CPU (paid)         | 30s wall time |
+| CF Workers Memory           | 128 MB      | 128 MB                  | 128 MB        |
+| CF Workers Size             | 1 MB        | 10 MB (bundled)         | 10 MB         |
+| CF Workers Cron             | 1/day       | Unlimited               | N/A           |
+| CF Pages Bandwidth          | 100 GB/mo   | Unlimited               | N/A           |
+| CF Pages Build Minutes      | 500/mo      | 5000/mo                 | N/A           |
+| R2 Storage                  | 10 GB       | Pay per GB ($0.015/GB)  | Unlimited     |
+| R2 Requests                 | 10M/mo free | Pay per 1M              | Unlimited     |
+| Neon Compute Hours          | 191.9 hr/mo | Pay per CU-hour         | N/A           |
+| Neon Storage                | 0.5 GB      | Pay per GB ($0.35/GB)   | N/A           |
+| Upstash Commands            | 500K/day    | Pay per 1M ($0.30)      | Unlimited     |
+| Upstash Storage             | 256 MB      | Pay per GB ($0.25/GB)   | N/A           |
+| Railway CPU                 | N/A         | $20/mo per vCPU         | 32 vCPU       |
+| Railway RAM                 | N/A         | $20/mo per GB           | 64 GB         |
 
 ---
 
@@ -1667,14 +1666,14 @@ export const structuredLogger = logger((c, next) => {
 
 ### 14.2 Recovery Objectives
 
-| Component | RTO (Recovery Time Objective) | RPO (Recovery Point Objective) |
-|-----------|------------------------------|-------------------------------|
-| Frontend (Pages) | < 5 minutes | 0 (in Git) |
-| Backend (Workers) | < 5 minutes (rollback) | 0 (in Git) |
-| Database (Neon) | < 15 minutes | < 5 minutes (PITR) |
-| Cache (Redis) | < 5 minutes (cold cache) | N/A (ephemeral) |
-| File Storage (R2) | < 30 minutes | < 24 hours (versioning) |
-| AI Service (Railway) | < 10 minutes | 0 (stateless) |
+| Component            | RTO (Recovery Time Objective) | RPO (Recovery Point Objective) |
+| -------------------- | ----------------------------- | ------------------------------ |
+| Frontend (Pages)     | < 5 minutes                   | 0 (in Git)                     |
+| Backend (Workers)    | < 5 minutes (rollback)        | 0 (in Git)                     |
+| Database (Neon)      | < 15 minutes                  | < 5 minutes (PITR)             |
+| Cache (Redis)        | < 5 minutes (cold cache)      | N/A (ephemeral)                |
+| File Storage (R2)    | < 30 minutes                  | < 24 hours (versioning)        |
+| AI Service (Railway) | < 10 minutes                  | 0 (stateless)                  |
 
 ### 14.3 Failover Procedures
 
@@ -1710,16 +1709,16 @@ railway scale --cpu 8 --memory 16 --service sprintio-ai-service
 
 ### 14.4 Disaster Recovery Runbook
 
-| Scenario | Detection | Response | Recovery |
-|----------|-----------|----------|----------|
-| **Worker crash** | Health check fails | CF auto-restarts (seconds) | Automatic |
-| **Database outage** | Health check DB fails | Neon auto-failover | < 15 min |
-| **Redis outage** | Cache misses spike | App degrades gracefully | < 5 min (cold cache) |
-| **AI service down** | Health check AI fails | Disable AI features (feature flag) | < 10 min |
-| **DDoS attack** | CF security dashboard | CF auto-mitigates | Automatic |
-| **Bad deployment** | Error rate spike | Rollback via wrangler | < 5 min |
-| **R2 outage** | Upload failures | Queue retries | < 30 min |
-| **Full region outage** | All services down | Neon promotes replica; Railway region switch | < 30 min |
+| Scenario               | Detection             | Response                                     | Recovery             |
+| ---------------------- | --------------------- | -------------------------------------------- | -------------------- |
+| **Worker crash**       | Health check fails    | CF auto-restarts (seconds)                   | Automatic            |
+| **Database outage**    | Health check DB fails | Neon auto-failover                           | < 15 min             |
+| **Redis outage**       | Cache misses spike    | App degrades gracefully                      | < 5 min (cold cache) |
+| **AI service down**    | Health check AI fails | Disable AI features (feature flag)           | < 10 min             |
+| **DDoS attack**        | CF security dashboard | CF auto-mitigates                            | Automatic            |
+| **Bad deployment**     | Error rate spike      | Rollback via wrangler                        | < 5 min              |
+| **R2 outage**          | Upload failures       | Queue retries                                | < 30 min             |
+| **Full region outage** | All services down     | Neon promotes replica; Railway region switch | < 30 min             |
 
 ---
 
@@ -1729,59 +1728,59 @@ railway scale --cpu 8 --memory 16 --service sprintio-ai-service
 
 #### Production Environment
 
-| Service | Tier | Monthly Cost | Notes |
-|---------|------|-------------|-------|
-| **Cloudflare Workers** | Paid ($5/mo) | **$5.00** | Includes 10M requests/mo |
-| CF Workers (overage) | Pay-as-you-go | **$0.30** | $0.30/1M requests (est. 10M extra) |
-| **Cloudflare Pages** | Free | **$0.00** | Unlimited bandwidth |
-| **Cloudflare R2** | Pay-as-you-go | **$5.00** | ~200 GB storage + requests |
-| **Cloudflare DDoS/WAF** | Free + Pro | **$0.00** | Included with Workers |
-| **Neon PostgreSQL** | Launch ($19/mo) | **$19.00** | 300 compute hours, 10 GB storage |
-| Neon compute overage | Pay-as-you-go | **$5.00** | Extra CU-hours |
-| **Upstash Redis** | Pay-as-you-go | **$10.00** | ~1M commands/day, 256 MB |
-| **Railway** | Pro ($20/mo) | **$20.00** | 4 vCPU, 8 GB RAM (AI sidecar) |
-| Railway usage | Pay-as-you-go | **$15.00** | ~500 hours/mo (sleep+active) |
-| **Sentry** | Team ($26/mo) | **$26.00** | 50K events, 1 GB attachments |
-| **PostHog** | Free tier | **$0.00** | 1M events/mo free |
-| **Better Uptime** | Free tier | **$0.00** | 5 monitors free |
-| **GitHub Actions** | Free tier | **$0.00** | 2000 min/mo free |
-| **Domain (sprintio.app)** | Annual | **$1.50** | ~$18/year ÷ 12 |
-| | | | |
-| **Production Total** | | **~$107/month** | |
+| Service                   | Tier            | Monthly Cost    | Notes                              |
+| ------------------------- | --------------- | --------------- | ---------------------------------- |
+| **Cloudflare Workers**    | Paid ($5/mo)    | **$5.00**       | Includes 10M requests/mo           |
+| CF Workers (overage)      | Pay-as-you-go   | **$0.30**       | $0.30/1M requests (est. 10M extra) |
+| **Cloudflare Pages**      | Free            | **$0.00**       | Unlimited bandwidth                |
+| **Cloudflare R2**         | Pay-as-you-go   | **$5.00**       | ~200 GB storage + requests         |
+| **Cloudflare DDoS/WAF**   | Free + Pro      | **$0.00**       | Included with Workers              |
+| **Neon PostgreSQL**       | Launch ($19/mo) | **$19.00**      | 300 compute hours, 10 GB storage   |
+| Neon compute overage      | Pay-as-you-go   | **$5.00**       | Extra CU-hours                     |
+| **Upstash Redis**         | Pay-as-you-go   | **$10.00**      | ~1M commands/day, 256 MB           |
+| **Railway**               | Pro ($20/mo)    | **$20.00**      | 4 vCPU, 8 GB RAM (AI sidecar)      |
+| Railway usage             | Pay-as-you-go   | **$15.00**      | ~500 hours/mo (sleep+active)       |
+| **Sentry**                | Team ($26/mo)   | **$26.00**      | 50K events, 1 GB attachments       |
+| **PostHog**               | Free tier       | **$0.00**       | 1M events/mo free                  |
+| **Better Uptime**         | Free tier       | **$0.00**       | 5 monitors free                    |
+| **GitHub Actions**        | Free tier       | **$0.00**       | 2000 min/mo free                   |
+| **Domain (sprintio.app)** | Annual          | **$1.50**       | ~$18/year ÷ 12                     |
+|                           |                 |                 |                                    |
+| **Production Total**      |                 | **~$107/month** |                                    |
 
 #### Staging Environment
 
-| Service | Tier | Monthly Cost | Notes |
-|---------|------|-------------|-------|
-| Cloudflare Workers | Included | $0.00 | Share paid plan |
-| Cloudflare Pages | Free | $0.00 | Free tier |
-| Cloudflare R2 | Pay-as-you-go | $1.00 | Small staging data |
-| Neon PostgreSQL | Free tier | $0.00 | 0.5 GB included |
-| Upstash Redis | Free tier | $0.00 | 10K commands/day free |
-| Railway | Pay-as-you-go | $5.00 | Minimal compute |
-| | | | |
-| **Staging Total** | | **~$6/month** | |
+| Service            | Tier          | Monthly Cost  | Notes                 |
+| ------------------ | ------------- | ------------- | --------------------- |
+| Cloudflare Workers | Included      | $0.00         | Share paid plan       |
+| Cloudflare Pages   | Free          | $0.00         | Free tier             |
+| Cloudflare R2      | Pay-as-you-go | $1.00         | Small staging data    |
+| Neon PostgreSQL    | Free tier     | $0.00         | 0.5 GB included       |
+| Upstash Redis      | Free tier     | $0.00         | 10K commands/day free |
+| Railway            | Pay-as-you-go | $5.00         | Minimal compute       |
+|                    |               |               |                       |
+| **Staging Total**  |               | **~$6/month** |                       |
 
 #### Development (Preview)
 
-| Service | Tier | Monthly Cost | Notes |
-|---------|------|-------------|-------|
-| Cloudflare Workers | Included | $0.00 | Share paid plan |
-| Cloudflare Pages | Free | $0.00 | Preview deploys free |
-| Neon PostgreSQL | Free tier | $0.00 | Ephemeral branches |
-| Upstash Redis | Free tier | $0.00 | Per-PR not used |
-| | | | |
-| **Dev Total** | | **~$0/month** | |
+| Service            | Tier      | Monthly Cost  | Notes                |
+| ------------------ | --------- | ------------- | -------------------- |
+| Cloudflare Workers | Included  | $0.00         | Share paid plan      |
+| Cloudflare Pages   | Free      | $0.00         | Preview deploys free |
+| Neon PostgreSQL    | Free tier | $0.00         | Ephemeral branches   |
+| Upstash Redis      | Free tier | $0.00         | Per-PR not used      |
+|                    |           |               |                      |
+| **Dev Total**      |           | **~$0/month** |                      |
 
 #### Local Development
 
-| Service | Tier | Monthly Cost | Notes |
-|---------|------|-------------|-------|
-| Docker Desktop | Free | $0.00 | Personal use |
-| Local PostgreSQL | Free | $0.00 | Docker container |
-| Local Redis | Free | $0.00 | Docker container |
-| | | | |
-| **Local Total** | | **$0/month** | |
+| Service          | Tier | Monthly Cost | Notes            |
+| ---------------- | ---- | ------------ | ---------------- |
+| Docker Desktop   | Free | $0.00        | Personal use     |
+| Local PostgreSQL | Free | $0.00        | Docker container |
+| Local Redis      | Free | $0.00        | Docker container |
+|                  |      |              |                  |
+| **Local Total**  |      | **$0/month** |                  |
 
 ### 15.2 Total Monthly Cost Summary
 
@@ -1813,15 +1812,15 @@ railway scale --cpu 8 --memory 16 --service sprintio-ai-service
 
 ### 15.3 Cost Optimization Strategies
 
-| Strategy | Savings | Implementation |
-|----------|---------|---------------|
-| Upstash free tier | $10/mo | Stay within 10K commands/day for staging |
-| Neon branching (preview) | $5/mo | Auto-delete branches after PR merge |
-| Railway sleep mode | $15/mo | AI sidecar sleeps when idle (min=0) |
-| R2 lifecycle policies | $3/mo | Auto-delete temp files and old staging data |
-| CF Workers paid plan | N/A | Worth $5/mo for 10M free requests |
-| Cache aggressively | $20/mo | Reduce DB queries with Redis + CF CDN |
-| Bundle optimization | $5/mo | Smaller Worker bundles = faster, cheaper |
+| Strategy                 | Savings | Implementation                              |
+| ------------------------ | ------- | ------------------------------------------- |
+| Upstash free tier        | $10/mo  | Stay within 10K commands/day for staging    |
+| Neon branching (preview) | $5/mo   | Auto-delete branches after PR merge         |
+| Railway sleep mode       | $15/mo  | AI sidecar sleeps when idle (min=0)         |
+| R2 lifecycle policies    | $3/mo   | Auto-delete temp files and old staging data |
+| CF Workers paid plan     | N/A     | Worth $5/mo for 10M free requests           |
+| Cache aggressively       | $20/mo  | Reduce DB queries with Redis + CF CDN       |
+| Bundle optimization      | $5/mo   | Smaller Worker bundles = faster, cheaper    |
 
 ---
 
@@ -2046,7 +2045,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [validate, test, build]
     if: github.ref == 'refs/heads/main'
-    environment: production    # Requires manual approval
+    environment: production # Requires manual approval
     steps:
       - uses: actions/checkout@v4
 
@@ -2169,7 +2168,7 @@ services:
       context: ../..
       dockerfile: infrastructure/docker/web.Dockerfile
     ports:
-      - "5173:5173"
+      - '5173:5173'
     environment:
       - VITE_API_URL=http://localhost:3001
       - VITE_WS_URL=ws://localhost:3001
@@ -2184,7 +2183,7 @@ services:
       context: ../..
       dockerfile: infrastructure/docker/api.Dockerfile
     ports:
-      - "3001:3001"
+      - '3001:3001'
     environment:
       - ENVIRONMENT=development
       - LOG_LEVEL=debug
@@ -2215,7 +2214,7 @@ services:
       context: ../..
       dockerfile: infrastructure/docker/ai.Dockerfile
     ports:
-      - "8000:8000"
+      - '8000:8000'
     environment:
       - ENVIRONMENT=development
       - LOG_LEVEL=debug
@@ -2236,7 +2235,7 @@ services:
   db:
     image: postgres:16-alpine
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_DB: sprintio
       POSTGRES_USER: sprintio
@@ -2245,7 +2244,7 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ../../packages/db/src/migrations/init.sql:/docker-entrypoint-initdb.d/01-init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U sprintio"]
+      test: ['CMD-SHELL', 'pg_isready -U sprintio']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -2254,12 +2253,12 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
       - redisdata:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -2268,8 +2267,8 @@ services:
   minio:
     image: minio/minio:latest
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -2277,7 +2276,7 @@ services:
     volumes:
       - miniodata:/data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ['CMD', 'mc', 'ready', 'local']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -2286,7 +2285,7 @@ services:
   adminer:
     image: adminer:latest
     ports:
-      - "8080:8080"
+      - '8080:8080'
     environment:
       ADMINER_DEFAULT_SERVER: db
       ADMINER_DESIGN: pepa-linha-dark
@@ -2337,25 +2336,25 @@ LOG_LEVEL=debug
 
 ### URL Reference
 
-| Service | Local | Staging | Production |
-|---------|-------|---------|------------|
-| Frontend | `http://localhost:5173` | `staging.sprintio.app` | `sprintio.app` |
-| API | `http://localhost:3001` | `api-staging.sprintio.app` | `api.sprintio.app` |
-| WebSocket | `ws://localhost:3001` | `wss://api-staging.sprintio.app` | `wss://api.sprintio.app` |
-| AI Service | `http://localhost:8000` | `sprintio-ai-staging.up.railway.app` | `sprintio-ai.up.railway.app` |
-| DB Admin | `http://localhost:8080` (Adminer) | Neon Dashboard | Neon Dashboard |
-| Redis | `redis-cli -p 6379` | Upstash Console | Upstash Console |
-| Object Storage | `http://localhost:9001` (MinIO) | R2 Dashboard | R2 Dashboard |
-| Monitoring | — | Cloudflare Dashboard | Cloudflare Dashboard |
-| Status Page | — | — | `status.sprintio.app` |
+| Service        | Local                             | Staging                              | Production                   |
+| -------------- | --------------------------------- | ------------------------------------ | ---------------------------- |
+| Frontend       | `http://localhost:5173`           | `staging.sprintio.app`               | `sprintio.app`               |
+| API            | `http://localhost:3001`           | `api-staging.sprintio.app`           | `api.sprintio.app`           |
+| WebSocket      | `ws://localhost:3001`             | `wss://api-staging.sprintio.app`     | `wss://api.sprintio.app`     |
+| AI Service     | `http://localhost:8000`           | `sprintio-ai-staging.up.railway.app` | `sprintio-ai.up.railway.app` |
+| DB Admin       | `http://localhost:8080` (Adminer) | Neon Dashboard                       | Neon Dashboard               |
+| Redis          | `redis-cli -p 6379`               | Upstash Console                      | Upstash Console              |
+| Object Storage | `http://localhost:9001` (MinIO)   | R2 Dashboard                         | R2 Dashboard                 |
+| Monitoring     | —                                 | Cloudflare Dashboard                 | Cloudflare Dashboard         |
+| Status Page    | —                                 | —                                    | `status.sprintio.app`        |
 
 ---
 
 ## Document Revision History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2026-07-08 | Engineering Team | Initial deployment architecture |
+| Version | Date       | Author           | Changes                         |
+| ------- | ---------- | ---------------- | ------------------------------- |
+| 1.0     | 2026-07-08 | Engineering Team | Initial deployment architecture |
 
 ---
 

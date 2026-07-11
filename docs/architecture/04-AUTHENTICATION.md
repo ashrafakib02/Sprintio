@@ -2,15 +2,15 @@
 
 ---
 
-| Field            | Value                                                           |
-|------------------|-----------------------------------------------------------------|
-| **Document Type** | Architecture Document — Auth & AuthZ                           |
-| **Product**      | Sprintio — Sprint fast. Ship together.                         |
-| **Version**      | 1.0                                                             |
-| **Status**       | Finalized                                                       |
-| **Date**         | 2026-07-08                                                      |
-| **Author**       | Lead AI Engineer                                                |
-| **Related Docs** | [PRD](../PRD.md), [MVP Definition](../MVP_DEFINITION.md), [NFR](../NON_FUNCTIONAL_REQUIREMENTS.md), [Frontend Architecture](./01-FRONTEND.md) |
+| Field             | Value                                                                                                                                         |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Document Type** | Architecture Document — Auth & AuthZ                                                                                                          |
+| **Product**       | Sprintio — Sprint fast. Ship together.                                                                                                        |
+| **Version**       | 1.0                                                                                                                                           |
+| **Status**        | Finalized                                                                                                                                     |
+| **Date**          | 2026-07-08                                                                                                                                    |
+| **Author**        | Lead AI Engineer                                                                                                                              |
+| **Related Docs**  | [PRD](../PRD.md), [MVP Definition](../MVP_DEFINITION.md), [NFR](../NON_FUNCTIONAL_REQUIREMENTS.md), [Frontend Architecture](./01-FRONTEND.md) |
 
 ---
 
@@ -43,46 +43,46 @@
 
 Sprintio's auth system is built on four principles:
 
-| Principle | Rationale |
-|-----------|-----------|
-| **Defense in Depth** | Multiple layers: API Gateway rate limiting → middleware auth → DB-level RLS. No single point of failure. |
-| **Zero Trust** | Every request is verified. JWT validates authenticity; RBAC validates authorization. Tokens are short-lived; refresh is rotation-based. |
-| **Workspace Isolation** | AuthN resolves identity; AuthZ resolves scope. Every permission check is scoped to a workspace first, then the resource. |
+| Principle                    | Rationale                                                                                                                                                                               |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Defense in Depth**         | Multiple layers: API Gateway rate limiting → middleware auth → DB-level RLS. No single point of failure.                                                                                |
+| **Zero Trust**               | Every request is verified. JWT validates authenticity; RBAC validates authorization. Tokens are short-lived; refresh is rotation-based.                                                 |
+| **Workspace Isolation**      | AuthN resolves identity; AuthZ resolves scope. Every permission check is scoped to a workspace first, then the resource.                                                                |
 | **MVP-Ready, Phase 2-Proof** | Ships email/password + OAuth + RBAC. Architecture is extensible for SSO/SAML, SCIM, custom roles, and ABAC without rewrites (see [MVP §7.5](../MVP_DEFINITION.md#75-permission-model)). |
 
 ### 1.2 Auth Stack
 
-| Layer | Component | Tech |
-|-------|-----------|------|
-| **Identity Store** | PostgreSQL `users` table | PostgreSQL 16 |
-| **Session Store** | Redis hash per session | Redis 7 Cluster |
-| **Token Issuer** | JWT access + refresh tokens | `jose` library (ES256) |
-| **Password Hashing** | Memory-hard KDF | argon2id (RFC 9106) |
-| **OAuth Providers** | Google, GitHub | Passport.js adapters |
-| **Rate Limiter** | Token bucket per IP/key | Redis sliding window |
-| **Audit Log** | Append-only event store | PostgreSQL + TimescaleDB |
-| **MFA** | TOTP (RFC 6238) | `otplib` |
+| Layer                | Component                   | Tech                     |
+| -------------------- | --------------------------- | ------------------------ |
+| **Identity Store**   | PostgreSQL `users` table    | PostgreSQL 16            |
+| **Session Store**    | Redis hash per session      | Redis 7 Cluster          |
+| **Token Issuer**     | JWT access + refresh tokens | `jose` library (ES256)   |
+| **Password Hashing** | Memory-hard KDF             | argon2id (RFC 9106)      |
+| **OAuth Providers**  | Google, GitHub              | Passport.js adapters     |
+| **Rate Limiter**     | Token bucket per IP/key     | Redis sliding window     |
+| **Audit Log**        | Append-only event store     | PostgreSQL + TimescaleDB |
+| **MFA**              | TOTP (RFC 6238)             | `otplib`                 |
 
 ### 1.3 MVP Scope Alignment
 
 Per the [MVP Definition §E6](../MVP_DEFINITION.md#e6-team-management), the MVP ships:
 
-| Feature | Ships in MVP? | Notes |
-|---------|:---:|-------|
-| Email/password registration | ✅ | With email verification |
-| OAuth 2.0 (Google, GitHub) | ✅ | Account linking supported |
-| Magic link login | ✅ | Passwordless option |
-| JWT access + refresh tokens | ✅ | HTTP-only cookies, rotation |
-| Multi-factor auth (TOTP) | ✅ | Optional per-user |
-| Session management | ✅ | Basic concurrent sessions |
-| API key authentication | ✅ | Workspace-scoped |
-| RBAC (Owner/Admin/Member/Guest) | ✅ | Database-driven role definitions |
-| Workspace-level permissions | ✅ | All permission checks scoped |
-| SSO/SAML 2.0 | ⏸ Phase 2 | Enterprise feature |
-| SCIM 2.0 provisioning | ⏸ Phase 2 | Enterprise feature |
-| Custom roles | ⏸ Phase 2 | Entitlement-gated |
-| IP allowlists | ⏸ Phase 2 | Admin-configurable |
-| Device trust | ⏸ Phase 2 | Step-up auth |
+| Feature                         | Ships in MVP? | Notes                            |
+| ------------------------------- | :-----------: | -------------------------------- |
+| Email/password registration     |      ✅       | With email verification          |
+| OAuth 2.0 (Google, GitHub)      |      ✅       | Account linking supported        |
+| Magic link login                |      ✅       | Passwordless option              |
+| JWT access + refresh tokens     |      ✅       | HTTP-only cookies, rotation      |
+| Multi-factor auth (TOTP)        |      ✅       | Optional per-user                |
+| Session management              |      ✅       | Basic concurrent sessions        |
+| API key authentication          |      ✅       | Workspace-scoped                 |
+| RBAC (Owner/Admin/Member/Guest) |      ✅       | Database-driven role definitions |
+| Workspace-level permissions     |      ✅       | All permission checks scoped     |
+| SSO/SAML 2.0                    |   ⏸ Phase 2   | Enterprise feature               |
+| SCIM 2.0 provisioning           |   ⏸ Phase 2   | Enterprise feature               |
+| Custom roles                    |   ⏸ Phase 2   | Entitlement-gated                |
+| IP allowlists                   |   ⏸ Phase 2   | Admin-configurable               |
+| Device trust                    |   ⏸ Phase 2   | Step-up auth                     |
 
 ---
 
@@ -403,42 +403,43 @@ Per the [MVP Definition §E6](../MVP_DEFINITION.md#e6-team-management), the MVP 
 
 ### 4.1 JWT Access Token
 
-| Property | Value |
-|----------|-------|
-| **Algorithm** | ES256 (ECDSA P-256 + SHA-256) |
-| **Expiry** | 15 minutes |
-| **Signing** | Private key (ES256); public key for verification |
-| **Header** | `kid` (key ID) for key rotation |
-| **Storage** | `Authorization: Bearer <token>` header (NOT cookies) |
+| Property      | Value                                                |
+| ------------- | ---------------------------------------------------- |
+| **Algorithm** | ES256 (ECDSA P-256 + SHA-256)                        |
+| **Expiry**    | 15 minutes                                           |
+| **Signing**   | Private key (ES256); public key for verification     |
+| **Header**    | `kid` (key ID) for key rotation                      |
+| **Storage**   | `Authorization: Bearer <token>` header (NOT cookies) |
 
 **JWT Payload:**
 
 ```typescript
 interface AccessTokenPayload {
-  sub: string;            // User ID (UUID)
-  sid: string;            // Session ID
-  wsp: string;            // Active workspace ID
-  roles: string[];        // Workspace roles: ["owner"] | ["admin"] | ["member"] | ["guest"]
-  email: string;          // User email (for logging, NOT for auth decisions)
-  iat: number;            // Issued at (unix timestamp)
-  exp: number;            // Expiration (unix timestamp)
-  iss: string;            // "sprintio"
-  aud: string;            // "sprintio-api"
-  mfa: boolean;           // Whether MFA was verified for this session
+  sub: string; // User ID (UUID)
+  sid: string; // Session ID
+  wsp: string; // Active workspace ID
+  roles: string[]; // Workspace roles: ["owner"] | ["admin"] | ["member"] | ["guest"]
+  email: string; // User email (for logging, NOT for auth decisions)
+  iat: number; // Issued at (unix timestamp)
+  exp: number; // Expiration (unix timestamp)
+  iss: string; // "sprintio"
+  aud: string; // "sprintio-api"
+  mfa: boolean; // Whether MFA was verified for this session
 }
 ```
 
 ### 4.2 Refresh Token
 
-| Property | Value |
-|----------|-------|
-| **Format** | Opaque token (not a JWT — prevents token leakage via JWT inspection) |
-| **Expiry** | 7 days (30 days for "Remember Me") |
-| **Storage** | `HttpOnly`, `Secure`, `SameSite=Lax` cookie |
-| **Name** | `srt` (Sprintio Refresh Token) |
-| **Path** | `/api/auth` (scoped to auth endpoints only) |
+| Property    | Value                                                                |
+| ----------- | -------------------------------------------------------------------- |
+| **Format**  | Opaque token (not a JWT — prevents token leakage via JWT inspection) |
+| **Expiry**  | 7 days (30 days for "Remember Me")                                   |
+| **Storage** | `HttpOnly`, `Secure`, `SameSite=Lax` cookie                          |
+| **Name**    | `srt` (Sprintio Refresh Token)                                       |
+| **Path**    | `/api/auth` (scoped to auth endpoints only)                          |
 
 **Refresh Token Security:**
+
 - Never exposed to JavaScript (`HttpOnly`)
 - Never sent cross-site (`SameSite=Lax`)
 - Only transmitted over HTTPS (`Secure`)
@@ -486,8 +487,8 @@ import * as jose from 'jose';
 import { randomBytes } from 'node:crypto';
 
 const ALGORITHM = 'ES256';
-const ACCESS_TOKEN_TTL = 15 * 60;        // 15 minutes in seconds
-const REFRESH_TOKEN_TTL = 7 * 24 * 3600;  // 7 days in seconds
+const ACCESS_TOKEN_TTL = 15 * 60; // 15 minutes in seconds
+const REFRESH_TOKEN_TTL = 7 * 24 * 3600; // 7 days in seconds
 const REFRESH_TOKEN_TTL_REMEMBER = 30 * 24 * 3600; // 30 days
 
 interface TokenPair {
@@ -499,7 +500,7 @@ interface TokenPair {
 
 export async function generateTokenPair(
   payload: Omit<AccessTokenPayload, 'iat' | 'exp' | 'iss' | 'aud'>,
-  options: { rememberMe?: boolean; privateKey?: jose.JWTVerifyOptions } = {}
+  options: { rememberMe?: boolean; privateKey?: jose.JWTVerifyOptions } = {},
 ): Promise<TokenPair> {
   const privateKey = await loadSigningKey(); // ES256 private key from env
   const sessionId = crypto.randomUUID();
@@ -514,7 +515,7 @@ export async function generateTokenPair(
     .setAudience('sprintio-api')
     .setIssuedAt(now)
     .setExpirationTime(`${ACCESS_TOKEN_TTL}s`)
-    .setJti(crypto.randomUUID())  // Unique token ID for revocation
+    .setJti(crypto.randomUUID()) // Unique token ID for revocation
     .sign(privateKey);
 
   // Refresh token: opaque random string (NOT a JWT)
@@ -545,12 +546,12 @@ export async function verifyAccessToken(token: string): Promise<AccessTokenPaylo
 
 ### 4.5 Key Rotation
 
-| Property | Value |
-|----------|-------|
-| **Active Keys** | 2 (current + previous) |
-| **Rotation Period** | Every 90 days |
-| **Overlap Period** | 7 days (both keys valid during rotation) |
-| **Key Storage** | Cloudflare Secrets / Vault; NOT in code or env vars |
+| Property            | Value                                               |
+| ------------------- | --------------------------------------------------- |
+| **Active Keys**     | 2 (current + previous)                              |
+| **Rotation Period** | Every 90 days                                       |
+| **Overlap Period**  | 7 days (both keys valid during rotation)            |
+| **Key Storage**     | Cloudflare Secrets / Vault; NOT in code or env vars |
 
 ```
 Key Lifecycle:
@@ -594,13 +595,13 @@ TTL: 7 days (or 30 days if remember_me=true)
 
 ### 5.2 Session Features
 
-| Feature | Implementation |
-|---------|----------------|
-| **Concurrent Sessions** | Unlimited by default; 10 concurrent sessions warning at plan limits |
-| **Session Revocation** | Single session revoke → delete Redis hash; All sessions → delete by `user_id` prefix scan |
-| **Last Active Tracking** | Updated on each token refresh (not every request — avoids Redis write amplification) |
-| **Device Display** | Parse `User-Agent` → show "Chrome on macOS", "Firefox on Windows" in session list |
-| **Session Listing** | `SCAN` Redis with pattern `sprintio:session:*` filtered by `user_id` |
+| Feature                  | Implementation                                                                            |
+| ------------------------ | ----------------------------------------------------------------------------------------- |
+| **Concurrent Sessions**  | Unlimited by default; 10 concurrent sessions warning at plan limits                       |
+| **Session Revocation**   | Single session revoke → delete Redis hash; All sessions → delete by `user_id` prefix scan |
+| **Last Active Tracking** | Updated on each token refresh (not every request — avoids Redis write amplification)      |
+| **Device Display**       | Parse `User-Agent` → show "Chrome on macOS", "Firefox on Windows" in session list         |
+| **Session Listing**      | `SCAN` Redis with pattern `sprintio:session:*` filtered by `user_id`                      |
 
 ### 5.3 Session Revocation Implementation
 
@@ -612,10 +613,7 @@ const redis = new Redis(process.env.REDIS_URL!);
 const SESSION_PREFIX = 'sprintio:session:';
 const USER_SESSIONS_PREFIX = 'sprintio:user-sessions:';
 
-export async function createSession(
-  sessionId: string,
-  data: SessionData
-): Promise<void> {
+export async function createSession(sessionId: string, data: SessionData): Promise<void> {
   const key = `${SESSION_PREFIX}${sessionId}`;
   const userKey = `${USER_SESSIONS_PREFIX}${data.userId}`;
 
@@ -651,10 +649,7 @@ export async function revokeSession(sessionId: string): Promise<void> {
 
   const userKey = `${USER_SESSIONS_PREFIX}${data.user_id}`;
 
-  await Promise.all([
-    redis.del(key),
-    redis.srem(userKey, sessionId),
-  ]);
+  await Promise.all([redis.del(key), redis.srem(userKey, sessionId)]);
 }
 
 export async function revokeAllUserSessions(userId: string): Promise<void> {
@@ -675,7 +670,7 @@ export async function revokeAllUserSessions(userId: string): Promise<void> {
 export async function refreshSession(
   sessionId: string,
   newRefreshToken: string,
-  newRefreshTokenHash: string
+  newRefreshTokenHash: string,
 ): Promise<void> {
   const key = `${SESSION_PREFIX}${sessionId}`;
 
@@ -686,16 +681,14 @@ export async function refreshSession(
 
   // Extend TTL
   const data = await redis.hgetall(key);
-  const ttl = data.remember_me === 'true'
-    ? 30 * 24 * 3600
-    : 7 * 24 * 3600;
+  const ttl = data.remember_me === 'true' ? 30 * 24 * 3600 : 7 * 24 * 3600;
   await redis.expire(key, ttl);
 }
 
 // Helper: detect refresh token reuse (stolen token)
 export async function detectTokenReuse(
   userId: string,
-  incomingTokenHash: string
+  incomingTokenHash: string,
 ): Promise<boolean> {
   const userKey = `${USER_SESSIONS_PREFIX}${userId}`;
   const sessionIds = await redis.smembers(userKey);
@@ -719,16 +712,17 @@ export async function detectTokenReuse(
 
 ### 6.1 Hashing: argon2id
 
-| Property | Value |
-|----------|-------|
-| **Algorithm** | argon2id (RFC 9106 — hybrid of argon2i + argon2d) |
-| **Memory** | 64 MB (tunable; increase as hardware improves) |
-| **Iterations** | 3 |
-| **Parallelism** | 4 threads |
-| **Salt** | 16 bytes, random, per-hash |
-| **Output** | 32 bytes |
+| Property        | Value                                             |
+| --------------- | ------------------------------------------------- |
+| **Algorithm**   | argon2id (RFC 9106 — hybrid of argon2i + argon2d) |
+| **Memory**      | 64 MB (tunable; increase as hardware improves)    |
+| **Iterations**  | 3                                                 |
+| **Parallelism** | 4 threads                                         |
+| **Salt**        | 16 bytes, random, per-hash                        |
+| **Output**      | 32 bytes                                          |
 
 **Why argon2id over bcrypt?**
+
 - Memory-hard (resistant to GPU/ASIC attacks — bcrypt is not)
 - Winner of the Password Hashing Competition (2015)
 - RFC 9106 standardized; recommended by OWASP
@@ -736,14 +730,14 @@ export async function detectTokenReuse(
 
 ### 6.2 Password Strength Requirements
 
-| Rule | Implementation |
-|------|----------------|
-| **Minimum length** | 8 characters |
-| **Maximum length** | 128 characters (prevent DoS via large hashes) |
-| **Complexity** | At least 3 of: uppercase, lowercase, digit, special char |
-| **Common passwords** | Check against Have I Been Pwned top 100k passwords |
-| **Breach database** | HIBP k-Anonymity API check at registration and password change |
-| **Reuse prevention** | Last 5 passwords cannot be reused (hash comparison) |
+| Rule                 | Implementation                                                 |
+| -------------------- | -------------------------------------------------------------- |
+| **Minimum length**   | 8 characters                                                   |
+| **Maximum length**   | 128 characters (prevent DoS via large hashes)                  |
+| **Complexity**       | At least 3 of: uppercase, lowercase, digit, special char       |
+| **Common passwords** | Check against Have I Been Pwned top 100k passwords             |
+| **Breach database**  | HIBP k-Anonymity API check at registration and password change |
+| **Reuse prevention** | Last 5 passwords cannot be reused (hash comparison)            |
 
 ### 6.3 Password Hashing Implementation
 
@@ -756,24 +750,21 @@ const PASSWORD_SCHEMA = z
   .string()
   .min(8, 'Password must be at least 8 characters')
   .max(128, 'Password must be at most 128 characters')
-  .refine(
-    (pwd) => {
-      const checks = [
-        /[a-z]/.test(pwd),
-        /[A-Z]/.test(pwd),
-        /[0-9]/.test(pwd),
-        /[^a-zA-Z0-9]/.test(pwd),
-      ];
-      return checks.filter(Boolean).length >= 3;
-    },
-    'Password must contain at least 3 of: lowercase, uppercase, digit, special character'
-  );
+  .refine((pwd) => {
+    const checks = [
+      /[a-z]/.test(pwd),
+      /[A-Z]/.test(pwd),
+      /[0-9]/.test(pwd),
+      /[^a-zA-Z0-9]/.test(pwd),
+    ];
+    return checks.filter(Boolean).length >= 3;
+  }, 'Password must contain at least 3 of: lowercase, uppercase, digit, special character');
 
 export const ARGON2_OPTIONS: argon2.Options = {
   type: argon2.argon2id,
-  memoryCost: 65536,       // 64 MB
-  timeCost: 3,              // 3 iterations
-  parallelism: 4,           // 4 threads
+  memoryCost: 65536, // 64 MB
+  timeCost: 3, // 3 iterations
+  parallelism: 4, // 4 threads
   saltLength: 16,
   hashLength: 32,
 };
@@ -786,10 +777,7 @@ export async function hashPassword(password: string): Promise<string> {
   return argon2.hash(password, ARGON2_OPTIONS);
 }
 
-export async function verifyPassword(
-  password: string,
-  hash: string
-): Promise<boolean> {
+export async function verifyPassword(password: string, hash: string): Promise<boolean> {
   return argon2.verify(hash, password);
 }
 
@@ -863,9 +851,9 @@ export async function checkPasswordBreach(password: string): Promise<boolean> {
 
 ### 7.1 Provider Configuration
 
-| Provider | Scopes | Callback URL | Account Linking |
-|----------|--------|-------------|-----------------|
-| **Google** | `openid email profile` | `/auth/oauth/google/callback` | Match by email |
+| Provider   | Scopes                 | Callback URL                  | Account Linking        |
+| ---------- | ---------------------- | ----------------------------- | ---------------------- |
+| **Google** | `openid email profile` | `/auth/oauth/google/callback` | Match by email         |
 | **GitHub** | `read:user user:email` | `/auth/oauth/github/callback` | Match by primary email |
 
 ### 7.2 OAuth Configuration
@@ -941,7 +929,7 @@ import { OAUTH_PROVIDERS } from './config';
 export async function handleOAuthCallback(
   provider: 'google' | 'github',
   code: string,
-  state: string
+  state: string,
 ): Promise<{ accessToken: string; refreshToken: string }> {
   const config = OAUTH_PROVIDERS[provider];
 
@@ -973,10 +961,7 @@ export async function handleOAuthCallback(
   const email = userInfo.email;
   const providerId = userInfo.id;
 
-  const existingUser = await db.query(
-    'SELECT * FROM users WHERE email = $1',
-    [email]
-  );
+  const existingUser = await db.query('SELECT * FROM users WHERE email = $1', [email]);
 
   let userId: string;
 
@@ -988,7 +973,7 @@ export async function handleOAuthCallback(
       `INSERT INTO user_oauth_providers (user_id, provider, provider_user_id, email)
        VALUES ($1, $2, $3, $4)
        ON CONFLICT (user_id, provider) DO UPDATE SET provider_user_id = $3`,
-      [userId, provider, providerId, email]
+      [userId, provider, providerId, email],
     );
   } else {
     // Create new user (OAuth-verified email)
@@ -996,7 +981,7 @@ export async function handleOAuthCallback(
       `INSERT INTO users (email, name, email_verified, avatar_url)
        VALUES ($1, $2, true, $3)
        RETURNING id`,
-      [email, userInfo.name, userInfo.picture || null]
+      [email, userInfo.name, userInfo.picture || null],
     );
     userId = result.rows[0].id;
 
@@ -1004,7 +989,7 @@ export async function handleOAuthCallback(
     await db.query(
       `INSERT INTO user_oauth_providers (user_id, provider, provider_user_id, email)
        VALUES ($1, $2, $3, $4)`,
-      [userId, provider, providerId, email]
+      [userId, provider, providerId, email],
     );
 
     // Create personal workspace
@@ -1024,8 +1009,8 @@ export async function handleOAuthCallback(
     userId,
     refreshToken,
     workspaceId: await getDefaultWorkspaceId(userId),
-    ipAddress: '',  // from request
-    userAgent: '',   // from request
+    ipAddress: '', // from request
+    userAgent: '', // from request
     mfaVerified: false,
     rememberMe: false,
   });
@@ -1130,7 +1115,7 @@ export async function generateMagicLink(email: string): Promise<void> {
       userId: user.id,
       email,
       createdAt: new Date().toISOString(),
-    })
+    }),
   );
 
   // Send email (async via BullMQ)
@@ -1142,7 +1127,7 @@ export async function generateMagicLink(email: string): Promise<void> {
 }
 
 export async function verifyMagicLink(
-  rawToken: string
+  rawToken: string,
 ): Promise<{ userId: string; email: string }> {
   const tokenHash = createHash('sha256').update(rawToken).digest('hex');
   const key = `${MAGIC_LINK_PREFIX}${tokenHash}`;
@@ -1166,14 +1151,14 @@ export async function verifyMagicLink(
 
 ### 9.1 TOTP Configuration
 
-| Property | Value |
-|----------|-------|
-| **Algorithm** | SHA-1 (RFC 6238 — compatible with all TOTP apps) |
-| **Digits** | 6 |
-| **Period** | 30 seconds |
-| **Tolerance** | ±1 period (60 seconds window) |
-| **Issuer** | `Sprintio` |
-| **Apps** | Google Authenticator, Authy, 1Password, Bitwarden |
+| Property      | Value                                             |
+| ------------- | ------------------------------------------------- |
+| **Algorithm** | SHA-1 (RFC 6238 — compatible with all TOTP apps)  |
+| **Digits**    | 6                                                 |
+| **Period**    | 30 seconds                                        |
+| **Tolerance** | ±1 period (60 seconds window)                     |
+| **Issuer**    | `Sprintio`                                        |
+| **Apps**      | Google Authenticator, Authy, 1Password, Bitwarden |
 
 ### 9.2 MFA Setup Flow
 
@@ -1255,13 +1240,17 @@ export async function generateMFASecret(userId: string): Promise<{
   const otpauthUrl = otplib.authenticator.keyuri(
     (await getUserById(userId)).email,
     TOTP_OPTIONS.issuer,
-    secret
+    secret,
   );
   const qrCodeDataUrl = await generateQRCode(otpauthUrl);
 
   // Generate backup codes
   const backupCodes = Array.from({ length: 10 }, () =>
-    randomBytes(4).toString('hex').toUpperCase().match(/.{1,4}/g)!.join('-')
+    randomBytes(4)
+      .toString('hex')
+      .toUpperCase()
+      .match(/.{1,4}/g)!
+      .join('-'),
   );
 
   // Store hashed backup codes
@@ -1269,7 +1258,7 @@ export async function generateMFASecret(userId: string): Promise<{
     backupCodes.map(async (code) => ({
       hash: await argon2.hash(code.replace('-', '')),
       used: false,
-    }))
+    })),
   );
 
   await db.query(
@@ -1278,48 +1267,36 @@ export async function generateMFASecret(userId: string): Promise<{
          mfa_backup_codes = $2,
          mfa_enabled = false
      WHERE id = $3`,
-    [secret, JSON.stringify(hashedCodes), userId]
+    [secret, JSON.stringify(hashedCodes), userId],
   );
 
   return { secret, qrCodeDataUrl, backupCodes };
 }
 
-export async function verifyTOTPCode(
-  userId: string,
-  code: string
-): Promise<boolean> {
-  const user = await db.query(
-    'SELECT mfa_secret_encrypted FROM users WHERE id = $1',
-    [userId]
-  );
+export async function verifyTOTPCode(userId: string, code: string): Promise<boolean> {
+  const user = await db.query('SELECT mfa_secret_encrypted FROM users WHERE id = $1', [userId]);
 
   const secret = decrypt(user.rows[0].mfa_secret_encrypted);
   return otplib.authenticator.verify({ token: code, secret });
 }
 
-export async function verifyBackupCode(
-  userId: string,
-  code: string
-): Promise<boolean> {
-  const user = await db.query(
-    'SELECT mfa_backup_codes FROM users WHERE id = $1',
-    [userId]
-  );
+export async function verifyBackupCode(userId: string, code: string): Promise<boolean> {
+  const user = await db.query('SELECT mfa_backup_codes FROM users WHERE id = $1', [userId]);
 
   const backupCodes: Array<{ hash: string; used: boolean }> = JSON.parse(
-    user.rows[0].mfa_backup_codes
+    user.rows[0].mfa_backup_codes,
   );
 
   const cleanCode = code.replace('-', '');
 
   for (let i = 0; i < backupCodes.length; i++) {
-    if (!backupCodes[i].used && await argon2.verify(backupCodes[i].hash, cleanCode)) {
+    if (!backupCodes[i].used && (await argon2.verify(backupCodes[i].hash, cleanCode))) {
       // Mark as used
       backupCodes[i].used = true;
-      await db.query(
-        'UPDATE users SET mfa_backup_codes = $1 WHERE id = $2',
-        [JSON.stringify(backupCodes), userId]
-      );
+      await db.query('UPDATE users SET mfa_backup_codes = $1 WHERE id = $2', [
+        JSON.stringify(backupCodes),
+        userId,
+      ]);
       return true;
     }
   }
@@ -1366,59 +1343,59 @@ export async function verifyBackupCode(
 
 ### 10.2 Permission Matrix
 
-| Permission | Owner | Admin | Member | Guest |
-|------------|:-----:|:-----:|:------:|:-----:|
-| **Workspace Management** |||||
-| Create workspace | ✅ | — | — | — |
-| Delete workspace | ✅ | — | — | — |
-| Transfer ownership | ✅ | — | — | — |
-| Update workspace settings | ✅ | ✅ | — | — |
-| Manage billing/plan | ✅ | ✅ | — | — |
-| **Member Management** |||||
-| Invite members | ✅ | ✅ | — | — |
-| Remove members | ✅ | ✅ | — | — |
-| Change member roles | ✅ | ✅ | — | — |
-| View all members | ✅ | ✅ | ✅ | — |
-| **Project/Space Management** |||||
-| Create space | ✅ | ✅ | ✅ | — |
-| Delete space | ✅ | ✅ | — | — |
-| Manage space settings | ✅ | ✅ | ✅ | — |
-| Archive space | ✅ | ✅ | — | — |
-| **Task Management** |||||
-| Create tasks | ✅ | ✅ | ✅ | 🔶 Scoped |
-| Edit own tasks | ✅ | ✅ | ✅ | 🔶 Scoped |
-| Edit all tasks | ✅ | ✅ | ✅ | 🔶 Scoped |
-| Delete tasks | ✅ | ✅ | ✅ | — |
-| Assign tasks | ✅ | ✅ | ✅ | — |
-| Move tasks between lists | ✅ | ✅ | ✅ | — |
-| Bulk operations | ✅ | ✅ | ✅ | — |
-| **Document Management** |||||
-| Create docs | ✅ | ✅ | ✅ | 🔶 Scoped |
-| Edit own docs | ✅ | ✅ | ✅ | 🔶 Scoped |
-| Edit all docs | ✅ | ✅ | ✅ | — |
-| Delete docs | ✅ | ✅ | ✅ | — |
-| **Automation** |||||
-| Create automations | ✅ | ✅ | ✅ | — |
-| Edit automations | ✅ | ✅ | ✅ | — |
-| Delete automations | ✅ | ✅ | ✅ | — |
-| View run history | ✅ | ✅ | ✅ | — |
-| **Integrations** |||||
-| Connect integrations | ✅ | ✅ | — | — |
-| Manage webhooks | ✅ | ✅ | — | — |
-| **Security & API** |||||
-| Create API keys | ✅ | ✅ | — | — |
-| Revoke API keys | ✅ | ✅ | ✅ (own) | — |
-| Manage SSO (Phase 2) | ✅ | ✅ | — | — |
-| View audit logs | ✅ | ✅ | — | — |
-| Export audit logs | ✅ | ✅ | — | — |
-| **Teams** |||||
-| Create teams | ✅ | ✅ | — | — |
-| Manage team members | ✅ | ✅ | — | — |
-| View teams | ✅ | ✅ | ✅ | ✅ |
-| **AI Copilot** |||||
-| Use AI features | ✅ | ✅ | ✅ | — |
-| Configure AI settings | ✅ | ✅ | — | — |
-| View AI usage | ✅ | ✅ | — | — |
+| Permission                   | Owner | Admin |  Member  |   Guest   |
+| ---------------------------- | :---: | :---: | :------: | :-------: |
+| **Workspace Management**     |       |       |          |           |
+| Create workspace             |  ✅   |   —   |    —     |     —     |
+| Delete workspace             |  ✅   |   —   |    —     |     —     |
+| Transfer ownership           |  ✅   |   —   |    —     |     —     |
+| Update workspace settings    |  ✅   |  ✅   |    —     |     —     |
+| Manage billing/plan          |  ✅   |  ✅   |    —     |     —     |
+| **Member Management**        |       |       |          |           |
+| Invite members               |  ✅   |  ✅   |    —     |     —     |
+| Remove members               |  ✅   |  ✅   |    —     |     —     |
+| Change member roles          |  ✅   |  ✅   |    —     |     —     |
+| View all members             |  ✅   |  ✅   |    ✅    |     —     |
+| **Project/Space Management** |       |       |          |           |
+| Create space                 |  ✅   |  ✅   |    ✅    |     —     |
+| Delete space                 |  ✅   |  ✅   |    —     |     —     |
+| Manage space settings        |  ✅   |  ✅   |    ✅    |     —     |
+| Archive space                |  ✅   |  ✅   |    —     |     —     |
+| **Task Management**          |       |       |          |           |
+| Create tasks                 |  ✅   |  ✅   |    ✅    | 🔶 Scoped |
+| Edit own tasks               |  ✅   |  ✅   |    ✅    | 🔶 Scoped |
+| Edit all tasks               |  ✅   |  ✅   |    ✅    | 🔶 Scoped |
+| Delete tasks                 |  ✅   |  ✅   |    ✅    |     —     |
+| Assign tasks                 |  ✅   |  ✅   |    ✅    |     —     |
+| Move tasks between lists     |  ✅   |  ✅   |    ✅    |     —     |
+| Bulk operations              |  ✅   |  ✅   |    ✅    |     —     |
+| **Document Management**      |       |       |          |           |
+| Create docs                  |  ✅   |  ✅   |    ✅    | 🔶 Scoped |
+| Edit own docs                |  ✅   |  ✅   |    ✅    | 🔶 Scoped |
+| Edit all docs                |  ✅   |  ✅   |    ✅    |     —     |
+| Delete docs                  |  ✅   |  ✅   |    ✅    |     —     |
+| **Automation**               |       |       |          |           |
+| Create automations           |  ✅   |  ✅   |    ✅    |     —     |
+| Edit automations             |  ✅   |  ✅   |    ✅    |     —     |
+| Delete automations           |  ✅   |  ✅   |    ✅    |     —     |
+| View run history             |  ✅   |  ✅   |    ✅    |     —     |
+| **Integrations**             |       |       |          |           |
+| Connect integrations         |  ✅   |  ✅   |    —     |     —     |
+| Manage webhooks              |  ✅   |  ✅   |    —     |     —     |
+| **Security & API**           |       |       |          |           |
+| Create API keys              |  ✅   |  ✅   |    —     |     —     |
+| Revoke API keys              |  ✅   |  ✅   | ✅ (own) |     —     |
+| Manage SSO (Phase 2)         |  ✅   |  ✅   |    —     |     —     |
+| View audit logs              |  ✅   |  ✅   |    —     |     —     |
+| Export audit logs            |  ✅   |  ✅   |    —     |     —     |
+| **Teams**                    |       |       |          |           |
+| Create teams                 |  ✅   |  ✅   |    —     |     —     |
+| Manage team members          |  ✅   |  ✅   |    —     |     —     |
+| View teams                   |  ✅   |  ✅   |    ✅    |    ✅     |
+| **AI Copilot**               |       |       |          |           |
+| Use AI features              |  ✅   |  ✅   |    ✅    |     —     |
+| Configure AI settings        |  ✅   |  ✅   |    —     |     —     |
+| View AI usage                |  ✅   |  ✅   |    —     |     —     |
 
 > 🔶 **Scoped** = Guest can perform the action only on resources they have been explicitly granted access to.
 
@@ -1564,11 +1541,7 @@ interface AuthMethod {
  * Extracts and validates the authentication method.
  * Populates req.user and req.auth.
  */
-export async function authResolver(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function authResolver(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const authHeader = req.headers.authorization;
     const apiKeyHeader = req.headers['x-api-key'] as string | undefined;
@@ -1604,14 +1577,12 @@ async function handleJwtAuth(
   req: Request,
   res: Response,
   next: NextFunction,
-  token: string
+  token: string,
 ): Promise<void> {
   const payload = await verifyAccessToken(token);
 
   // Check if session is still valid (not revoked)
-  const sessionExists = await redis.exists(
-    `sprintio:session:${payload.sid}`
-  );
+  const sessionExists = await redis.exists(`sprintio:session:${payload.sid}`);
   if (!sessionExists) {
     return res.status(401).json({
       code: 'SESSION_REVOKED',
@@ -1636,7 +1607,7 @@ async function handleApiKeyAuth(
   req: Request,
   res: Response,
   next: NextFunction,
-  apiKey: string
+  apiKey: string,
 ): Promise<void> {
   // Hash the API key and look it up
   const keyHash = await sha256(apiKey);
@@ -1648,7 +1619,7 @@ async function handleApiKeyAuth(
      WHERE ak.key_hash = $1
        AND ak.revoked_at IS NULL
        AND ak.expires_at > NOW()`,
-    [keyHash]
+    [keyHash],
   );
 
   if (keyData.rows.length === 0) {
@@ -1672,10 +1643,10 @@ async function handleApiKeyAuth(
   }
 
   // Update last used
-  await db.query(
-    'UPDATE api_keys SET last_used_at = NOW(), last_used_ip = $1 WHERE id = $2',
-    [req.ip, key.id]
-  );
+  await db.query('UPDATE api_keys SET last_used_at = NOW(), last_used_ip = $1 WHERE id = $2', [
+    req.ip,
+    key.id,
+  ]);
 
   req.user = {
     id: key.user_id,
@@ -1722,7 +1693,7 @@ export function requirePermission(...permissions: Permission[]) {
        FROM memberships m
        JOIN roles r ON r.id = m.role_id
        WHERE m.user_id = $1 AND m.workspace_id = $2`,
-      [userId, workspaceId]
+      [userId, workspaceId],
     );
 
     if (membership.rows.length === 0) {
@@ -1745,11 +1716,11 @@ export function requirePermission(...permissions: Permission[]) {
        FROM role_permissions rp
        JOIN permissions p ON p.id = rp.permission_id
        WHERE rp.role_id = $1`,
-      [role_id]
+      [role_id],
     );
 
     const hasPermission = permissions.every((required) =>
-      rolePermissions.rows.some((p) => p.action === required)
+      rolePermissions.rows.some((p) => p.action === required),
     );
 
     if (!hasPermission) {
@@ -1773,7 +1744,7 @@ export function requirePermission(...permissions: Permission[]) {
              AND gs.resource_type = $3
              AND gs.resource_id = $4
              AND (gs.expires_at IS NULL OR gs.expires_at > NOW())`,
-          [userId, workspaceId, resourceType, resourceId]
+          [userId, workspaceId, resourceType, resourceId],
         );
 
         if (scope.rows.length === 0) {
@@ -1790,10 +1761,7 @@ export function requirePermission(...permissions: Permission[]) {
 }
 
 // Helper: cache permission checks (5 minute TTL)
-export async function getCachedPermissions(
-  userId: string,
-  workspaceId: string
-): Promise<string[]> {
+export async function getCachedPermissions(userId: string, workspaceId: string): Promise<string[]> {
   const cacheKey = `perms:${userId}:${workspaceId}`;
   const cached = await redis.get(cacheKey);
 
@@ -1805,7 +1773,7 @@ export async function getCachedPermissions(
      JOIN role_permissions rp ON rp.role_id = m.role_id
      JOIN permissions p ON p.id = rp.permission_id
      WHERE m.user_id = $1 AND m.workspace_id = $2`,
-    [userId, workspaceId]
+    [userId, workspaceId],
   );
 
   const permissions = result.rows.map((r) => r.action);
@@ -1828,39 +1796,23 @@ const router = Router();
 router.use(authResolver);
 
 // Read tasks — Members, Admins, Owners
-router.get(
-  '/',
-  requirePermission('task.read'),
-  taskController.listTasks
-);
+router.get('/', requirePermission('task.read'), taskController.listTasks);
 
 // Create task — Members, Admins, Owners (Guests scoped)
-router.post(
-  '/',
-  requirePermission('task.create'),
-  taskController.createTask
-);
+router.post('/', requirePermission('task.create'), taskController.createTask);
 
 // Delete task — Members, Admins, Owners (not Guests)
-router.delete(
-  '/:id',
-  requirePermission('task.delete'),
-  taskController.deleteTask
-);
+router.delete('/:id', requirePermission('task.delete'), taskController.deleteTask);
 
 // Manage workspace settings — Admins, Owners only
 router.put(
   '/workspace/settings',
   requirePermission('workspace.manage'),
-  workspaceController.updateSettings
+  workspaceController.updateSettings,
 );
 
 // Create API key — Admins, Owners only
-router.post(
-  '/api-keys',
-  requirePermission('apikey.create'),
-  apiKeyController.createKey
-);
+router.post('/api-keys', requirePermission('apikey.create'), apiKeyController.createKey);
 ```
 
 ---
@@ -1869,15 +1821,15 @@ router.post(
 
 ### 12.1 Key Properties
 
-| Property | Value |
-|----------|-------|
-| **Format** | `srio_live_{random48bytes}` (prefix identifies environment) |
-| **Prefixes** | `srio_live_` (production), `srio_test_` (staging) |
-| **Hashing** | SHA-256 stored in DB; raw key shown only once at creation |
-| **Scoping** | Per-workspace; inherits the creator's role permissions |
-| **Rate Limit** | 1,000 requests/minute per key (configurable per plan) |
-| **Max per workspace** | 10 active keys |
-| **Expiration** | Configurable: 30 days, 90 days, 365 days, or never |
+| Property              | Value                                                       |
+| --------------------- | ----------------------------------------------------------- |
+| **Format**            | `srio_live_{random48bytes}` (prefix identifies environment) |
+| **Prefixes**          | `srio_live_` (production), `srio_test_` (staging)           |
+| **Hashing**           | SHA-256 stored in DB; raw key shown only once at creation   |
+| **Scoping**           | Per-workspace; inherits the creator's role permissions      |
+| **Rate Limit**        | 1,000 requests/minute per key (configurable per plan)       |
+| **Max per workspace** | 10 active keys                                              |
+| **Expiration**        | Configurable: 30 days, 90 days, 365 days, or never          |
 
 ### 12.2 API Key Database Schema
 
@@ -1918,19 +1870,19 @@ export async function generateApiKey(
   userId: string,
   workspaceId: string,
   name: string,
-  options: { expiresIn?: number } = {}
+  options: { expiresIn?: number } = {},
 ): Promise<{ rawKey: string; keyPrefix: string; id: string }> {
   // Check limit
   const existing = await db.query(
     `SELECT COUNT(*) FROM api_keys
      WHERE workspace_id = $1 AND revoked_at IS NULL`,
-    [workspaceId]
+    [workspaceId],
   );
 
   if (parseInt(existing.rows[0].count) >= MAX_KEYS_PER_WORKSPACE) {
     throw new AuthError(
       'KEY_LIMIT_REACHED',
-      `Maximum ${MAX_KEYS_PER_WORKSPACE} API keys per workspace`
+      `Maximum ${MAX_KEYS_PER_WORKSPACE} API keys per workspace`,
     );
   }
 
@@ -1940,15 +1892,13 @@ export async function generateApiKey(
   const keyPrefix = rawKey.slice(0, 16) + '...';
   const keyHash = createHash('sha256').update(rawKey).digest('hex');
 
-  const expiresAt = options.expiresIn
-    ? new Date(Date.now() + options.expiresIn * 1000)
-    : null;
+  const expiresAt = options.expiresIn ? new Date(Date.now() + options.expiresIn * 1000) : null;
 
   const result = await db.query(
     `INSERT INTO api_keys (user_id, workspace_id, name, key_prefix, key_hash, expires_at)
      VALUES ($1, $2, $3, $4, $5, $6)
      RETURNING id`,
-    [userId, workspaceId, name, keyPrefix, keyHash, expiresAt]
+    [userId, workspaceId, name, keyPrefix, keyHash, expiresAt],
   );
 
   // Audit log
@@ -1966,13 +1916,13 @@ export async function generateApiKey(
 export async function revokeApiKey(
   keyId: string,
   userId: string,
-  workspaceId: string
+  workspaceId: string,
 ): Promise<void> {
   await db.query(
     `UPDATE api_keys
      SET revoked_at = NOW()
      WHERE id = $1 AND workspace_id = $2`,
-    [keyId, workspaceId]
+    [keyId, workspaceId],
   );
 
   await auditLog({
@@ -1990,12 +1940,12 @@ export async function revokeApiKey(
 
 ### 13.1 CSRF Protection
 
-| Strategy | Implementation |
-|----------|----------------|
-| **SameSite cookies** | `SameSite=Lax` on refresh token cookie — blocks cross-site cookie transmission |
-| **Origin header validation** | Express middleware checks `Origin` against allowlist |
-| **State parameter** | OAuth flows use random state tokens stored in Redis (10-minute TTL) |
-| **Double Submit Cookie** | For cookie-based auth: CSRF token in cookie + header must match |
+| Strategy                     | Implementation                                                                 |
+| ---------------------------- | ------------------------------------------------------------------------------ |
+| **SameSite cookies**         | `SameSite=Lax` on refresh token cookie — blocks cross-site cookie transmission |
+| **Origin header validation** | Express middleware checks `Origin` against allowlist                           |
+| **State parameter**          | OAuth flows use random state tokens stored in Redis (10-minute TTL)            |
+| **Double Submit Cookie**     | For cookie-based auth: CSRF token in cookie + header must match                |
 
 ```typescript
 // src/middleware/csrf.ts
@@ -2027,17 +1977,17 @@ export function csrfProtection(req: Request, res: Response, next: NextFunction) 
 
 ### 13.2 Rate Limiting
 
-| Scope | Limit | Window | Action |
-|-------|-------|--------|--------|
-| **Global per IP** | 1,000 req | 1 minute | 429 |
-| **Login per email** | 5 attempts | 15 minutes | 429 + email notification |
-| **Registration per IP** | 10 accounts | 1 hour | 429 |
-| **Password reset per email** | 3 requests | 1 hour | 200 (always — prevent enumeration) |
-| **Magic link per email** | 3 requests | 1 hour | 200 (always) |
-| **OAuth state per session** | 5 requests | 10 minutes | 429 |
-| **API key** | 1,000 req | 1 minute | 429 (configurable) |
-| **MFA attempts** | 5 attempts | 15 minutes | 429 |
-| **Token refresh** | 10 requests | 15 minutes | 429 (revoke all sessions) |
+| Scope                        | Limit       | Window     | Action                             |
+| ---------------------------- | ----------- | ---------- | ---------------------------------- |
+| **Global per IP**            | 1,000 req   | 1 minute   | 429                                |
+| **Login per email**          | 5 attempts  | 15 minutes | 429 + email notification           |
+| **Registration per IP**      | 10 accounts | 1 hour     | 429                                |
+| **Password reset per email** | 3 requests  | 1 hour     | 200 (always — prevent enumeration) |
+| **Magic link per email**     | 3 requests  | 1 hour     | 200 (always)                       |
+| **OAuth state per session**  | 5 requests  | 10 minutes | 429                                |
+| **API key**                  | 1,000 req   | 1 minute   | 429 (configurable)                 |
+| **MFA attempts**             | 5 attempts  | 15 minutes | 429                                |
+| **Token refresh**            | 10 requests | 15 minutes | 429 (revoke all sessions)          |
 
 ```typescript
 // src/middleware/rate-limit.ts
@@ -2127,25 +2077,25 @@ function getClientIdentifier(req: Request): string {
 
 ### 13.4 Audit Logging
 
-| Event | Data Captured |
-|-------|--------------|
-| `user.register` | userId, email, method (email/oauth/magic-link), ip, userAgent |
-| `user.login` | userId, method, provider, ip, userAgent, sessionId |
-| `user.login.failed` | email (hashed), reason, ip, userAgent |
-| `user.logout` | userId, sessionId, ip |
-| `user.password.reset.request` | userId, ip |
-| `user.password.reset.complete` | userId, ip |
-| `user.password.changed` | userId, ip |
-| `mfa.enabled` | userId, ip |
-| `mfa.disabled` | userId, ip |
-| `mfa.verified` | userId, method (totp/backup), ip |
-| `apikey.create` | userId, workspaceId, keyName, keyPrefix |
-| `apikey.revoke` | userId, workspaceId, keyId |
-| `session.revoked` | userId, sessionId, revokedBy |
-| `session.revoke_all` | userId, revokedBy, count |
-| `member.invited` | workspaceId, invitedEmail, role, invitedBy |
-| `member.removed` | workspaceId, removedUserId, removedBy |
-| `member.role_changed` | workspaceId, targetUserId, oldRole, newRole, changedBy |
+| Event                          | Data Captured                                                 |
+| ------------------------------ | ------------------------------------------------------------- |
+| `user.register`                | userId, email, method (email/oauth/magic-link), ip, userAgent |
+| `user.login`                   | userId, method, provider, ip, userAgent, sessionId            |
+| `user.login.failed`            | email (hashed), reason, ip, userAgent                         |
+| `user.logout`                  | userId, sessionId, ip                                         |
+| `user.password.reset.request`  | userId, ip                                                    |
+| `user.password.reset.complete` | userId, ip                                                    |
+| `user.password.changed`        | userId, ip                                                    |
+| `mfa.enabled`                  | userId, ip                                                    |
+| `mfa.disabled`                 | userId, ip                                                    |
+| `mfa.verified`                 | userId, method (totp/backup), ip                              |
+| `apikey.create`                | userId, workspaceId, keyName, keyPrefix                       |
+| `apikey.revoke`                | userId, workspaceId, keyId                                    |
+| `session.revoked`              | userId, sessionId, revokedBy                                  |
+| `session.revoke_all`           | userId, revokedBy, count                                      |
+| `member.invited`               | workspaceId, invitedEmail, role, invitedBy                    |
+| `member.removed`               | workspaceId, removedUserId, removedBy                         |
+| `member.role_changed`          | workspaceId, targetUserId, oldRole, newRole, changedBy        |
 
 ```sql
 -- Audit log table (append-only, immutable)
@@ -2182,11 +2132,11 @@ CREATE INDEX idx_audit_log_action ON audit_log(action, created_at DESC);
 import { CookieOptions } from 'express';
 
 export const REFRESH_TOKEN_COOKIE: CookieOptions = {
-  httpOnly: true,       // Not accessible to JavaScript
-  secure: true,         // HTTPS only
-  sameSite: 'lax',     // Prevent CSRF; allows top-level navigation
+  httpOnly: true, // Not accessible to JavaScript
+  secure: true, // HTTPS only
+  sameSite: 'lax', // Prevent CSRF; allows top-level navigation
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  path: '/api/auth',   // Only sent to auth endpoints
+  path: '/api/auth', // Only sent to auth endpoints
   domain: '.sprintio.io',
 };
 
@@ -2376,10 +2326,7 @@ export function getAccessToken(): string | null {
  * When a 401 is received, all pending requests wait
  * for the refresh to complete, then retry once.
  */
-export async function fetchWithAuth(
-  url: string,
-  options: RequestInit = {}
-): Promise<Response> {
+export async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
   const headers = new Headers(options.headers);
 
   if (accessToken) {
@@ -2665,51 +2612,51 @@ CREATE INDEX idx_api_keys_workspace ON api_keys(workspace_id) WHERE revoked_at I
 
 ### 16.1 Authentication Security
 
-| Control | Status | Notes |
-|---------|:------:|-------|
-| Passwords hashed with argon2id (memory-hard) | ✅ | OWASP recommended; 64MB memory, 3 iterations |
-| Password strength enforcement (min 8, complexity, HIBP) | ✅ | Top 100k breached passwords blocked |
-| JWT access tokens short-lived (15 min) | ✅ | ES256 signing; not stored in localStorage |
-| Refresh token rotation (one-time use) | ✅ | Token reuse detection → revoke all sessions |
-| Refresh token in HttpOnly cookie | ✅ | Not accessible to JavaScript |
-| OAuth state parameter (CSRF) | ✅ | Stored in Redis, 10-min TTL |
-| Email verification required | ✅ | Account locked until verified |
-| MFA (TOTP) optional per user | ✅ | Backup codes for recovery |
-| Rate limiting on auth endpoints | ✅ | Per-IP, per-email, per-key |
-| Brute force protection (lockout) | ✅ | 5 failures → 15-min block; progressive |
-| Password reset tokens single-use | ✅ | Hashed in DB, 1-hour expiry |
-| Magic link tokens single-use | ✅ | Stored in Redis, 15-min expiry |
-| Session revocation (single + all) | ✅ | Immediate via Redis delete |
-| Secure cookie flags (HttpOnly, Secure, SameSite) | ✅ | Path-scoped to /api/auth |
-| No secrets in code or environment | ✅ | Cloudflare Secrets / Vault |
+| Control                                                 | Status | Notes                                        |
+| ------------------------------------------------------- | :----: | -------------------------------------------- |
+| Passwords hashed with argon2id (memory-hard)            |   ✅   | OWASP recommended; 64MB memory, 3 iterations |
+| Password strength enforcement (min 8, complexity, HIBP) |   ✅   | Top 100k breached passwords blocked          |
+| JWT access tokens short-lived (15 min)                  |   ✅   | ES256 signing; not stored in localStorage    |
+| Refresh token rotation (one-time use)                   |   ✅   | Token reuse detection → revoke all sessions  |
+| Refresh token in HttpOnly cookie                        |   ✅   | Not accessible to JavaScript                 |
+| OAuth state parameter (CSRF)                            |   ✅   | Stored in Redis, 10-min TTL                  |
+| Email verification required                             |   ✅   | Account locked until verified                |
+| MFA (TOTP) optional per user                            |   ✅   | Backup codes for recovery                    |
+| Rate limiting on auth endpoints                         |   ✅   | Per-IP, per-email, per-key                   |
+| Brute force protection (lockout)                        |   ✅   | 5 failures → 15-min block; progressive       |
+| Password reset tokens single-use                        |   ✅   | Hashed in DB, 1-hour expiry                  |
+| Magic link tokens single-use                            |   ✅   | Stored in Redis, 15-min expiry               |
+| Session revocation (single + all)                       |   ✅   | Immediate via Redis delete                   |
+| Secure cookie flags (HttpOnly, Secure, SameSite)        |   ✅   | Path-scoped to /api/auth                     |
+| No secrets in code or environment                       |   ✅   | Cloudflare Secrets / Vault                   |
 
 ### 16.2 Authorization Security
 
-| Control | Status | Notes |
-|---------|:------:|-------|
-| RBAC model (Owner/Admin/Member/Guest) | ✅ | Database-driven, not hardcoded |
-| Permission checks centralized (middleware) | ✅ | `requirePermission()` guard |
-| Workspace isolation (all queries scoped) | ✅ | `workspaceId` from JWT required |
-| Guest access scoped to specific resources | ✅ | `guest_scopes` table |
-| Guest access time-limited | ✅ | `expires_at` on guest scopes |
-| Owner cannot be demoted | ✅ | Role change API rejects Owner changes |
-| Audit logging for all auth events | ✅ | Append-only, immutable table |
-| API keys scoped per workspace | ✅ | Workspace + role from key |
-| API key rate limiting | ✅ | 1,000 req/min per key |
+| Control                                    | Status | Notes                                 |
+| ------------------------------------------ | :----: | ------------------------------------- |
+| RBAC model (Owner/Admin/Member/Guest)      |   ✅   | Database-driven, not hardcoded        |
+| Permission checks centralized (middleware) |   ✅   | `requirePermission()` guard           |
+| Workspace isolation (all queries scoped)   |   ✅   | `workspaceId` from JWT required       |
+| Guest access scoped to specific resources  |   ✅   | `guest_scopes` table                  |
+| Guest access time-limited                  |   ✅   | `expires_at` on guest scopes          |
+| Owner cannot be demoted                    |   ✅   | Role change API rejects Owner changes |
+| Audit logging for all auth events          |   ✅   | Append-only, immutable table          |
+| API keys scoped per workspace              |   ✅   | Workspace + role from key             |
+| API key rate limiting                      |   ✅   | 1,000 req/min per key                 |
 
 ### 16.3 Infrastructure Security
 
-| Control | Status | Notes |
-|---------|:------:|-------|
-| TLS 1.3 for all connections | ✅ | Enforced at Cloudflare edge |
-| HSTS header (2 year, includeSubDomains) | ✅ | Preload ready |
-| CORS origin allowlist | ✅ | Strict; credentials only from trusted origins |
-| Security headers (CSP, X-Frame-Options, etc.) | ✅ | All standard headers set |
-| DDoS protection (Cloudflare) | ✅ | Built-in |
-| Database encryption at rest (AES-256) | ✅ | Cloud provider managed |
-| No direct DB access from internet | ✅ | Private network only |
-| Dependency vulnerability scanning | ✅ | Dependabot + Snyk in CI |
-| Secret scanning in CI | ✅ | truffleHog + gitleaks |
+| Control                                       | Status | Notes                                         |
+| --------------------------------------------- | :----: | --------------------------------------------- |
+| TLS 1.3 for all connections                   |   ✅   | Enforced at Cloudflare edge                   |
+| HSTS header (2 year, includeSubDomains)       |   ✅   | Preload ready                                 |
+| CORS origin allowlist                         |   ✅   | Strict; credentials only from trusted origins |
+| Security headers (CSP, X-Frame-Options, etc.) |   ✅   | All standard headers set                      |
+| DDoS protection (Cloudflare)                  |   ✅   | Built-in                                      |
+| Database encryption at rest (AES-256)         |   ✅   | Cloud provider managed                        |
+| No direct DB access from internet             |   ✅   | Private network only                          |
+| Dependency vulnerability scanning             |   ✅   | Dependabot + Snyk in CI                       |
+| Secret scanning in CI                         |   ✅   | truffleHog + gitleaks                         |
 
 ---
 
@@ -2717,75 +2664,75 @@ CREATE INDEX idx_api_keys_workspace ON api_keys(workspace_id) WHERE revoked_at I
 
 ### Auth Endpoints
 
-| Method | Endpoint | Auth Required | Description |
-|--------|----------|:------------:|-------------|
-| `POST` | `/api/auth/register` | ❌ | Register with email/password |
-| `POST` | `/api/auth/login` | ❌ | Login with email/password |
-| `POST` | `/api/auth/logout` | ✅ | Revoke session, clear cookie |
-| `POST` | `/api/auth/refresh` | Cookie | Rotate refresh token |
-| `GET` | `/api/auth/me` | ✅ | Get current user profile |
-| `POST` | `/api/auth/verify-email` | ❌ | Verify email with token |
-| `POST` | `/api/auth/forgot-password` | ❌ | Request password reset |
-| `POST` | `/api/auth/reset-password` | ❌ | Reset password with token |
-| `GET` | `/api/auth/oauth/:provider` | ❌ | Redirect to OAuth provider |
-| `GET` | `/api/auth/oauth/:provider/callback` | ❌ | OAuth callback handler |
-| `POST` | `/api/auth/magic-link` | ❌ | Request magic link email |
-| `GET` | `/api/auth/magic-link/verify` | ❌ | Verify magic link token |
-| `POST` | `/api/auth/mfa/setup` | ✅ | Generate TOTP secret + QR |
-| `POST` | `/api/auth/mfa/confirm` | ✅ | Activate MFA with code |
-| `POST` | `/api/auth/mfa/verify` | ✅ | Verify TOTP during login |
-| `POST` | `/api/auth/mfa/disable` | ✅ | Disable MFA (requires current code) |
-| `GET` | `/api/auth/sessions` | ✅ | List active sessions |
-| `DELETE` | `/api/auth/sessions/:id` | ✅ | Revoke specific session |
-| `DELETE` | `/api/auth/sessions` | ✅ | Revoke all sessions |
-| `POST` | `/api/auth/api-keys` | ✅ | Create API key |
-| `GET` | `/api/auth/api-keys` | ✅ | List API keys |
-| `DELETE` | `/api/auth/api-keys/:id` | ✅ | Revoke API key |
+| Method   | Endpoint                             | Auth Required | Description                         |
+| -------- | ------------------------------------ | :-----------: | ----------------------------------- |
+| `POST`   | `/api/auth/register`                 |      ❌       | Register with email/password        |
+| `POST`   | `/api/auth/login`                    |      ❌       | Login with email/password           |
+| `POST`   | `/api/auth/logout`                   |      ✅       | Revoke session, clear cookie        |
+| `POST`   | `/api/auth/refresh`                  |    Cookie     | Rotate refresh token                |
+| `GET`    | `/api/auth/me`                       |      ✅       | Get current user profile            |
+| `POST`   | `/api/auth/verify-email`             |      ❌       | Verify email with token             |
+| `POST`   | `/api/auth/forgot-password`          |      ❌       | Request password reset              |
+| `POST`   | `/api/auth/reset-password`           |      ❌       | Reset password with token           |
+| `GET`    | `/api/auth/oauth/:provider`          |      ❌       | Redirect to OAuth provider          |
+| `GET`    | `/api/auth/oauth/:provider/callback` |      ❌       | OAuth callback handler              |
+| `POST`   | `/api/auth/magic-link`               |      ❌       | Request magic link email            |
+| `GET`    | `/api/auth/magic-link/verify`        |      ❌       | Verify magic link token             |
+| `POST`   | `/api/auth/mfa/setup`                |      ✅       | Generate TOTP secret + QR           |
+| `POST`   | `/api/auth/mfa/confirm`              |      ✅       | Activate MFA with code              |
+| `POST`   | `/api/auth/mfa/verify`               |      ✅       | Verify TOTP during login            |
+| `POST`   | `/api/auth/mfa/disable`              |      ✅       | Disable MFA (requires current code) |
+| `GET`    | `/api/auth/sessions`                 |      ✅       | List active sessions                |
+| `DELETE` | `/api/auth/sessions/:id`             |      ✅       | Revoke specific session             |
+| `DELETE` | `/api/auth/sessions`                 |      ✅       | Revoke all sessions                 |
+| `POST`   | `/api/auth/api-keys`                 |      ✅       | Create API key                      |
+| `GET`    | `/api/auth/api-keys`                 |      ✅       | List API keys                       |
+| `DELETE` | `/api/auth/api-keys/:id`             |      ✅       | Revoke API key                      |
 
 ### Auth Headers
 
-| Header | Usage |
-|--------|-------|
-| `Authorization: Bearer <jwt>` | JWT access token (15-min TTL) |
-| `X-API-Key: srio_live_...` | API key authentication |
-| `X-Request-ID: <uuid>` | Request tracing (auto-generated if absent) |
-| `X-RateLimit-Limit` | Rate limit ceiling (response header) |
-| `X-RateLimit-Remaining` | Remaining requests (response header) |
-| `X-RateLimit-Reset` | Unix timestamp when window resets (response header) |
+| Header                        | Usage                                               |
+| ----------------------------- | --------------------------------------------------- |
+| `Authorization: Bearer <jwt>` | JWT access token (15-min TTL)                       |
+| `X-API-Key: srio_live_...`    | API key authentication                              |
+| `X-Request-ID: <uuid>`        | Request tracing (auto-generated if absent)          |
+| `X-RateLimit-Limit`           | Rate limit ceiling (response header)                |
+| `X-RateLimit-Remaining`       | Remaining requests (response header)                |
+| `X-RateLimit-Reset`           | Unix timestamp when window resets (response header) |
 
 ### Token Lifetimes
 
-| Token | Lifetime | Storage | Notes |
-|-------|----------|---------|-------|
-| **Access Token** | 15 minutes | JavaScript memory | Signed JWT (ES256); NOT in localStorage/cookie |
-| **Refresh Token** | 7 days | HttpOnly cookie | Opaque; rotated on each use |
-| **Refresh Token (Remember Me)** | 30 days | HttpOnly cookie | Opaque; rotated on each use |
-| **Email Verification** | 24 hours | PostgreSQL | SHA-256 hash stored; single-use |
-| **Password Reset** | 1 hour | PostgreSQL | SHA-256 hash stored; single-use |
-| **Magic Link** | 15 minutes | Redis | SHA-256 hash stored; single-use |
-| **MFA Pending Token** | 5 minutes | Redis | Temporary; until TOTP verified |
-| **OAuth State** | 10 minutes | Redis | CSRF protection; single-use |
-| **API Key** | Configurable | PostgreSQL | Never expires (default), or 30/90/365 days |
+| Token                           | Lifetime     | Storage           | Notes                                          |
+| ------------------------------- | ------------ | ----------------- | ---------------------------------------------- |
+| **Access Token**                | 15 minutes   | JavaScript memory | Signed JWT (ES256); NOT in localStorage/cookie |
+| **Refresh Token**               | 7 days       | HttpOnly cookie   | Opaque; rotated on each use                    |
+| **Refresh Token (Remember Me)** | 30 days      | HttpOnly cookie   | Opaque; rotated on each use                    |
+| **Email Verification**          | 24 hours     | PostgreSQL        | SHA-256 hash stored; single-use                |
+| **Password Reset**              | 1 hour       | PostgreSQL        | SHA-256 hash stored; single-use                |
+| **Magic Link**                  | 15 minutes   | Redis             | SHA-256 hash stored; single-use                |
+| **MFA Pending Token**           | 5 minutes    | Redis             | Temporary; until TOTP verified                 |
+| **OAuth State**                 | 10 minutes   | Redis             | CSRF protection; single-use                    |
+| **API Key**                     | Configurable | PostgreSQL        | Never expires (default), or 30/90/365 days     |
 
 ### Error Codes
 
-| Code | HTTP Status | Description |
-|------|:----------:|-------------|
-| `UNAUTHENTICATED` | 401 | No credentials provided |
-| `TOKEN_EXPIRED` | 401 | Access token expired (client should refresh) |
-| `SESSION_REVOKED` | 401 | Session was revoked |
-| `INVALID_CREDENTIALS` | 401 | Wrong email or password |
-| `EMAIL_NOT_VERIFIED` | 403 | Email verification required |
-| `MFA_REQUIRED` | 400 | MFA setup/verification needed |
-| `MFA_INVALID_CODE` | 400 | TOTP code incorrect |
-| `INSUFFICIENT_PERMISSIONS` | 403 | User lacks required role/permission |
-| `NOT_MEMBER` | 403 | User is not a member of this workspace |
-| `OUT_OF_SCOPE` | 403 | Guest does not have access to this resource |
-| `RATE_LIMITED` | 429 | Too many requests |
-| `INVALID_API_KEY` | 401 | API key invalid or revoked |
-| `CSRF_VIOLATION` | 403 | CSRF check failed |
-| `ACCOUNT_LOCKED` | 423 | Too many failed login attempts |
-| `KEY_LIMIT_REACHED` | 400 | Max API keys reached for workspace |
+| Code                       | HTTP Status | Description                                  |
+| -------------------------- | :---------: | -------------------------------------------- |
+| `UNAUTHENTICATED`          |     401     | No credentials provided                      |
+| `TOKEN_EXPIRED`            |     401     | Access token expired (client should refresh) |
+| `SESSION_REVOKED`          |     401     | Session was revoked                          |
+| `INVALID_CREDENTIALS`      |     401     | Wrong email or password                      |
+| `EMAIL_NOT_VERIFIED`       |     403     | Email verification required                  |
+| `MFA_REQUIRED`             |     400     | MFA setup/verification needed                |
+| `MFA_INVALID_CODE`         |     400     | TOTP code incorrect                          |
+| `INSUFFICIENT_PERMISSIONS` |     403     | User lacks required role/permission          |
+| `NOT_MEMBER`               |     403     | User is not a member of this workspace       |
+| `OUT_OF_SCOPE`             |     403     | Guest does not have access to this resource  |
+| `RATE_LIMITED`             |     429     | Too many requests                            |
+| `INVALID_API_KEY`          |     401     | API key invalid or revoked                   |
+| `CSRF_VIOLATION`           |     403     | CSRF check failed                            |
+| `ACCOUNT_LOCKED`           |     423     | Too many failed login attempts               |
+| `KEY_LIMIT_REACHED`        |     400     | Max API keys reached for workspace           |
 
 ---
 
@@ -2793,59 +2740,59 @@ CREATE INDEX idx_api_keys_workspace ON api_keys(workspace_id) WHERE revoked_at I
 
 ### 18.1 Phase 2 Additions (Months 7–12)
 
-| Feature | Architecture Impact | Migration Path |
-|---------|--------------------|----------------|
-| **SSO/SAML 2.0** | New `saml_providers` table; new auth resolver type | Add SAML strategy alongside existing; same RBAC model |
-| **SCIM 2.0** | New sync worker; directory mappings table | Abstract `IdentityProvider` interface; MVP already uses it |
-| **Custom Roles** | `roles.is_system = false`; permission builder UI | DB-driven roles already; add UI for permission config |
-| **IP Allowlists** | New `ip_allowlists` table; middleware check | Add check in auth resolver after role verification |
-| **Device Trust** | New `trusted_devices` table; step-up auth | Add device fingerprint; challenge untrusted devices |
-| **Audit Log Export** | SIEM connectors (Splunk, Datadog) | Export API on existing `audit_log` table |
-| **Workspace Analytics** | Materialized views on audit + activity | Read replicas + aggregation jobs |
+| Feature                 | Architecture Impact                                | Migration Path                                             |
+| ----------------------- | -------------------------------------------------- | ---------------------------------------------------------- |
+| **SSO/SAML 2.0**        | New `saml_providers` table; new auth resolver type | Add SAML strategy alongside existing; same RBAC model      |
+| **SCIM 2.0**            | New sync worker; directory mappings table          | Abstract `IdentityProvider` interface; MVP already uses it |
+| **Custom Roles**        | `roles.is_system = false`; permission builder UI   | DB-driven roles already; add UI for permission config      |
+| **IP Allowlists**       | New `ip_allowlists` table; middleware check        | Add check in auth resolver after role verification         |
+| **Device Trust**        | New `trusted_devices` table; step-up auth          | Add device fingerprint; challenge untrusted devices        |
+| **Audit Log Export**    | SIEM connectors (Splunk, Datadog)                  | Export API on existing `audit_log` table                   |
+| **Workspace Analytics** | Materialized views on audit + activity             | Read replicas + aggregation jobs                           |
 
 ### 18.2 Phase 3 Additions (Months 13–18)
 
-| Feature | Notes |
-|---------|-------|
-| **OAuth App Provider** | Sprintio becomes an OAuth provider for 3rd-party apps |
-| **OIDC Provider** | Standard OIDC endpoints for enterprise SSO |
-| **ABAC (Attribute-Based)** | Layer on top of RBAC; policy engine (e.g., Cedar) |
-| **Field-Level Permissions** | Extend permission model to field granularity |
-| **Legal Hold** | Freeze user data; immune to deletion |
-| **E-Discovery Export** | Export held data in reviewable format |
+| Feature                     | Notes                                                 |
+| --------------------------- | ----------------------------------------------------- |
+| **OAuth App Provider**      | Sprintio becomes an OAuth provider for 3rd-party apps |
+| **OIDC Provider**           | Standard OIDC endpoints for enterprise SSO            |
+| **ABAC (Attribute-Based)**  | Layer on top of RBAC; policy engine (e.g., Cedar)     |
+| **Field-Level Permissions** | Extend permission model to field granularity          |
+| **Legal Hold**              | Freeze user data; immune to deletion                  |
+| **E-Discovery Export**      | Export held data in reviewable format                 |
 
 ---
 
 ## Appendix A: Environment Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `JWT_PRIVATE_KEY` | ES256 private key (PEM) | `-----BEGIN EC PRIVATE KEY-----...` |
-| `JWT_PUBLIC_KEY` | ES256 public key (PEM) | `-----BEGIN PUBLIC KEY-----...` |
-| `JWT_KEY_ID` | Key ID for header `kid` | `key-2024-01` |
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@host:5432/sprintio` |
-| `REDIS_URL` | Redis connection string | `redis://:pass@host:6379` |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID | `xxx.apps.googleusercontent.com` |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | `GOCSPX-xxx` |
-| `GITHUB_CLIENT_ID` | GitHub OAuth client ID | `Iv1.xxx` |
-| `GITHUB_CLIENT_SECRET` | GitHub OAuth client secret | `xxx` |
-| `APP_URL` | Frontend app URL | `https://app.sprintio.io` |
-| `API_URL` | Backend API URL | `https://api.sprintio.io` |
-| `MFA_ENCRYPTION_KEY` | AES-256 key for MFA secrets | 64-char hex string |
+| Variable               | Description                  | Example                                     |
+| ---------------------- | ---------------------------- | ------------------------------------------- |
+| `JWT_PRIVATE_KEY`      | ES256 private key (PEM)      | `-----BEGIN EC PRIVATE KEY-----...`         |
+| `JWT_PUBLIC_KEY`       | ES256 public key (PEM)       | `-----BEGIN PUBLIC KEY-----...`             |
+| `JWT_KEY_ID`           | Key ID for header `kid`      | `key-2024-01`                               |
+| `DATABASE_URL`         | PostgreSQL connection string | `postgresql://user:pass@host:5432/sprintio` |
+| `REDIS_URL`            | Redis connection string      | `redis://:pass@host:6379`                   |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client ID       | `xxx.apps.googleusercontent.com`            |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret   | `GOCSPX-xxx`                                |
+| `GITHUB_CLIENT_ID`     | GitHub OAuth client ID       | `Iv1.xxx`                                   |
+| `GITHUB_CLIENT_SECRET` | GitHub OAuth client secret   | `xxx`                                       |
+| `APP_URL`              | Frontend app URL             | `https://app.sprintio.io`                   |
+| `API_URL`              | Backend API URL              | `https://api.sprintio.io`                   |
+| `MFA_ENCRYPTION_KEY`   | AES-256 key for MFA secrets  | 64-char hex string                          |
 
 ## Appendix B: Dependencies
 
-| Package | Purpose | Version |
-|---------|---------|---------|
-| `jose` | JWT creation & verification (ES256) | ^5.x |
-| `argon2` | Password hashing (argon2id) | ^0.31.x |
-| `otplib` | TOTP generation & verification | ^12.x |
-| `ioredis` | Redis client | ^5.x |
-| `zod` | Input validation | ^3.x |
-| `passport` | OAuth strategy framework | ^0.7.x |
-| `passport-google-oauth20` | Google OAuth strategy | ^2.x |
-| `passport-github2` | GitHub OAuth strategy | ^0.1.x |
-| `qrcode` | QR code generation for MFA | ^1.x |
+| Package                   | Purpose                             | Version |
+| ------------------------- | ----------------------------------- | ------- |
+| `jose`                    | JWT creation & verification (ES256) | ^5.x    |
+| `argon2`                  | Password hashing (argon2id)         | ^0.31.x |
+| `otplib`                  | TOTP generation & verification      | ^12.x   |
+| `ioredis`                 | Redis client                        | ^5.x    |
+| `zod`                     | Input validation                    | ^3.x    |
+| `passport`                | OAuth strategy framework            | ^0.7.x  |
+| `passport-google-oauth20` | Google OAuth strategy               | ^2.x    |
+| `passport-github2`        | GitHub OAuth strategy               | ^0.1.x  |
+| `qrcode`                  | QR code generation for MFA          | ^1.x    |
 
 ---
 

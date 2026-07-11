@@ -21,9 +21,7 @@ function getRefreshSecret(): Uint8Array {
   return new TextEncoder().encode(env.JWT_REFRESH_SECRET);
 }
 
-export async function generateAccessToken(
-  payload: AccessTokenPayload
-): Promise<string> {
+export async function generateAccessToken(payload: AccessTokenPayload): Promise<string> {
   const secret = getAccessSecret();
   return new SignJWT(payload as unknown as JWTPayload)
     .setProtectedHeader({ alg: ALGORITHM })
@@ -32,9 +30,7 @@ export async function generateAccessToken(
     .sign(secret);
 }
 
-export async function generateRefreshToken(
-  payload: RefreshTokenPayloadJwt
-): Promise<string> {
+export async function generateRefreshToken(payload: RefreshTokenPayloadJwt): Promise<string> {
   const secret = getRefreshSecret();
   return new SignJWT(payload as unknown as JWTPayload)
     .setProtectedHeader({ alg: ALGORITHM })
@@ -43,9 +39,7 @@ export async function generateRefreshToken(
     .sign(secret);
 }
 
-export async function verifyAccessToken(
-  token: string
-): Promise<AccessTokenPayload | null> {
+export async function verifyAccessToken(token: string): Promise<AccessTokenPayload | null> {
   try {
     const secret = getAccessSecret();
     const { payload } = await jwtVerify(token, secret, {
@@ -61,9 +55,7 @@ export async function verifyAccessToken(
   }
 }
 
-export async function verifyRefreshToken(
-  token: string
-): Promise<RefreshTokenPayloadJwt | null> {
+export async function verifyRefreshToken(token: string): Promise<RefreshTokenPayloadJwt | null> {
   try {
     const secret = getRefreshSecret();
     const { payload } = await jwtVerify(token, secret, {

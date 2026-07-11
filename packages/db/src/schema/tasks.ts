@@ -10,8 +10,12 @@ export const tasks = pgTable('tasks', {
   status: varchar('status', { length: 30 }).notNull().default('todo'),
   priority: varchar('priority', { length: 20 }).notNull().default('none'),
   assigneeId: uuid('assignee_id').references(() => users.id, { onDelete: 'set null' }),
-  boardId: uuid('board_id').notNull().references(() => boards.id, { onDelete: 'cascade' }),
-  columnId: uuid('column_id').notNull().references(() => columns.id, { onDelete: 'cascade' }),
+  boardId: uuid('board_id')
+    .notNull()
+    .references(() => boards.id, { onDelete: 'cascade' }),
+  columnId: uuid('column_id')
+    .notNull()
+    .references(() => columns.id, { onDelete: 'cascade' }),
   sprintId: uuid('sprint_id'),
   position: integer('position').notNull().default(0),
   labels: jsonb('labels').$type<string[]>().default([]),

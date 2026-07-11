@@ -37,26 +37,26 @@ Sprintio's data architecture is built on **PostgreSQL 16** with extensions that 
 
 ### Key Design Principles
 
-| Principle | Implementation |
-|-----------|----------------|
-| **Workspace isolation** | Every query is scoped to a workspace via RLS policies — no data leaks across boundaries |
-| **Append-only auditability** | Activity log, webhook deliveries, and automation runs are immutable append-only records |
-| **Extensible schema** | JSONB metadata columns + typed custom field tables let us add features without migration |
-| **Zero-downtime evolution** | All migrations are reversible, versioned, and designed for online deployment |
-| **Read replica scaling** | Reads route to replicas; writes hit primary — connection pooling handles the split |
-| **Time-series optimization** | TimescaleDB hypertables for activity logs and metrics with automatic partitioning |
+| Principle                    | Implementation                                                                           |
+| ---------------------------- | ---------------------------------------------------------------------------------------- |
+| **Workspace isolation**      | Every query is scoped to a workspace via RLS policies — no data leaks across boundaries  |
+| **Append-only auditability** | Activity log, webhook deliveries, and automation runs are immutable append-only records  |
+| **Extensible schema**        | JSONB metadata columns + typed custom field tables let us add features without migration |
+| **Zero-downtime evolution**  | All migrations are reversible, versioned, and designed for online deployment             |
+| **Read replica scaling**     | Reads route to replicas; writes hit primary — connection pooling handles the split       |
+| **Time-series optimization** | TimescaleDB hypertables for activity logs and metrics with automatic partitioning        |
 
 ### Scale Targets (from NFRs)
 
-| Metric | MVP Target | Full Production |
-|--------|-----------|-----------------|
-| Total workspaces | 100 | 100,000+ |
-| Total users | 1,000 | 1,000,000+ |
-| Total tasks | 100,000 | 1,000,000,000+ |
-| Tasks per project | 5,000 | 100,000+ |
-| Concurrent users/workspace | 50 | 500+ |
-| DB query latency (p95) | < 50ms | < 50ms |
-| Activity log entries/workspace | 100,000 | 10,000,000+ |
+| Metric                         | MVP Target | Full Production |
+| ------------------------------ | ---------- | --------------- |
+| Total workspaces               | 100        | 100,000+        |
+| Total users                    | 1,000      | 1,000,000+      |
+| Total tasks                    | 100,000    | 1,000,000,000+  |
+| Tasks per project              | 5,000      | 100,000+        |
+| Concurrent users/workspace     | 50         | 500+            |
+| DB query latency (p95)         | < 50ms     | < 50ms          |
+| Activity log entries/workspace | 100,000    | 10,000,000+     |
 
 ---
 
@@ -66,19 +66,19 @@ Sprintio's data architecture is built on **PostgreSQL 16** with extensions that 
 
 **Recommendation: Drizzle ORM** over Prisma.
 
-| Factor | Drizzle ORM | Prisma |
-|--------|-------------|--------|
-| **Query performance** | Compiles to raw SQL — no query engine overhead | Routes through Rust query engine — adds latency |
-| **PostgreSQL extensions** | Native support for pgvector, TimescaleDB, RLS | Limited; raw SQL escape hatch needed |
-| **SQL migration control** | Generates plain SQL migrations — full control | Abstracted migrations — less control |
-| **Bundle size** | ~50KB (tree-shakeable) | ~150KB+ (includes query engine) |
+| Factor                      | Drizzle ORM                                                            | Prisma                                            |
+| --------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------- |
+| **Query performance**       | Compiles to raw SQL — no query engine overhead                         | Routes through Rust query engine — adds latency   |
+| **PostgreSQL extensions**   | Native support for pgvector, TimescaleDB, RLS                          | Limited; raw SQL escape hatch needed              |
+| **SQL migration control**   | Generates plain SQL migrations — full control                          | Abstracted migrations — less control              |
+| **Bundle size**             | ~50KB (tree-shakeable)                                                 | ~150KB+ (includes query engine)                   |
 | **PgBouncer compatibility** | Excellent — uses standard prepared statements or parameterized queries | Poor — Prisma engine opens long-lived connections |
-| **Type safety** | TypeBox/Zod schema inference; strict SQL types | Excellent type inference from schema |
-| **JSONB support** | First-class typed JSONB columns | Supported but less ergonomic |
-| **Raw SQL access** | Seamless `sql` template literal with type inference | `db.$queryRaw` — less integrated |
-| **Migration philosophy** | Plain SQL — version-controlled, reviewable, reversible | Abstraction-first — can obscure what runs |
-| **Runtime overhead** | Minimal — direct SQL execution | Rust engine + TCP connection to query proxy |
-| **Community (2026)** | Growing rapidly; strong PostgreSQL community | Larger overall; declining PostgreSQL mindshare |
+| **Type safety**             | TypeBox/Zod schema inference; strict SQL types                         | Excellent type inference from schema              |
+| **JSONB support**           | First-class typed JSONB columns                                        | Supported but less ergonomic                      |
+| **Raw SQL access**          | Seamless `sql` template literal with type inference                    | `db.$queryRaw` — less integrated                  |
+| **Migration philosophy**    | Plain SQL — version-controlled, reviewable, reversible                 | Abstraction-first — can obscure what runs         |
+| **Runtime overhead**        | Minimal — direct SQL execution                                         | Rust engine + TCP connection to query proxy       |
+| **Community (2026)**        | Growing rapidly; strong PostgreSQL community                           | Larger overall; declining PostgreSQL mindshare    |
 
 **Why Drizzle wins for Sprintio:**
 
@@ -105,16 +105,16 @@ CREATE EXTENSION IF NOT EXISTS "timescaledb";       -- Time-series hypertables (
 
 ### 2.3 Infrastructure Stack
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Primary Database** | PostgreSQL 16 | OLTP workload, all core tables |
-| **Read Replica** | PostgreSQL 16 | Read scaling, analytics queries |
-| **Connection Pooler** | PgBouncer (transaction mode) | Connection multiplexing |
-| **Cache** | Redis 7 Cluster | Session cache, hot data, rate limiting |
-| **Object Storage** | Cloudflare R2 | File attachments, document exports |
-| **Time-Series** | TimescaleDB (extension) | Activity log, metrics hypertables |
-| **Vector Search** | pgvector (Phase 2) | Semantic search embeddings |
-| **ORM** | Drizzle ORM | Schema definition, queries, migrations |
+| Component             | Technology                   | Purpose                                |
+| --------------------- | ---------------------------- | -------------------------------------- |
+| **Primary Database**  | PostgreSQL 16                | OLTP workload, all core tables         |
+| **Read Replica**      | PostgreSQL 16                | Read scaling, analytics queries        |
+| **Connection Pooler** | PgBouncer (transaction mode) | Connection multiplexing                |
+| **Cache**             | Redis 7 Cluster              | Session cache, hot data, rate limiting |
+| **Object Storage**    | Cloudflare R2                | File attachments, document exports     |
+| **Time-Series**       | TimescaleDB (extension)      | Activity log, metrics hypertables      |
+| **Vector Search**     | pgvector (Phase 2)           | Semantic search embeddings             |
+| **ORM**               | Drizzle ORM                  | Schema definition, queries, migrations |
 
 ---
 
@@ -153,10 +153,10 @@ CREATE TABLE auth.users (
     locale          VARCHAR(10) DEFAULT 'en',
     timezone        VARCHAR(50) DEFAULT 'UTC',
     last_active_at  TIMESTAMPTZ,
-    
+
     -- Soft delete
     deleted_at      TIMESTAMPTZ,
-    
+
     -- Timestamps
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -174,10 +174,10 @@ CREATE TABLE auth.user_accounts (
     provider        VARCHAR(50) NOT NULL,          -- 'google', 'github', 'email'
     provider_uid    VARCHAR(255) NOT NULL,         -- Provider's user ID
     provider_data   JSONB DEFAULT '{}',            -- Profile data from provider
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    
+
     UNIQUE (provider, provider_uid)
 );
 
@@ -215,7 +215,7 @@ CREATE TABLE auth.api_keys (
     scopes          TEXT[] NOT NULL DEFAULT '{}',   -- e.g., {'tasks:read', 'tasks:write'}
     expires_at      TIMESTAMPTZ,
     last_used_at    TIMESTAMPTZ,
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -235,7 +235,7 @@ CREATE TABLE workspace.workspaces (
     slug            VARCHAR(100) NOT NULL UNIQUE,  -- URL-friendly identifier
     description     TEXT,
     logo_url        TEXT,
-    
+
     -- Settings
     settings        JSONB NOT NULL DEFAULT '{
         "default_currency": "USD",
@@ -244,23 +244,23 @@ CREATE TABLE workspace.workspaces (
         "ai_enabled": true,
         "ai_instructions": ""
     }'::jsonb,
-    
+
     -- Branding (for client portals)
     branding        JSONB NOT NULL DEFAULT '{
         "primary_color": "#6366f1",
         "logo_url": null,
         "custom_domain": null
     }'::jsonb,
-    
+
     -- Plan & limits
     plan            VARCHAR(20) NOT NULL DEFAULT 'free',
     max_members     INT NOT NULL DEFAULT 5,
     max_projects    INT NOT NULL DEFAULT 10,
     storage_limit_bytes BIGINT NOT NULL DEFAULT 1073741824,  -- 1GB free tier
-    
+
     -- Soft delete
     deleted_at      TIMESTAMPTZ,
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -277,22 +277,22 @@ CREATE TABLE workspace.memberships (
     user_id         UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     role            VARCHAR(20) NOT NULL DEFAULT 'member',
     -- Roles: 'owner', 'admin', 'member', 'guest', 'viewer'
-    
+
     -- Guest-specific
     scope_type      VARCHAR(20),                   -- 'task', 'list', 'folder', NULL for full
     scope_id        UUID,
     expires_at      TIMESTAMPTZ,                   -- Guest access expiry
-    
+
     -- Invitation state
     status          VARCHAR(20) NOT NULL DEFAULT 'active',
     -- Status: 'pending', 'active', 'deactivated'
     invited_by      UUID REFERENCES auth.users(id),
     invited_at      TIMESTAMPTZ,
     accepted_at     TIMESTAMPTZ,
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    
+
     UNIQUE (workspace_id, user_id)
 );
 
@@ -309,11 +309,11 @@ CREATE TABLE workspace.teams (
     name            VARCHAR(255) NOT NULL,
     description     TEXT,
     parent_team_id  UUID REFERENCES workspace.teams(id),  -- Nested groups
-    
+
     -- Avatar
     avatar_url      TEXT,
     color           VARCHAR(7),                     -- Hex color for sidebar
-    
+
     deleted_at      TIMESTAMPTZ,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -329,9 +329,9 @@ CREATE TABLE workspace.team_members (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     team_id         UUID NOT NULL REFERENCES workspace.teams(id) ON DELETE CASCADE,
     user_id         UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    
+
     UNIQUE (team_id, user_id)
 );
 
@@ -352,13 +352,13 @@ CREATE TABLE workspace.spaces (
     description     TEXT,
     icon            VARCHAR(50),                    -- Emoji or icon identifier
     color           VARCHAR(7),                     -- Hex color
-    
+
     -- Ordering
     sort_order      INT NOT NULL DEFAULT 0,
-    
+
     -- Visibility
     is_archived     BOOLEAN NOT NULL DEFAULT FALSE,
-    
+
     -- Custom status definitions (per-space status workflow)
     statuses        JSONB NOT NULL DEFAULT '[
         {"id": "backlog",     "name": "Backlog",     "color": "#94a3b8", "type": "open",    "order": 0},
@@ -368,7 +368,7 @@ CREATE TABLE workspace.spaces (
         {"id": "done",        "name": "Done",         "color": "#22c55e", "type": "closed",  "order": 4},
         {"id": "cancelled",   "name": "Cancelled",    "color": "#ef4444", "type": "cancelled","order": 5}
     ]'::jsonb,
-    
+
     deleted_at      TIMESTAMPTZ,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -387,14 +387,14 @@ CREATE TABLE workspace.folders (
     parent_id       UUID REFERENCES workspace.folders(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
     description     TEXT,
-    
+
     -- Materialized path for efficient hierarchy queries
     path            TEXT NOT NULL,                  -- e.g., '/root/child/grandchild'
     depth           INT NOT NULL DEFAULT 0,
     sort_order      INT NOT NULL DEFAULT 0,
-    
+
     is_archived     BOOLEAN NOT NULL DEFAULT FALSE,
-    
+
     deleted_at      TIMESTAMPTZ,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -415,11 +415,11 @@ CREATE TABLE workspace.lists (
     folder_id       UUID REFERENCES workspace.folders(id) ON DELETE SET NULL,
     name            VARCHAR(255) NOT NULL,
     description     TEXT,
-    
+
     -- View configuration
     default_view    VARCHAR(20) NOT NULL DEFAULT 'list',
     -- 'list', 'board', 'table', 'calendar', 'timeline', 'dashboard'
-    
+
     view_config     JSONB NOT NULL DEFAULT '{
         "sort": [{"field": "created_at", "direction": "desc"}],
         "group_by": null,
@@ -427,14 +427,14 @@ CREATE TABLE workspace.lists (
         "visible_columns": ["title", "status", "assignee", "priority", "due_date"],
         "column_order": ["title", "status", "assignee", "priority", "due_date"]
     }'::jsonb,
-    
+
     -- Task count cache (denormalized for sidebar performance)
     task_count      INT NOT NULL DEFAULT 0,
     open_task_count INT NOT NULL DEFAULT 0,
-    
+
     sort_order      INT NOT NULL DEFAULT 0,
     is_archived     BOOLEAN NOT NULL DEFAULT FALSE,
-    
+
     deleted_at      TIMESTAMPTZ,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -451,52 +451,52 @@ CREATE TABLE workspace.tasks (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
     list_id         UUID NOT NULL REFERENCES workspace.lists(id) ON DELETE CASCADE,
-    
+
     -- Identity
     number          INT NOT NULL,                   -- Auto-incrementing per workspace (e.g., SPC-142)
     title           VARCHAR(500) NOT NULL,
     description     JSONB DEFAULT NULL,              -- TipTap/ProseMirror JSON document
-    
+
     -- Status & Classification
     status          VARCHAR(50) NOT NULL DEFAULT 'backlog',
     priority        VARCHAR(20) DEFAULT NULL,        -- 'urgent', 'high', 'medium', 'low', null
     labels          TEXT[] DEFAULT '{}',
-    
+
     -- Relationships
     parent_id       UUID REFERENCES workspace.tasks(id) ON DELETE SET NULL,  -- Subtasks
     assignee_id     UUID REFERENCES auth.users(id) ON DELETE SET NULL,
     creator_id      UUID NOT NULL REFERENCES auth.users(id),
-    
+
     -- Dates
     start_date      DATE,
     due_date        DATE,
     completed_at    TIMESTAMPTZ,
-    
+
     -- Hierarchy path (materialized for efficient tree queries)
     path            TEXT NOT NULL DEFAULT '',         -- e.g., '/task-uuid/task-uuid'
     depth           INT NOT NULL DEFAULT 0,
     sort_order      INT NOT NULL DEFAULT 0,
-    
+
     -- Denormalized counts (updated by triggers/application)
     subtask_count       INT NOT NULL DEFAULT 0,
     completed_subtasks  INT NOT NULL DEFAULT 0,
     comment_count       INT NOT NULL DEFAULT 0,
     attachment_count    INT NOT NULL DEFAULT 0,
-    
+
     -- Custom field values (JSONB for flexibility)
     custom_fields   JSONB NOT NULL DEFAULT '{}',
     -- Example: {"priority_score": 8, "story_points": 5, "sprint": "Sprint 23"}
-    
+
     -- Metadata
     metadata        JSONB NOT NULL DEFAULT '{}',     -- Extensible metadata
-    
+
     -- Recurring task config
     recurrence      JSONB DEFAULT NULL,
     -- Example: {"cron": "0 9 * * 1", "timezone": "UTC", "anti_stacking": true}
-    
+
     -- Soft delete
     deleted_at      TIMESTAMPTZ,
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -530,10 +530,10 @@ CREATE TABLE workspace.task_relationships (
     target_task_id  UUID NOT NULL REFERENCES workspace.tasks(id) ON DELETE CASCADE,
     relationship_type VARCHAR(20) NOT NULL,
     -- 'blocked_by', 'blocks', 'related', 'duplicate', 'cloned_from'
-    
+
     created_by      UUID NOT NULL REFERENCES auth.users(id),
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    
+
     UNIQUE (source_task_id, target_task_id, relationship_type),
     CHECK (source_task_id != target_task_id)
 );
@@ -549,28 +549,28 @@ CREATE TABLE workspace.custom_field_definitions (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
     space_id        UUID NOT NULL REFERENCES workspace.spaces(id) ON DELETE CASCADE,
-    
+
     name            VARCHAR(255) NOT NULL,
     field_type      VARCHAR(30) NOT NULL,
     -- 'text', 'long_text', 'number', 'select', 'multi_select',
     -- 'date', 'person', 'checkbox', 'url', 'email', 'phone',
     -- 'status', 'rating', 'formula', 'rollup', 'lookup', 'location'
-    
+
     -- Type-specific configuration
     config          JSONB NOT NULL DEFAULT '{}',
     -- For select: {"options": [{"id": "opt_1", "label": "Option 1", "color": "#3b82f6"}]}
     -- For number: {"min": 0, "max": 100, "decimals": 0}
     -- For formula: {"expression": "{{field_a}} + {{field_b}}", "output_type": "number"}
     -- For rollup: {"source_field": "id", "function": "sum", "filter": null}
-    
+
     -- Ordering
     sort_order      INT NOT NULL DEFAULT 0,
     is_required     BOOLEAN NOT NULL DEFAULT FALSE,
     is_visible      BOOLEAN NOT NULL DEFAULT TRUE,
-    
+
     -- Default value
     default_value   JSONB,
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -591,7 +591,7 @@ CREATE TABLE workspace.custom_field_values (
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
     task_id         UUID NOT NULL REFERENCES workspace.tasks(id) ON DELETE CASCADE,
     field_def_id    UUID NOT NULL REFERENCES workspace.custom_field_definitions(id) ON DELETE CASCADE,
-    
+
     -- Typed value columns (only one populated per row)
     value_text      TEXT,
     value_number    NUMERIC,
@@ -601,10 +601,10 @@ CREATE TABLE workspace.custom_field_values (
     value_select    TEXT,
     value_multi_select TEXT[],
     value_json      JSONB,                          -- Catch-all for complex types
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    
+
     UNIQUE (task_id, field_def_id)
 );
 
@@ -622,9 +622,9 @@ CREATE TABLE workspace.labels (
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
     name            VARCHAR(100) NOT NULL,
     color           VARCHAR(7) NOT NULL DEFAULT '#6366f1',
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    
+
     UNIQUE (workspace_id, name)
 );
 
@@ -641,28 +641,28 @@ CREATE TABLE workspace.comments (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
     task_id         UUID NOT NULL REFERENCES workspace.tasks(id) ON DELETE CASCADE,
-    
+
     -- Threading
     parent_id       UUID REFERENCES workspace.comments(id) ON DELETE CASCADE,
-    
+
     -- Content
     body            JSONB NOT NULL,                 -- TipTap/ProseMirror rich text
     body_text       TEXT NOT NULL,                  -- Plain text for search
     body_html       TEXT,                           -- Rendered HTML for email notifications
-    
+
     -- Author
     author_id       UUID NOT NULL REFERENCES auth.users(id),
-    
+
     -- Assignment (comment can be an action item)
     assigned_to     UUID REFERENCES auth.users(id),
     is_resolved     BOOLEAN NOT NULL DEFAULT FALSE,
     resolved_at     TIMESTAMPTZ,
     resolved_by     UUID REFERENCES auth.users(id),
-    
+
     -- Reactions
     reactions       JSONB NOT NULL DEFAULT '{}',
     -- Example: {"👍": ["user-uuid-1", "user-uuid-2"], "🎉": ["user-uuid-3"]}
-    
+
     deleted_at      TIMESTAMPTZ,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -679,32 +679,32 @@ CREATE INDEX idx_comments_workspace ON workspace.comments (workspace_id);
 CREATE TABLE workspace.documents (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
-    
+
     -- Nesting (a doc can live in a space, folder, list, or task)
     space_id        UUID REFERENCES workspace.spaces(id) ON DELETE SET NULL,
     folder_id       UUID REFERENCES workspace.folders(id) ON DELETE SET NULL,
     list_id         UUID REFERENCES workspace.lists(id) ON DELETE SET NULL,
     task_id         UUID REFERENCES workspace.tasks(id) ON DELETE SET NULL,
-    
+
     -- Content
     title           VARCHAR(500) NOT NULL,
     icon            VARCHAR(50),                    -- Emoji icon
     cover_image     TEXT,
-    
+
     -- Document body (TipTap/ProseMirror JSON)
     content         JSONB NOT NULL DEFAULT '{"type": "doc", "content": []}'::jsonb,
-    
+
     -- Yjs CRDT state for collaborative editing
     yjs_state       BYTEA,                          -- Binary Yjs document state
     yjs_state_vector BYTEA,                         -- For partial sync
-    
+
     -- Full-text search
     content_text    TEXT,                           -- Plain text extraction for FTS
     search_vector   TSVECTOR GENERATED ALWAYS AS (
         setweight(to_tsvector('english', coalesce(title, '')), 'A') ||
         setweight(to_tsvector('english', coalesce(content_text, '')), 'B')
     ) STORED,
-    
+
     -- Published state
     is_published    BOOLEAN NOT NULL DEFAULT FALSE,
     published_slug  VARCHAR(255) UNIQUE,
@@ -715,19 +715,19 @@ CREATE TABLE workspace.documents (
         "seo_description": null,
         "custom_domain": null
     }'::jsonb,
-    
+
     -- Version tracking
     version         INT NOT NULL DEFAULT 1,
-    
+
     -- Permissions
     permissions     JSONB DEFAULT NULL,
     -- null = inherit from workspace; explicit override:
     -- {"user_uuid": "edit", "team_uuid": "view"}
-    
+
     -- Sorting
     sort_order      INT NOT NULL DEFAULT 0,
     is_archived     BOOLEAN NOT NULL DEFAULT FALSE,
-    
+
     deleted_at      TIMESTAMPTZ,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -747,15 +747,15 @@ CREATE TABLE workspace.document_versions (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     document_id     UUID NOT NULL REFERENCES workspace.documents(id) ON DELETE CASCADE,
     version_number  INT NOT NULL,
-    
+
     title           VARCHAR(500) NOT NULL,
     content         JSONB NOT NULL,
     content_text    TEXT,
-    
+
     author_id       UUID NOT NULL REFERENCES auth.users(id),
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    
+
     UNIQUE (document_id, version_number)
 );
 
@@ -767,26 +767,26 @@ CREATE INDEX idx_doc_versions_doc ON workspace.document_versions (document_id, v
 CREATE TABLE workspace.attachments (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
-    
+
     -- Polymorphic attachment (task, comment, or document)
     entity_type     VARCHAR(20) NOT NULL,           -- 'task', 'comment', 'document'
     entity_id       UUID NOT NULL,
-    
+
     -- File metadata
     filename        VARCHAR(500) NOT NULL,
     mime_type       VARCHAR(255) NOT NULL,
     size_bytes      BIGINT NOT NULL,
-    
+
     -- Storage
     storage_key     TEXT NOT NULL UNIQUE,            -- R2 object key (e.g., 'workspace/{id}/attachments/{uuid}/{filename}')
     storage_bucket  VARCHAR(100) NOT NULL DEFAULT 'sprintio-attachments',
     cdn_url         TEXT,                           -- Public CDN URL (if public)
-    
+
     -- Metadata
     metadata        JSONB DEFAULT '{}',             -- Image dimensions, duration, etc.
-    
+
     uploader_id     UUID NOT NULL REFERENCES auth.users(id),
-    
+
     deleted_at      TIMESTAMPTZ,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -805,11 +805,11 @@ CREATE INDEX idx_attachments_storage ON workspace.attachments (storage_key);
 CREATE TABLE automation.automations (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
-    
+
     name            VARCHAR(255) NOT NULL,
     description     TEXT,
     is_enabled      BOOLEAN NOT NULL DEFAULT TRUE,
-    
+
     -- Flow definition (trigger → conditions → actions)
     flow            JSONB NOT NULL,
     -- Example:
@@ -821,19 +821,19 @@ CREATE TABLE automation.automations (
     --     {"type": "update_field", "config": {"field": "status", "value": "in_review"}}
     --   ]
     -- }
-    
+
     -- Template info (if installed from template)
     template_id     VARCHAR(100),
     template_name   VARCHAR(255),
-    
+
     -- Stats
     total_runs      INT NOT NULL DEFAULT 0,
     last_run_at     TIMESTAMPTZ,
     last_error      TEXT,
-    
+
     -- Ownership
     created_by      UUID NOT NULL REFERENCES auth.users(id),
-    
+
     deleted_at      TIMESTAMPTZ,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -850,20 +850,20 @@ CREATE TABLE automation.runs (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
     automation_id   UUID NOT NULL REFERENCES automation.automations(id) ON DELETE CASCADE,
-    
+
     status          VARCHAR(20) NOT NULL DEFAULT 'running',
     -- 'running', 'completed', 'failed', 'cancelled'
-    
+
     -- Execution context
     trigger_event   JSONB NOT NULL,                 -- The event that triggered this run
     step_results    JSONB NOT NULL DEFAULT '[]',    -- Input/output per step
     error           TEXT,
-    
+
     -- Timing
     started_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     completed_at    TIMESTAMPTZ,
     duration_ms     INT,
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -882,27 +882,27 @@ CREATE INDEX idx_runs_status ON automation.runs (status) WHERE status = 'running
 CREATE TABLE integration.webhooks (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
-    
+
     name            VARCHAR(255) NOT NULL,
     url             TEXT NOT NULL,
     secret          TEXT NOT NULL,                  -- HMAC signing secret (encrypted at rest)
-    
+
     -- Event filtering
     events          TEXT[] NOT NULL DEFAULT '*',
     -- e.g., {'task.created', 'task.status_changed', 'comment.created'}
-    
+
     -- Delivery config
     is_enabled      BOOLEAN NOT NULL DEFAULT TRUE,
     retry_policy    JSONB NOT NULL DEFAULT '{"max_retries": 3, "backoff_ms": [1000, 5000, 30000]}',
-    
+
     -- Stats
     total_deliveries    INT NOT NULL DEFAULT 0,
     failed_deliveries   INT NOT NULL DEFAULT 0,
     last_delivery_at    TIMESTAMPTZ,
     last_delivery_status VARCHAR(20),
-    
+
     created_by      UUID NOT NULL REFERENCES auth.users(id),
-    
+
     deleted_at      TIMESTAMPTZ,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -918,26 +918,26 @@ CREATE TABLE integration.webhook_deliveries (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     webhook_id      UUID NOT NULL REFERENCES integration.webhooks(id) ON DELETE CASCADE,
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
-    
+
     event_type      VARCHAR(100) NOT NULL,
     payload         JSONB NOT NULL,
-    
+
     -- Delivery result
     status          VARCHAR(20) NOT NULL DEFAULT 'pending',
     -- 'pending', 'success', 'failed', 'retrying'
-    
+
     attempt         INT NOT NULL DEFAULT 1,
     max_attempts    INT NOT NULL DEFAULT 3,
-    
+
     request_headers JSONB,
     response_status INT,
     response_body   TEXT,
     error           TEXT,
-    
+
     -- Timing
     delivered_at    TIMESTAMPTZ,
     next_retry_at   TIMESTAMPTZ,
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -952,25 +952,25 @@ CREATE INDEX idx_deliveries_status ON integration.webhook_deliveries (status, ne
 CREATE TABLE integration.connected_integrations (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
-    
+
     provider        VARCHAR(50) NOT NULL,           -- 'github', 'gitlab', 'slack', 'notion'
     provider_name   VARCHAR(255) NOT NULL,          -- 'GitHub' (display name)
-    
+
     -- Auth
     access_token    TEXT,                           -- Encrypted OAuth token
     refresh_token   TEXT,                           -- Encrypted refresh token
     token_expires_at TIMESTAMPTZ,
-    
+
     -- Provider state
     provider_data   JSONB NOT NULL DEFAULT '{}',    -- Account info, org, etc.
-    
+
     -- Sync config
     sync_config     JSONB DEFAULT '{}',
     last_synced_at  TIMESTAMPTZ,
     sync_status     VARCHAR(20) DEFAULT 'idle',
-    
+
     connected_by    UUID NOT NULL REFERENCES auth.users(id),
-    
+
     deleted_at      TIMESTAMPTZ,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -990,26 +990,26 @@ CREATE TABLE workspace.notifications (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
     user_id         UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    
+
     type            VARCHAR(50) NOT NULL,
     -- 'task.assigned', 'task.commented', 'task.mentioned',
     -- 'document.commented', 'automation.failed', etc.
-    
+
     title           VARCHAR(500) NOT NULL,
     body            TEXT,
-    
+
     -- Link to source entity
     entity_type     VARCHAR(20),                    -- 'task', 'comment', 'document', 'automation'
     entity_id       UUID,
-    
+
     -- Read state
     is_read         BOOLEAN NOT NULL DEFAULT FALSE,
     read_at         TIMESTAMPTZ,
-    
+
     -- Action
     action_url      TEXT,                           -- Deep link to the relevant entity
     action_label    VARCHAR(100),
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -1024,14 +1024,14 @@ CREATE TABLE workspace.notification_preferences (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id         UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
-    
+
     event_type      VARCHAR(50) NOT NULL,           -- e.g., 'task.assigned'
     in_app          BOOLEAN NOT NULL DEFAULT TRUE,
     email           BOOLEAN NOT NULL DEFAULT TRUE,
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    
+
     UNIQUE (user_id, workspace_id, event_type)
 );
 
@@ -1045,23 +1045,23 @@ CREATE TABLE workspace.recurring_tasks (
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
     source_task_id  UUID NOT NULL REFERENCES workspace.tasks(id) ON DELETE CASCADE,
     list_id         UUID NOT NULL REFERENCES workspace.lists(id) ON DELETE CASCADE,
-    
+
     -- Schedule
     cron_expression VARCHAR(100) NOT NULL,          -- Standard cron: '0 9 * * 1'
     timezone        VARCHAR(50) NOT NULL DEFAULT 'UTC',
-    
+
     -- Behavior
     carry_over_subtasks BOOLEAN NOT NULL DEFAULT FALSE,
     anti_stacking   BOOLEAN NOT NULL DEFAULT TRUE,
-    
+
     -- Next execution
     next_run_at     TIMESTAMPTZ NOT NULL,
     last_run_at     TIMESTAMPTZ,
-    
+
     -- State
     is_enabled      BOOLEAN NOT NULL DEFAULT TRUE,
     total_runs      INT NOT NULL DEFAULT 0,
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -1079,22 +1079,22 @@ CREATE INDEX idx_recurring_next_run ON workspace.recurring_tasks (next_run_at) W
 CREATE TABLE analytics.ai_embeddings (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
-    
+
     -- Source entity
     entity_type     VARCHAR(20) NOT NULL,           -- 'task', 'document', 'comment'
     entity_id       UUID NOT NULL,
-    
+
     -- Embedding
     embedding       vector(1536),                   -- OpenAI text-embedding-3-small dimensions
     model           VARCHAR(50) NOT NULL DEFAULT 'text-embedding-3-small',
-    
+
     -- Chunk info (large docs are split into chunks)
     chunk_index     INT NOT NULL DEFAULT 0,
     chunk_text      TEXT NOT NULL,                  -- The text this embedding represents
-    
+
     -- Metadata
     metadata        JSONB DEFAULT '{}',
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -1114,24 +1114,24 @@ CREATE TABLE analytics.ai_usage (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
     user_id         UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    
+
     operation       VARCHAR(50) NOT NULL,
     -- 'triage', 'summary', 'write_assistant', 'nl_task_create', 'search', etc.
-    
+
     model           VARCHAR(100) NOT NULL,
     input_tokens    INT NOT NULL DEFAULT 0,
     output_tokens   INT NOT NULL DEFAULT 0,
     credits_used    INT NOT NULL DEFAULT 0,
-    
+
     -- Cost tracking
     cost_usd        NUMERIC(10, 6) DEFAULT 0,
-    
+
     -- Context
     entity_type     VARCHAR(20),
     entity_id       UUID,
-    
+
     latency_ms      INT,
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -1150,14 +1150,14 @@ CREATE TABLE workspace.saved_views (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     workspace_id    UUID NOT NULL REFERENCES workspace.workspaces(id) ON DELETE CASCADE,
     list_id         UUID NOT NULL REFERENCES workspace.lists(id) ON DELETE CASCADE,
-    
+
     name            VARCHAR(255) NOT NULL,
     description     TEXT,
-    
+
     -- View type
     view_type       VARCHAR(20) NOT NULL DEFAULT 'list',
     -- 'list', 'board', 'table', 'calendar', 'timeline', 'dashboard'
-    
+
     -- View configuration (filters, sorts, groups, columns)
     config          JSONB NOT NULL DEFAULT '{
         "sort": [],
@@ -1166,19 +1166,19 @@ CREATE TABLE workspace.saved_views (
         "visible_columns": [],
         "column_order": []
     }'::jsonb,
-    
+
     -- Sharing
     visibility      VARCHAR(20) NOT NULL DEFAULT 'personal',
     -- 'personal', 'shared', 'link'
     share_token     VARCHAR(100),
     share_password  TEXT,
-    
+
     -- Ownership
     created_by      UUID NOT NULL REFERENCES auth.users(id),
-    
+
     sort_order      INT NOT NULL DEFAULT 0,
     is_default      BOOLEAN NOT NULL DEFAULT FALSE,
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -1512,16 +1512,16 @@ Before merging any migration PR:
 
 ### 6.1 Index Categories
 
-| Category | Purpose | Example |
-|----------|---------|---------|
-| **Primary Key** | Clustered index, row identity | `id UUID PRIMARY KEY` |
-| **Unique** | Enforce uniqueness | `email`, `workspace.slug` |
-| **B-tree** | Equality and range queries | `status`, `due_date`, `created_at` |
-| **GIN** | Array and JSONB containment | `labels`, `custom_fields`, `search_vector` |
-| **GIN (trigram)** | Fuzzy text search | `folders.path`, `documents.title` |
-| **Partial** | Conditional indexes (sparse) | `WHERE deleted_at IS NULL` |
-| **Covering (INCLUDE)** | Index-only scans | Board view composite index |
-| **HNSW** | Vector similarity (Phase 2) | `ai_embeddings.embedding` |
+| Category               | Purpose                       | Example                                    |
+| ---------------------- | ----------------------------- | ------------------------------------------ |
+| **Primary Key**        | Clustered index, row identity | `id UUID PRIMARY KEY`                      |
+| **Unique**             | Enforce uniqueness            | `email`, `workspace.slug`                  |
+| **B-tree**             | Equality and range queries    | `status`, `due_date`, `created_at`         |
+| **GIN**                | Array and JSONB containment   | `labels`, `custom_fields`, `search_vector` |
+| **GIN (trigram)**      | Fuzzy text search             | `folders.path`, `documents.title`          |
+| **Partial**            | Conditional indexes (sparse)  | `WHERE deleted_at IS NULL`                 |
+| **Covering (INCLUDE)** | Index-only scans              | Board view composite index                 |
+| **HNSW**               | Vector similarity (Phase 2)   | `ai_embeddings.embedding`                  |
 
 ### 6.2 Key Indexes by Query Pattern
 
@@ -1606,13 +1606,13 @@ CREATE INDEX idx_cfval_field_number ON workspace.custom_field_values (field_def_
 
 ### 6.3 Anti-Patterns to Avoid
 
-| Anti-Pattern | Why It's Bad | Better Approach |
-|--------------|-------------|-----------------|
-| Indexing every JSONB key | Massive index bloat; slow writes | Use generated columns or typed `custom_field_values` table |
-| Over-indexing low-cardinality columns | Index scans slower than sequential for < 100 distinct values | Sequential scan or partial index |
-| Ignoring `WHERE deleted_at IS NULL` | Indexes include deleted rows — wasted space | Partial index on active rows only |
-| Composite indexes with wrong column order | Leftmost prefix rule means wrong order = unused index | Put equality columns first, range columns last |
-| Not using `CONCURRENTLY` | Locks table during index build | Always `CREATE INDEX CONCURRENTLY` on production |
+| Anti-Pattern                              | Why It's Bad                                                 | Better Approach                                            |
+| ----------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------- |
+| Indexing every JSONB key                  | Massive index bloat; slow writes                             | Use generated columns or typed `custom_field_values` table |
+| Over-indexing low-cardinality columns     | Index scans slower than sequential for < 100 distinct values | Sequential scan or partial index                           |
+| Ignoring `WHERE deleted_at IS NULL`       | Indexes include deleted rows — wasted space                  | Partial index on active rows only                          |
+| Composite indexes with wrong column order | Leftmost prefix rule means wrong order = unused index        | Put equality columns first, range columns last             |
+| Not using `CONCURRENTLY`                  | Locks table during index build                               | Always `CREATE INDEX CONCURRENTLY` on production           |
 
 ### 6.4 Index Maintenance
 
@@ -1824,9 +1824,9 @@ WITH RECURSIVE subtasks AS (
     FROM workspace.tasks
     WHERE parent_id = $1
         AND deleted_at IS NULL
-    
+
     UNION ALL
-    
+
     -- Recursive case: children of children
     SELECT t.id, t.title, t.status, t.parent_id, s.depth + 1
     FROM workspace.tasks t
@@ -1870,26 +1870,26 @@ CREATE TABLE timeseries.activity_log (
     id              UUID DEFAULT uuid_generate_v4(),
     workspace_id    UUID NOT NULL,
     actor_id        UUID NOT NULL,
-    
+
     action          VARCHAR(50) NOT NULL,
     -- 'created', 'updated', 'deleted', 'moved', 'status_changed',
     -- 'assigned', 'commented', 'attachment_added', 'field_changed'
-    
+
     entity_type     VARCHAR(20) NOT NULL,
     -- 'task', 'document', 'comment', 'space', 'folder', 'list'
     entity_id       UUID NOT NULL,
-    
+
     -- What changed
     changes         JSONB DEFAULT '{}',
     -- Example: {"status": {"from": "todo", "to": "in_progress"}}
     -- Example: {"assignee": {"from": null, "to": "user-uuid"}}
-    
+
     -- Snapshot of entity at time of change (optional, for audit)
     entity_snapshot JSONB,
-    
+
     -- Metadata
     metadata        JSONB DEFAULT '{}',
-    
+
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -2237,12 +2237,12 @@ export async function withRLS<T>(
 
 ### 9.5 Performance Considerations
 
-| Concern | Mitigation |
-|---------|------------|
-| RLS adds WHERE clause overhead | All RLS policies use indexed columns (`workspace_id`, `user_id`) |
+| Concern                             | Mitigation                                                            |
+| ----------------------------------- | --------------------------------------------------------------------- |
+| RLS adds WHERE clause overhead      | All RLS policies use indexed columns (`workspace_id`, `user_id`)      |
 | `SELECT` policies slow list queries | Use `SECURITY DEFINER` helper functions that cache membership lookups |
-| Policy evaluation per row | Ensure workspace_id indexes exist before enabling RLS |
-| Subquery in policy | PostgreSQL caches subquery results within a transaction |
+| Policy evaluation per row           | Ensure workspace_id indexes exist before enabling RLS                 |
+| Subquery in policy                  | PostgreSQL caches subquery results within a transaction               |
 
 ### 9.6 Testing RLS
 
@@ -2314,48 +2314,28 @@ import { eq, isNull, SQL } from 'drizzle-orm';
  * Standard soft-delete filter.
  * Use this in ALL queries to exclude soft-deleted records.
  */
-export function notDeleted<T extends { deletedAt: any }>(
-  table: T
-): SQL {
+export function notDeleted<T extends { deletedAt: any }>(table: T): SQL {
   return isNull(table.deletedAt);
 }
 
 /**
  * Soft-delete a record.
  */
-export async function softDelete(
-  db: NodePgDatabase,
-  table: any,
-  id: string
-) {
-  return db
-    .update(table)
-    .set({ deletedAt: new Date() })
-    .where(eq(table.id, id));
+export async function softDelete(db: NodePgDatabase, table: any, id: string) {
+  return db.update(table).set({ deletedAt: new Date() }).where(eq(table.id, id));
 }
 
 /**
  * Restore a soft-deleted record.
  */
-export async function restore(
-  db: NodePgDatabase,
-  table: any,
-  id: string
-) {
-  return db
-    .update(table)
-    .set({ deletedAt: null })
-    .where(eq(table.id, id));
+export async function restore(db: NodePgDatabase, table: any, id: string) {
+  return db.update(table).set({ deletedAt: null }).where(eq(table.id, id));
 }
 
 /**
  * Permanent delete (GDPR, admin cleanup).
  */
-export async function hardDelete(
-  db: NodePgDatabase,
-  table: any,
-  id: string
-) {
+export async function hardDelete(db: NodePgDatabase, table: any, id: string) {
   return db.delete(table).where(eq(table.id, id));
 }
 ```
@@ -2690,14 +2670,15 @@ LIMIT $4;
 
 ### 12.4 HNSW Index Tuning
 
-| Parameter | Small Dataset (< 100K) | Medium (100K–1M) | Large (> 1M) |
-|-----------|------------------------|-------------------|-------------|
-| **m** | 16 | 16 | 32 |
-| **ef_construction** | 100 | 200 | 200 |
-| **ef_search** (runtime) | 50 | 100 | 200 |
-| **Lists** (IVFFlat alt) | N/A | N/A | N/A |
+| Parameter               | Small Dataset (< 100K) | Medium (100K–1M) | Large (> 1M) |
+| ----------------------- | ---------------------- | ---------------- | ------------ |
+| **m**                   | 16                     | 16               | 32           |
+| **ef_construction**     | 100                    | 200              | 200          |
+| **ef_search** (runtime) | 50                     | 100              | 200          |
+| **Lists** (IVFFlat alt) | N/A                    | N/A              | N/A          |
 
 > **Note:** HNSW is preferred over IVFFlat for Sprintio's use case because:
+>
 > - HNSW doesn't require a training step (IVFFlat does)
 > - HNSW provides better recall at the same speed
 > - Sprintio's embedding count per workspace is moderate (< 100K per workspace)
@@ -2779,12 +2760,12 @@ import { Pool } from 'pg';
 
 // Primary pool (writes)
 const primaryPool = new Pool({
-  host: process.env.DB_PRIMARY_HOST,      // PgBouncer primary
+  host: process.env.DB_PRIMARY_HOST, // PgBouncer primary
   port: parseInt(process.env.DB_PORT || '6432'),
   database: process.env.DB_NAME,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  max: 20,                                 // App-level max connections
+  max: 20, // App-level max connections
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
   statement_timeout: 30000,
@@ -2792,12 +2773,12 @@ const primaryPool = new Pool({
 
 // Replica pool (reads)
 const replicaPool = new Pool({
-  host: process.env.DB_REPLICA_HOST,      // PgBouncer replica
+  host: process.env.DB_REPLICA_HOST, // PgBouncer replica
   port: parseInt(process.env.DB_PORT || '6432'),
   database: process.env.DB_NAME,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  max: 30,                                 // More connections for reads
+  max: 30, // More connections for reads
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
   statement_timeout: 30000,
@@ -2823,9 +2804,7 @@ import { getDb } from './client';
  * Read replica for SELECT queries.
  * All reads should go through this to distribute load.
  */
-export async function readQuery<T>(
-  callback: (db: NodePgDatabase) => Promise<T>
-): Promise<T> {
+export async function readQuery<T>(callback: (db: NodePgDatabase) => Promise<T>): Promise<T> {
   return callback(getDb(true));
 }
 
@@ -2833,9 +2812,7 @@ export async function readQuery<T>(
  * Primary for INSERT/UPDATE/DELETE.
  * Write transactions always go through this.
  */
-export async function writeQuery<T>(
-  callback: (db: NodePgDatabase) => Promise<T>
-): Promise<T> {
+export async function writeQuery<T>(callback: (db: NodePgDatabase) => Promise<T>): Promise<T> {
   return callback(getDb(false));
 }
 
@@ -2846,7 +2823,7 @@ export async function writeQuery<T>(
  */
 export async function readAfterWrite<T>(
   writeFn: (db: NodePgDatabase) => Promise<T>,
-  readFn: (db: NodePgDatabase) => Promise<T>
+  readFn: (db: NodePgDatabase) => Promise<T>,
 ): Promise<{ write: T; read: T }> {
   const write = await writeFn(getDb(false));
   // Immediately read from primary to avoid stale read
@@ -2861,11 +2838,11 @@ export async function readAfterWrite<T>(
 
 ### 14.1 Backup Strategy
 
-| Backup Type | Frequency | Retention | Storage | RPO |
-|-------------|-----------|-----------|---------|-----|
-| **WAL Archiving** | Continuous | 30 days | Cloudflare R2 | < 1 hour |
-| **Base Backup** | Daily | 30 days | Cloudflare R2 | 24 hours |
-| **Monthly Snapshot** | Monthly | 12 months | Cloudflare R2 | 30 days |
+| Backup Type          | Frequency  | Retention | Storage       | RPO      |
+| -------------------- | ---------- | --------- | ------------- | -------- |
+| **WAL Archiving**    | Continuous | 30 days   | Cloudflare R2 | < 1 hour |
+| **Base Backup**      | Daily      | 30 days   | Cloudflare R2 | 24 hours |
+| **Monthly Snapshot** | Monthly    | 12 months | Cloudflare R2 | 30 days  |
 
 ### 14.2 WAL Archiving Configuration
 
@@ -3074,14 +3051,14 @@ GROUP BY t.id;
 
 ### 15.3 Common Performance Pitfalls
 
-| Pitfall | Symptom | Solution |
-|---------|---------|----------|
-| **N+1 queries** | API latency scales with result count | Use `json_agg` + `JOIN LATERAL` to fetch related data in one query |
-| **Missing partial indexes** | COUNT queries scan entire table | Add `WHERE deleted_at IS NULL` partial indexes |
-| **JSONB full-table scan** | `custom_fields @>` queries are slow | Create GIN indexes on frequently queried JSONB columns |
-| **Unparameterized queries** | PgBouncer connection reuse fails | Always use parameterized queries ($1, $2) |
-| **Large result sets** | Memory pressure, slow serialization | Enforce cursor-based pagination; never `SELECT *` without LIMIT |
-| **Transaction hold time** | Connection pool exhaustion | Keep transactions < 500ms; avoid HTTP calls inside transactions |
+| Pitfall                     | Symptom                              | Solution                                                           |
+| --------------------------- | ------------------------------------ | ------------------------------------------------------------------ |
+| **N+1 queries**             | API latency scales with result count | Use `json_agg` + `JOIN LATERAL` to fetch related data in one query |
+| **Missing partial indexes** | COUNT queries scan entire table      | Add `WHERE deleted_at IS NULL` partial indexes                     |
+| **JSONB full-table scan**   | `custom_fields @>` queries are slow  | Create GIN indexes on frequently queried JSONB columns             |
+| **Unparameterized queries** | PgBouncer connection reuse fails     | Always use parameterized queries ($1, $2)                          |
+| **Large result sets**       | Memory pressure, slow serialization  | Enforce cursor-based pagination; never `SELECT *` without LIMIT    |
+| **Transaction hold time**   | Connection pool exhaustion           | Keep transactions < 500ms; avoid HTTP calls inside transactions    |
 
 ### 15.4 Table Size Monitoring
 
@@ -3140,15 +3117,15 @@ sprintio:lock:{resource_type}:{resource_id}    -- Distributed locks
 
 ### 16.2 Cache Strategy
 
-| Data | Cache TTL | Invalidation Trigger |
-|------|-----------|---------------------|
-| **Task** | 5 min | Task update, comment add |
-| **List metadata** | 10 min | List update, task count change |
-| **Space sidebar** | 5 min | Space/folder/list CRUD |
-| **User session** | 30 min (sliding) | Session refresh |
-| **Unread count** | 30 sec | Notification create, mark read |
-| **Rate limit counters** | 1 min (sliding window) | Per request |
-| **View config** | 10 min | View update |
+| Data                    | Cache TTL              | Invalidation Trigger           |
+| ----------------------- | ---------------------- | ------------------------------ |
+| **Task**                | 5 min                  | Task update, comment add       |
+| **List metadata**       | 10 min                 | List update, task count change |
+| **Space sidebar**       | 5 min                  | Space/folder/list CRUD         |
+| **User session**        | 30 min (sliding)       | Session refresh                |
+| **Unread count**        | 30 sec                 | Notification create, mark read |
+| **Rate limit counters** | 1 min (sliding window) | Per request                    |
+| **View config**         | 10 min                 | View update                    |
 
 ### 16.3 Cache-Aside Pattern
 
@@ -3160,30 +3137,30 @@ const redis = new Redis.Cluster(/* nodes */);
 
 export async function getCachedTask(taskId: string, workspaceId: string) {
   const key = `sprintio:${workspaceId}:task:${taskId}`;
-  
+
   // Try cache first
   const cached = await redis.get(key);
   if (cached) {
     return JSON.parse(cached);
   }
-  
+
   // Cache miss — fetch from DB
   const task = await db.query.tasks.findFirst({
     where: eq(tasks.id, taskId),
   });
-  
+
   if (task) {
     // Set with TTL
     await redis.setex(key, 300, JSON.stringify(task)); // 5 min TTL
   }
-  
+
   return task;
 }
 
 export async function invalidateTaskCache(taskId: string, workspaceId: string) {
   const key = `sprintio:${workspaceId}:task:${taskId}`;
   await redis.del(key);
-  
+
   // Also invalidate sidebar cache
   await redis.del(`sprintio:${workspaceId}:sidebar`);
 }
@@ -3195,38 +3172,38 @@ export async function invalidateTaskCache(taskId: string, workspaceId: string) {
 
 ### 17.1 Table Reference
 
-| Schema | Table | Purpose | Key Indexes |
-|--------|-------|---------|-------------|
-| `auth` | `users` | User accounts | `email` (unique) |
-| `auth` | `user_accounts` | OAuth providers | `(provider, provider_uid)` |
-| `auth` | `sessions` | Active sessions | `user_id`, `expires_at` |
-| `auth` | `api_keys` | API authentication | `key_hash` (unique) |
-| `workspace` | `workspaces` | Top-level container | `slug` (unique) |
-| `workspace` | `memberships` | User ↔ workspace | `(workspace_id, user_id)` |
-| `workspace` | `teams` | Groups | `workspace_id`, `parent_team_id` |
-| `workspace` | `spaces` | Project areas | `workspace_id` |
-| `workspace` | `folders` | Folder hierarchy | `workspace_id`, `parent_id`, `path` (trigram) |
-| `workspace` | `lists` | Task containers | `workspace_id`, `space_id` |
-| `workspace` | `tasks` | Core work items | `list_id`, `assignee_id`, `status`, `labels` (GIN) |
-| `workspace` | `task_relationships` | Dependencies | `source_task_id`, `target_task_id` |
-| `workspace` | `comments` | Threaded discussions | `task_id`, `parent_id` |
-| `workspace` | `documents` | First-class docs | `workspace_id`, `search_vector` (GIN) |
-| `workspace` | `document_versions` | Version history | `(document_id, version_number)` |
-| `workspace` | `attachments` | File metadata | `entity_type, entity_id` |
-| `workspace` | `custom_field_definitions` | Field schemas | `space_id` |
-| `workspace` | `custom_field_values` | Field data | `task_id`, `field_def_id` |
-| `workspace` | `labels` | Tag definitions | `(workspace_id, name)` |
-| `workspace` | `saved_views` | View configs | `list_id` |
-| `workspace` | `notifications` | User notifications | `user_id`, unread partial |
-| `workspace` | `recurring_tasks` | Cron schedules | `next_run_at` |
-| `automation` | `automations` | Workflow rules | `workspace_id`, trigger GIN |
-| `automation` | `runs` | Execution history | `workspace_id`, `automation_id` |
-| `integration` | `webhooks` | Outbound webhooks | `workspace_id`, events GIN |
-| `integration` | `webhook_deliveries` | Delivery log | `webhook_id` |
-| `integration` | `connected_integrations` | External services | `workspace_id`, `provider` |
-| `analytics` | `ai_embeddings` | Vector search | HNSW on `embedding` |
-| `analytics` | `ai_usage` | AI cost tracking | `workspace_id`, `user_id` |
-| `timeseries` | `activity_log` | Audit trail | Hypertable: `created_at` |
+| Schema        | Table                      | Purpose              | Key Indexes                                        |
+| ------------- | -------------------------- | -------------------- | -------------------------------------------------- |
+| `auth`        | `users`                    | User accounts        | `email` (unique)                                   |
+| `auth`        | `user_accounts`            | OAuth providers      | `(provider, provider_uid)`                         |
+| `auth`        | `sessions`                 | Active sessions      | `user_id`, `expires_at`                            |
+| `auth`        | `api_keys`                 | API authentication   | `key_hash` (unique)                                |
+| `workspace`   | `workspaces`               | Top-level container  | `slug` (unique)                                    |
+| `workspace`   | `memberships`              | User ↔ workspace     | `(workspace_id, user_id)`                          |
+| `workspace`   | `teams`                    | Groups               | `workspace_id`, `parent_team_id`                   |
+| `workspace`   | `spaces`                   | Project areas        | `workspace_id`                                     |
+| `workspace`   | `folders`                  | Folder hierarchy     | `workspace_id`, `parent_id`, `path` (trigram)      |
+| `workspace`   | `lists`                    | Task containers      | `workspace_id`, `space_id`                         |
+| `workspace`   | `tasks`                    | Core work items      | `list_id`, `assignee_id`, `status`, `labels` (GIN) |
+| `workspace`   | `task_relationships`       | Dependencies         | `source_task_id`, `target_task_id`                 |
+| `workspace`   | `comments`                 | Threaded discussions | `task_id`, `parent_id`                             |
+| `workspace`   | `documents`                | First-class docs     | `workspace_id`, `search_vector` (GIN)              |
+| `workspace`   | `document_versions`        | Version history      | `(document_id, version_number)`                    |
+| `workspace`   | `attachments`              | File metadata        | `entity_type, entity_id`                           |
+| `workspace`   | `custom_field_definitions` | Field schemas        | `space_id`                                         |
+| `workspace`   | `custom_field_values`      | Field data           | `task_id`, `field_def_id`                          |
+| `workspace`   | `labels`                   | Tag definitions      | `(workspace_id, name)`                             |
+| `workspace`   | `saved_views`              | View configs         | `list_id`                                          |
+| `workspace`   | `notifications`            | User notifications   | `user_id`, unread partial                          |
+| `workspace`   | `recurring_tasks`          | Cron schedules       | `next_run_at`                                      |
+| `automation`  | `automations`              | Workflow rules       | `workspace_id`, trigger GIN                        |
+| `automation`  | `runs`                     | Execution history    | `workspace_id`, `automation_id`                    |
+| `integration` | `webhooks`                 | Outbound webhooks    | `workspace_id`, events GIN                         |
+| `integration` | `webhook_deliveries`       | Delivery log         | `webhook_id`                                       |
+| `integration` | `connected_integrations`   | External services    | `workspace_id`, `provider`                         |
+| `analytics`   | `ai_embeddings`            | Vector search        | HNSW on `embedding`                                |
+| `analytics`   | `ai_usage`                 | AI cost tracking     | `workspace_id`, `user_id`                          |
+| `timeseries`  | `activity_log`             | Audit trail          | Hypertable: `created_at`                           |
 
 ### 17.2 Migration Commands
 
@@ -3247,7 +3224,7 @@ import { withRLS } from '@/db/rls';
 export async function GET(req: Request) {
   const user = await getSessionUser(req);
   const workspaceId = req.headers['x-workspace-id'];
-  
+
   return withRLS(db, user.id, workspaceId, async (tx) => {
     // All queries are automatically workspace-scoped
     const tasks = await tx.select().from(tasksTable);
@@ -3260,63 +3237,77 @@ export async function GET(req: Request) {
 
 ```typescript
 // drizzle/schema/workspace.ts
-import { pgSchema, uuid, varchar, timestamp, jsonb, text, boolean, int, pgEnum } from 'drizzle-orm/pg-core';
+import {
+  pgSchema,
+  uuid,
+  varchar,
+  timestamp,
+  jsonb,
+  text,
+  boolean,
+  int,
+  pgEnum,
+} from 'drizzle-orm/pg-core';
 
 const workspaceSchema = pgSchema('workspace');
 
-export const tasks = workspaceSchema.table('tasks', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  workspaceId: uuid('workspace_id').notNull(),
-  listId: uuid('list_id').notNull(),
-  number: int('number').notNull(),
-  title: varchar('title', { length: 500 }).notNull(),
-  description: jsonb('description'),
-  status: varchar('status', { length: 50 }).default('backlog').notNull(),
-  priority: varchar('priority', { length: 20 }),
-  labels: text('labels').array().default([]),
-  parentId: uuid('parent_id'),
-  assigneeId: uuid('assignee_id'),
-  creatorId: uuid('creator_id').notNull(),
-  startDate: timestamp('start_date', { mode: 'date' }),
-  dueDate: timestamp('due_date', { mode: 'date' }),
-  completedAt: timestamp('completed_at', { mode: 'date' }),
-  sortOrder: int('sort_order').default(0).notNull(),
-  subtaskCount: int('subtask_count').default(0).notNull(),
-  completedSubtasks: int('completed_subtasks').default(0).notNull(),
-  commentCount: int('comment_count').default(0).notNull(),
-  customFields: jsonb('custom_fields').default({}).notNull(),
-  metadata: jsonb('metadata').default({}).notNull(),
-  recurrence: jsonb('recurrence'),
-  deletedAt: timestamp('deleted_at', { mode: 'date' }),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-}, (table) => ({
-  // Indexes
-  workspaceIdx: index('idx_tasks_workspace').on(table.workspaceId),
-  listIdx: index('idx_tasks_list').on(table.listId),
-  assigneeIdx: index('idx_tasks_assignee').on(table.assigneeId),
-  statusIdx: index('idx_tasks_status').on(table.listId, table.status),
-  boardIdx: index('idx_tasks_board').on(table.listId, table.status, table.sortOrder),
-  deletedIdx: index('idx_tasks_deleted').on(table.workspaceId).where(isNull(table.deletedAt)),
-  labelsIdx: index('idx_tasks_labels').using('gin', table.labels),
-  customFieldsIdx: index('idx_tasks_custom_fields').using('gin', table.customFields),
-}));
+export const tasks = workspaceSchema.table(
+  'tasks',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    workspaceId: uuid('workspace_id').notNull(),
+    listId: uuid('list_id').notNull(),
+    number: int('number').notNull(),
+    title: varchar('title', { length: 500 }).notNull(),
+    description: jsonb('description'),
+    status: varchar('status', { length: 50 }).default('backlog').notNull(),
+    priority: varchar('priority', { length: 20 }),
+    labels: text('labels').array().default([]),
+    parentId: uuid('parent_id'),
+    assigneeId: uuid('assignee_id'),
+    creatorId: uuid('creator_id').notNull(),
+    startDate: timestamp('start_date', { mode: 'date' }),
+    dueDate: timestamp('due_date', { mode: 'date' }),
+    completedAt: timestamp('completed_at', { mode: 'date' }),
+    sortOrder: int('sort_order').default(0).notNull(),
+    subtaskCount: int('subtask_count').default(0).notNull(),
+    completedSubtasks: int('completed_subtasks').default(0).notNull(),
+    commentCount: int('comment_count').default(0).notNull(),
+    customFields: jsonb('custom_fields').default({}).notNull(),
+    metadata: jsonb('metadata').default({}).notNull(),
+    recurrence: jsonb('recurrence'),
+    deletedAt: timestamp('deleted_at', { mode: 'date' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    // Indexes
+    workspaceIdx: index('idx_tasks_workspace').on(table.workspaceId),
+    listIdx: index('idx_tasks_list').on(table.listId),
+    assigneeIdx: index('idx_tasks_assignee').on(table.assigneeId),
+    statusIdx: index('idx_tasks_status').on(table.listId, table.status),
+    boardIdx: index('idx_tasks_board').on(table.listId, table.status, table.sortOrder),
+    deletedIdx: index('idx_tasks_deleted').on(table.workspaceId).where(isNull(table.deletedAt)),
+    labelsIdx: index('idx_tasks_labels').using('gin', table.labels),
+    customFieldsIdx: index('idx_tasks_custom_fields').using('gin', table.customFields),
+  }),
+);
 ```
 
 ### 17.5 Key Architectural Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| **ORM** | Drizzle ORM | Raw SQL performance, PgBouncer compatible, SQL migrations |
-| **UUID Strategy** | UUIDv4 (random) | No sequential leaking, safe for distributed systems |
-| **Soft Deletes** | `deleted_at` timestamp | Undo support, audit preservation, GDPR compliance |
-| **Custom Fields** | JSONB on tasks + normalized `custom_field_values` | Fast reads via JSONB, filtered/sorted via normalized table |
-| **Hierarchy** | Materialized path (`path TEXT`) | Efficient subtree queries, simple to update on move |
-| **Document Storage** | TipTap JSON + Yjs binary state | CRDT collaboration + structured content |
-| **Search** | PostgreSQL FTS (Phase 1) → pgvector (Phase 2) | Start simple, upgrade to semantic search |
-| **Activity Log** | TimescaleDB hypertable | Auto-partitioning, compression, retention policies |
-| **RLS** | Application-enforced via `SET LOCAL` | Fast, transparent, works with connection poolers |
-| **Connection Pooling** | PgBouncer (transaction mode) | Multiplexes connections, compatible with Drizzle |
+| Decision               | Choice                                            | Rationale                                                  |
+| ---------------------- | ------------------------------------------------- | ---------------------------------------------------------- |
+| **ORM**                | Drizzle ORM                                       | Raw SQL performance, PgBouncer compatible, SQL migrations  |
+| **UUID Strategy**      | UUIDv4 (random)                                   | No sequential leaking, safe for distributed systems        |
+| **Soft Deletes**       | `deleted_at` timestamp                            | Undo support, audit preservation, GDPR compliance          |
+| **Custom Fields**      | JSONB on tasks + normalized `custom_field_values` | Fast reads via JSONB, filtered/sorted via normalized table |
+| **Hierarchy**          | Materialized path (`path TEXT`)                   | Efficient subtree queries, simple to update on move        |
+| **Document Storage**   | TipTap JSON + Yjs binary state                    | CRDT collaboration + structured content                    |
+| **Search**             | PostgreSQL FTS (Phase 1) → pgvector (Phase 2)     | Start simple, upgrade to semantic search                   |
+| **Activity Log**       | TimescaleDB hypertable                            | Auto-partitioning, compression, retention policies         |
+| **RLS**                | Application-enforced via `SET LOCAL`              | Fast, transparent, works with connection poolers           |
+| **Connection Pooling** | PgBouncer (transaction mode)                      | Multiplexes connections, compatible with Drizzle           |
 
 ---
 
@@ -3379,4 +3370,4 @@ timezone = 'UTC'
 
 ---
 
-*This document is the single source of truth for Sprintio's database architecture. Schema changes must be reviewed against this document and the migration safety checklist (§5.4) before deployment.*
+_This document is the single source of truth for Sprintio's database architecture. Schema changes must be reviewed against this document and the migration safety checklist (§5.4) before deployment._

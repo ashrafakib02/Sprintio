@@ -4,7 +4,7 @@ services:
       context: ../..
       dockerfile: infrastructure/docker/api.Dockerfile
     ports:
-      - "3001:3001"
+      - '3001:3001'
     environment:
       - DATABASE_URL=postgresql://sprintio:sprintio@db:5432/sprintio
       - REDIS_URL=redis://redis:6379
@@ -21,7 +21,7 @@ services:
       context: ../..
       dockerfile: infrastructure/docker/ai.Dockerfile
     ports:
-      - "8000:8000"
+      - '8000:8000'
     environment:
       - DATABASE_URL=postgresql://sprintio:sprintio@db:5432/sprintio
       - REDIS_URL=redis://redis:6379
@@ -31,7 +31,7 @@ services:
   db:
     image: postgres:16-alpine
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_DB: sprintio
       POSTGRES_USER: sprintio
@@ -42,7 +42,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redisdata:/data
 

@@ -6,8 +6,12 @@ export const documents = pgTable('documents', {
   id: uuid('id').primaryKey().defaultRandom(),
   title: varchar('title', { length: 255 }).notNull(),
   content: jsonb('content').$type<Record<string, unknown>>().default({}),
-  workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
-  authorId: uuid('author_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  workspaceId: uuid('workspace_id')
+    .notNull()
+    .references(() => workspaces.id, { onDelete: 'cascade' }),
+  authorId: uuid('author_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });

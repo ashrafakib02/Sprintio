@@ -29,24 +29,24 @@ Cards are Sprintio's primary surface container. They group related content, crea
 
 The card system is built from four composable primitives:
 
-| Primitive | Purpose |
-|-----------|---------|
-| `Card` | Root container with border, background, and radius |
-| `CardHeader` | Top section — title, description, actions |
-| `CardContent` | Main content area |
-| `CardFooter` | Bottom section — actions, metadata |
+| Primitive     | Purpose                                            |
+| ------------- | -------------------------------------------------- |
+| `Card`        | Root container with border, background, and radius |
+| `CardHeader`  | Top section — title, description, actions          |
+| `CardContent` | Main content area                                  |
+| `CardFooter`  | Bottom section — actions, metadata                 |
 
 ### When to Use a Card
 
-| Scenario | Use Card? |
-|----------|----------|
-| Task in kanban/list view | ✅ Yes |
-| Dashboard stat widget | ✅ Yes |
-| Project overview | ✅ Yes |
-| User profile summary | ✅ Yes |
-| Modal content | ❌ No — use Dialog |
-| Simple text block | ❌ No — use div |
-| Sidebar panel | ✅ Yes (with flat variant) |
+| Scenario                 | Use Card?                  |
+| ------------------------ | -------------------------- |
+| Task in kanban/list view | ✅ Yes                     |
+| Dashboard stat widget    | ✅ Yes                     |
+| Project overview         | ✅ Yes                     |
+| User profile summary     | ✅ Yes                     |
+| Modal content            | ❌ No — use Dialog         |
+| Simple text block        | ❌ No — use div            |
+| Sidebar panel            | ✅ Yes (with flat variant) |
 
 ---
 
@@ -64,11 +64,11 @@ After installation, brand theming happens via CSS variables in `globals.css`:
 
 ```css
 :root {
-  --card: 0 0% 100%;              /* white */
-  --card-foreground: 224 71% 4%;  /* gray-900 */
+  --card: 0 0% 100%; /* white */
+  --card-foreground: 224 71% 4%; /* gray-900 */
 }
 .dark {
-  --card: 215 25% 17%;            /* slate-800 */
+  --card: 215 25% 17%; /* slate-800 */
   --card-foreground: 210 40% 98%;
 }
 ```
@@ -105,13 +105,13 @@ After installation, brand theming happens via CSS variables in `globals.css`:
 
 ### 3.2 Spacing Between Primitives
 
-| Element Pair | Gap | Tailwind |
-|-------------|-----|----------|
-| Card → Card (grid) | 16px | `gap-4` |
-| Card → Card (comfortable grid) | 24px | `gap-6` |
-| CardHeader → CardContent | implicit (via padding areas) | — |
-| CardContent → CardFooter | implicit (via padding areas) | — |
-| CardTitle → CardDescription | 6px | `space-y-1.5` |
+| Element Pair                   | Gap                          | Tailwind      |
+| ------------------------------ | ---------------------------- | ------------- |
+| Card → Card (grid)             | 16px                         | `gap-4`       |
+| Card → Card (comfortable grid) | 24px                         | `gap-6`       |
+| CardHeader → CardContent       | implicit (via padding areas) | —             |
+| CardContent → CardFooter       | implicit (via padding areas) | —             |
+| CardTitle → CardDescription    | 6px                          | `space-y-1.5` |
 
 ---
 
@@ -121,81 +121,81 @@ After installation, brand theming happens via CSS variables in `globals.css`:
 
 Standard bordered card. Used for most surfaces.
 
-| Property | Value |
-|----------|-------|
-| Background | `bg-card` |
-| Border | `border border-border` |
-| Radius | `rounded-lg` |
-| Padding | `p-6` |
-| Shadow | `shadow-sm` |
-| Usage | Task cards, project cards, widgets |
+| Property   | Value                              |
+| ---------- | ---------------------------------- |
+| Background | `bg-card`                          |
+| Border     | `border border-border`             |
+| Radius     | `rounded-lg`                       |
+| Padding    | `p-6`                              |
+| Shadow     | `shadow-sm`                        |
+| Usage      | Task cards, project cards, widgets |
 
 ### 4.2 Compact
 
 Reduced padding. For dense layouts or small widgets.
 
-| Property | Value |
-|----------|-------|
-| Background | `bg-card` |
-| Border | `border border-border` |
-| Radius | `rounded-lg` |
-| Padding | `p-4` |
-| Shadow | `shadow-sm` |
-| Usage | Dashboard stat cards, compact sidebar items |
+| Property   | Value                                       |
+| ---------- | ------------------------------------------- |
+| Background | `bg-card`                                   |
+| Border     | `border border-border`                      |
+| Radius     | `rounded-lg`                                |
+| Padding    | `p-4`                                       |
+| Shadow     | `shadow-sm`                                 |
+| Usage      | Dashboard stat cards, compact sidebar items |
 
 ### 4.3 Flat (No Border)
 
 Borderless. For content grouping without visual separation.
 
-| Property | Value |
-|----------|-------|
-| Background | `bg-card` |
-| Border | none |
-| Radius | `rounded-lg` |
-| Padding | `p-6` |
-| Shadow | none |
-| Usage | Sidebar sections, nested content areas |
+| Property   | Value                                  |
+| ---------- | -------------------------------------- |
+| Background | `bg-card`                              |
+| Border     | none                                   |
+| Radius     | `rounded-lg`                           |
+| Padding    | `p-6`                                  |
+| Shadow     | none                                   |
+| Usage      | Sidebar sections, nested content areas |
 
 ### 4.4 Interactive (Hoverable)
 
 Adds hover effect. For clickable cards.
 
-| Property | Value |
-|----------|-------|
-| Background | `bg-card` → `hover:bg-card-hover` |
-| Border | `border border-border` → `hover:border-strong` |
-| Radius | `rounded-lg` |
-| Padding | `p-6` |
-| Shadow | `shadow-sm` → `hover:shadow-md` |
-| Cursor | `cursor-pointer` |
-| Transition | `transition-all duration-200` |
-| Usage | Clickable project cards, task navigation |
+| Property   | Value                                          |
+| ---------- | ---------------------------------------------- |
+| Background | `bg-card` → `hover:bg-card-hover`              |
+| Border     | `border border-border` → `hover:border-strong` |
+| Radius     | `rounded-lg`                                   |
+| Padding    | `p-6`                                          |
+| Shadow     | `shadow-sm` → `hover:shadow-md`                |
+| Cursor     | `cursor-pointer`                               |
+| Transition | `transition-all duration-200`                  |
+| Usage      | Clickable project cards, task navigation       |
 
 ### 4.5 Selected
 
 Indicates active selection. For selected task cards.
 
-| Property | Value |
-|----------|-------|
+| Property   | Value                                                  |
+| ---------- | ------------------------------------------------------ |
 | Background | `bg-card-selected` (indigo-50 light / indigo-900 dark) |
-| Border | `border border-focus` (indigo-500) |
-| Ring | `ring-2 ring-ring ring-offset-2` |
-| Radius | `rounded-lg` |
-| Padding | `p-6` |
-| Usage | Selected task in list view, selected board card |
+| Border     | `border border-focus` (indigo-500)                     |
+| Ring       | `ring-2 ring-ring ring-offset-2`                       |
+| Radius     | `rounded-lg`                                           |
+| Padding    | `p-6`                                                  |
+| Usage      | Selected task in list view, selected board card        |
 
 ### 4.6 Elevated
 
 No border, stronger shadow. For modal-like surfaces.
 
-| Property | Value |
-|----------|-------|
-| Background | `bg-card` |
-| Border | none |
-| Radius | `rounded-xl` |
-| Padding | `p-6` |
-| Shadow | `shadow-lg` |
-| Usage | Floating panels, command palette |
+| Property   | Value                            |
+| ---------- | -------------------------------- |
+| Background | `bg-card`                        |
+| Border     | none                             |
+| Radius     | `rounded-xl`                     |
+| Padding    | `p-6`                            |
+| Shadow     | `shadow-lg`                      |
+| Usage      | Floating panels, command palette |
 
 ---
 
@@ -204,19 +204,19 @@ No border, stronger shadow. For modal-like surfaces.
 ### 5.1 Card Root
 
 ```tsx
-import { HTMLAttributes } from 'react'
+import { HTMLAttributes } from 'react';
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   /** Make card clickable with hover effects */
-  interactive?: boolean
+  interactive?: boolean;
   /** Show selected state */
-  selected?: boolean
+  selected?: boolean;
   /** Compact padding variant */
-  compact?: boolean
+  compact?: boolean;
   /** Flat (no border/shadow) variant */
-  flat?: boolean
+  flat?: boolean;
   /** Elevated variant */
-  elevated?: boolean
+  elevated?: boolean;
 }
 ```
 
@@ -225,7 +225,7 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 ```tsx
 interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
   /** Render actions in the header (right-aligned) */
-  actions?: React.ReactNode
+  actions?: React.ReactNode;
 }
 ```
 
@@ -234,42 +234,37 @@ interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
 ```tsx
 interface CardTitleProps extends HTMLAttributes<HTMLHeadingElement> {
   /** Render as specific heading level */
-  as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+  as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 }
 ```
 
 ### 5.4 Variant Definitions (CVA)
 
 ```tsx
-const cardVariants = cva(
-  'rounded-lg border bg-card text-card-foreground',
-  {
-    variants: {
-      variant: {
-        default: 'border-border shadow-sm',
-        compact: 'border-border shadow-sm',
-        flat: 'border-transparent shadow-none',
-        interactive:
-          'border-border shadow-sm cursor-pointer ' +
-          'hover:bg-card-hover hover:border-strong hover:shadow-md ' +
-          'transition-all duration-200',
-        selected:
-          'border-focus shadow-sm ring-2 ring-ring ring-offset-2 bg-card-selected',
-        elevated:
-          'border-transparent shadow-lg rounded-xl',
-      },
-      padding: {
-        default: 'p-6',
-        compact: 'p-4',
-        none: 'p-0',
-      },
+const cardVariants = cva('rounded-lg border bg-card text-card-foreground', {
+  variants: {
+    variant: {
+      default: 'border-border shadow-sm',
+      compact: 'border-border shadow-sm',
+      flat: 'border-transparent shadow-none',
+      interactive:
+        'border-border shadow-sm cursor-pointer ' +
+        'hover:bg-card-hover hover:border-strong hover:shadow-md ' +
+        'transition-all duration-200',
+      selected: 'border-focus shadow-sm ring-2 ring-ring ring-offset-2 bg-card-selected',
+      elevated: 'border-transparent shadow-lg rounded-xl',
     },
-    defaultVariants: {
-      variant: 'default',
-      padding: 'default',
+    padding: {
+      default: 'p-6',
+      compact: 'p-4',
+      none: 'p-0',
     },
-  }
-)
+  },
+  defaultVariants: {
+    variant: 'default',
+    padding: 'default',
+  },
+});
 ```
 
 ---
@@ -278,30 +273,30 @@ const cardVariants = cva(
 
 ### 6.1 Card Padding
 
-| Variant | Padding | Tailwind |
-|---------|---------|----------|
-| Default | 24px all sides | `p-6` |
-| Compact | 16px all sides | `p-4` |
-| None | 0 | `p-0` |
+| Variant | Padding        | Tailwind |
+| ------- | -------------- | -------- |
+| Default | 24px all sides | `p-6`    |
+| Compact | 16px all sides | `p-4`    |
+| None    | 0              | `p-0`    |
 
 ### 6.2 Internal Spacing
 
-| Element | Spacing | Tailwind |
-|---------|---------|----------|
-| CardTitle → CardDescription | 6px | `space-y-1.5` |
-| CardHeader → CardContent | implicit (via padding areas) | — |
-| CardContent → CardFooter | implicit (via padding areas) | — |
-| Footer button gap | 8px | `gap-2` |
-| Close button position | 16px from edges | `top-4 right-4` |
+| Element                     | Spacing                      | Tailwind        |
+| --------------------------- | ---------------------------- | --------------- |
+| CardTitle → CardDescription | 6px                          | `space-y-1.5`   |
+| CardHeader → CardContent    | implicit (via padding areas) | —               |
+| CardContent → CardFooter    | implicit (via padding areas) | —               |
+| Footer button gap           | 8px                          | `gap-2`         |
+| Close button position       | 16px from edges              | `top-4 right-4` |
 
 ### 6.3 Grid Layout
 
-| Pattern | Columns | Gap | Responsive |
-|---------|---------|-----|------------|
-| Compact card grid | `1 sm:2 lg:3 xl:4` | `gap-4` | 1→2→3→4 cols |
-| Comfortable card grid | `1 md:2 lg:3` | `gap-6` | 1→2→3 cols |
-| Dashboard stats | `2 lg:4` | `gap-4` | 2→4 cols |
-| Settings 2-col | `1 lg:[240px_1fr]` | `gap-8` | Stack → sidebar |
+| Pattern               | Columns            | Gap     | Responsive      |
+| --------------------- | ------------------ | ------- | --------------- |
+| Compact card grid     | `1 sm:2 lg:3 xl:4` | `gap-4` | 1→2→3→4 cols    |
+| Comfortable card grid | `1 md:2 lg:3`      | `gap-6` | 1→2→3 cols      |
+| Dashboard stats       | `2 lg:4`           | `gap-4` | 2→4 cols        |
+| Settings 2-col        | `1 lg:[240px_1fr]` | `gap-8` | Stack → sidebar |
 
 ---
 
@@ -316,13 +311,13 @@ const cardVariants = cva(
     <CardDescription>Website redesign for Q3</CardDescription>
   </CardHeader>
   <CardContent>
-    <p className="text-sm text-muted-foreground">
-      24 tasks · 3 members · Due Aug 15
-    </p>
+    <p className="text-sm text-muted-foreground">24 tasks · 3 members · Due Aug 15</p>
   </CardContent>
   <CardFooter className="gap-2">
     <Button size="sm">View Project</Button>
-    <Button size="sm" variant="ghost">Settings</Button>
+    <Button size="sm" variant="ghost">
+      Settings
+    </Button>
   </CardFooter>
 </Card>
 ```
@@ -331,16 +326,16 @@ const cardVariants = cva(
 
 ```tsx
 <Card>
-  <CardHeader actions={
-    <Button variant="ghost" size="icon-sm" aria-label="More options">
-      <MoreHorizontal className="h-4 w-4" />
-    </Button>
-  }>
+  <CardHeader
+    actions={
+      <Button variant="ghost" size="icon-sm" aria-label="More options">
+        <MoreHorizontal className="h-4 w-4" />
+      </Button>
+    }
+  >
     <CardTitle>Dashboard</CardTitle>
   </CardHeader>
-  <CardContent>
-    {/* Dashboard content */}
-  </CardContent>
+  <CardContent>{/* Dashboard content */}</CardContent>
 </Card>
 ```
 
@@ -396,7 +391,7 @@ const cardVariants = cva(
   </CardHeader>
   <CardContent>
     <div className="space-y-2">
-      {members.map(member => (
+      {members.map((member) => (
         <div key={member.id} className="flex items-center gap-2">
           <Avatar className="h-6 w-6">
             <AvatarImage src={member.avatar} />
@@ -448,30 +443,23 @@ function TaskCard({ task }: { task: Task }) {
     P2: 'border-l-yellow-500',
     P3: 'border-l-blue-500',
     P4: 'border-l-transparent',
-  }
+  };
 
   return (
-    <Card
-      interactive
-      className={`border-l-4 ${priorityBorderColor[task.priority]}`}
-    >
+    <Card interactive className={`border-l-4 ${priorityBorderColor[task.priority]}`}>
       <CardContent className="p-4 space-y-3">
         {/* Title */}
-        <h4 className="text-sm font-medium leading-snug">
-          {task.title}
-        </h4>
+        <h4 className="text-sm font-medium leading-snug">{task.title}</h4>
 
         {/* Description (optional) */}
         {task.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2">
-            {task.description}
-          </p>
+          <p className="text-xs text-muted-foreground line-clamp-2">{task.description}</p>
         )}
 
         {/* Tags */}
         {task.labels.length > 0 && (
           <div className="flex flex-wrap gap-1">
-            {task.labels.map(label => (
+            {task.labels.map((label) => (
               <Badge key={label.id} variant="secondary" className="text-[10px]">
                 {label.name}
               </Badge>
@@ -486,9 +474,7 @@ function TaskCard({ task }: { task: Task }) {
             {task.assignee && (
               <Avatar className="h-5 w-5">
                 <AvatarImage src={task.assignee.avatar} />
-                <AvatarFallback className="text-[10px]">
-                  {task.assignee.initials}
-                </AvatarFallback>
+                <AvatarFallback className="text-[10px]">{task.assignee.initials}</AvatarFallback>
               </Avatar>
             )}
           </div>
@@ -509,7 +495,7 @@ function TaskCard({ task }: { task: Task }) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 ```
 
@@ -530,9 +516,7 @@ function TaskCard({ task }: { task: Task }) {
       {/* Project info */}
       <div className="flex-1 min-w-0">
         <h3 className="text-sm font-semibold truncate">{project.name}</h3>
-        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-          {project.description}
-        </p>
+        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{project.description}</p>
       </div>
     </div>
 
@@ -555,11 +539,11 @@ function TaskCard({ task }: { task: Task }) {
 
 ```tsx
 interface StatCardProps {
-  title: string
-  value: string | number
-  change?: { value: number; label: string }
-  icon: React.ReactNode
-  iconBg?: string
+  title: string;
+  value: string | number;
+  change?: { value: number; label: string };
+  icon: React.ReactNode;
+  iconBg?: string;
 }
 
 function StatCard({ title, value, change, icon, iconBg }: StatCardProps) {
@@ -588,7 +572,7 @@ function StatCard({ title, value, change, icon, iconBg }: StatCardProps) {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 ```
 
@@ -598,14 +582,14 @@ function StatCard({ title, value, change, icon, iconBg }: StatCardProps) {
 
 ### 9.1 Requirements
 
-| Requirement | Implementation |
-|-------------|---------------|
-| Semantic HTML | Use `<article>` for standalone cards; `<div>` for layout |
-| Heading hierarchy | CardTitle uses correct heading level (don't skip h3→h1) |
-| Interactive cards | Full `<button>` or `<a>` wrapping (not `div onClick`) |
-| Keyboard navigation | `Tab` to focus, `Enter`/`Space` to activate |
-| Focus ring | `focus-visible:ring-2 focus-visible:ring-ring` |
-| Color contrast | All text meets WCAG AA (4.5:1 minimum) |
+| Requirement         | Implementation                                           |
+| ------------------- | -------------------------------------------------------- |
+| Semantic HTML       | Use `<article>` for standalone cards; `<div>` for layout |
+| Heading hierarchy   | CardTitle uses correct heading level (don't skip h3→h1)  |
+| Interactive cards   | Full `<button>` or `<a>` wrapping (not `div onClick`)    |
+| Keyboard navigation | `Tab` to focus, `Enter`/`Space` to activate              |
+| Focus ring          | `focus-visible:ring-2 focus-visible:ring-ring`           |
+| Color contrast      | All text meets WCAG AA (4.5:1 minimum)                   |
 
 ### 9.2 Interactive Card — Full Keyboard Support
 
@@ -623,7 +607,7 @@ function InteractiveCard({ onClick, children }) {
     >
       {children}
     </button>
-  )
+  );
 }
 ```
 
@@ -631,26 +615,26 @@ function InteractiveCard({ onClick, children }) {
 
 Status-colored left borders on task cards must **not** be the only way to convey information. Always pair with a visible text label or badge.
 
-| Color | Accompanied By |
-|-------|---------------|
-| `border-l-red-500` (P0) | "Critical" priority badge |
-| `border-l-amber-500` (P1) | "High" priority badge |
-| `border-l-green-500` (Done) | "Done" status badge |
+| Color                       | Accompanied By            |
+| --------------------------- | ------------------------- |
+| `border-l-red-500` (P0)     | "Critical" priority badge |
+| `border-l-amber-500` (P1)   | "High" priority badge     |
+| `border-l-green-500` (Done) | "Done" status badge       |
 
 ---
 
 ## 10. Don'ts
 
-| ❌ Don't | ✅ Do Instead |
-|---------|-------------|
-| Nest cards inside cards | Use flat variant for nested content |
-| Add padding to both Card and CardContent | Let Card handle padding, or use `p-0` on Card |
-| Make entire card interactive without `<button>` | Wrap in `<button>` or use `<a>` |
-| Use card for small inline elements | Use badge, chip, or inline element |
-| Skip heading level in CardTitle | Maintain proper h1→h2→h3 hierarchy |
-| Use heavy shadows everywhere | Reserve `shadow-lg` for modals/popovers only |
-| Put too much content in one card | Split into multiple cards or use tabs |
-| Use arbitrary hex colors for card backgrounds | Use `bg-card`, `bg-card-hover`, `bg-card-selected` |
+| ❌ Don't                                        | ✅ Do Instead                                      |
+| ----------------------------------------------- | -------------------------------------------------- |
+| Nest cards inside cards                         | Use flat variant for nested content                |
+| Add padding to both Card and CardContent        | Let Card handle padding, or use `p-0` on Card      |
+| Make entire card interactive without `<button>` | Wrap in `<button>` or use `<a>`                    |
+| Use card for small inline elements              | Use badge, chip, or inline element                 |
+| Skip heading level in CardTitle                 | Maintain proper h1→h2→h3 hierarchy                 |
+| Use heavy shadows everywhere                    | Reserve `shadow-lg` for modals/popovers only       |
+| Put too much content in one card                | Split into multiple cards or use tabs              |
+| Use arbitrary hex colors for card backgrounds   | Use `bg-card`, `bg-card-hover`, `bg-card-selected` |
 
 ---
 

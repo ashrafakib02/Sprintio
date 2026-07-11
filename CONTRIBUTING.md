@@ -72,16 +72,16 @@ pnpm dev
 
 We follow **Git Flow** conventions. See [docs/development/branching-strategy.md](docs/development/branching-strategy.md) for full details.
 
-| Branch Type       | Pattern                  | Example                        |
-| ----------------- | ------------------------ | ------------------------------ |
-| Feature           | `feat/<short-description>` | `feat/user-auth-flow`        |
-| Bugfix            | `fix/<short-description>`  | `fix/sprint-timer-drift`     |
-| Documentation     | `docs/<short-description>` | `docs/api-rate-limiting`     |
-| Hotfix            | `hotfix/<short-description>`| `hotfix/login-500-error`   |
-| Release           | `release/<version>`        | `release/v1.2.0`             |
-| Refactor          | `refactor/<short-description>`| `refactor/auth-module`  |
-| Test              | `test/<short-description>` | `test/payment-edge-cases`    |
-| Chore             | `chore/<short-description>`| `chore/update-deps`          |
+| Branch Type   | Pattern                        | Example                   |
+| ------------- | ------------------------------ | ------------------------- |
+| Feature       | `feat/<short-description>`     | `feat/user-auth-flow`     |
+| Bugfix        | `fix/<short-description>`      | `fix/sprint-timer-drift`  |
+| Documentation | `docs/<short-description>`     | `docs/api-rate-limiting`  |
+| Hotfix        | `hotfix/<short-description>`   | `hotfix/login-500-error`  |
+| Release       | `release/<version>`            | `release/v1.2.0`          |
+| Refactor      | `refactor/<short-description>` | `refactor/auth-module`    |
+| Test          | `test/<short-description>`     | `test/payment-edge-cases` |
+| Chore         | `chore/<short-description>`    | `chore/update-deps`       |
 
 **Rules:**
 
@@ -133,19 +133,19 @@ chore(deps): bump typescript to 5.4
 
 ### Allowed Types
 
-| Type       | Description                                        |
-| ---------- | -------------------------------------------------- |
-| `feat`     | A new feature                                      |
-| `fix`      | A bug fix                                          |
-| `docs`     | Documentation only changes                         |
-| `style`    | Code style (formatting, semicolons, etc.)          |
-| `refactor` | Code change that neither fixes nor adds a feature  |
-| `perf`     | Performance improvement                            |
-| `test`     | Adding or correcting tests                         |
-| `build`    | Build process or external dependency changes       |
-| `ci`       | CI configuration changes                           |
-| `chore`    | Other changes (non-src, non-test)                  |
-| `revert`   | Reverts a previous commit                          |
+| Type       | Description                                       |
+| ---------- | ------------------------------------------------- |
+| `feat`     | A new feature                                     |
+| `fix`      | A bug fix                                         |
+| `docs`     | Documentation only changes                        |
+| `style`    | Code style (formatting, semicolons, etc.)         |
+| `refactor` | Code change that neither fixes nor adds a feature |
+| `perf`     | Performance improvement                           |
+| `test`     | Adding or correcting tests                        |
+| `build`    | Build process or external dependency changes      |
+| `ci`       | CI configuration changes                          |
+| `chore`    | Other changes (non-src, non-test)                 |
+| `revert`   | Reverts a previous commit                         |
 
 ### Enforced Rules
 
@@ -260,15 +260,15 @@ Before a PR can be merged, it must meet these criteria:
 
 ### Naming Conventions
 
-| Element        | Convention     | Example               |
-| -------------- | -------------- | --------------------- |
-| Variables      | camelCase      | `sprintDuration`      |
-| Functions      | camelCase      | `calculateVelocity()` |
-| Classes        | PascalCase     | `SprintManager`       |
-| Interfaces     | PascalCase     | `ISprintConfig`       |
-| Constants      | SCREAMING_SNAKE| `MAX_RETRY_COUNT`     |
-| Files          | kebab-case     | `sprint-manager.ts`   |
-| React Components | PascalCase  | `SprintCard.tsx`      |
+| Element          | Convention      | Example               |
+| ---------------- | --------------- | --------------------- |
+| Variables        | camelCase       | `sprintDuration`      |
+| Functions        | camelCase       | `calculateVelocity()` |
+| Classes          | PascalCase      | `SprintManager`       |
+| Interfaces       | PascalCase      | `ISprintConfig`       |
+| Constants        | SCREAMING_SNAKE | `MAX_RETRY_COUNT`     |
+| Files            | kebab-case      | `sprint-manager.ts`   |
+| React Components | PascalCase      | `SprintCard.tsx`      |
 
 ### Git
 

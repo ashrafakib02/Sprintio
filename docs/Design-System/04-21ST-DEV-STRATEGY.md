@@ -22,17 +22,17 @@
 
 ## 1. Why 21st.dev
 
-| Aspect | 21st.dev | shadcn/ui CLI |
-|--------|----------|---------------|
-| Component source | Community marketplace with curated alternatives | Official shadcn/ui library |
-| Compatibility | **Identical** — uses same Tailwind + CSS variable architecture | — |
-| Installation | `npx shadcn@latest add "https://21st.dev/r/{author}/{slug}?api_key=..."` | `npx shadcn@latest add button` |
-| Token system | Same CSS variable foundation (HSL) | Same |
-| Dark mode | Same `.dark` class mechanism | Same |
-| Tailwind classes | Same utility classes | Same |
-| Radix UI underneath | Yes — same primitives | Yes |
-| Extra options | Multiple design variants per component (e.g., UntitledUI, shadcn default) | Single style |
-| MCP connected | ✅ Yes — install via Claude Code directly | ✅ Yes |
+| Aspect              | 21st.dev                                                                  | shadcn/ui CLI                  |
+| ------------------- | ------------------------------------------------------------------------- | ------------------------------ |
+| Component source    | Community marketplace with curated alternatives                           | Official shadcn/ui library     |
+| Compatibility       | **Identical** — uses same Tailwind + CSS variable architecture            | —                              |
+| Installation        | `npx shadcn@latest add "https://21st.dev/r/{author}/{slug}?api_key=..."`  | `npx shadcn@latest add button` |
+| Token system        | Same CSS variable foundation (HSL)                                        | Same                           |
+| Dark mode           | Same `.dark` class mechanism                                              | Same                           |
+| Tailwind classes    | Same utility classes                                                      | Same                           |
+| Radix UI underneath | Yes — same primitives                                                     | Yes                            |
+| Extra options       | Multiple design variants per component (e.g., UntitledUI, shadcn default) | Single style                   |
+| MCP connected       | ✅ Yes — install via Claude Code directly                                 | ✅ Yes                         |
 
 **Key insight:** 21st.dev components are **drop-in compatible** with our token system. The Tailwind utility classes, CSS variables, and dark mode mechanism are all identical. No architectural changes needed.
 
@@ -91,26 +91,26 @@ src/
 
 For each component need, follow this priority:
 
-| Step | Action |
-|------|--------|
-| 1 | Search 21st.dev for the component |
-| 2 | If a suitable variant exists → install it |
-| 3 | If no good 21st.dev variant → fall back to standard `npx shadcn@latest add {name}` |
-| 4 | After install, customize via CSS variables (NOT component code) |
-| 5 | Only modify component `.tsx` if absolutely necessary |
+| Step | Action                                                                             |
+| ---- | ---------------------------------------------------------------------------------- |
+| 1    | Search 21st.dev for the component                                                  |
+| 2    | If a suitable variant exists → install it                                          |
+| 3    | If no good 21st.dev variant → fall back to standard `npx shadcn@latest add {name}` |
+| 4    | After install, customize via CSS variables (NOT component code)                    |
+| 5    | Only modify component `.tsx` if absolutely necessary                               |
 
 ### 3.2 Variant Selection Criteria
 
 When 21st.dev has multiple variants of the same component:
 
-| Factor | Preference |
-|--------|-----------|
-| Design match to Sprintio style | Closer to our clean, minimal aesthetic |
-| Bundle size | Lighter = better |
-| Accessibility | Full Radix UI a11y support |
-| TypeScript | Full type coverage |
-| Dark mode | Built-in `.dark` class support |
-| Props API | Standardized (same as shadcn/ui for consistency) |
+| Factor                         | Preference                                       |
+| ------------------------------ | ------------------------------------------------ |
+| Design match to Sprintio style | Closer to our clean, minimal aesthetic           |
+| Bundle size                    | Lighter = better                                 |
+| Accessibility                  | Full Radix UI a11y support                       |
+| TypeScript                     | Full type coverage                               |
+| Dark mode                      | Built-in `.dark` class support                   |
+| Props API                      | Standardized (same as shadcn/ui for consistency) |
 
 ---
 
@@ -118,47 +118,47 @@ When 21st.dev has multiple variants of the same component:
 
 ### 4.1 Core Primitives (Install First)
 
-| Component | Priority | Source | Notes |
-|-----------|----------|--------|-------|
-| Button | 🔴 Critical | 21st.dev | Primary action element; get UntitledUI variant for extra polish |
-| Input | 🔴 Critical | 21st.dev | Text fields; get shadcn default or UntitledUI |
-| Dialog / Modal | 🔴 Critical | 21st.dev | Task creation, settings, confirmations |
-| Card | 🔴 Critical | 21st.dev | Task cards, project cards, dashboard widgets |
-| Badge | 🔴 Critical | 21st.dev | Status/priority badges |
-| Select | 🔴 Critical | 21st.dev | Status dropdown, priority dropdown |
-| Tabs | 🔴 High | 21st.dev | Board / List / Timeline views |
-| Tooltip | 🟡 Medium | 21st.dev | Icon tooltips, action hints |
-| Dropdown Menu | 🟡 Medium | 21st.dev | Task actions, more menu |
-| Avatar | 🟡 Medium | 21st.dev | User avatars, assignees |
-| Checkbox | 🟡 Medium | 21st.dev | Subtask completion |
-| Label | 🟢 Low | shadcn | Simple — standard install fine |
-| Separator | 🟢 Low | shadcn | Simple — standard install fine |
-| Scroll Area | 🟢 Low | shadcn | Custom scrollbar for panels |
+| Component      | Priority    | Source   | Notes                                                           |
+| -------------- | ----------- | -------- | --------------------------------------------------------------- |
+| Button         | 🔴 Critical | 21st.dev | Primary action element; get UntitledUI variant for extra polish |
+| Input          | 🔴 Critical | 21st.dev | Text fields; get shadcn default or UntitledUI                   |
+| Dialog / Modal | 🔴 Critical | 21st.dev | Task creation, settings, confirmations                          |
+| Card           | 🔴 Critical | 21st.dev | Task cards, project cards, dashboard widgets                    |
+| Badge          | 🔴 Critical | 21st.dev | Status/priority badges                                          |
+| Select         | 🔴 Critical | 21st.dev | Status dropdown, priority dropdown                              |
+| Tabs           | 🔴 High     | 21st.dev | Board / List / Timeline views                                   |
+| Tooltip        | 🟡 Medium   | 21st.dev | Icon tooltips, action hints                                     |
+| Dropdown Menu  | 🟡 Medium   | 21st.dev | Task actions, more menu                                         |
+| Avatar         | 🟡 Medium   | 21st.dev | User avatars, assignees                                         |
+| Checkbox       | 🟡 Medium   | 21st.dev | Subtask completion                                              |
+| Label          | 🟢 Low      | shadcn   | Simple — standard install fine                                  |
+| Separator      | 🟢 Low      | shadcn   | Simple — standard install fine                                  |
+| Scroll Area    | 🟢 Low      | shadcn   | Custom scrollbar for panels                                     |
 
 ### 4.2 Sprintio-Specific Compositions (Build In-House)
 
-| Component | Built From | Notes |
-|-----------|-----------|-------|
-| TaskCard | Card + Badge + Avatar + Checkbox | Drag-and-drop ready |
-| BoardColumn | Card container + Header + Scroll Area | Kanban columns |
-| StatusBadge | Badge + status color tokens | Standardized status display |
-| PriorityBadge | Badge + priority color tokens | Standardized priority display |
-| Sidebar | Navigation Menu + Avatar + Separator | Sprintio navigation |
-| CommandPalette | Dialog + Input + Scroll Area | ⌘K quick actions |
-| CopilotPanel | Slide-over panel + Input + Scroll Area | AI chat sidebar |
-| Toast | Toast + status colors | Notifications |
-| DataTable | Table + Tabs + Pagination | List view |
-| OnboardingWizard | Dialog + Steps + Form | First-time user flow |
+| Component        | Built From                             | Notes                         |
+| ---------------- | -------------------------------------- | ----------------------------- |
+| TaskCard         | Card + Badge + Avatar + Checkbox       | Drag-and-drop ready           |
+| BoardColumn      | Card container + Header + Scroll Area  | Kanban columns                |
+| StatusBadge      | Badge + status color tokens            | Standardized status display   |
+| PriorityBadge    | Badge + priority color tokens          | Standardized priority display |
+| Sidebar          | Navigation Menu + Avatar + Separator   | Sprintio navigation           |
+| CommandPalette   | Dialog + Input + Scroll Area           | ⌘K quick actions              |
+| CopilotPanel     | Slide-over panel + Input + Scroll Area | AI chat sidebar               |
+| Toast            | Toast + status colors                  | Notifications                 |
+| DataTable        | Table + Tabs + Pagination              | List view                     |
+| OnboardingWizard | Dialog + Steps + Form                  | First-time user flow          |
 
 ### 4.3 Future Components (Phase 2+)
 
-| Component | Phase | Notes |
-|-----------|-------|-------|
-| Calendar | Phase 2 | Sprint planning |
-| Gantt Chart | Phase 2 | Timeline view |
+| Component         | Phase   | Notes                       |
+| ----------------- | ------- | --------------------------- |
+| Calendar          | Phase 2 | Sprint planning             |
+| Gantt Chart       | Phase 2 | Timeline view               |
 | KanbanBoard (DnD) | Phase 2 | Drag-and-drop with @dnd-kit |
-| Rich Text Editor | Phase 3 | Document editing |
-| File Upload | Phase 3 | Attachments |
+| Rich Text Editor  | Phase 3 | Document editing            |
+| File Upload       | Phase 3 | Attachments                 |
 
 ---
 
@@ -200,15 +200,15 @@ className="bg-primary text-primary-foreground"
 
 ### 5.3 What Branding Controls
 
-| Variable | Controls | Sprintio Value |
-|----------|---------|----------------|
-| `--primary` | Buttons, links, active states, focus rings | `239 84% 67%` (indigo-500) |
-| `--background` | Page background | `236 39% 97%` (gray-50) |
-| `--card` | Card/panel surfaces | `0 0% 100%` (white) |
-| `--border` | All standard borders | `220 13% 91%` (gray-200) |
-| `--muted` | Secondary surfaces, disabled bg | `220 14% 96%` (gray-100) |
-| `--destructive` | Delete, danger actions | `0 84% 60%` (red-500) |
-| `--radius` | Base border radius | `0.5rem` (8px) |
+| Variable        | Controls                                   | Sprintio Value             |
+| --------------- | ------------------------------------------ | -------------------------- |
+| `--primary`     | Buttons, links, active states, focus rings | `239 84% 67%` (indigo-500) |
+| `--background`  | Page background                            | `236 39% 97%` (gray-50)    |
+| `--card`        | Card/panel surfaces                        | `0 0% 100%` (white)        |
+| `--border`      | All standard borders                       | `220 13% 91%` (gray-200)   |
+| `--muted`       | Secondary surfaces, disabled bg            | `220 14% 96%` (gray-100)   |
+| `--destructive` | Delete, danger actions                     | `0 84% 60%` (red-500)      |
+| `--radius`      | Base border radius                         | `0.5rem` (8px)             |
 
 ---
 
@@ -236,13 +236,13 @@ Components automatically respond to the `.dark` class on `<html>`:
 
 After installing any 21st.dev component:
 
-| Step | Check |
-|------|-------|
-| 1 | Verify component reads from CSS variables (not hardcoded colors) |
-| 2 | Toggle `.dark` class — verify background/foreground swap |
-| 3 | Check borders visible in both modes |
-| 4 | Verify text contrast in dark mode (WCAG AA) |
-| 5 | Test focus ring visibility in dark mode |
+| Step | Check                                                            |
+| ---- | ---------------------------------------------------------------- |
+| 1    | Verify component reads from CSS variables (not hardcoded colors) |
+| 2    | Toggle `.dark` class — verify background/foreground swap         |
+| 3    | Check borders visible in both modes                              |
+| 4    | Verify text contrast in dark mode (WCAG AA)                      |
+| 5    | Test focus ring visibility in dark mode                          |
 
 ---
 
@@ -290,14 +290,13 @@ src/
 ```ts
 // src/components/ui/index.ts
 
-export { Button } from './button'
-export type { ButtonProps } from './button'
+export { Button } from './button';
+export type { ButtonProps } from './button';
 
-export { Input } from './input'
-export type { InputProps } from './input'
+export { Input } from './input';
+export type { InputProps } from './input';
 
-export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
-  from './card'
+export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './card';
 
 // ... etc
 ```
@@ -314,13 +313,15 @@ export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 
 ```css
 /* ✅ OK — Change brand colors */
---primary: 239 84% 67%;     /* Change primary to any color */
+--primary: 239 84% 67%; /* Change primary to any color */
 
 /* ✅ OK — Change radius globally */
 --radius: 0.5rem;
 
 /* ✅ OK — Dark mode surface colors */
-.dark { --card: 215 25% 17%; }
+.dark {
+  --card: 215 25% 17%;
+}
 ```
 
 ### 8.3 Allowed Customizations (Tailwind Classes on Usage)
@@ -339,31 +340,31 @@ export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 
 ```tsx
 /* ✅ OK — Add a new variant */
-const buttonVariants = cva("...", {
+const buttonVariants = cva('...', {
   variants: {
     variant: {
-      default: "bg-primary ...",
-      ai: "bg-violet-500 ...",   // ← new Sprintio-specific variant
+      default: 'bg-primary ...',
+      ai: 'bg-violet-500 ...', // ← new Sprintio-specific variant
     },
   },
-})
+});
 
 /* ✅ OK — Add new prop */
 interface ButtonProps extends VariantProps<typeof buttonVariants> {
-  loading?: boolean    // ← new Sprintio prop
+  loading?: boolean; // ← new Sprintio prop
 }
 ```
 
 ### 8.5 Forbidden Customizations
 
-| ❌ Don't | Why |
-|---------|-----|
-| Hardcode hex colors in component files | Breaks theming |
-| Add `!important` to classes | Signals specificity problem |
-| Remove Radix UI a11y props | Breaks accessibility |
-| Modify component API in breaking ways | Makes future updates difficult |
-| Copy entire component to create a variant | Use variant system instead |
-| Install same component from multiple sources | Causes conflicts |
+| ❌ Don't                                     | Why                            |
+| -------------------------------------------- | ------------------------------ |
+| Hardcode hex colors in component files       | Breaks theming                 |
+| Add `!important` to classes                  | Signals specificity problem    |
+| Remove Radix UI a11y props                   | Breaks accessibility           |
+| Modify component API in breaking ways        | Makes future updates difficult |
+| Copy entire component to create a variant    | Use variant system instead     |
+| Install same component from multiple sources | Causes conflicts               |
 
 ---
 
@@ -408,16 +409,16 @@ npx shadcn@latest diff
 
 ### 9.3 Component Checklist Before Merging
 
-| Check | Status |
-|-------|--------|
-| Component installs without errors | ☐ |
-| Uses CSS variables (no hardcoded colors) | ☐ |
-| Dark mode works | ☐ |
-| Focus ring visible | ☐ |
-| Keyboard navigable | ☐ |
-| `cn()` used for class merging | ☐ |
-| Types exported | ☐ |
-| No `any` types | ☐ |
+| Check                                    | Status |
+| ---------------------------------------- | ------ |
+| Component installs without errors        | ☐      |
+| Uses CSS variables (no hardcoded colors) | ☐      |
+| Dark mode works                          | ☐      |
+| Focus ring visible                       | ☐      |
+| Keyboard navigable                       | ☐      |
+| `cn()` used for class merging            | ☐      |
+| Types exported                           | ☐      |
+| No `any` types                           | ☐      |
 
 ---
 

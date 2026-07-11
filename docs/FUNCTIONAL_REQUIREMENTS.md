@@ -34,6 +34,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 ## E1: Core Workspace & Data Model (FR-1.1 – FR-1.12)
 
 ### FR-1.1 — Hierarchical workspaces: Workspace → Space → Folder → List → Task
+
 - **Priority:** P0
 - **Description:** The unified data model is the foundation of Sprintio — a single, consistent hierarchy (Workspace → Space → Folder → List → Task) that every view, doc, automation, and AI feature reads from. It lets any team model its structure without fragmenting work across tools.
 - **Detailed Requirements:**
@@ -52,6 +53,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E1-01
 
 ### FR-1.2 — Flexible task schema: Custom fields (15+ types), custom statuses, templates
+
 - **Priority:** P0
 - **Description:** Tasks must be adaptable to how each team actually works. A configurable schema — 15+ custom field types, customizable status sets, and reusable templates — lets teams capture priority, value, and effort in their own terms rather than a rigid default.
 - **Detailed Requirements:**
@@ -71,6 +73,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E1-02
 
 ### FR-1.3 — Task relationships: Subtasks, dependencies (blocked by/blocks), duplicates, related
+
 - **Priority:** P0
 - **Description:** Work is connected. Subtasks, blocking dependencies, duplicate markers, and related-task links make those connections explicit so blockers and structure are visible rather than inferred.
 - **Detailed Requirements:**
@@ -90,6 +93,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E1-03
 
 ### FR-1.4 — Rich text task description with mentions, slash commands, embeds
+
 - **Priority:** P0
 - **Description:** The task description is a lightweight document surface — rich text with @mentions, slash-command inserts, and embeds — so an engineer can write an RFC-style brief without leaving the task.
 - **Detailed Requirements:**
@@ -109,6 +113,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E1-04
 
 ### FR-1.5 — Comments with threads, reactions, assignments, rich text, code blocks
+
 - **Priority:** P0
 - **Description:** Comments are the conversation layer on a task — threaded, reactable, assignable, and richly formatted — so feedback and decisions stay attached to the work instead of scattering across chat.
 - **Detailed Requirements:**
@@ -128,6 +133,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E1-05
 
 ### FR-1.6 — Activity log / audit trail (immutable, filterable, exportable)
+
 - **Priority:** P0
 - **Description:** Every meaningful change is recorded in an immutable, append-only audit trail. Leadership and security teams rely on it as the single source of truth for "what actually happened."
 - **Detailed Requirements:**
@@ -147,6 +153,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E1-06
 
 ### FR-1.7 — Bulk operations (multi-select: move, assign, status, delete, duplicate)
+
 - **Priority:** P0
 - **Description:** Bulk operations let managers act on many tasks at once — sprint setup, re-assignment, status changes — instead of editing one row at a time.
 - **Detailed Requirements:**
@@ -165,6 +172,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E1-07
 
 ### FR-1.8 — Task templates with variable substitution
+
 - **Priority:** P0
 - **Description:** Task templates capture recurring structures (fields, description, subtasks, custom values) with `{{variable}}` placeholders so teams get consistent specs without copy-paste.
 - **Detailed Requirements:**
@@ -184,13 +192,14 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E1-08
 
 ### FR-1.9 — Recurring tasks (cron-style, natural language)
+
 - **Priority:** P0
 - **Description:** Recurring tasks ensure chores (dependency bumps, timesheet reminders, on-call handoffs) never get forgotten, scheduled via either cron expressions or natural-language cadences.
 - **Detailed Requirements:**
   - A task can be set to recur by a cron expression or by natural language (e.g., "every 2 weeks on Monday").
   - On firing, a new instance is created with the same template content and assignments.
   - User can choose to carry over the previous instance's subtask completion state or reset it.
-  - Configurable anti-stacking: by default, a new instance is not created if the prior instance is still incomplete (toggleable). *(Inferred conservative default — PRD silent.)*
+  - Configurable anti-stacking: by default, a new instance is not created if the prior instance is still incomplete (toggleable). _(Inferred conservative default — PRD silent.)_
   - Recurrence schedule is visible and editable from the task.
   - Recurrence respects the workspace timezone.
 - **Acceptance Criteria:**
@@ -203,6 +212,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E1-09
 
 ### FR-1.10 — Time tracking (manual + automatic), estimates, time reports
+
 - **Priority:** P1
 - **Description:** Accurate effort capture underpins billing (Casey) and utilization. Time tracking supports manual and automatic timers, estimates, and aggregated reporting.
 - **Detailed Requirements:**
@@ -210,7 +220,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
   - Each task shows an estimate-vs-logged-time comparison.
   - A time report aggregates entries by person, task, List, and date range.
   - Time entries appear in the activity log (FR-1.6) and are exportable for billing.
-  - Automatic tracking may accrue time while a task is in an "active" status (configurable). *(Inferred — PRD silent on exact auto trigger.)*
+  - Automatic tracking may accrue time while a task is in an "active" status (configurable). _(Inferred — PRD silent on exact auto trigger.)_
   - Feeds SLA/budget alerts and time-entry reminders (FR-4.18, FR-4.17).
 - **Acceptance Criteria:**
   - When a timer is started on a task, elapsed time accrues and can be paused/resumed.
@@ -222,6 +232,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E1-10
 
 ### FR-1.11 — Goals/OKRs linked to tasks, progress rollup
+
 - **Priority:** P1
 - **Description:** Goals/OKRs connect daily work to strategy. A goal links contributing tasks and sub-goals, and its progress rolls up automatically as linked work changes state.
 - **Detailed Requirements:**
@@ -241,6 +252,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E1-11
 
 ### FR-1.12 — Custom field formulas, rollups, lookups
+
 - **Priority:** P1
 - **Description:** Computed fields let backlog metrics maintain themselves — formula fields compute per row, rollups aggregate across related/child tasks, and lookups pull values from related tasks.
 - **Detailed Requirements:**
@@ -264,6 +276,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 ## E2: Views & Visualization (FR-2.1 – FR-2.11)
 
 ### FR-2.1 — List view (sortable, groupable, filterable, column customization)
+
 - **Priority:** P0
 - **Description:** The List view is the default task surface — rows are tasks, columns are fields — with sort, group, filter, and column control so each user sees exactly their work.
 - **Detailed Requirements:**
@@ -283,6 +296,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E2-01, US-E2-13, US-E2-14
 
 ### FR-2.2 — Board/Kanban view (swimlanes, WIP limits, drag-drop, sub-columns)
+
 - **Priority:** P0
 - **Description:** The Board view makes status flow visual and fast, with swimlanes, WIP limits, drag-and-drop, and optional per-person sub-columns for review routing.
 - **Detailed Requirements:**
@@ -302,6 +316,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E2-02
 
 ### FR-2.3 — Table/Spreadsheet view (inline edit, frozen cols, formulas, pivot)
+
 - **Priority:** P0
 - **Description:** The Table view behaves like a spreadsheet teams already know — inline cell editing, frozen columns, computed fields, and pivots — for backlog math and bulk review.
 - **Detailed Requirements:**
@@ -321,6 +336,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E2-03
 
 ### FR-2.4 — Calendar view (day/week/month, drag-drop reschedule, multi-calendar)
+
 - **Priority:** P0
 - **Description:** The Calendar view puts due (and start) dates in time, with day/week/month modes, drag-to-reschedule, and multiple toggleable calendars.
 - **Detailed Requirements:**
@@ -340,6 +356,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E2-04
 
 ### FR-2.5 — Timeline/Gantt view (dependencies, critical path, baseline, milestones)
+
 - **Priority:** P0
 - **Description:** The Timeline/Gantt view supports cross-team sequencing — tasks plot as bars, dependency lines render, the critical path is highlighted, and baselines show variance.
 - **Detailed Requirements:**
@@ -359,6 +376,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E2-05
 
 ### FR-2.6 — Dashboard view (widgets: charts, metrics, text, embeds, progress)
+
 - **Priority:** P0
 - **Description:** The Dashboard view gives leadership a one-screen readout via a palette of widgets — charts, single KPIs, text, embeds, and progress.
 - **Detailed Requirements:**
@@ -378,6 +396,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E2-06
 
 ### FR-2.7 — Workload/Capacity view (per person, per team, capacity planning)
+
 - **Priority:** P1
 - **Description:** The Workload/Capacity view surfaces overallocation before it becomes a miss — assigned effort vs configurable capacity, per person and per team.
 - **Detailed Requirements:**
@@ -399,6 +418,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E2-07
 
 ### FR-2.8 — Map view (location-based tasks)
+
 - **Priority:** P2
 - **Description:** The Map view plots location-tagged tasks as pins for field/client visit planning, using a location custom field type with geocoding.
 - **Detailed Requirements:**
@@ -417,6 +437,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E2-08
 
 ### FR-2.9 — Whiteboard / Infinite canvas (Figma-style, bidir task links)
+
 - **Priority:** P2
 - **Description:** The Whiteboard is a Figma-style infinite canvas for critique sessions and journey maps, with bidirectional links to real tasks.
 - **Detailed Requirements:**
@@ -435,6 +456,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E2-09
 
 ### FR-2.10 — Saved views (personal + shared), view templates, view sharing
+
 - **Priority:** P0
 - **Description:** Saved views let a configured filter/sort/grouping be one click away — personal or shared, publishable as a template, and shareable via link.
 - **Detailed Requirements:**
@@ -454,6 +476,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E2-10, US-E2-12
 
 ### FR-2.11 — Cross-workspace portfolio view (multi-workspace rollup)
+
 - **Priority:** P1
 - **Description:** The Portfolio view rolls up multiple workspaces into one trusted picture for leadership — progress, status distribution, and risk per team.
 - **Detailed Requirements:**
@@ -477,6 +500,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 ## E3: Real-time Collaboration & Documents (FR-3.1 – FR-3.11)
 
 ### FR-3.1 — Real-time collaborative rich text editor (TipTap/ProseMirror + Yjs)
+
 - **Priority:** P0
 - **Description:** Documents are authored in a real-time collaborative rich text editor (TipTap/ProseMirror + Yjs CRDT) so multiple people can edit without clobbering each other.
 - **Detailed Requirements:**
@@ -496,6 +520,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E3-01
 
 ### FR-3.2 — Documents as first-class entities (nest in tasks, folders, or standalone)
+
 - **Priority:** P0
 - **Description:** Documents are first-class entities that can nest in tasks, folders, or stand alone — specs live with the work they describe.
 - **Detailed Requirements:**
@@ -514,6 +539,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E3-02
 
 ### FR-3.3 — Bidirectional links ([[wiki-links]], backlinks graph, transclusion)
+
 - **Priority:** P0
 - **Description:** Bidirectional wiki-links keep specs and backlog as one conversation — `[[Doc Name]]` links, a backlinks graph, and `![[...]]` transclusion.
 - **Detailed Requirements:**
@@ -532,6 +558,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E3-03
 
 ### FR-3.4 — Document templates with variables
+
 - **Priority:** P0
 - **Description:** Document templates with `{{variables}}` keep handoff and design-system docs structurally consistent across the workspace.
 - **Detailed Requirements:**
@@ -551,6 +578,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E3-04
 
 ### FR-3.5 — Inline comments, suggestions mode, threads
+
 - **Priority:** P0
 - **Description:** Inline comments, suggestions mode, and threads capture review feedback in the doc rather than in chat.
 - **Detailed Requirements:**
@@ -570,6 +598,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E3-05
 
 ### FR-3.6 — Slash commands: /task, /doc, @mention, /date, /emoji, /code, /embed
+
 - **Priority:** P0
 - **Description:** Slash commands let users do everything from the keyboard — create tasks/docs, mention, insert dates/emoji/code/embeds — without menus.
 - **Detailed Requirements:**
@@ -589,6 +618,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E3-06
 
 ### FR-3.7 — Document version history, diff view, restore
+
 - **Priority:** P0
 - **Description:** Version history with diff and restore makes design-system and spec changes auditable and reversible.
 - **Detailed Requirements:**
@@ -607,6 +637,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E3-07
 
 ### FR-3.8 — Export (PDF, MD, HTML, Notion export), print to PDF
+
 - **Priority:** P1
 - **Description:** Documents export to PDF, Markdown, HTML, and Notion format, plus print-to-PDF, so specs travel wherever stakeholders are.
 - **Detailed Requirements:**
@@ -626,6 +657,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E3-08
 
 ### FR-3.9 — Document permissions (view/comment/edit/admin per doc)
+
 - **Priority:** P1
 - **Description:** Per-document permissions (view/comment/edit/admin) keep sensitive strategy docs from being editable by everyone.
 - **Detailed Requirements:**
@@ -645,6 +677,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E3-09
 
 ### FR-3.10 — Published docs (public link, password, SEO, custom domain)
+
 - **Priority:** P2
 - **Description:** Published docs give clients a branded, self-serve status page via a public link with password, SEO, and custom-domain options.
 - **Detailed Requirements:**
@@ -664,6 +697,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E3-10
 
 ### FR-3.11 — AI writing assistant (continue, summarize, rewrite, translate)
+
 - **Priority:** P1
 - **Description:** The in-doc AI writing assistant continues, summarizes, rewrites tone, and translates selected text so specs read cleanly without a separate tool.
 - **Detailed Requirements:**
@@ -687,6 +721,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 ## E4: Native Automation Engine (FR-4.1 – FR-4.12)
 
 ### FR-4.1 — Visual no-code automation builder (trigger → condition → action)
+
 - **Priority:** P0
 - **Description:** A visual no-code builder lets non-engineers assemble automations as a linear trigger → condition → action flow without writing code.
 - **Detailed Requirements:**
@@ -706,6 +741,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E4-01
 
 ### FR-4.2 — 50+ native triggers (task created, status changed, comment added, date, webhook, schedule, AI trigger)
+
 - **Priority:** P0
 - **Description:** A library of 50+ native triggers — task/comment/date/schedule/webhook/AI categories — so any event a team cares about can start a workflow.
 - **Detailed Requirements:**
@@ -725,6 +761,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E4-02, US-E4-13, US-E4-17
 
 ### FR-4.3 — 50+ native actions (create task, update field, comment, notify, webhook, AI action, create doc, move)
+
 - **Priority:** P0
 - **Description:** A library of 50+ native actions — create/update/comment/notify/webhook/AI/doc/move — so workflows can be assembled end to end.
 - **Detailed Requirements:**
@@ -744,6 +781,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E4-03, US-E4-14, US-E4-15, US-E4-16, US-E4-18
 
 ### FR-4.4 — Conditions: if/else, filters, field matching, formulas, AI classification
+
 - **Priority:** P0
 - **Description:** Conditions — if/else branching, filters, field matching, formulas, and AI classification — ensure automations only fire when they should.
 - **Detailed Requirements:**
@@ -763,6 +801,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E4-04, US-E4-18
 
 ### FR-4.5 — Loops (for each), batch operations, delay/wait, retry logic
+
 - **Priority:** P0
 - **Description:** Loops, batch operations, delay/wait, and retry logic let recurring chores and bulk updates run correctly and resiliently.
 - **Detailed Requirements:**
@@ -770,7 +809,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
   - A delay/wait step pauses execution for a set duration.
   - Failed steps retry per a configured policy (count/backoff).
   - Batch operations act on multiple items atomically where possible.
-  - Loop iteration count is bounded to prevent runaway execution. *(Inferred safety cap — PRD silent on exact bound.)*
+  - Loop iteration count is bounded to prevent runaway execution. _(Inferred safety cap — PRD silent on exact bound.)_
   - Retry/durability handled by the workflow engine (Temporal, PRD §9.2).
 - **Acceptance Criteria:**
   - When a loop is added, it iterates "for each" item in a collection.
@@ -782,6 +821,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E4-05
 
 ### FR-4.6 — Automation versioning, draft/published, rollback, change log
+
 - **Priority:** P0
 - **Description:** Automation versioning with draft/published states, rollback, and a change log lets teams iterate safely.
 - **Detailed Requirements:**
@@ -800,6 +840,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E4-06
 
 ### FR-4.7 — Automation templates library (50+ pre-built)
+
 - **Priority:** P0
 - **Description:** A 50+ template library gives teams a proven workflow to start from instead of a blank canvas.
 - **Detailed Requirements:**
@@ -818,6 +859,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E4-07
 
 ### FR-4.8 — AI-assisted automation builder (natural language → workflow)
+
 - **Priority:** P1
 - **Description:** The AI-assisted builder turns a plain-English workflow description into a draft automation the user can review and edit.
 - **Detailed Requirements:**
@@ -837,6 +879,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E4-08
 
 ### FR-4.9 — Run history, debugging, replay, logs, error notifications
+
 - **Priority:** P0
 - **Description:** Run history with debugging, replay, logs, and error notifications let teams trust that automations are actually running.
 - **Detailed Requirements:**
@@ -856,6 +899,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E4-09
 
 ### FR-4.10 — Rate limiting, concurrency control, execution limits per plan
+
 - **Priority:** P1
 - **Description:** Rate limiting, concurrency control, and per-plan execution limits keep one workspace from starving others or blowing the bill.
 - **Detailed Requirements:**
@@ -874,6 +918,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E4-10
 
 ### FR-4.11 — Webhook receiver (public endpoints, HMAC verification)
+
 - **Priority:** P1
 - **Description:** A public webhook receiver with HMAC verification lets external systems trigger Sprintio workflows securely.
 - **Detailed Requirements:**
@@ -892,6 +937,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E4-11
 
 ### FR-4.12 — Automation marketplace (share, install, rate)
+
 - **Priority:** P2
 - **Description:** An automation marketplace lets teams share, install, and rate workflows so good patterns spread.
 - **Detailed Requirements:**
@@ -914,6 +960,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 ## E5: AI Copilot & Intelligence (FR-5.1 – FR-5.15)
 
 ### FR-5.1 — Natural language task creation
+
 - **Priority:** P0
 - **Description:** Natural-language task creation ("create a task for redesigning the dashboard, assign to Alex, due Friday, high priority") turns capturing work into one sentence.
 - **Detailed Requirements:**
@@ -933,6 +980,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E5-01
 
 ### FR-5.2 — Smart task triage (auto-categorize, suggest assignee, priority, labels, sprint)
+
 - **Priority:** P0
 - **Description:** Smart triage auto-categorizes and suggests assignee, priority, labels, and sprint so incoming work lands in the right place.
 - **Detailed Requirements:**
@@ -951,6 +999,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E5-02
 
 ### FR-5.3 — Smart summaries (task thread summary, doc summary, sprint summary, weekly digest)
+
 - **Priority:** P0
 - **Description:** Smart summaries — task thread, doc, sprint, weekly digest — cut reporting time from afternoons to minutes.
 - **Detailed Requirements:**
@@ -970,6 +1019,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E5-03
 
 ### FR-5.4 — AI Writing Assistant (continue writing, summarize, rewrite tone, translate, fix grammar)
+
 - **Priority:** P0
 - **Description:** The AI writing assistant (continue, summarize, rewrite tone, translate, fix grammar) keeps specs clean without a separate tool — available in task descriptions and docs.
 - **Detailed Requirements:**
@@ -989,6 +1039,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E5-04
 
 ### FR-5.5 — Smart search (semantic search across tasks, docs, comments, code)
+
 - **Priority:** P1
 - **Description:** Semantic search across tasks, docs, comments, and code lets users find the half-remembered RFC without exact keywords.
 - **Detailed Requirements:**
@@ -1008,6 +1059,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E5-05
 
 ### FR-5.6 — Capacity planning & velocity forecasting (AI-powered)
+
 - **Priority:** P1
 - **Description:** AI-powered capacity planning and velocity forecasting sanity-check the roadmap against reality.
 - **Detailed Requirements:**
@@ -1026,6 +1078,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E5-06
 
 ### FR-5.7 — Risk detection (stalled tasks, scope creep, overallocated people, dependency risks)
+
 - **Priority:** P1
 - **Description:** AI risk detection flags stalled tasks, scope creep, overallocation, and dependency risks so commitments that will break are known early.
 - **Detailed Requirements:**
@@ -1045,6 +1098,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E5-07
 
 ### FR-5.8 — Automated standup / standup summary generation
+
 - **Priority:** P1
 - **Description:** Automated standup summaries turn standup into a 10-minute confirmation by aggregating yesterday/today/blockers per person from activity.
 - **Detailed Requirements:**
@@ -1064,6 +1118,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E5-08
 
 ### FR-5.9 — Release notes generator (from completed tasks)
+
 - **Priority:** P1
 - **Description:** Release notes generated from completed tasks stop the PM from being the release-notes secretary.
 - **Detailed Requirements:**
@@ -1083,6 +1138,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E5-09
 
 ### FR-5.10 — AI Automation Builder (describe workflow in plain English → generate automation)
+
 - **Priority:** P1
 - **Description:** The AI Automation Builder turns a plain-English workflow description into a proposed trigger/condition/action flow — the intelligence layer behind FR-4.8.
 - **Detailed Requirements:**
@@ -1101,6 +1157,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E5-10
 
 ### FR-5.11 — Smart duplicate detection & merge suggestions
+
 - **Priority:** P1
 - **Description:** Smart duplicate detection and merge suggestions keep the backlog under 5% duplicates.
 - **Detailed Requirements:**
@@ -1119,6 +1176,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E5-11
 
 ### FR-5.12 — Context-aware Q&A ("What's blocking the login refactor?", "Summarize last week's progress")
+
 - **Priority:** P2
 - **Description:** Context-aware Q&A answers questions from workspace tasks/docs/activity so leaders get a defensible answer without building a slide.
 - **Detailed Requirements:**
@@ -1138,6 +1196,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E5-12
 
 ### FR-5.13 — Custom AI instructions per workspace (tone, terminology, workflows)
+
 - **Priority:** P1
 - **Description:** Custom AI instructions per workspace (tone, terminology, workflows) make the copilot write like the team, not a generic bot.
 - **Detailed Requirements:**
@@ -1156,6 +1215,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E5-13
 
 ### FR-5.14 — BYOK (Bring Your Own Key) for enterprise
+
 - **Priority:** P2
 - **Description:** BYOK lets enterprise customers run AI features on their own model contract and keys.
 - **Detailed Requirements:**
@@ -1174,6 +1234,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E5-14
 
 ### FR-5.15 — AI usage analytics & cost controls per workspace
+
 - **Priority:** P1
 - **Description:** Per-workspace AI usage analytics and cost controls keep AI spend predictable.
 - **Detailed Requirements:**
@@ -1197,6 +1258,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 ## E6: Team & Workspace Management (FR-6.1 – FR-6.10)
 
 ### FR-6.1 — Multi-workspace support (personal + team workspaces)
+
 - **Priority:** P0
 - **Description:** Multi-workspace support lets users separate contexts (personal + team/client) without mixing data — each workspace is isolated with its own members, billing, and settings.
 - **Detailed Requirements:**
@@ -1215,6 +1277,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E6-01
 
 ### FR-6.2 — Roles: Owner, Admin, Member, Guest, Viewer (custom roles P1)
+
 - **Priority:** P0
 - **Description:** A default role model (Owner, Admin, Member, Guest, Viewer) maps access to responsibility without custom setup; custom roles are entitled at higher tiers.
 - **Detailed Requirements:**
@@ -1234,6 +1297,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E6-02, US-E6-11
 
 ### FR-6.3 — Teams & user groups (nested groups, team-level permissions)
+
 - **Priority:** P0
 - **Description:** Teams and nested user groups with team-level permissions let managers assign and notify by squad, not by individual.
 - **Detailed Requirements:**
@@ -1253,6 +1317,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E6-03
 
 ### FR-6.4 — Guest access (task-level, list-level, folder-level, time-limited)
+
 - **Priority:** P0
 - **Description:** Scoped, time-limited guest access (task/list/folder level) lets clients see their project without a full seat.
 - **Detailed Requirements:**
@@ -1272,6 +1337,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E6-04
 
 ### FR-6.5 — SSO (SAML 2.0, OIDC, SCIM 2.0 provisioning)
+
 - **Priority:** P1
 - **Description:** SSO (SAML 2.0, OIDC) and SCIM 2.0 provisioning let joiners/leavers be managed from the customer's IdP.
 - **Detailed Requirements:**
@@ -1291,6 +1357,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E6-05
 
 ### FR-6.6 — Directory sync (Okta, Azure AD, Google Workspace, OneLogin)
+
 - **Priority:** P1
 - **Description:** Directory sync with Okta, Azure AD, Google Workspace, and OneLogin keeps the user base in lockstep with HR systems.
 - **Detailed Requirements:**
@@ -1310,6 +1377,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E6-06
 
 ### FR-6.7 — Audit logs (SIEM export, webhook streaming)
+
 - **Priority:** P1
 - **Description:** Audit logs exportable to SIEM and streamable via webhook land security events in the customer's central pipeline.
 - **Detailed Requirements:**
@@ -1329,6 +1397,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E6-07
 
 ### FR-6.8 — Session management, device trust, IP allowlists
+
 - **Priority:** P1
 - **Description:** Session management, device trust, and IP allowlists control access beyond just a password.
 - **Detailed Requirements:**
@@ -1348,6 +1417,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E6-08
 
 ### FR-6.9 — Workspace analytics (adoption, activity, collaboration patterns)
+
 - **Priority:** P1
 - **Description:** Workspace analytics (adoption, activity, collaboration patterns) show whether the platform is actually being used.
 - **Detailed Requirements:**
@@ -1366,6 +1436,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E6-09
 
 ### FR-6.10 — Custom branding (logo, colors, domain, email templates)
+
 - **Priority:** P1
 - **Description:** Custom branding (logo, colors, domain, email templates) makes client-facing views look like the agency, not Sprintio.
 - **Detailed Requirements:**
@@ -1389,6 +1460,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 ## E7: Integrations & API (FR-7.1 – FR-7.9)
 
 ### FR-7.1 — Public REST API (OpenAPI 3.1, versioned, rate-limited)
+
 - **Priority:** P1
 - **Description:** A versioned, rate-limited public REST API (OpenAPI 3.1) lets developers script Sprintio from their own tooling.
 - **Detailed Requirements:**
@@ -1407,6 +1479,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E7-01
 
 ### FR-7.2 — GraphQL API (flexible queries, subscriptions for real-time)
+
 - **Priority:** P1
 - **Description:** A GraphQL API with flexible queries and real-time subscriptions lets developers fetch exactly what they need and get live updates.
 - **Detailed Requirements:**
@@ -1425,6 +1498,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E7-02
 
 ### FR-7.3 — Webhooks (retry, signing, filtering, delivery logs)
+
 - **Priority:** P1
 - **Description:** Outbound webhooks with retry, signing, filtering, and delivery logs keep external systems in sync with Sprintio.
 - **Detailed Requirements:**
@@ -1444,6 +1518,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E7-03
 
 ### FR-7.4 — Native integrations: GitHub, GitLab, Bitbucket, Slack, Teams, Discord, Figma, Notion, Google Drive, OneDrive, Jira, Linear, Asana, Zendesk, Intercom, HubSpot, Salesforce
+
 - **Priority:** P1
 - **Description:** A native-integration library (the listed 16 providers) flows PR state, mentions, and files into tasks automatically via scoped OAuth.
 - **Detailed Requirements:**
@@ -1463,6 +1538,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E7-04, US-E7-10, US-E7-11, US-E7-12
 
 ### FR-7.5 — OAuth 2.0 / OIDC for 3rd party app integration
+
 - **Priority:** P1
 - **Description:** OAuth 2.0 / OIDC for third-party apps lets external apps authenticate as a workspace securely.
 - **Detailed Requirements:**
@@ -1482,6 +1558,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E7-05
 
 ### FR-7.6 — App marketplace (install, configure, review, revenue share)
+
 - **Priority:** P2
 - **Description:** An app marketplace lets users install, configure, review apps, and share revenue — extending the ecosystem.
 - **Detailed Requirements:**
@@ -1500,6 +1577,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E7-06
 
 ### FR-7.7 — Embedded iFrame views (embed views in Confluence, Notion, websites)
+
 - **Priority:** P2
 - **Description:** Embedded iFrame views let stakeholders see live data where they already are — in Confluence, Notion, or websites.
 - **Detailed Requirements:**
@@ -1518,6 +1596,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E7-07
 
 ### FR-7.8 — CLI tool (collabstack CLI) for developers
+
 - **Priority:** P2
 - **Description:** A `collabstack` CLI lets developers create tasks and run automations from the terminal.
 - **Detailed Requirements:**
@@ -1536,6 +1615,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E7-08
 
 ### FR-7.9 — Webhooks marketplace (pre-built webhook receivers)
+
 - **Priority:** P2
 - **Description:** A webhooks marketplace of pre-built receivers makes common external integrations one click, not custom code.
 - **Detailed Requirements:**
@@ -1558,6 +1638,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 ## E8: Admin, Security & Compliance (FR-8.1 – FR-8.10)
 
 ### FR-8.1 — SOC 2 Type II, GDPR, CCPA compliance
+
 - **Priority:** P1
 - **Description:** SOC 2 Type II, GDPR, and CCPA compliance let boards and customers accept Sprintio as a vendor.
 - **Detailed Requirements:**
@@ -1576,11 +1657,12 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E8-01
 
 ### FR-8.2 — Data residency (US, EU, AU regions)
+
 - **Priority:** P1
 - **Description:** Data residency options (US, EU, AU) keep a workspace's data in the region its regulators require.
 - **Detailed Requirements:**
   - When a workspace selects a region, its data is stored there.
-  - Region is chosen at workspace creation and changeable per policy. *(Inferred — PRD silent on changeability; conservative: settable at creation, changeable via supported migration per policy.)*
+  - Region is chosen at workspace creation and changeable per policy. _(Inferred — PRD silent on changeability; conservative: settable at creation, changeable via supported migration per policy.)_
   - Cross-region data movement is prevented for the workspace.
   - Audit/SIEM export respects the region (FR-6.7).
   - Region availability is shown before selection.
@@ -1594,6 +1676,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E8-02
 
 ### FR-8.3 — Encryption at rest (AES-256), in transit (TLS 1.3), customer-managed keys (P1)
+
 - **Priority:** P0/P1
 - **Description:** Encryption at rest (AES-256) and in transit (TLS 1.3), plus customer-managed keys, protect data and let enterprises control their keys.
 - **Detailed Requirements:**
@@ -1613,6 +1696,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E8-03
 
 ### FR-8.4 — Fine-grained permissions (resource-level, field-level P1)
+
 - **Priority:** P0
 - **Description:** Fine-grained, resource-level (and field-level) permissions keep sensitive fields from being visible to everyone.
 - **Detailed Requirements:**
@@ -1632,6 +1716,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E8-04
 
 ### FR-8.5 — Audit log API, SIEM integration (Splunk, Datadog, Sentinel)
+
 - **Priority:** P1
 - **Description:** An audit-log API with SIEM integration (Splunk, Datadog, Sentinel) flows security events to the customer's stack.
 - **Detailed Requirements:**
@@ -1651,6 +1736,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E8-05
 
 ### FR-8.6 — Data loss prevention (DLP) rules, watermarking
+
 - **Priority:** P2
 - **Description:** DLP rules and watermarking keep sensitive content from leaving the workspace uncontrolled.
 - **Detailed Requirements:**
@@ -1670,6 +1756,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E8-06
 
 ### FR-8.7 — Vulnerability management, pen testing, bug bounty
+
 - **Priority:** P1
 - **Description:** Vulnerability management, penetration testing, and a bug bounty continuously harden the platform.
 - **Detailed Requirements:**
@@ -1688,6 +1775,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E8-07
 
 ### FR-8.8 — Backup & disaster recovery (RPO < 1hr, RTO < 4hr)
+
 - **Priority:** P1
 - **Description:** Backup and disaster recovery with RPO < 1hr and RTO < 4hr ensure a failure doesn't lose the team's work.
 - **Detailed Requirements:**
@@ -1707,6 +1795,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E8-08
 
 ### FR-8.9 — Legal hold, e-discovery export
+
 - **Priority:** P2
 - **Description:** Legal hold and e-discovery export let the org respond to legal requests without scrambling.
 - **Detailed Requirements:**
@@ -1725,6 +1814,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E8-09
 
 ### FR-8.10 — Accessibility (WCAG 2.1 AA)
+
 - **Priority:** P1
 - **Description:** WCAG 2.1 AA accessibility makes the product usable by everyone, including assistive-tech users.
 - **Detailed Requirements:**
@@ -1748,6 +1838,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 ## E9: Billing & Subscription Management (FR-9.1 – FR-9.8)
 
 ### FR-9.1 — Tiered plans: Free, Pro ($12/u/mo), Business ($24/u/mo), Enterprise (custom)
+
 - **Priority:** P0
 - **Description:** Tiered plans (Free, Pro $12/u/mo, Business $24/u/mo, Enterprise custom) let teams pick a plan that fits size and needs.
 - **Detailed Requirements:**
@@ -1767,6 +1858,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E9-01
 
 ### FR-9.2 — Per-seat pricing with volume discounts
+
 - **Priority:** P0
 - **Description:** Per-seat pricing with volume discounts keeps scaling the team from blowing the budget linearly.
 - **Detailed Requirements:**
@@ -1785,6 +1877,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E9-02
 
 ### FR-9.3 — Usage-based AI credits (included quota + overage)
+
 - **Priority:** P0
 - **Description:** Usage-based AI credits (included quota + overage) bound and predict AI spend.
 - **Detailed Requirements:**
@@ -1803,6 +1896,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E9-03
 
 ### FR-9.4 — Stripe Billing integration (subscriptions, trials, proration, dunning)
+
 - **Priority:** P0
 - **Description:** Stripe Billing handles subscriptions, trials, proration, and dunning so billing runs on a trusted processor.
 - **Detailed Requirements:**
@@ -1821,6 +1915,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E9-04
 
 ### FR-9.5 — Customer portal (billing history, invoices, payment methods, plan changes)
+
 - **Priority:** P0
 - **Description:** A customer portal for billing history, invoices, payment methods, and plan changes lets customers self-serve without contacting sales.
 - **Detailed Requirements:**
@@ -1839,6 +1934,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E9-05
 
 ### FR-9.6 — Usage analytics & alerts (approaching limits, overage warnings)
+
 - **Priority:** P1
 - **Description:** Usage analytics and alerts (approaching limits, overage warnings) keep customers from being surprised by a bill.
 - **Detailed Requirements:**
@@ -1857,6 +1953,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E9-06
 
 ### FR-9.7 — Enterprise contracts (annual, PO, custom terms, SSO enforcement)
+
 - **Priority:** P1
 - **Description:** Enterprise contracts (annual, PO, custom terms, SSO enforcement) let procurement fit the customer's process.
 - **Detailed Requirements:**
@@ -1875,6 +1972,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E9-07
 
 ### FR-9.8 — Partner/affiliate program, revenue share
+
 - **Priority:** P2
 - **Description:** A partner/affiliate program with revenue share lets referrers earn credit when clients convert.
 - **Detailed Requirements:**
@@ -1897,6 +1995,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 ## E10: Mobile & Desktop Apps (FR-10.1 – FR-10.6)
 
 ### FR-10.1 — iOS app (native SwiftUI, offline-first, push notifications)
+
 - **Priority:** P2
 - **Description:** A native iOS app (SwiftUI), offline-first with push notifications, lets users capture and check work from their phone.
 - **Detailed Requirements:**
@@ -1916,6 +2015,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E10-01, US-E10-07
 
 ### FR-10.2 — Android app (native Kotlin, offline-first, push notifications)
+
 - **Priority:** P2
 - **Description:** A native Android app (Kotlin), offline-first with push, lets users check client status from anywhere.
 - **Detailed Requirements:**
@@ -1934,6 +2034,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E10-02
 
 ### FR-10.3 — Desktop apps (Tauri/Electron: macOS, Windows, Linux)
+
 - **Priority:** P1
 - **Description:** Desktop apps for macOS, Windows, and Linux (Tauri) give Sprintio its own window, not a browser tab.
 - **Detailed Requirements:**
@@ -1952,6 +2053,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E10-03
 
 ### FR-10.4 — PWA with offline support, push notifications
+
 - **Priority:** P1
 - **Description:** A Progressive Web App with offline support and push notifications gives an installable, app-like experience from the browser.
 - **Detailed Requirements:**
@@ -1970,6 +2072,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E10-04
 
 ### FR-10.5 — Mobile-optimized web (responsive, touch-friendly)
+
 - **Priority:** P1
 - **Description:** A mobile-optimized responsive web lets clients and users work from a phone browser cleanly.
 - **Detailed Requirements:**
@@ -1989,6 +2092,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E10-05
 
 ### FR-10.6 — Offline-first architecture (CRDT, background sync, conflict resolution)
+
 - **Priority:** P1
 - **Description:** An offline-first architecture with CRDT background sync and conflict resolution lets users work on a plane and merge cleanly later.
 - **Detailed Requirements:**
@@ -2012,6 +2116,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 ## E11: Notifications & Onboarding (FR-11.1 – FR-11.6)
 
 ### FR-11.1 — In-app notification center (bell icon, feed, unread count, mark read, filter by type)
+
 - **Priority:** P0
 - **Description:** An in-app notification center gives users a centralized place to see all activity that requires their attention — assignments, mentions, due dates, status changes — without leaving the app.
 - **Detailed Requirements:**
@@ -2033,6 +2138,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E11-01
 
 ### FR-11.2 — Email notifications (assignment, @mention, due date, status change)
+
 - **Priority:** P0
 - **Description:** Email notifications ensure users stay informed even when they're not actively in the app. Critical events (assignments, mentions, approaching due dates) trigger email notifications.
 - **Detailed Requirements:**
@@ -2050,6 +2156,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E11-02
 
 ### FR-11.3 — Notification preferences (per-user toggle: which events, email vs in-app vs off)
+
 - **Priority:** P0
 - **Description:** Notification preferences let each user control which events generate notifications and through which channel (in-app, email, or off).
 - **Detailed Requirements:**
@@ -2067,6 +2174,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E11-03
 
 ### FR-11.4 — Workspace setup wizard (guided first-time flow)
+
 - **Priority:** P0
 - **Description:** A workspace setup wizard guides new workspace creators through the essential first steps: naming the workspace, inviting team members, and creating the first project/list.
 - **Detailed Requirements:**
@@ -2086,6 +2194,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E11-04
 
 ### FR-11.5 — User onboarding checklist (progressive checklist for new users)
+
 - **Priority:** P0
 - **Description:** An onboarding checklist helps new users discover key features by guiding them through a series of actions (create a task, invite a teammate, use a view, etc.).
 - **Detailed Requirements:**
@@ -2104,6 +2213,7 @@ The PRD §5.1 table lists two rows labeled "FR-1.6" (activity log, then bulk ope
 - **Related User Stories:** US-E11-05
 
 ### FR-11.6 — CSV task import (upload CSV, column mapping)
+
 - **Priority:** P0
 - **Description:** CSV task import lets users migrate from existing tools (Jira, Asana, Trello, spreadsheets) by uploading a CSV file and mapping columns to Sprintio fields.
 - **Detailed Requirements:**

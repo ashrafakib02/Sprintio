@@ -17,19 +17,19 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 
 ### Epic Summary
 
-| Epic | Stories | Priority |
-|------|---------|----------|
-| **E1: Core Workspace & Data Model** | 12 | P0 |
-| **E2: Views & Visualization** | 15 | P0 |
-| **E3: Real-time Collaboration & Docs** | 10 | P0 |
-| **E4: Native Automation Engine** | 18 | P0 |
-| **E5: AI Copilot & Intelligence** | 15 | P1 |
-| **E6: Team & Workspace Management** | 12 | P0 |
-| **E7: Integrations & API** | 12 | P1 |
-| **E8: Admin, Security & Compliance** | 10 | P1 |
-| **E9: Billing & Subscription Management** | 8 | P1 |
-| **E10: Mobile & Desktop Apps** | 8 | P2 |
-| **E11: Notifications & Onboarding** | 6 | P0 |
+| Epic                                      | Stories | Priority |
+| ----------------------------------------- | ------- | -------- |
+| **E1: Core Workspace & Data Model**       | 12      | P0       |
+| **E2: Views & Visualization**             | 15      | P0       |
+| **E3: Real-time Collaboration & Docs**    | 10      | P0       |
+| **E4: Native Automation Engine**          | 18      | P0       |
+| **E5: AI Copilot & Intelligence**         | 15      | P1       |
+| **E6: Team & Workspace Management**       | 12      | P0       |
+| **E7: Integrations & API**                | 12      | P1       |
+| **E8: Admin, Security & Compliance**      | 10      | P1       |
+| **E9: Billing & Subscription Management** | 8       | P1       |
+| **E10: Mobile & Desktop Apps**            | 8       | P2       |
+| **E11: Notifications & Onboarding**       | 6       | P0       |
 
 **Total Stories: 126**
 
@@ -38,6 +38,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 ## 2. E1: Core Workspace & Data Model (12 stories, P0)
 
 ### US-E1-01 — Hierarchical workspace structure
+
 - **Persona:** All users
 - **Story:** As a user, I want to organize my work in a hierarchy of Workspace → Space → Folder → List → Task, so that I can model any team's structure in one consistent model.
 - **Acceptance Criteria:**
@@ -51,6 +52,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-1.1
 
 ### US-E1-02 — Flexible custom task schema
+
 - **Persona:** Priya
 - **Story:** As a Product Manager, I want configurable task schemas with 15+ custom field types, custom statuses, and templates, so that my backlog can capture priority, value, and effort exactly the way my team thinks.
 - **Acceptance Criteria:**
@@ -64,6 +66,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-1.2
 
 ### US-E1-03 — Task relationships and dependencies
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want subtasks, dependencies (blocked by / blocks), duplicates, and related links, so that I can see how work is connected and where blockers exist.
 - **Acceptance Criteria:**
@@ -77,6 +80,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-1.3
 
 ### US-E1-04 — Rich text task description
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want a rich text description with mentions, slash commands, and embeds, so that I can write an RFC-style task brief without leaving the task.
 - **Acceptance Criteria:**
@@ -90,6 +94,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-1.4
 
 ### US-E1-05 — Threaded comments with reactions and assignments
+
 - **Persona:** Alex
 - **Story:** As a Design Lead, I want threaded comments with reactions, assignments, rich text, and code blocks, so that design feedback lives in one thread of truth instead of scattering across tools.
 - **Acceptance Criteria:**
@@ -103,6 +108,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-1.5
 
 ### US-E1-06 — Immutable activity log / audit trail
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want an immutable, filterable, exportable activity log, so that I can trust that the recorded history matches what actually happened.
 - **Acceptance Criteria:**
@@ -116,6 +122,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-1.6
 
 ### US-E1-07 — Bulk operations on multi-selected tasks
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want multi-select bulk operations (move, assign, status, delete, duplicate), so that sprint setup doesn't mean editing tasks one at a time.
 - **Acceptance Criteria:**
@@ -129,6 +136,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-1.7
 
 ### US-E1-08 — Task templates with variable substitution
+
 - **Persona:** Priya
 - **Story:** As a Product Manager, I want task templates with variable substitution, so that recurring spec structures are consistent without copy-paste.
 - **Acceptance Criteria:**
@@ -142,6 +150,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-1.8
 
 ### US-E1-09 — Recurring tasks
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want recurring tasks via cron-style and natural-language schedules, so that chores like dependency bumps never get forgotten.
 - **Acceptance Criteria:**
@@ -155,6 +164,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-1.9
 
 ### US-E1-10 — Time tracking and estimates
+
 - **Persona:** Casey
 - **Story:** As an Agency PM, I want manual and automatic time tracking with estimates and time reports, so that every billable hour is captured and reconciled.
 - **Acceptance Criteria:**
@@ -168,6 +178,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-1.10
 
 ### US-E1-11 — Goals / OKRs linked to tasks
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want Goals/OKRs linked to tasks with automatic progress rollup, so that I can see strategic alignment from daily work.
 - **Acceptance Criteria:**
@@ -181,6 +192,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-1.11
 
 ### US-E1-12 — Custom field formulas, rollups, and lookups
+
 - **Persona:** Priya
 - **Story:** As a Product Manager, I want formula, rollup, and lookup custom fields, so that backlog metrics compute themselves instead of me maintaining them by hand.
 - **Acceptance Criteria:**
@@ -198,6 +210,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 ## 3. E2: Views & Visualization (15 stories, P0)
 
 ### US-E2-01 — List view
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want a sortable, groupable, filterable List view with column customization, so that my "My Work" list shows exactly what I need and nothing I don't.
 - **Acceptance Criteria:**
@@ -211,6 +224,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-2.1
 
 ### US-E2-02 — Board / Kanban view
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want a Board view with swimlanes, WIP limits, drag-drop, and sub-columns, so that sprint planning and review routing feel visual and fast.
 - **Acceptance Criteria:**
@@ -224,6 +238,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-2.2
 
 ### US-E2-03 — Table / Spreadsheet view
+
 - **Persona:** Priya
 - **Story:** As a Product Manager, I want a Table view with inline editing, frozen columns, formulas, and pivots, so that the backlog behaves like a spreadsheet I already know.
 - **Acceptance Criteria:**
@@ -237,6 +252,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-2.3
 
 ### US-E2-04 — Calendar view
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want a Calendar view (day/week/month) with drag-drop rescheduling and multi-calendar support, so that due dates are visible in time, not just in a list.
 - **Acceptance Criteria:**
@@ -250,6 +266,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-2.4
 
 ### US-E2-05 — Timeline / Gantt view
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want a Timeline/Gantt view with dependencies, critical path, baseline, and milestones, so that I can plan cross-team sequencing.
 - **Acceptance Criteria:**
@@ -263,6 +280,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-2.5
 
 ### US-E2-06 — Dashboard view with widgets
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want a Dashboard view with chart, metric, text, embed, and progress widgets, so that I can give leadership a one-screen status readout.
 - **Acceptance Criteria:**
@@ -276,6 +294,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-2.6
 
 ### US-E2-07 — Workload / Capacity view
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want a Workload/Capacity view per person and per team, so that I can spot overallocation before it becomes a miss.
 - **Acceptance Criteria:**
@@ -291,6 +310,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-2.7
 
 ### US-E2-08 — Map view
+
 - **Persona:** Casey
 - **Story:** As an Agency PM, I want a Map view for location-based tasks, so that field/client visits are planned geographically.
 - **Acceptance Criteria:**
@@ -304,6 +324,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-2.8
 
 ### US-E2-09 — Whiteboard / infinite canvas
+
 - **Persona:** Alex
 - **Story:** As a Design Lead, I want a Whiteboard canvas with bidirectional task links, so that critique sessions and journey maps live next to the work.
 - **Acceptance Criteria:**
@@ -317,6 +338,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-2.9
 
 ### US-E2-10 — Saved, personal, and shared views
+
 - **Persona:** Priya
 - **Story:** As a Product Manager, I want to save personal and shared views plus view templates, so that my backlog filters are one click away for the whole team.
 - **Acceptance Criteria:**
@@ -330,6 +352,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-2.10
 
 ### US-E2-11 — Cross-workspace portfolio view
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want a cross-workspace Portfolio view that rolls up multiple workspaces, so that I see all teams in one trusted picture.
 - **Acceptance Criteria:**
@@ -343,6 +366,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-2.11
 
 ### US-E2-12 — Public/shareable view links
+
 - **Persona:** Casey
 - **Story:** As an Agency PM, I want to share a read-only view via a link, so that clients get a live window without a full seat.
 - **Acceptance Criteria:**
@@ -356,6 +380,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-2.10
 
 ### US-E2-13 — View-level filtering and saved filters
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want reusable saved filters (e.g., "My Work", "Blocked"), so that I land on the right subset without reconfiguring each visit.
 - **Acceptance Criteria:**
@@ -369,6 +394,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-2.1
 
 ### US-E2-14 — Inline view creation from any List
+
 - **Persona:** All users
 - **Story:** As a user, I want to create any view type (List/Board/Table/Calendar/Timeline/Dashboard) from any List, so that I can switch altitude without duplicating data.
 - **Acceptance Criteria:**
@@ -382,6 +408,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-2.1
 
 ### US-E2-15 — Goal/OKR rollup board
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want a board that rolls up Goals/OKRs and their linked tasks, so that strategic alignment is visible at a glance.
 - **Acceptance Criteria:**
@@ -399,6 +426,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 ## 4. E3: Real-time Collaboration & Docs (10 stories, P0)
 
 ### US-E3-01 — Real-time collaborative rich text editor
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want a real-time collaborative rich text editor, so that my RFC can be edited by others without clobbering my changes.
 - **Acceptance Criteria:**
@@ -412,6 +440,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-3.1
 
 ### US-E3-02 — Documents as first-class entities
+
 - **Persona:** Priya
 - **Story:** As a Product Manager, I want Documents to be first-class entities that can nest in tasks, folders, or stand alone, so that specs live with the work they describe.
 - **Acceptance Criteria:**
@@ -425,6 +454,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-3.2
 
 ### US-E3-03 — Bidirectional links and backlinks
+
 - **Persona:** Priya
 - **Story:** As a Product Manager, I want bidirectional wiki-links ([[...]]), a backlinks graph, and transclusion, so that my spec and backlog stay one conversation.
 - **Acceptance Criteria:**
@@ -438,6 +468,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-3.3
 
 ### US-E3-04 — Document templates with variables
+
 - **Persona:** Alex
 - **Story:** As a Design Lead, I want document templates with variables, so that handoff and design-system docs keep consistent structure.
 - **Acceptance Criteria:**
@@ -451,6 +482,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-3.4
 
 ### US-E3-05 — Inline comments, suggestions, and threads
+
 - **Persona:** Alex
 - **Story:** As a Design Lead, I want inline comments, a suggestions mode, and threads, so that review feedback is captured in the doc, not in Slack.
 - **Acceptance Criteria:**
@@ -464,6 +496,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-3.5
 
 ### US-E3-06 — Slash commands and embeds
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want slash commands (/task, /doc, @mention, /date, /emoji, /code, /embed), so that I can do everything from the keyboard without menus.
 - **Acceptance Criteria:**
@@ -477,6 +510,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-3.6
 
 ### US-E3-07 — Document version history and restore
+
 - **Persona:** Alex
 - **Story:** As a Design Lead, I want version history with diff view and restore, so that design-system changes are auditable and reversible.
 - **Acceptance Criteria:**
@@ -490,6 +524,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-3.7
 
 ### US-E3-08 — Document export (PDF/MD/HTML/Notion)
+
 - **Persona:** Priya
 - **Story:** As a Product Manager, I want to export docs to PDF, MD, HTML, and Notion format and print to PDF, so that specs travel wherever stakeholders are.
 - **Acceptance Criteria:**
@@ -503,6 +538,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-3.8
 
 ### US-E3-09 — Document permissions
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want per-document permissions (view/comment/edit/admin), so that sensitive strategy docs aren't editable by everyone.
 - **Acceptance Criteria:**
@@ -516,6 +552,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-3.9
 
 ### US-E3-10 — Published docs (public link)
+
 - **Persona:** Casey
 - **Story:** As an Agency PM, I want to publish docs via a public link with password and SEO/custom-domain options, so that clients get a branded, self-serve status page.
 - **Acceptance Criteria:**
@@ -533,6 +570,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 ## 5. E4: Native Automation Engine (18 stories, P0)
 
 ### US-E4-01 — Visual no-code automation builder
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want a visual no-code builder (trigger → condition → action), so that I can set up a blocked-task alert without engineering help.
 - **Acceptance Criteria:**
@@ -546,6 +584,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.1
 
 ### US-E4-02 — Native trigger library (50+)
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want 50+ native triggers (task created, status changed, comment added, date, webhook, schedule, AI trigger), so that any event I care about can start a workflow.
 - **Acceptance Criteria:**
@@ -559,6 +598,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.2
 
 ### US-E4-03 — Native action library (50+)
+
 - **Persona:** Casey
 - **Story:** As an Agency PM, I want 50+ native actions (create task, update field, comment, notify, webhook, AI action, create doc, move), so that I can assemble client-status and billing workflows end to end.
 - **Acceptance Criteria:**
@@ -572,6 +612,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.3
 
 ### US-E4-04 — Conditions and branching
+
 - **Persona:** Priya
 - **Story:** As a Product Manager, I want conditions (if/else, filters, field matching, formulas, AI classification), so that grooming rules only fire when they should.
 - **Acceptance Criteria:**
@@ -585,6 +626,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.4
 
 ### US-E4-05 — Loops, batch, delay, and retry
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want loops (for each), batch operations, delay/wait, and retry logic, so that recurring chores and bulk updates run correctly.
 - **Acceptance Criteria:**
@@ -598,6 +640,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.5
 
 ### US-E4-06 — Automation versioning and rollback
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want automation versioning with draft/published states, rollback, and a change log, so that I can iterate safely.
 - **Acceptance Criteria:**
@@ -611,6 +654,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.6
 
 ### US-E4-07 — Automation templates library (50+)
+
 - **Persona:** Alex
 - **Story:** As a Design Lead, I want a 50+ template library (e.g., review routing), so that I start from a proven workflow instead of a blank canvas.
 - **Acceptance Criteria:**
@@ -624,6 +668,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.7
 
 ### US-E4-08 — AI-assisted automation builder
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want to describe a workflow in plain English and have it generated, so that I only use automations I can describe simply.
 - **Acceptance Criteria:**
@@ -637,6 +682,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.8
 
 ### US-E4-09 — Run history, debugging, and replay
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want run history with debugging, replay, logs, and error notifications, so that I can trust automations are actually running.
 - **Acceptance Criteria:**
@@ -650,6 +696,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.9
 
 ### US-E4-10 — Rate limiting and execution limits
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want rate limiting, concurrency control, and per-plan execution limits, so that one workspace can't starve others or blow the bill.
 - **Acceptance Criteria:**
@@ -663,6 +710,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.10
 
 ### US-E4-11 — Webhook receiver with HMAC verification
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want a public webhook receiver with HMAC verification, so that external systems can trigger Sprintio workflows securely.
 - **Acceptance Criteria:**
@@ -676,6 +724,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.11
 
 ### US-E4-12 — Automation marketplace
+
 - **Persona:** Alex
 - **Story:** As a Design Lead, I want an automation marketplace to share, install, and rate workflows, so that good patterns spread across the org.
 - **Acceptance Criteria:**
@@ -689,6 +738,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.12
 
 ### US-E4-13 — Stale-task nudge automation
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want a stale-task nudge automation, so that blocked or idle tickets surface without me hunting for them.
 - **Acceptance Criteria:**
@@ -702,6 +752,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.2
 
 ### US-E4-14 — Auto-assign reviewers on status change
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want an automation that auto-assigns reviewers when a task enters "In Review", so that review routing is automatic.
 - **Acceptance Criteria:**
@@ -715,6 +766,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.3
 
 ### US-E4-15 — Blocked-by alerting
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want blocked-by alerting, so that dependencies breaking is known the moment it happens.
 - **Acceptance Criteria:**
@@ -728,6 +780,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.3
 
 ### US-E4-16 — Doc-from-template on event
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want an automation that creates a doc from a template when an event fires, so that RFCs and runbooks are scaffolded automatically.
 - **Acceptance Criteria:**
@@ -741,6 +794,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.3
 
 ### US-E4-17 — Time-entry reminder automation
+
 - **Persona:** Casey
 - **Story:** As an Agency PM, I want time-entry reminder automations, so that consultants never forget their timesheets.
 - **Acceptance Criteria:**
@@ -754,6 +808,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-4.2
 
 ### US-E4-18 — SLA / budget alert automation
+
 - **Persona:** Casey
 - **Story:** As an Agency PM, I want SLA/budget alert automations, so that overruns are caught at 80% burn, not at month-end.
 - **Acceptance Criteria:**
@@ -771,6 +826,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 ## 6. E5: AI Copilot & Intelligence (15 stories, P1)
 
 ### US-E5-01 — Natural language task creation
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want to create tasks in natural language ("redesign dashboard, assign Alex, due Friday, high priority"), so that capturing work is one sentence, not a form.
 - **Acceptance Criteria:**
@@ -784,6 +840,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-5.1
 
 ### US-E5-02 — Smart task triage
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want smart triage that auto-categorizes and suggests assignee, priority, labels, and sprint, so that incoming bugs land in the right place.
 - **Acceptance Criteria:**
@@ -797,6 +854,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-5.2
 
 ### US-E5-03 — Smart summaries
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want smart summaries (task thread, doc, sprint, weekly digest), so that reporting up takes minutes, not afternoons.
 - **Acceptance Criteria:**
@@ -810,6 +868,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-5.3
 
 ### US-E5-04 — AI writing assistant
+
 - **Persona:** Priya
 - **Story:** As a Product Manager, I want an AI writing assistant (continue, summarize, rewrite tone, translate, fix grammar), so that specs read cleanly without a separate tool.
 - **Acceptance Criteria:**
@@ -823,6 +882,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-5.4
 
 ### US-E5-05 — Smart semantic search
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want semantic search across tasks, docs, comments, and code, so that I find the RFC I half-remember without exact keywords.
 - **Acceptance Criteria:**
@@ -836,6 +896,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-5.5
 
 ### US-E5-06 — Capacity planning & velocity forecasting
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want AI-powered capacity planning and velocity forecasting, so that the roadmap is sanity-checked against reality.
 - **Acceptance Criteria:**
@@ -849,6 +910,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-5.6
 
 ### US-E5-07 — Risk detection
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want AI risk detection (stalled tasks, scope creep, overallocation, dependency risks), so that I know by Monday which commitment will break.
 - **Acceptance Criteria:**
@@ -862,6 +924,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-5.7
 
 ### US-E5-08 — Automated standup summaries
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want automated standup summaries, so that standup is a 10-minute confirmation, not a status interrogation.
 - **Acceptance Criteria:**
@@ -875,6 +938,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-5.8
 
 ### US-E5-09 — Release notes generator
+
 - **Persona:** Priya
 - **Story:** As a Product Manager, I want release notes generated from completed tasks, so that I stop being the release-notes secretary.
 - **Acceptance Criteria:**
@@ -888,6 +952,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-5.9
 
 ### US-E5-10 — AI automation builder (NL → workflow)
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want to describe a workflow in plain English and get a generated automation, so that I only use automations I can describe simply.
 - **Acceptance Criteria:**
@@ -901,6 +966,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-5.10
 
 ### US-E5-11 — Smart duplicate detection & merge
+
 - **Persona:** Priya
 - **Story:** As a Product Manager, I want smart duplicate detection and merge suggestions, so that the backlog stays under 5% duplicates.
 - **Acceptance Criteria:**
@@ -914,6 +980,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-5.11
 
 ### US-E5-12 — Context-aware Q&A
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want context-aware Q&A ("What's blocking the login refactor?"), so that I get a defensible answer without building a slide.
 - **Acceptance Criteria:**
@@ -927,6 +994,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-5.12
 
 ### US-E5-13 — Custom AI instructions per workspace
+
 - **Persona:** Priya
 - **Story:** As a Product Manager, I want custom AI instructions per workspace (tone, terminology, workflows), so that the copilot writes like our team, not a generic bot.
 - **Acceptance Criteria:**
@@ -940,6 +1008,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-5.13
 
 ### US-E5-14 — Bring Your Own Key (BYOK)
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering/CTO, I want BYOK for enterprise, so that AI usage runs on our own model contract and keys.
 - **Acceptance Criteria:**
@@ -953,6 +1022,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-5.14
 
 ### US-E5-15 — AI usage analytics & cost controls
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want AI usage analytics and cost controls per workspace, so that AI spend stays predictable.
 - **Acceptance Criteria:**
@@ -971,6 +1041,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 ## 7. E6: Team & Workspace Management (12 stories, P0)
 
 ### US-E6-01 — Multi-workspace support
+
 - **Persona:** Casey
 - **Story:** As an Agency PM, I want multiple workspaces (personal + team/client), so that I can separate contexts without mixing data.
 - **Acceptance Criteria:**
@@ -984,6 +1055,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-6.1
 
 ### US-E6-02 — Role model (Owner/Admin/Member/Guest/Viewer)
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want roles (Owner, Admin, Member, Guest, Viewer), so that access matches responsibility without custom setup.
 - **Acceptance Criteria:**
@@ -997,6 +1069,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-6.2
 
 ### US-E6-03 — Teams & user groups
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want teams and nested user groups with team-level permissions, so that I can assign and notify by squad, not by individual.
 - **Acceptance Criteria:**
@@ -1010,6 +1083,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-6.3
 
 ### US-E6-04 — Guest access (scoped & time-limited)
+
 - **Persona:** Casey
 - **Story:** As an Agency PM, I want scoped, time-limited guest access (task/list/folder level), so that clients see their project without a full seat.
 - **Acceptance Criteria:**
@@ -1023,6 +1097,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-6.4
 
 ### US-E6-05 — SSO (SAML/OIDC) & SCIM provisioning
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want SSO (SAML 2.0, OIDC) and SCIM 2.0 provisioning, so that joiners/leavers are managed from our IdP.
 - **Acceptance Criteria:**
@@ -1036,6 +1111,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-6.5
 
 ### US-E6-06 — Directory sync (Okta/Azure/Google/OneLogin)
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want directory sync with Okta, Azure AD, Google Workspace, and OneLogin, so that the user base stays in lockstep with HR systems.
 - **Acceptance Criteria:**
@@ -1049,6 +1125,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-6.6
 
 ### US-E6-07 — Audit logs with SIEM export & streaming
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want audit logs exportable to SIEM and streamable via webhook, so that security events land in our central pipeline.
 - **Acceptance Criteria:**
@@ -1062,6 +1139,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-6.7
 
 ### US-E6-08 — Session management, device trust & IP allowlists
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want session management, device trust, and IP allowlists, so that access is controlled beyond just a password.
 - **Acceptance Criteria:**
@@ -1075,6 +1153,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-6.8
 
 ### US-E6-09 — Workspace analytics
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want workspace analytics (adoption, activity, collaboration patterns), so that I can see whether the platform is actually being used.
 - **Acceptance Criteria:**
@@ -1088,6 +1167,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-6.9
 
 ### US-E6-10 — Custom branding
+
 - **Persona:** Casey
 - **Story:** As an Agency PM, I want custom branding (logo, colors, domain, email templates), so that client-facing views look like my agency, not Sprintio.
 - **Acceptance Criteria:**
@@ -1101,6 +1181,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-6.10
 
 ### US-E6-11 — Invitation & onboarding flow
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want a guided invite and onboarding flow, so that new squad members are productive on day one.
 - **Acceptance Criteria:**
@@ -1114,6 +1195,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-6.2
 
 ### US-E6-12 — Custom domain for published/client views
+
 - **Persona:** Casey
 - **Story:** As an Agency PM, I want a custom domain for published docs and client portals, so that clients see a fully branded URL.
 - **Acceptance Criteria:**
@@ -1131,6 +1213,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 ## 8. E7: Integrations & API (12 stories, P1)
 
 ### US-E7-01 — Public REST API (OpenAPI 3.1)
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want a versioned, rate-limited public REST API (OpenAPI 3.1), so that I can script Sprintio from my own tooling.
 - **Acceptance Criteria:**
@@ -1144,6 +1227,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-7.1
 
 ### US-E7-02 — GraphQL API with subscriptions
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want a GraphQL API with flexible queries and real-time subscriptions, so that I fetch exactly what I need and get live updates.
 - **Acceptance Criteria:**
@@ -1157,6 +1241,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-7.2
 
 ### US-E7-03 — Webhooks (retry, signing, filtering, logs)
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want outbound webhooks with retry, signing, filtering, and delivery logs, so that external systems stay in sync with Sprintio.
 - **Acceptance Criteria:**
@@ -1170,6 +1255,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-7.3
 
 ### US-E7-04 — Native integrations library
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want native integrations (GitHub, GitLab, Slack, Teams, Discord, Figma, Notion, Drive, Jira, Linear, etc.), so that PR state and mentions flow into tasks automatically.
 - **Acceptance Criteria:**
@@ -1183,6 +1269,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-7.4
 
 ### US-E7-05 — OAuth 2.0 / OIDC for third-party apps
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want OAuth 2.0 / OIDC for third-party app integration, so that external apps authenticate as my workspace securely.
 - **Acceptance Criteria:**
@@ -1196,6 +1283,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-7.5
 
 ### US-E7-06 — App marketplace
+
 - **Persona:** Alex
 - **Story:** As a Design Lead, I want an app marketplace to install, configure, review, and share revenue on apps, so that the ecosystem extends Sprintio.
 - **Acceptance Criteria:**
@@ -1209,6 +1297,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-7.6
 
 ### US-E7-07 — Embedded iFrame views
+
 - **Persona:** Priya
 - **Story:** As a Product Manager, I want to embed Sprintio views in Confluence, Notion, or websites via iFrame, so that stakeholders see live data where they already are.
 - **Acceptance Criteria:**
@@ -1222,6 +1311,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-7.7
 
 ### US-E7-08 — CLI tool (collabstack CLI)
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want a `collabstack` CLI for developers, so that I can create tasks and run automations from the terminal.
 - **Acceptance Criteria:**
@@ -1235,6 +1325,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-7.8
 
 ### US-E7-09 — Webhooks marketplace (pre-built receivers)
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want a webhooks marketplace of pre-built receivers, so that common external integrations are one click, not custom code.
 - **Acceptance Criteria:**
@@ -1248,6 +1339,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-7.9
 
 ### US-E7-10 — GitHub/GitLab PR ↔ task status sync
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want PR state to flow into task status automatically, so that I never manually flip a card to "In Review".
 - **Acceptance Criteria:**
@@ -1261,6 +1353,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-7.4
 
 ### US-E7-11 — Slack/Teams notifications & commands
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want Slack/Teams notifications and slash commands, so that standup summaries and alerts reach the team where they chat.
 - **Acceptance Criteria:**
@@ -1274,6 +1367,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-7.4
 
 ### US-E7-12 — Figma embed & design-handoff link
+
 - **Persona:** Alex
 - **Story:** As a Design Lead, I want Figma embeds and design-handoff links in tasks, so that the handoff is one click from the task, not a rebuilt artifact.
 - **Acceptance Criteria:**
@@ -1291,6 +1385,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 ## 9. E8: Admin, Security & Compliance (10 stories, P1)
 
 ### US-E8-01 — SOC 2 Type II, GDPR, CCPA compliance
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering/CTO, I want SOC 2 Type II, GDPR, and CCPA compliance, so that my board and customers accept Sprintio as a vendor.
 - **Acceptance Criteria:**
@@ -1304,6 +1399,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-8.1
 
 ### US-E8-02 — Data residency (US/EU/AU)
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want data residency options (US, EU, AU), so that my data stays in the region my regulators require.
 - **Acceptance Criteria:**
@@ -1317,6 +1413,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-8.2
 
 ### US-E8-03 — Encryption at rest and in transit (+ CMK)
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want encryption at rest (AES-256) and in transit (TLS 1.3), plus customer-managed keys, so that data is protected and I control the keys.
 - **Acceptance Criteria:**
@@ -1330,6 +1427,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-8.3
 
 ### US-E8-04 — Fine-grained permissions (resource & field level)
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want fine-grained, resource-level (and field-level) permissions, so that sensitive fields aren't visible to everyone.
 - **Acceptance Criteria:**
@@ -1343,6 +1441,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-8.4
 
 ### US-E8-05 — Audit log API & SIEM integration
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want an audit-log API with SIEM integration (Splunk, Datadog, Sentinel), so that security events flow to our stack.
 - **Acceptance Criteria:**
@@ -1356,6 +1455,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-8.5
 
 ### US-E8-06 — Data loss prevention (DLP) & watermarking
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want DLP rules and watermarking, so that sensitive content doesn't leave the workspace uncontrolled.
 - **Acceptance Criteria:**
@@ -1369,6 +1469,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-8.6
 
 ### US-E8-07 — Vulnerability management, pen testing & bug bounty
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want vulnerability management, penetration testing, and a bug bounty, so that the platform is continuously hardened.
 - **Acceptance Criteria:**
@@ -1382,6 +1483,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-8.7
 
 ### US-E8-08 — Backup & disaster recovery (RPO/RTO)
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want backup and disaster recovery with RPO < 1hr and RTO < 4hr, so that a failure doesn't lose my team's work.
 - **Acceptance Criteria:**
@@ -1395,6 +1497,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-8.8
 
 ### US-E8-09 — Legal hold & e-discovery export
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want legal hold and e-discovery export, so that we can respond to legal requests without scrambling.
 - **Acceptance Criteria:**
@@ -1408,6 +1511,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-8.9
 
 ### US-E8-10 — Accessibility (WCAG 2.1 AA)
+
 - **Persona:** All users
 - **Story:** As a user, I want the product to meet WCAG 2.1 AA, so that it's usable by everyone including assistive-tech users.
 - **Acceptance Criteria:**
@@ -1425,6 +1529,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 ## 10. E9: Billing & Subscription Management (8 stories, P1)
 
 ### US-E9-01 — Tiered plans (Free/Pro/Business/Enterprise)
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want tiered plans (Free, Pro $12/u/mo, Business $24/u/mo, Enterprise custom), so that I can pick a plan that fits my team's size and needs.
 - **Acceptance Criteria:**
@@ -1438,6 +1543,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-9.1
 
 ### US-E9-02 — Per-seat pricing with volume discounts
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want per-seat pricing with volume discounts, so that scaling the team doesn't blow the budget linearly.
 - **Acceptance Criteria:**
@@ -1451,6 +1557,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-9.2
 
 ### US-E9-03 — Usage-based AI credits
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want usage-based AI credits (included quota + overage), so that AI spend is bounded and predictable.
 - **Acceptance Criteria:**
@@ -1464,6 +1571,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-9.3
 
 ### US-E9-04 — Stripe Billing integration
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want Stripe Billing for subscriptions, trials, proration, and dunning, so that billing is handled by a trusted processor.
 - **Acceptance Criteria:**
@@ -1477,6 +1585,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-9.4
 
 ### US-E9-05 — Customer billing portal
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want a customer portal for billing history, invoices, payment methods, and plan changes, so that I self-serve without contacting sales.
 - **Acceptance Criteria:**
@@ -1490,6 +1599,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-9.5
 
 ### US-E9-06 — Usage analytics & limit alerts
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering, I want usage analytics and alerts (approaching limits, overage warnings), so that I'm never surprised by a bill.
 - **Acceptance Criteria:**
@@ -1503,6 +1613,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-9.6
 
 ### US-E9-07 — Enterprise contracts (annual/PO/custom)
+
 - **Persona:** Jordan
 - **Story:** As a VP Engineering/CTO, I want enterprise contracts (annual, PO, custom terms, SSO enforcement), so that procurement fits our process.
 - **Acceptance Criteria:**
@@ -1516,6 +1627,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-9.7
 
 ### US-E9-08 — Partner / affiliate program
+
 - **Persona:** Casey
 - **Story:** As an Agency PM, I want a partner/affiliate program with revenue share, so that referring clients earns my agency credit.
 - **Acceptance Criteria:**
@@ -1533,6 +1645,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 ## 11. E10: Mobile & Desktop Apps (8 stories, P2)
 
 ### US-E10-01 — iOS app (native, offline-first, push)
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want a native iOS app that is offline-first with push notifications, so that I can capture and check work from my phone.
 - **Acceptance Criteria:**
@@ -1546,6 +1659,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-10.1
 
 ### US-E10-02 — Android app (native, offline-first, push)
+
 - **Persona:** Casey
 - **Story:** As an Agency PM, I want a native Android app that is offline-first with push, so that I can check client status from anywhere.
 - **Acceptance Criteria:**
@@ -1559,6 +1673,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-10.2
 
 ### US-E10-03 — Desktop apps (macOS/Windows/Linux)
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want desktop apps for macOS, Windows, and Linux, so that Sprintio lives in its own window, not a browser tab.
 - **Acceptance Criteria:**
@@ -1572,6 +1687,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-10.3
 
 ### US-E10-04 — PWA with offline & push
+
 - **Persona:** All users
 - **Story:** As a user, I want a Progressive Web App with offline support and push notifications, so that I get an installable, app-like experience from the browser.
 - **Acceptance Criteria:**
@@ -1585,6 +1701,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-10.4
 
 ### US-E10-05 — Mobile-optimized responsive web
+
 - **Persona:** Casey
 - **Story:** As an Agency PM, I want a mobile-optimized responsive web, so that clients and I can use Sprintio from a phone browser cleanly.
 - **Acceptance Criteria:**
@@ -1598,6 +1715,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-10.5
 
 ### US-E10-06 — Offline-first architecture (CRDT sync)
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want an offline-first architecture with CRDT background sync and conflict resolution, so that I can work on a plane and merge cleanly later.
 - **Acceptance Criteria:**
@@ -1611,6 +1729,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-10.6
 
 ### US-E10-07 — Mobile quick-capture & notifications
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want mobile quick-capture (NL task creation) and notification center, so that ideas and alerts are one tap away.
 - **Acceptance Criteria:**
@@ -1624,6 +1743,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-10.1
 
 ### US-E10-08 — Cross-device continuity
+
 - **Persona:** Casey
 - **Story:** As an Agency PM, I want cross-device continuity (pick up on desktop where I left off on mobile), so that switching devices doesn't lose my place.
 - **Acceptance Criteria:**
@@ -1641,6 +1761,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 ## 12. E11: Notifications & Onboarding (6 stories, P0)
 
 ### US-E11-01 — In-app notification center
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager, I want an in-app notification center so that I can see all activity requiring my attention (assignments, mentions, due dates) without leaving the app.
 - **Acceptance Criteria:**
@@ -1655,6 +1776,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-11.1
 
 ### US-E11-02 — Email notifications
+
 - **Persona:** Marcus
 - **Story:** As a Senior Engineer, I want email notifications for assignments and mentions so that I stay informed even when I'm not actively in the app.
 - **Acceptance Criteria:**
@@ -1668,6 +1790,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-11.2
 
 ### US-E11-03 — Notification preferences
+
 - **Persona:** Priya
 - **Story:** As a Product Manager, I want to configure my notification preferences so that I only receive notifications for events I care about, through my preferred channel.
 - **Acceptance Criteria:**
@@ -1680,6 +1803,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-11.3
 
 ### US-E11-04 — Workspace setup wizard
+
 - **Persona:** Sarah
 - **Story:** As an Engineering Manager creating a new workspace, I want a guided setup wizard so that I can quickly set up my workspace with the right name, team members, and initial project structure.
 - **Acceptance Criteria:**
@@ -1693,6 +1817,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-11.4
 
 ### US-E11-05 — Onboarding checklist
+
 - **Persona:** Marcus
 - **Story:** As a new user, I want an onboarding checklist so that I can discover key features by completing a guided set of actions.
 - **Acceptance Criteria:**
@@ -1706,6 +1831,7 @@ The backlog is scoped to the full product vision (MVP + P1 + P2). Story counts p
 - **Maps to FR:** FR-11.5
 
 ### US-E11-06 — CSV task import
+
 - **Persona:** Priya
 - **Story:** As a Product Manager migrating from another tool, I want to import tasks from a CSV file so that I can bring my existing backlog into Sprintio without manual re-entry.
 - **Acceptance Criteria:**

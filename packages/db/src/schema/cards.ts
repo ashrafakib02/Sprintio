@@ -5,7 +5,9 @@ export const cards = pgTable('cards', {
   id: uuid('id').primaryKey().defaultRandom(),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
-  columnId: uuid('column_id').notNull().references(() => columns.id, { onDelete: 'cascade' }),
+  columnId: uuid('column_id')
+    .notNull()
+    .references(() => columns.id, { onDelete: 'cascade' }),
   position: integer('position').notNull().default(0),
   priority: varchar('priority', { length: 20 }).notNull().default('none'),
   assigneeIds: jsonb('assignee_ids').$type<string[]>().default([]),

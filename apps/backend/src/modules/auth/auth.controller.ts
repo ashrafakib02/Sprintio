@@ -20,11 +20,7 @@ function sendError(res: Response, message: string, statusCode = 400) {
   return res.status(statusCode).json({ error: message });
 }
 
-function setAuthCookies(
-  res: Response,
-  accessToken: string,
-  refreshToken: string
-) {
+function setAuthCookies(res: Response, accessToken: string, refreshToken: string) {
   setAccessTokenCookie(res, accessToken);
   setRefreshTokenCookie(res, refreshToken);
 }
@@ -51,8 +47,7 @@ export async function register(req: Request, res: Response) {
 
     return sendSuccess(res, { user: result.user }, 201);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Registration failed';
+    const message = error instanceof Error ? error.message : 'Registration failed';
 
     if (message.includes('already exists')) {
       return sendError(res, message, 409);
@@ -76,22 +71,15 @@ export async function login(req: Request, res: Response) {
 
     const { email, password } = parsed.data;
     const userAgent = req.headers['user-agent'];
-    const ipAddress =
-      (req.headers['x-forwarded-for'] as string) ?? req.socket.remoteAddress;
+    const ipAddress = (req.headers['x-forwarded-for'] as string) ?? req.socket.remoteAddress;
 
-    const result = await authService.loginUser(
-      email,
-      password,
-      userAgent,
-      ipAddress
-    );
+    const result = await authService.loginUser(email, password, userAgent, ipAddress);
 
     setAuthCookies(res, result.tokens.accessToken, result.tokens.refreshToken);
 
     return sendSuccess(res, { user: result.user });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Login failed';
+    const message = error instanceof Error ? error.message : 'Login failed';
 
     if (message.includes('Invalid email or password')) {
       return sendError(res, 'Invalid email or password', 401);
@@ -118,8 +106,7 @@ export async function refresh(req: Request, res: Response) {
 
     return sendSuccess(res, { message: 'Tokens refreshed' });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Token refresh failed';
+    const message = error instanceof Error ? error.message : 'Token refresh failed';
 
     if (message.includes('Invalid or expired')) {
       clearAuthCookies(res);

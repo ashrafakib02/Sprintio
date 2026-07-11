@@ -26,14 +26,14 @@
 
 ### Tech Stack
 
-| Tool | Version | Purpose |
-|------|---------|---------|
-| React | 18.x | UI framework |
-| TypeScript | 5.x | Type safety |
-| Vite | 5.x | Build tool |
-| Tailwind CSS | 4.x | Utility-first CSS |
-| Radix UI | latest | Accessible primitives |
-| **@tailwindcss/vite** | latest | Vite plugin (replaces postcss) |
+| Tool                  | Version | Purpose                        |
+| --------------------- | ------- | ------------------------------ |
+| React                 | 18.x    | UI framework                   |
+| TypeScript            | 5.x     | Type safety                    |
+| Vite                  | 5.x     | Build tool                     |
+| Tailwind CSS          | 4.x     | Utility-first CSS              |
+| Radix UI              | latest  | Accessible primitives          |
+| **@tailwindcss/vite** | latest  | Vite plugin (replaces postcss) |
 
 ### Install Commands
 
@@ -86,26 +86,24 @@ src/
 ```ts
 // vite.config.ts
 
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       '@': '/src',
     },
   },
-})
+});
 ```
 
 ### Key Change from v3
 
 Tailwind v4 uses a **Vite plugin** instead of a PostCSS plugin. This means:
+
 - No `postcss.config.js` needed
 - No `tailwind.config.js` needed for basic setup
 - Configuration moves into CSS via `@theme`
@@ -121,92 +119,92 @@ Tailwind v4 moves theme configuration from `tailwind.config.js` into CSS via the
 ```css
 /* src/styles/globals.css — theme tokens */
 
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* ── Colors ──────────────────────────────────────────── */
 
   /* Brand */
-  --color-indigo-50: #EEF2FF;
-  --color-indigo-100: #E0E7FF;
-  --color-indigo-200: #C7D2FE;
-  --color-indigo-300: #A5B4FC;
-  --color-indigo-400: #818CF8;
-  --color-indigo-500: #6366F1;
-  --color-indigo-600: #4F46E5;
-  --color-indigo-700: #4338CA;
-  --color-indigo-800: #3730A3;
-  --color-indigo-900: #312E81;
+  --color-indigo-50: #eef2ff;
+  --color-indigo-100: #e0e7ff;
+  --color-indigo-200: #c7d2fe;
+  --color-indigo-300: #a5b4fc;
+  --color-indigo-400: #818cf8;
+  --color-indigo-500: #6366f1;
+  --color-indigo-600: #4f46e5;
+  --color-indigo-700: #4338ca;
+  --color-indigo-800: #3730a3;
+  --color-indigo-900: #312e81;
 
   /* Accent (AI) */
-  --color-violet-50: #F5F3FF;
-  --color-violet-100: #EDE9FE;
-  --color-violet-200: #E9D5FF;
-  --color-violet-300: #C4B5FD;
-  --color-violet-500: #8B5CF6;
-  --color-violet-600: #7C3AED;
-  --color-violet-700: #6D28D9;
+  --color-violet-50: #f5f3ff;
+  --color-violet-100: #ede9fe;
+  --color-violet-200: #e9d5ff;
+  --color-violet-300: #c4b5fd;
+  --color-violet-500: #8b5cf6;
+  --color-violet-600: #7c3aed;
+  --color-violet-700: #6d28d9;
 
   /* Neutral */
-  --color-gray-50: #F9FAFB;
-  --color-gray-100: #F3F4F6;
-  --color-gray-200: #E5E7EB;
-  --color-gray-300: #D1D5DB;
-  --color-gray-400: #9CA3AF;
-  --color-gray-500: #6B7280;
-  --color-gray-600: #4B5563;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
   --color-gray-700: #374151;
-  --color-gray-800: #1F2937;
+  --color-gray-800: #1f2937;
   --color-gray-900: #111827;
 
   /* Status */
-  --color-green-50: #F0FDF4;
-  --color-green-100: #DCFCE7;
-  --color-green-200: #BBF7D0;
-  --color-green-500: #22C55E;
-  --color-green-600: #16A34A;
-  --color-green-700: #15803D;
+  --color-green-50: #f0fdf4;
+  --color-green-100: #dcfce7;
+  --color-green-200: #bbf7d0;
+  --color-green-500: #22c55e;
+  --color-green-600: #16a34a;
+  --color-green-700: #15803d;
 
-  --color-red-50: #FEF2F2;
-  --color-red-100: #FEE2E2;
-  --color-red-200: #FECACA;
-  --color-red-500: #EF4444;
-  --color-red-600: #DC2626;
-  --color-red-700: #B91C1C;
+  --color-red-50: #fef2f2;
+  --color-red-100: #fee2e2;
+  --color-red-200: #fecaca;
+  --color-red-500: #ef4444;
+  --color-red-600: #dc2626;
+  --color-red-700: #b91c1c;
 
-  --color-amber-50: #FFFBEB;
-  --color-amber-100: #FEF3C7;
-  --color-amber-200: #FDE68A;
-  --color-amber-500: #F59E0B;
-  --color-amber-600: #D97706;
-  --color-amber-700: #B45309;
+  --color-amber-50: #fffbeb;
+  --color-amber-100: #fef3c7;
+  --color-amber-200: #fde68a;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
 
-  --color-blue-50: #EFF6FF;
-  --color-blue-100: #DBEAFE;
-  --color-blue-200: #BFDBFE;
-  --color-blue-500: #3B82F6;
-  --color-blue-600: #2563EB;
-  --color-blue-700: #1D4ED8;
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
 
-  --color-purple-50: #FAF5FF;
-  --color-purple-100: #F3E8FF;
-  --color-purple-200: #E9D5FF;
-  --color-purple-500: #A855F7;
-  --color-purple-600: #9333EA;
-  --color-purple-700: #7E22CE;
+  --color-purple-50: #faf5ff;
+  --color-purple-100: #f3e8ff;
+  --color-purple-200: #e9d5ff;
+  --color-purple-500: #a855f7;
+  --color-purple-600: #9333ea;
+  --color-purple-700: #7e22ce;
 
   --color-slate-700: #334155;
-  --color-slate-800: #1E293B;
-  --color-slate-900: #0F172A;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
 
   /* ── Typography ──────────────────────────────────────── */
 
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code",
-    "SF Mono", Consolas, monospace;
+  --font-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', Consolas, monospace;
 
-  --text-2xs: 0.625rem;     /* 10px */
+  --text-2xs: 0.625rem; /* 10px */
   --text-2xs-leading: 1rem;
 
   /* ── Radius ──────────────────────────────────────────── */
@@ -245,7 +243,7 @@ When you need additional JS-level configuration (plugins, custom utilities), cre
 ```ts
 // tailwind.config.ts (optional — only for advanced config)
 
-import type { Config } from 'tailwindcss'
+import type { Config } from 'tailwindcss';
 
 const config: Config = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
@@ -321,9 +319,9 @@ const config: Config = {
     },
   },
   plugins: [],
-}
+};
 
-export default config
+export default config;
 ```
 
 ---
@@ -333,7 +331,7 @@ export default config
 ```css
 /* src/styles/globals.css */
 
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Theme tokens (from section 4.1 above)
    go here — @theme { ... } block */
@@ -414,7 +412,9 @@ export default config
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
   }
 }
 ```
@@ -427,41 +427,41 @@ How design tokens map to Tailwind classes:
 
 ### 6.1 Background Colors
 
-| Token | Tailwind Class | Usage |
-|-------|---------------|-------|
-| `--color-bg-page` | `bg-background` | Page background |
-| `--color-bg-surface` | `bg-card` | Cards, panels |
-| `--color-bg-surface-raised` | `bg-popover` | Dropdowns, tooltips |
-| `--color-bg-input` | `bg-input` | Text inputs |
-| `--color-bg-overlay` | `bg-black/50 dark:bg-black/70` | Modal backdrop |
+| Token                       | Tailwind Class                 | Usage               |
+| --------------------------- | ------------------------------ | ------------------- |
+| `--color-bg-page`           | `bg-background`                | Page background     |
+| `--color-bg-surface`        | `bg-card`                      | Cards, panels       |
+| `--color-bg-surface-raised` | `bg-popover`                   | Dropdowns, tooltips |
+| `--color-bg-input`          | `bg-input`                     | Text inputs         |
+| `--color-bg-overlay`        | `bg-black/50 dark:bg-black/70` | Modal backdrop      |
 
 ### 6.2 Text Colors
 
-| Token | Tailwind Class |
-|-------|---------------|
-| `--color-text-primary` | `text-foreground` |
-| `--color-text-secondary` | `text-muted-foreground` |
-| `--color-text-muted` | `text-gray-400 dark:text-gray-500` |
-| `--color-text-inverse` | `text-primary-foreground` |
-| `--color-text-link` | `text-primary` |
+| Token                    | Tailwind Class                     |
+| ------------------------ | ---------------------------------- |
+| `--color-text-primary`   | `text-foreground`                  |
+| `--color-text-secondary` | `text-muted-foreground`            |
+| `--color-text-muted`     | `text-gray-400 dark:text-gray-500` |
+| `--color-text-inverse`   | `text-primary-foreground`          |
+| `--color-text-link`      | `text-primary`                     |
 
 ### 6.3 Border Colors
 
-| Token | Tailwind Class |
-|-------|---------------|
+| Token                    | Tailwind Class  |
+| ------------------------ | --------------- |
 | `--color-border-default` | `border-border` |
-| `--color-border-focus` | `ring-ring` |
-| `--color-border-error` | `border-error` |
+| `--color-border-focus`   | `ring-ring`     |
+| `--color-border-error`   | `border-error`  |
 
 ### 6.4 Status Colors
 
-| Status | Dot/Badge | Background | Text |
-|--------|-----------|------------|------|
-| Done | `bg-green-500` | `bg-green-50` | `text-green-700` |
-| Blocked | `bg-red-500` | `bg-red-50` | `text-red-700` |
-| Warning | `bg-amber-500` | `bg-amber-50` | `text-amber-700` |
-| Info | `bg-blue-500` | `bg-blue-50` | `text-blue-700` |
-| AI | `bg-violet-500` | `bg-violet-50` | `text-violet-700` |
+| Status  | Dot/Badge       | Background     | Text              |
+| ------- | --------------- | -------------- | ----------------- |
+| Done    | `bg-green-500`  | `bg-green-50`  | `text-green-700`  |
+| Blocked | `bg-red-500`    | `bg-red-50`    | `text-red-700`    |
+| Warning | `bg-amber-500`  | `bg-amber-50`  | `text-amber-700`  |
+| Info    | `bg-blue-500`   | `bg-blue-50`   | `text-blue-700`   |
+| AI      | `bg-violet-500` | `bg-violet-50` | `text-violet-700` |
 
 ---
 
@@ -481,32 +481,22 @@ How design tokens map to Tailwind classes:
     @apply relative overflow-hidden bg-gray-200 dark:bg-gray-700;
   }
   .animate-skeleton::after {
-    content: "";
+    content: '';
     @apply absolute inset-0;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.3),
-      transparent
-    );
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
     animation: shimmer 1.5s infinite;
   }
   .dark .animate-skeleton::after {
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.05),
-      transparent
-    );
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
   }
 
   /* ── Scrollbar styling ────────────────────────────────── */
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: theme("colors.gray.300") transparent;
+    scrollbar-color: theme('colors.gray.300') transparent;
   }
   .dark .scrollbar-thin {
-    scrollbar-color: theme("colors.gray.600") transparent;
+    scrollbar-color: theme('colors.gray.600') transparent;
   }
   .scrollbar-thin::-webkit-scrollbar {
     width: 6px;
@@ -516,11 +506,11 @@ How design tokens map to Tailwind classes:
     background: transparent;
   }
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: theme("colors.gray.300");
+    background: theme('colors.gray.300');
     border-radius: 3px;
   }
   .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: theme("colors.gray.600");
+    background: theme('colors.gray.600');
   }
 
   /* ── Drag states ──────────────────────────────────────── */
@@ -581,25 +571,23 @@ Extracted reusable patterns using `@apply`:
 ```tsx
 // src/lib/theme.ts
 
-type Theme = 'light' | 'dark' | 'system'
+type Theme = 'light' | 'dark' | 'system';
 
 export function setTheme(theme: Theme) {
-  const root = document.documentElement
+  const root = document.documentElement;
 
   if (theme === 'system') {
-    const prefersDark = window.matchMedia(
-      '(prefers-color-scheme: dark)'
-    ).matches
-    root.classList.toggle('dark', prefersDark)
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.classList.toggle('dark', prefersDark);
   } else {
-    root.classList.toggle('dark', theme === 'dark')
+    root.classList.toggle('dark', theme === 'dark');
   }
 
-  localStorage.setItem('sprintio-theme', theme)
+  localStorage.setItem('sprintio-theme', theme);
 }
 
 export function getTheme(): Theme {
-  return (localStorage.getItem('sprintio-theme') as Theme) || 'system'
+  return (localStorage.getItem('sprintio-theme') as Theme) || 'system';
 }
 ```
 
@@ -619,22 +607,22 @@ Component code is UNCHANGED
 
 ### What Changes (Theme-Aware)
 
-| Token | Light | Dark |
-|-------|-------|------|
-| `background` | gray-50 | slate-900 |
-| `card` | white | slate-800 |
-| `primary` | indigo-500 | indigo-500 |
-| `border` | gray-200 | slate-700 |
-| `muted-foreground` | gray-500 | gray-400 |
+| Token              | Light      | Dark       |
+| ------------------ | ---------- | ---------- |
+| `background`       | gray-50    | slate-900  |
+| `card`             | white      | slate-800  |
+| `primary`          | indigo-500 | indigo-500 |
+| `border`           | gray-200   | slate-700  |
+| `muted-foreground` | gray-500   | gray-400   |
 
 ### What Never Changes
 
-| Token | Stays Same |
-|-------|-----------|
-| Status colors (green, red, amber, blue, purple) | Always same HSL |
-| Brand (indigo primary, violet AI) | Always same HSL |
-| Focus ring | Always indigo-500 |
-| Destructive/error | Adjusts saturation only |
+| Token                                           | Stays Same              |
+| ----------------------------------------------- | ----------------------- |
+| Status colors (green, red, amber, blue, purple) | Always same HSL         |
+| Brand (indigo primary, violet AI)               | Always same HSL         |
+| Focus ring                                      | Always indigo-500       |
+| Destructive/error                               | Adjusts saturation only |
 
 ---
 
@@ -642,13 +630,13 @@ Component code is UNCHANGED
 
 ### Breakpoints
 
-| Prefix | Width | Target |
-|--------|-------|--------|
-| (base) | <640px | Mobile phones |
-| `sm:` | ≥640px | Large phones |
-| `md:` | ≥768px | Tablets |
-| `lg:` | ≥1024px | Small laptops |
-| `xl:` | ≥1280px | Desktops |
+| Prefix | Width   | Target        |
+| ------ | ------- | ------------- |
+| (base) | <640px  | Mobile phones |
+| `sm:`  | ≥640px  | Large phones  |
+| `md:`  | ≥768px  | Tablets       |
+| `lg:`  | ≥1024px | Small laptops |
+| `xl:`  | ≥1280px | Desktops      |
 | `2xl:` | ≥1536px | Large screens |
 
 ### Mobile-First Patterns
@@ -669,14 +657,14 @@ Component code is UNCHANGED
 
 ### Key Responsive Rules
 
-| Element | Mobile | Tablet | Desktop |
-|---------|--------|--------|---------|
-| Page padding | `px-4` (16px) | `px-6` (24px) | `px-8` (32px) |
-| Card padding | `p-4` (16px) | `p-6` (24px) | `p-6` (24px) |
-| Section gap | `space-y-8` | `space-y-10` | `space-y-12` |
-| Grid gap | `gap-4` | `gap-5` | `gap-6` |
-| Content max-width | full | `max-w-7xl` | `max-w-7xl` |
-| Modal width | `w-[calc(100%-2rem)]` | `max-w-lg` | `max-w-lg` |
+| Element           | Mobile                | Tablet        | Desktop       |
+| ----------------- | --------------------- | ------------- | ------------- |
+| Page padding      | `px-4` (16px)         | `px-6` (24px) | `px-8` (32px) |
+| Card padding      | `p-4` (16px)          | `p-6` (24px)  | `p-6` (24px)  |
+| Section gap       | `space-y-8`           | `space-y-10`  | `space-y-12`  |
+| Grid gap          | `gap-4`               | `gap-5`       | `gap-6`       |
+| Content max-width | full                  | `max-w-7xl`   | `max-w-7xl`   |
+| Modal width       | `w-[calc(100%-2rem)]` | `max-w-lg`    | `max-w-lg`    |
 
 ---
 
@@ -728,14 +716,14 @@ Component code is UNCHANGED
 
 ### Don'ts
 
-| ❌ Don't | ✅ Do Instead |
-|---------|-------------|
-| Use arbitrary values `bg-[#6366F1]` | Use `bg-indigo-500` or CSS vars |
-| Hardcode `12px` font size | Use `text-xs`, `text-sm`, etc. |
-| Use inline `style={{ }}` | Use Tailwind classes |
-| Bypass `cn()` for class merging | Always use the utility |
-| Use `!important` | Restructure specificity |
-| Write CSS files for new components | Use utility classes + component layers |
+| ❌ Don't                            | ✅ Do Instead                          |
+| ----------------------------------- | -------------------------------------- |
+| Use arbitrary values `bg-[#6366F1]` | Use `bg-indigo-500` or CSS vars        |
+| Hardcode `12px` font size           | Use `text-xs`, `text-sm`, etc.         |
+| Use inline `style={{ }}`            | Use Tailwind classes                   |
+| Bypass `cn()` for class merging     | Always use the utility                 |
+| Use `!important`                    | Restructure specificity                |
+| Write CSS files for new components  | Use utility classes + component layers |
 
 ---
 

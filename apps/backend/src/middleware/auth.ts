@@ -10,11 +10,7 @@ declare global {
   }
 }
 
-export async function authenticate(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
   const token = getAccessTokenFromRequest(req);
 
   if (!token) {
@@ -32,11 +28,7 @@ export async function authenticate(
   next();
 }
 
-export async function optionalAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function optionalAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const token = getAccessTokenFromRequest(req);
   if (token) {
     const payload = await verifyAccessToken(token);

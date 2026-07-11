@@ -24,8 +24,8 @@ permissions:
   id-token: write # OIDC for provenance (optional)
 
 env:
-  NODE_VERSION: "22"
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: "true"
+  NODE_VERSION: '22'
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: 'true'
 
 jobs:
   # ╔═══════════════════════════════════════════════════════════════════════════╗
@@ -46,7 +46,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "pnpm"
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -93,7 +93,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "pnpm"
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
