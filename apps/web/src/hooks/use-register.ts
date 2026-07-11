@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { register, type RegisterRequest } from '@/lib/api';
 
 export function useRegister() {
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/register' });
 
   return useMutation({
     mutationFn: (data: RegisterRequest) => register(data),
@@ -12,7 +12,8 @@ export function useRegister() {
       toast.success('Account created!', {
         description: `Welcome, ${response.data.user.name}!`,
       });
-      navigate({ to: '/' });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      navigate({ to: '/' as any });
     },
     onError: (error: Error) => {
       toast.error('Registration failed', {
