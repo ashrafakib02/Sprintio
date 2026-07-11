@@ -1,12 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -61,9 +55,7 @@ function PasswordRule({ label, met }: { label: string; met: boolean }) {
           </svg>
         )}
       </div>
-      <span className={cn(met ? 'text-green-600' : 'text-muted-foreground')}>
-        {label}
-      </span>
+      <span className={cn(met ? 'text-green-600' : 'text-muted-foreground')}>{label}</span>
     </div>
   );
 }
@@ -84,8 +76,7 @@ export function RegisterPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const strength = getPasswordStrength(form.password);
-  const passwordsMatch =
-    form.password === form.confirmPassword && form.confirmPassword.length > 0;
+  const passwordsMatch = form.password === form.confirmPassword && form.confirmPassword.length > 0;
   const isSubmitting = registerMutation.isPending;
 
   function validate(): boolean {
@@ -106,8 +97,7 @@ export function RegisterPage() {
     if (!form.password) {
       newErrors.password = 'Password is required';
     } else {
-      if (form.password.length < 8)
-        newErrors.password = 'Password must be at least 8 characters';
+      if (form.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
       else if (form.password.length > 128)
         newErrors.password = 'Password must be at most 128 characters';
       else if (!/[A-Z]/.test(form.password))
@@ -155,12 +145,8 @@ export function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <Card className="w-full max-w-2xl min-h-150">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold tracking-tight">
-            Create an account
-          </CardTitle>
-          <CardDescription>
-            Enter your details to get started with Sprintio
-          </CardDescription>
+          <CardTitle className="text-2xl font-bold tracking-tight">Create an account</CardTitle>
+          <CardDescription>Enter your details to get started with Sprintio</CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -176,9 +162,7 @@ export function RegisterPage() {
                 disabled={isSubmitting}
                 aria-invalid={!!errors.name}
               />
-              {errors.name && (
-                <p className="text-sm text-destructive">{errors.name}</p>
-              )}
+              {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
             </div>
 
             {/* Email */}
@@ -193,9 +177,7 @@ export function RegisterPage() {
                 disabled={isSubmitting}
                 aria-invalid={!!errors.email}
               />
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email}</p>
-              )}
+              {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
             </div>
 
             {/* Password */}
@@ -223,10 +205,7 @@ export function RegisterPage() {
 
               {/* Validation checklist */}
               <div className="space-y-1.5">
-                <PasswordRule
-                  label="At least 8 characters"
-                  met={form.password.length >= 8}
-                />
+                <PasswordRule label="At least 8 characters" met={form.password.length >= 8} />
                 <PasswordRule
                   label="At least one uppercase letter"
                   met={/[A-Z]/.test(form.password)}
@@ -235,10 +214,7 @@ export function RegisterPage() {
                   label="At least one lowercase letter"
                   met={/[a-z]/.test(form.password)}
                 />
-                <PasswordRule
-                  label="At least one number"
-                  met={/[0-9]/.test(form.password)}
-                />
+                <PasswordRule label="At least one number" met={/[0-9]/.test(form.password)} />
                 <PasswordRule
                   label="At least one special character"
                   met={/[^A-Za-z0-9]/.test(form.password)}
@@ -247,36 +223,32 @@ export function RegisterPage() {
 
               {/* Strength indicator */}
               <div className="space-y-1">
-                  <div className="flex gap-1">
-                    {[1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className={cn(
-                          'h-1.5 flex-1 rounded-full transition-colors',
-                          i <= Math.ceil(strength.score / 2)
-                            ? strength.color
-                            : 'bg-muted',
-                        )}
-                      />
-                    ))}
-                  </div>
-                  <p
-                    className={cn(
-                      'text-xs font-medium',
-                      strength.score <= 2
-                        ? 'text-red-500'
-                        : strength.score <= 4
-                          ? 'text-yellow-500'
-                          : 'text-green-500',
-                    )}
-                  >
-                    {strength.label}
-                  </p>
+                <div className="flex gap-1">
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        'h-1.5 flex-1 rounded-full transition-colors',
+                        i <= Math.ceil(strength.score / 2) ? strength.color : 'bg-muted',
+                      )}
+                    />
+                  ))}
                 </div>
+                <p
+                  className={cn(
+                    'text-xs font-medium',
+                    strength.score <= 2
+                      ? 'text-red-500'
+                      : strength.score <= 4
+                        ? 'text-yellow-500'
+                        : 'text-green-500',
+                  )}
+                >
+                  {strength.label}
+                </p>
+              </div>
 
-              {errors.password && (
-                <p className="text-sm text-destructive">{errors.password}</p>
-              )}
+              {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
             </div>
 
             {/* Confirm Password */}
@@ -287,9 +259,7 @@ export function RegisterPage() {
                 type="password"
                 placeholder="••••••••"
                 value={form.confirmPassword}
-                onChange={(e) =>
-                  updateField('confirmPassword', e.target.value)
-                }
+                onChange={(e) => updateField('confirmPassword', e.target.value)}
                 disabled={isSubmitting}
                 aria-invalid={!!errors.confirmPassword}
               />
@@ -297,20 +267,14 @@ export function RegisterPage() {
                 <p
                   className={cn(
                     'text-xs font-medium',
-                    passwordsMatch
-                      ? 'text-green-500'
-                      : 'text-muted-foreground',
+                    passwordsMatch ? 'text-green-500' : 'text-muted-foreground',
                   )}
                 >
-                  {passwordsMatch
-                    ? '✓ Passwords match'
-                    : 'Passwords must match'}
+                  {passwordsMatch ? '✓ Passwords match' : 'Passwords must match'}
                 </p>
               )}
               {errors.confirmPassword && (
-                <p className="text-sm text-destructive">
-                  {errors.confirmPassword}
-                </p>
+                <p className="text-sm text-destructive">{errors.confirmPassword}</p>
               )}
             </div>
 
@@ -324,39 +288,22 @@ export function RegisterPage() {
                   disabled={isSubmitting}
                   className="mt-0.5"
                 />
-                <Label
-                  htmlFor="terms"
-                  className="text-sm font-normal leading-snug"
-                >
+                <Label htmlFor="terms" className="text-sm font-normal leading-snug">
                   I agree to the{' '}
-                  <a
-                    href="/terms"
-                    className="text-primary hover:underline"
-                    target="_blank"
-                  >
+                  <a href="/terms" className="text-primary hover:underline" target="_blank">
                     Terms of Service
                   </a>{' '}
                   and{' '}
-                  <a
-                    href="/privacy"
-                    className="text-primary hover:underline"
-                    target="_blank"
-                  >
+                  <a href="/privacy" className="text-primary hover:underline" target="_blank">
                     Privacy Policy
                   </a>
                 </Label>
               </div>
-              {errors.terms && (
-                <p className="text-sm text-destructive">{errors.terms}</p>
-              )}
+              {errors.terms && <p className="text-sm text-destructive">{errors.terms}</p>}
             </div>
 
             {/* Submit */}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
                   <svg
@@ -390,10 +337,7 @@ export function RegisterPage() {
           {/* Footer */}
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <a
-              href="/login"
-              className="font-medium text-primary hover:underline"
-            >
+            <a href="/login" className="font-medium text-primary hover:underline">
               Sign in
             </a>
           </p>
