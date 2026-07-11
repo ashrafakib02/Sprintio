@@ -18,14 +18,13 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write        # create tags, releases, push changelog
-  issues: write          # comment on related issues
-  pull-requests: write   # comment on merged PRs
-  id-token: write        # OIDC for provenance (optional)
+  contents: write # create tags, releases, push changelog
+  issues: write # comment on related issues
+  pull-requests: write # comment on merged PRs
+  id-token: write # OIDC for provenance (optional)
 
 env:
-  NODE_VERSION: "20"
-  PNPM_VERSION: "9"
+  NODE_VERSION: "22"
 
 jobs:
   # ╔═══════════════════════════════════════════════════════════════════════════╗
@@ -41,8 +40,6 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -85,13 +82,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # full history needed for changelog generation
+          fetch-depth: 0 # full history needed for changelog generation
           persist-credentials: false
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
