@@ -55,6 +55,68 @@ export function getRefreshTokenFromRequest(req: Request): string | undefined {
   return cookies[REFRESH_TOKEN_COOKIE];
 }
 
+// ── Device ID Cookie ─────────────────────────────────────────
+
+export function setDeviceIdCookie(res: Response, deviceId: string): void {
+  const maxAge = env.DEVICE_COOKIE_MAX_AGE;
+
+  const cookieOptions = [
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Lax',
+    env.COOKIE_SECURE ? 'Secure' : '',
+    `Max-Age=${maxAge}`,
+    env.NODE_ENV === 'production' ? `Domain=${env.COOKIE_DOMAIN}` : '',
+  ]
+    .filter(Boolean)
+    .join('; ');
+
+  const existingCookies = res.getHeader('Set-Cookie');
+  const cookieArray = Array.isArray(existingCookies)
+    ? existingCookies
+    : existingCookies
+      ? [existingCookies]
+      : [];
+
+  res.setHeader('Set-Cookie', [
+    ...cookieArray.map(String),
+    `${env.DEVICE_COOKIE_NAME}=${deviceId}; ${cookieOptions}`,
+  ]);
+}
+
+export function getDeviceIdFromRequest(req: Request): string | undefined {
+  const cookieHeader = req.headers.cookie;
+  if (!cookieHeader) return undefined;
+
+  const cookies = parse(cookieHeader);
+  return cookies[env.DEVICE_COOKIE_NAME];
+}
+
+export function clearDeviceIdCookie(res: Response): void {
+  const cookieOptions = [
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Lax',
+    env.COOKIE_SECURE ? 'Secure' : '',
+    'Max-Age=0',
+    env.NODE_ENV === 'production' ? `Domain=${env.COOKIE_DOMAIN}` : '',
+  ]
+    .filter(Boolean)
+    .join('; ');
+
+  const existingCookies = res.getHeader('Set-Cookie');
+  const cookieArray = Array.isArray(existingCookies)
+    ? existingCookies
+    : existingCookies
+      ? [existingCookies]
+      : [];
+
+  res.setHeader('Set-Cookie', [
+    ...cookieArray.map(String),
+    `${env.DEVICE_COOKIE_NAME}=; ${cookieOptions}`,
+  ]);
+}
+
 export function clearAuthCookies(res: Response): void {
   const expiredCookie = 'Max-Age=0';
 

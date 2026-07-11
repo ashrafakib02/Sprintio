@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import type { Request, Response } from 'express';
 import * as authService from './auth.service.js';
 import { registerSchema, loginSchema } from './auth.validation.js';
@@ -6,7 +7,11 @@ import {
   setRefreshTokenCookie,
   clearAuthCookies,
   getRefreshTokenFromRequest,
+  setDeviceIdCookie,
+  getDeviceIdFromRequest,
+  getAccessTokenFromRequest,
 } from '../../utils/cookie.js';
+import { decodeToken } from '../../utils/jwt.js';
 
 // ============================================================
 // Helpers
@@ -25,6 +30,15 @@ function setAuthCookies(res: Response, accessToken: string, refreshToken: string
   setRefreshTokenCookie(res, refreshToken);
 }
 
+function ensureDeviceIdCookie(res: Response, req: Request): string {
+  const existing = getDeviceIdFromRequest(req);
+  if (existing) return existing;
+
+  const deviceId = randomUUID();
+  setDeviceIdCookie(res, deviceId);
+  return deviceId;
+}
+
 // ============================================================
 // Handlers
 // ============================================================
@@ -41,7 +55,15 @@ export async function register(req: Request, res: Response) {
     }
 
     const { name, email, password } = parsed.data;
-    const result = await authService.registerUser(name, email, password);
+    const deviceId = ensureDeviceIdCookie(res, req);
+    const userAgent = req.headers['user-agent'];
+    const ipAddress = (req.headers['x-forwarded-for'] as string) ?? req.socket.remoteAddress;
+
+    const result = await authService.registerUser(name, email, password, {
+      deviceId,
+      userAgent,
+      ipAddress,
+    });
 
     setAuthCookies(res, result.tokens.accessToken, result.tokens.refreshToken);
 
@@ -70,10 +92,15 @@ export async function login(req: Request, res: Response) {
     }
 
     const { email, password } = parsed.data;
+    const deviceId = ensureDeviceIdCookie(res, req);
     const userAgent = req.headers['user-agent'];
     const ipAddress = (req.headers['x-forwarded-for'] as string) ?? req.socket.remoteAddress;
 
-    const result = await authService.loginUser(email, password, userAgent, ipAddress);
+    const result = await authService.loginUser(email, password, {
+      deviceId,
+      userAgent,
+      ipAddress,
+    });
 
     setAuthCookies(res, result.tokens.accessToken, result.tokens.refreshToken);
 
@@ -100,7 +127,10 @@ export async function refresh(req: Request, res: Response) {
       return sendError(res, 'Refresh token not found', 401);
     }
 
-    const tokens = await authService.refreshTokens(refreshToken);
+    const userAgent = req.headers['user-agent'];
+    const ipAddress = (req.headers['x-forwarded-for'] as string) ?? req.socket.remoteAddress;
+
+    const tokens = await authService.refreshTokens(refreshToken, { userAgent, ipAddress });
 
     setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
 
@@ -124,8 +154,26 @@ export async function refresh(req: Request, res: Response) {
 export async function logout(req: Request, res: Response) {
   try {
     const refreshToken = getRefreshTokenFromRequest(req);
+
+    // Extract access token JTI for blacklisting
+    const accessToken = getAccessTokenFromRequest(req);
+    let accessTokenJti: string | undefined;
+    let accessTokenExpiresAt: Date | undefined;
+
+    if (accessToken) {
+      const decoded = decodeToken(accessToken);
+      if (decoded?.jti) {
+        accessTokenJti = decoded.jti as string;
+        accessTokenExpiresAt = decoded.exp ? new Date(decoded.exp * 1000) : undefined;
+      }
+    }
+
     if (refreshToken) {
-      await authService.logoutUser(refreshToken);
+      await authService.logoutUser(refreshToken, accessTokenJti, accessTokenExpiresAt);
+    } else if (accessTokenJti && accessTokenExpiresAt) {
+      // Even without refresh token, blacklist the access token
+      const { revokeAccessToken } = await import('../../cache/token-blacklist.js');
+      await revokeAccessToken(accessTokenJti, accessTokenExpiresAt);
     }
 
     clearAuthCookies(res);
@@ -144,12 +192,24 @@ export async function logout(req: Request, res: Response) {
  */
 export async function logoutAll(req: Request, res: Response) {
   try {
-    const user = req.user as { userId: string } | undefined;
+    const user = req.user as { userId: string; jti?: string } | undefined;
     if (!user?.userId) {
       return sendError(res, 'Authentication required', 401);
     }
 
-    await authService.logoutAllSessions(user.userId);
+    // Extract access token JTI and expiry for blacklisting
+    const accessToken = getAccessTokenFromRequest(req);
+    const accessTokenJti = user.jti;
+    let accessTokenExpiresAt: Date | undefined;
+
+    if (accessToken) {
+      const decoded = decodeToken(accessToken);
+      if (decoded?.exp) {
+        accessTokenExpiresAt = new Date(decoded.exp * 1000);
+      }
+    }
+
+    await authService.logoutAllSessions(user.userId, accessTokenJti, accessTokenExpiresAt);
 
     clearAuthCookies(res);
 

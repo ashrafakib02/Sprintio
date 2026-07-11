@@ -1,17 +1,52 @@
+// ── Token Pairs ──────────────────────────────────────────────
+
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
 }
 
+export interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
+}
+
+// ── Minimal Payloads (used by service layer) ─────────────────
+
 export interface TokenPayload {
   userId: string;
   email: string;
+  jti: string;
+  deviceId: string;
 }
 
 export interface RefreshTokenPayload {
   userId: string;
   sessionId: string;
+  jti: string;
+  deviceId: string;
 }
+
+// ── Full JWT Payloads (decoded from tokens) ──────────────────
+
+export interface AccessTokenFullPayload {
+  userId: string;
+  email: string;
+  jti: string;
+  deviceId: string;
+  iat: number;
+  exp: number;
+}
+
+export interface RefreshTokenFullPayload {
+  userId: string;
+  sessionId: string;
+  jti: string;
+  deviceId: string;
+  iat: number;
+  exp: number;
+}
+
+// ── Auth Response ────────────────────────────────────────────
 
 export interface AuthResponse {
   user: {
@@ -21,23 +56,4 @@ export interface AuthResponse {
     emailVerified: boolean;
   };
   tokens: AuthTokens;
-}
-
-export interface TokenPair {
-  accessToken: string;
-  refreshToken: string;
-}
-
-export interface JwtAccessTokenPayload {
-  userId: string;
-  email: string;
-  iat: number;
-  exp: number;
-}
-
-export interface JwtRefreshTokenPayload {
-  userId: string;
-  sessionId: string;
-  iat: number;
-  exp: number;
 }

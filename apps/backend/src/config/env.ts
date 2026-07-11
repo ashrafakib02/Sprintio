@@ -5,18 +5,30 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3001),
   DATABASE_URL: z.string().url(),
   REDIS_URL: z.string().default('redis://localhost:6379'),
-  JWT_ACCESS_SECRET: z.string().min(32),
-  JWT_REFRESH_SECRET: z.string().min(32),
+
+  // ── ES256 JWT Keys (base64-encoded PEM) ──────────────────────
+  JWT_ACCESS_PRIVATE_KEY: z.string().min(100, 'Access private key is required (base64 PEM)'),
+  JWT_ACCESS_PUBLIC_KEY: z.string().min(100, 'Access public key is required (base64 PEM)'),
+  JWT_REFRESH_PRIVATE_KEY: z.string().min(100, 'Refresh private key is required (base64 PEM)'),
+  JWT_REFRESH_PUBLIC_KEY: z.string().min(100, 'Refresh public key is required (base64 PEM)'),
+
+  // ── Token Expiry ─────────────────────────────────────────────
   JWT_ACCESS_EXPIRY: z.string().default('15m'),
   JWT_REFRESH_EXPIRY: z.string().default('7d'),
   JWT_ACCESS_EXPIRY_MS: z.coerce.number().default(900000),
   JWT_REFRESH_EXPIRY_MS: z.coerce.number().default(604800000),
+
+  // ── Cookies ──────────────────────────────────────────────────
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   COOKIE_DOMAIN: z.string().default('localhost'),
   COOKIE_SECURE: z
     .string()
     .default('false')
     .transform((val) => val === 'true'),
+  DEVICE_COOKIE_NAME: z.string().default('device_id'),
+  DEVICE_COOKIE_MAX_AGE: z.coerce.number().default(31536000), // 365 days in seconds
+
+  // ── Security ─────────────────────────────────────────────────
   BCRYPT_SALT_ROUNDS: z.coerce.number().default(12),
 });
 
