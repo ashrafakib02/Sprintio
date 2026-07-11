@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { serialize, parse } from 'cookie';
+import { parse } from 'cookie';
 import { env } from '../config/env.js';
 
 export const ACCESS_TOKEN_COOKIE = 'access_token';

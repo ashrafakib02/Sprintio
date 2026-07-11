@@ -2,10 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { errorHandler } from './middleware/error-handler.middleware.js';
-import { logger } from './lib/logger.js';
 import { loggerMiddleware } from './middleware/logger.middleware.js';
 
-export const app = express();
+export const app: express.Express = express();
 
 // ─── Global Middleware ───────────────────────────────
 app.use(helmet());
