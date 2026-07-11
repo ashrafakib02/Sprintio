@@ -6,7 +6,7 @@ import rateLimit from 'express-rate-limit';
 import { env } from './config/env.js';
 import { authRoutes } from './modules/auth/index.js';
 
-const app = express();
+const app: express.Express = express();
 
 // ── Security middleware ──────────────────────────────────────
 app.use(helmet());

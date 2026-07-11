@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+coverage
+*.lock
+pnpm-lock.yaml
+pnpm-workspace.yaml
+.git
+.turbo
