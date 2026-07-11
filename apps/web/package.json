@@ -14,8 +14,11 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@sprintio/shared": "workspace:*",
+    "@radix-ui/react-checkbox": "^1.3.7",
+    "@radix-ui/react-label": "^2.1.11",
+    "@radix-ui/react-slot": "^1.3.0",
     "@reduxjs/toolkit": "^2.3.0",
+    "@sprintio/shared": "workspace:*",
     "@tanstack/react-query": "^5.59.0",
     "@tanstack/react-router": "^1.82.0",
     "@tanstack/react-virtual": "^3.10.0",

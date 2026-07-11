@@ -40,8 +40,8 @@ export async function register(req: Request, res: Response) {
       return sendError(res, message, 400);
     }
 
-    const { email, password } = parsed.data;
-    const result = await authService.registerUser(email, password);
+    const { name, email, password } = parsed.data;
+    const result = await authService.registerUser(name, email, password);
 
     setAuthCookies(res, result.tokens.accessToken, result.tokens.refreshToken);
 

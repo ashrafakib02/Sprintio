@@ -15,6 +15,7 @@ import type { AuthTokens } from '../../types/auth.js';
 
 export interface UserPayload {
   id: string;
+  name: string;
   email: string;
   emailVerified: boolean;
 }
@@ -69,7 +70,11 @@ async function createTokenPair(
  * Register a new user with email and password.
  * Creates the user, a session, and a token pair.
  */
-export async function registerUser(email: string, password: string): Promise<RegisterResult> {
+export async function registerUser(
+  name: string,
+  email: string,
+  password: string,
+): Promise<RegisterResult> {
   // Check if user already exists
   const existingUser = await db
     .select({ id: users.id })
@@ -88,11 +93,13 @@ export async function registerUser(email: string, password: string): Promise<Reg
   const [newUser] = await db
     .insert(users)
     .values({
+      name,
       email,
       passwordHash,
     })
     .returning({
       id: users.id,
+      name: users.name,
       email: users.email,
       emailVerified: users.emailVerified,
     });
@@ -115,6 +122,7 @@ export async function registerUser(email: string, password: string): Promise<Reg
   return {
     user: {
       id: newUser.id,
+      name: newUser.name,
       email: newUser.email,
       emailVerified: newUser.emailVerified,
     },
@@ -165,6 +173,7 @@ export async function loginUser(
   return {
     user: {
       id: user.id,
+      name: user.name,
       email: user.email,
       emailVerified: user.emailVerified,
     },
@@ -268,6 +277,7 @@ export async function getCurrentUser(userId: string): Promise<UserPayload | null
   const [user] = await db
     .select({
       id: users.id,
+      name: users.name,
       email: users.email,
       emailVerified: users.emailVerified,
     })
@@ -281,6 +291,7 @@ export async function getCurrentUser(userId: string): Promise<UserPayload | null
 
   return {
     id: user.id,
+    name: user.name,
     email: user.email,
     emailVerified: user.emailVerified,
   };

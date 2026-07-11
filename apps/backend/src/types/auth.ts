@@ -16,6 +16,7 @@ export interface RefreshTokenPayload {
 export interface AuthResponse {
   user: {
     id: string;
+    name: string;
     email: string;
     emailVerified: boolean;
   };

@@ -2,6 +2,7 @@
 // For now, create a simple manual route tree
 
 import { createRootRoute, createRoute } from '@tanstack/react-router';
+import { RegisterPage } from './routes/register';
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -26,6 +27,12 @@ const indexRoute = createRoute({
   ),
 });
 
-const routeTree = rootRoute.addChildren([indexRoute]);
+const registerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/register',
+  component: RegisterPage,
+});
+
+const routeTree = rootRoute.addChildren([indexRoute, registerRoute]);
 
 export { routeTree };
