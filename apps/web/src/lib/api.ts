@@ -30,14 +30,29 @@ export async function apiRequest<T>(path: string, options?: RequestInit): Promis
       'Content-Type': 'application/json',
       ...options?.headers,
     },
+    credentials: 'include',
     ...options,
   });
 
-  const body = await res.json();
+  const contentType = res.headers.get('content-type') || '';
+  let body: unknown;
+
+  if (contentType.includes('application/json')) {
+    body = await res.json();
+  } else {
+    const text = await res.text();
+    const err = new Error(text || `Request failed (${res.status})`);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (err as any).status = res.status;
+    throw err;
+  }
 
   if (!res.ok) {
     const error = body as ApiError;
-    throw new Error(error.error || 'Request failed');
+    const err = new Error(error.error || 'Request failed');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (err as any).status = res.status;
+    throw err;
   }
 
   return body as ApiResponse<T>;
@@ -68,5 +83,42 @@ export async function login(data: LoginRequest): Promise<ApiResponse<LoginRespon
   return apiRequest<LoginResponse>('/auth/login', {
     method: 'POST',
     body: JSON.stringify(data),
+  });
+}
+
+// ── Auth session endpoints ───────────────────────────────────
+
+export interface MeResponse {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    emailVerified: boolean;
+    role: string;
+    avatar: string | null;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+export async function fetchMe(): Promise<ApiResponse<MeResponse>> {
+  return apiRequest<MeResponse>('/auth/me');
+}
+
+export async function refreshTokens(): Promise<void> {
+  const res = await fetch(`${API_BASE}/auth/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    throw new Error('Refresh failed');
+  }
+}
+
+export async function logoutApi(): Promise<void> {
+  await fetch(`${API_BASE}/auth/logout`, {
+    method: 'POST',
+    credentials: 'include',
   });
 }

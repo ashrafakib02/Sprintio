@@ -1,19 +1,22 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import { register, type RegisterRequest } from '@/lib/api';
+import { AUTH_QUERY_KEY } from '@/contexts/auth-provider';
 
 export function useRegister() {
   const navigate = useNavigate({ from: '/register' });
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: RegisterRequest) => register(data),
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
+      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
+
       toast.success('Account created!', {
         description: `Welcome, ${response.data.user.name}!`,
       });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      navigate({ to: '/' as any });
+      navigate({ to: '/dashboard' });
     },
     onError: (error: Error) => {
       toast.error('Registration failed', {

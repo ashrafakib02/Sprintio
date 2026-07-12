@@ -6,8 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useLogin } from '@/hooks/use-login';
+import { Link } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/login')({
+export const Route = createFileRoute('/_guest/login')({
   component: LoginPage,
 });
 
@@ -164,9 +165,9 @@ function LoginPage() {
           {/* Footer */}
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Don't have an account?{' '}
-            <a href="/register" className="font-medium text-primary hover:underline">
+            <Link to="/register" className="font-medium text-primary hover:underline">
               Sign up
-            </a>
+            </Link>
           </p>
         </CardContent>
       </Card>

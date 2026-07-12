@@ -5,6 +5,7 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import { env } from './config/env.js';
 import { authRoutes } from './modules/auth/index.js';
+import { errorHandler } from './middleware/error-handler.js';
 
 const app: express.Express = express();
 
@@ -23,6 +24,12 @@ const limiter = rateLimit({
   max: 100, // limit each IP to 100 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
+  handler: (_req, res) => {
+    res.status(429).json({
+      error: 'Too many requests, please try again later',
+      code: 'RATE_LIMIT_EXCEEDED',
+    });
+  },
 });
 
 // Stricter rate limit for auth routes
@@ -31,6 +38,12 @@ const authLimiter = rateLimit({
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
+  handler: (_req, res) => {
+    res.status(429).json({
+      error: 'Too many requests, please try again later',
+      code: 'RATE_LIMIT_EXCEEDED',
+    });
+  },
 });
 
 app.use(limiter);
@@ -52,9 +65,6 @@ app.use((_req, res) => {
 });
 
 // ── Error handler ────────────────────────────────────────────
-app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error('Unhandled error:', err);
-  res.status(500).json({ error: 'Internal server error' });
-});
+app.use(errorHandler);
 
 export default app;

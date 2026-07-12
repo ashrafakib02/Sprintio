@@ -30,6 +30,10 @@ export interface UserPayload {
   name: string;
   email: string;
   emailVerified: boolean;
+  role: string;
+  avatar: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface RegisterResult {
@@ -131,6 +135,9 @@ export async function registerUser(
       name: users.name,
       email: users.email,
       emailVerified: users.emailVerified,
+      role: users.role,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt,
     });
 
   // Generate or use provided device ID
@@ -160,6 +167,10 @@ export async function registerUser(
       name: newUser.name,
       email: newUser.email,
       emailVerified: newUser.emailVerified,
+      role: newUser.role ?? 'member',
+      avatar: null,
+      createdAt: newUser.createdAt?.toISOString() ?? new Date().toISOString(),
+      updatedAt: newUser.updatedAt?.toISOString() ?? new Date().toISOString(),
     },
     tokens,
   };
@@ -214,6 +225,10 @@ export async function loginUser(
       name: user.name,
       email: user.email,
       emailVerified: user.emailVerified,
+      role: user.role ?? 'member',
+      avatar: null,
+      createdAt: user.createdAt?.toISOString() ?? new Date().toISOString(),
+      updatedAt: user.updatedAt?.toISOString() ?? new Date().toISOString(),
     },
     tokens,
   };
@@ -379,6 +394,9 @@ export async function getCurrentUser(userId: string): Promise<UserPayload | null
       name: users.name,
       email: users.email,
       emailVerified: users.emailVerified,
+      role: users.role,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt,
     })
     .from(users)
     .where(eq(users.id, userId))
@@ -393,5 +411,9 @@ export async function getCurrentUser(userId: string): Promise<UserPayload | null
     name: user.name,
     email: user.email,
     emailVerified: user.emailVerified,
+    role: user.role ?? 'member',
+    avatar: null,
+    createdAt: user.createdAt?.toISOString() ?? new Date().toISOString(),
+    updatedAt: user.updatedAt?.toISOString() ?? new Date().toISOString(),
   };
 }

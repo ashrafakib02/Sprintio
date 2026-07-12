@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+import { AppError } from '@sprintio/shared';
 import { verifyAccessToken, type AccessTokenPayload } from '../utils/jwt.js';
 import { getAccessTokenFromRequest } from '../utils/cookie.js';
 import { isAccessTokenRevoked, isUserRevoked } from '../cache/token-blacklist.js';
@@ -15,35 +16,31 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
   const token = getAccessTokenFromRequest(req);
 
   if (!token) {
-    res.status(401).json({ error: 'Authentication required' });
-    return;
+    return next(AppError.unauthorized('Authentication required'));
   }
 
   const payload = await verifyAccessToken(token);
   if (!payload) {
-    res.status(401).json({ error: 'Invalid or expired token' });
-    return;
+    return next(AppError.unauthorized('Invalid or expired token'));
   }
 
   // Check if this specific token has been revoked
   const revoked = await isAccessTokenRevoked(payload.jti);
   if (revoked) {
-    res.status(401).json({ error: 'Token has been revoked' });
-    return;
+    return next(AppError.unauthorized('Token has been revoked'));
   }
 
   // Check if all tokens for this user have been revoked (logout-all)
   const userRevoked = await isUserRevoked(payload.userId);
   if (userRevoked) {
-    res.status(401).json({ error: 'Token has been revoked' });
-    return;
+    return next(AppError.unauthorized('Token has been revoked'));
   }
 
   req.user = payload;
   next();
 }
 
-export async function optionalAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function optionalAuth(req: Request, _res: Response, next: NextFunction): Promise<void> {
   const token = getAccessTokenFromRequest(req);
   if (token) {
     const payload = await verifyAccessToken(token);

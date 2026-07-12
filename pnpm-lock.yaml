@@ -41,6 +41,9 @@ importers:
 
   apps/backend:
     dependencies:
+      '@sprintio/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       bcrypt:
         specifier: ^5.1.0
         version: 5.1.1

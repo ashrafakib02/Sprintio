@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useRegister } from '@/hooks/use-register';
 import { cn } from '@/lib/cn';
 
-export const Route = createFileRoute('/register')({
+export const Route = createFileRoute('/_guest/register')({
   component: RegisterPage,
 });
 
@@ -337,9 +337,9 @@ export function RegisterPage() {
           {/* Footer */}
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <a href="/login" className="font-medium text-primary hover:underline">
+            <Link to="/login" className="font-medium text-primary hover:underline">
               Sign in
-            </a>
+            </Link>
           </p>
         </CardContent>
       </Card>

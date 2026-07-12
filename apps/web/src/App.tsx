@@ -11,7 +11,10 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 30_000,
       gcTime: 5 * 60_000,
-      retry: 2,
+      retry: (failureCount: number, error: Error & { status?: number }) => {
+        if (error?.status === 401) return false;
+        return failureCount < 2;
+      },
       retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30_000),
       refetchOnWindowFocus: true,
     },
