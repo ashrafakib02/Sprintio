@@ -122,3 +122,4 @@ Thumbs.db
 docker-compose.override.yml
 
 .tanstack/
+cookies.txt
