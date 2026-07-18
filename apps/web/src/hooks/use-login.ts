@@ -18,7 +18,14 @@ export function useLogin() {
       });
       navigate({ to: '/dashboard' });
     },
-    onError: (error: Error) => {
+    onError: (error: Error, variables) => {
+      if (error.message === 'Please verify your email before signing in') {
+        toast.error('Email not verified', {
+          description: 'Please check your inbox and verify your email address.',
+        });
+        navigate({ to: '/verify-email', search: { email: variables.email } });
+        return;
+      }
       toast.error('Login failed', {
         description: error.message,
       });

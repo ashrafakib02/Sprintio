@@ -38,6 +38,7 @@ const envSchema = z.object({
   SMTP_PASS: z.string().default(''),
   EMAIL_FROM: z.string().default('noreply@sprintio.dev'),
   FRONTEND_URL: z.string().default('http://localhost:5173'),
+  BACKEND_URL: z.string().default('http://localhost:3001'),
   EMAIL_VERIFICATION_EXPIRY_MS: z.coerce.number().default(86400000), // 24 hours
 });
 

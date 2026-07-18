@@ -88,7 +88,10 @@ export async function verifyEmailToken(token: string): Promise<VerificationResul
   }
 
   // Update user's email_verified status
-  await db.update(users).set({ emailVerified: true }).where(eq(users.id, storedToken.userId));
+  await db
+    .update(users)
+    .set({ emailVerified: true, emailVerifiedAt: new Date() })
+    .where(eq(users.id, storedToken.userId));
 
   // Delete the verification token (single-use)
   await db.delete(emailVerificationTokens).where(eq(emailVerificationTokens.id, storedToken.id));

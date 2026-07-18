@@ -204,6 +204,11 @@ export async function loginUser(
     throw new Error('Invalid email or password');
   }
 
+  // Check email verification
+  if (!user.emailVerified) {
+    throw new Error('Please verify your email before signing in');
+  }
+
   // Generate or use provided device ID
   const deviceId = options?.deviceId ?? randomUUID();
 
