@@ -1,4 +1,4 @@
-import { createContext, useEffect, useCallback } from 'react';
+import { createContext, useEffect, useCallback, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { fetchMe, refreshTokens, logoutApi } from '@/lib/api';
@@ -28,6 +28,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const navigate = useNavigate({ from: '/' });
   const routerState = useRouterState();
 
+  // Use a ref for pathname to avoid recreating handleAuthError on navigation
+  const pathnameRef = useRef(routerState.location.pathname);
+  pathnameRef.current = routerState.location.pathname;
+
+  // Track if a refresh is already in progress to prevent double-fires
+  const refreshingRef = useRef(false);
+
   const {
     data: userData,
     isLoading,
@@ -47,18 +54,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Handle 401: attempt refresh then retry
   const handleAuthError = useCallback(async () => {
+    if (refreshingRef.current) return;
+    refreshingRef.current = true;
+
     try {
       await refreshTokens();
       await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
     } catch {
       queryClient.setQueryData(AUTH_QUERY_KEY, null);
       // Don't redirect to login if already on a guest route
-      const currentPath = routerState.location.pathname;
+      const currentPath = pathnameRef.current;
       if (!GUEST_ROUTES.some((route) => currentPath.startsWith(route))) {
         navigate({ to: '/login' });
       }
+    } finally {
+      refreshingRef.current = false;
     }
-  }, [queryClient, navigate, routerState.location.pathname]);
+  }, [queryClient, navigate]);
 
   useEffect(() => {
     if (error) {
