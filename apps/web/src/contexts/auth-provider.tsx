@@ -1,6 +1,6 @@
 import { createContext, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { fetchMe, refreshTokens, logoutApi } from '@/lib/api';
 import type { AuthContextValue } from '@/types/auth';
 
@@ -12,9 +12,21 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
+const GUEST_ROUTES = [
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/reset-password-success',
+  '/verify-email',
+  '/verify-email-expired',
+  '/verified',
+];
+
 export function AuthProvider({ children }: AuthProviderProps) {
   const queryClient = useQueryClient();
   const navigate = useNavigate({ from: '/' });
+  const routerState = useRouterState();
 
   const {
     data: userData,
@@ -40,9 +52,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
     } catch {
       queryClient.setQueryData(AUTH_QUERY_KEY, null);
-      navigate({ to: '/login' });
+      // Don't redirect to login if already on a guest route
+      const currentPath = routerState.location.pathname;
+      if (!GUEST_ROUTES.some((route) => currentPath.startsWith(route))) {
+        navigate({ to: '/login' });
+      }
     }
-  }, [queryClient, navigate]);
+  }, [queryClient, navigate, routerState.location.pathname]);
 
   useEffect(() => {
     if (error) {
