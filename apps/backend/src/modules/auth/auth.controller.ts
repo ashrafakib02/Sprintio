@@ -112,6 +112,10 @@ export async function login(req: Request, res: Response) {
       return sendError(res, 'Invalid email or password', 401);
     }
 
+    if (message.includes('verify your email')) {
+      return sendError(res, message, 403);
+    }
+
     console.error('Login error:', error);
     return sendError(res, 'Login failed', 500);
   }
