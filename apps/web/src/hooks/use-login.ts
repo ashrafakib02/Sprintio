@@ -11,6 +11,9 @@ export function useLogin() {
   return useMutation({
     mutationFn: (data: LoginRequest) => login(data),
     onSuccess: async (response) => {
+      // Manually set user data to clear any stale 401 error before navigating.
+      // This prevents the AuthProvider useEffect from re-firing with the old error.
+      queryClient.setQueryData(AUTH_QUERY_KEY, { data: { user: response.data.user } });
       await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
 
       toast.success('Welcome back!', {
