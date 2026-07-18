@@ -40,6 +40,7 @@ const envSchema = z.object({
   FRONTEND_URL: z.string().default('http://localhost:5173'),
   BACKEND_URL: z.string().default('http://localhost:3001'),
   EMAIL_VERIFICATION_EXPIRY_MS: z.coerce.number().default(86400000), // 24 hours
+  PASSWORD_RESET_EXPIRY_MS: z.coerce.number().default(3600000), // 1 hour
 });
 
 function validateEnv() {

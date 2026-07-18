@@ -60,6 +60,34 @@ const resendVerificationLimiter = rateLimit({
   },
 });
 
+// Rate limit for forgot password (prevent email spam)
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req, res) => {
+    res.status(429).json({
+      error: 'Too many requests, please try again later',
+      code: 'RATE_LIMIT_EXCEEDED',
+    });
+  },
+});
+
+// Rate limit for reset password (prevent brute-force)
+const resetPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req, res) => {
+    res.status(429).json({
+      error: 'Too many requests, please try again later',
+      code: 'RATE_LIMIT_EXCEEDED',
+    });
+  },
+});
+
 app.use(limiter);
 app.use(compression());
 app.use(express.json({ limit: '10kb' }));
@@ -75,6 +103,10 @@ app.use('/api/auth', authLimiter, authRoutes);
 
 // Apply stricter rate limit to resend-verification endpoint
 app.use('/api/auth/resend-verification', resendVerificationLimiter);
+
+// Apply rate limits to password reset endpoints
+app.use('/api/auth/forgot-password', forgotPasswordLimiter);
+app.use('/api/auth/reset-password', resetPasswordLimiter);
 
 // ── 404 handler ──────────────────────────────────────────────
 app.use((_req, res) => {

@@ -141,3 +141,41 @@ export async function resendVerification(
     body: JSON.stringify(data),
   });
 }
+
+// ── Password reset endpoints ──────────────────────────────────
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+}
+
+export async function forgotPassword(
+  data: ForgotPasswordRequest,
+): Promise<ApiResponse<ForgotPasswordResponse>> {
+  return apiRequest<ForgotPasswordResponse>('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}
+
+export async function resetPassword(
+  data: ResetPasswordRequest,
+): Promise<ApiResponse<ResetPasswordResponse>> {
+  return apiRequest<ResetPasswordResponse>('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
