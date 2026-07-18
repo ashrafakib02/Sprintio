@@ -1,32 +1,39 @@
 import nodemailer from 'nodemailer';
 import { env } from '../config/env.js';
 
-const transporter = nodemailer.createTransport({
-  host: env.SMTP_HOST,
-  port: env.SMTP_PORT,
-  secure: env.SMTP_PORT === 465,
-  auth:
-    env.SMTP_USER && env.SMTP_PASS
-      ? {
-          user: env.SMTP_USER,
-          pass: env.SMTP_PASS,
-        }
-      : undefined,
-});
+const hasSmtpConfig = env.SMTP_HOST !== 'localhost' || (env.SMTP_USER && env.SMTP_PASS);
+
+const transporter = hasSmtpConfig
+  ? nodemailer.createTransport({
+      host: env.SMTP_HOST,
+      port: env.SMTP_PORT,
+      secure: env.SMTP_PORT === 465,
+      auth: {
+        user: env.SMTP_USER,
+        pass: env.SMTP_PASS,
+      },
+    })
+  : null;
 
 export async function sendVerificationEmail(to: string, token: string): Promise<void> {
   const verificationUrl = `${env.FRONTEND_URL}/api/auth/verify-email/${token}`;
 
-  // In development, just log the URL
-  if (env.NODE_ENV === 'development') {
-    console.log('📧 Verification email URL:', verificationUrl);
+  if (!transporter) {
+    console.log('');
+    console.log('╔══════════════════════════════════════════════════════╗');
+    console.log('║         📧 VERIFICATION EMAIL (DEV MODE)           ║');
+    console.log('╠══════════════════════════════════════════════════════╣');
+    console.log(`║  To: ${to}`);
+    console.log(`║  Link: ${verificationUrl}`);
+    console.log('╚══════════════════════════════════════════════════════╝');
+    console.log('');
     return;
   }
 
   await transporter.sendMail({
     from: env.EMAIL_FROM,
     to,
-    subject: 'Verify your email address',
+    subject: 'Verify your email address — Sprintio',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <h2 style="color: #333;">Verify your email address</h2>
