@@ -21,9 +21,7 @@ function DashboardPage() {
         <p className="mt-1 text-xs text-muted-foreground">
           Role: <span className="font-medium">{user?.role}</span>
         </p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Email: {user?.email}
-        </p>
+        <p className="mt-1 text-xs text-muted-foreground">Email: {user?.email}</p>
       </div>
     </div>
   );

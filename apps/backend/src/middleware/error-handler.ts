@@ -6,12 +6,7 @@ import { AppError } from '@sprintio/shared';
  * Catches AppError instances and maps them to structured JSON responses.
  * Unknown errors return a generic 500.
  */
-export function errorHandler(
-  err: Error,
-  _req: Request,
-  res: Response,
-  _next: NextFunction,
-): void {
+export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction): void {
   if (err instanceof AppError) {
     res.status(err.statusCode).json({
       error: err.message,

@@ -40,7 +40,11 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
   next();
 }
 
-export async function optionalAuth(req: Request, _res: Response, next: NextFunction): Promise<void> {
+export async function optionalAuth(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): Promise<void> {
   const token = getAccessTokenFromRequest(req);
   if (token) {
     const payload = await verifyAccessToken(token);

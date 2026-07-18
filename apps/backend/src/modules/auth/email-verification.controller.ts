@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import * as emailVerificationService from './email-verification.service.js';
-import { ResendVerificationSchema } from '@sprintio/shared';
+import { resendVerificationSchema } from './email-verification.validation.js';
 import { env } from '../../config/env.js';
 
 // ============================================================
@@ -52,9 +52,9 @@ export async function verifyEmail(req: Request, res: Response) {
  */
 export async function resendVerification(req: Request, res: Response) {
   try {
-    const parsed = ResendVerificationSchema.safeParse(req.body);
+    const parsed = resendVerificationSchema.safeParse(req.body);
     if (!parsed.success) {
-      const message = parsed.error.errors.map((e) => e.message).join(', ');
+      const message = parsed.error.errors.map((err) => err.message).join(', ');
       return sendError(res, message, 400);
     }
 
