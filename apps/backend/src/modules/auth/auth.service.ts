@@ -19,6 +19,7 @@ import {
   isRefreshTokenRevoked,
   revokeAllUserTokens,
 } from '../../cache/token-blacklist.js';
+import { createAndSendVerificationEmail } from './email-verification.service.js';
 import type { AuthTokens } from '../../types/auth.js';
 
 // ============================================================
@@ -160,6 +161,11 @@ export async function registerUser(
 
   // Create token pair
   const tokens = await createTokenPair(newUser.id, newUser.email, session.id, deviceId);
+
+  // Send verification email (async, don't await to not block registration)
+  createAndSendVerificationEmail(newUser.id, newUser.email).catch((err) => {
+    console.error('Failed to send verification email:', err);
+  });
 
   return {
     user: {

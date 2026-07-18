@@ -21,4 +21,12 @@ export class AuthError extends AppError {
   static mfaRequired() {
     return new AuthError('Multi-factor authentication required', 'MFA_REQUIRED');
   }
+
+  static emailNotVerified() {
+    return new AuthError('Email not verified', 'EMAIL_NOT_VERIFIED');
+  }
+
+  static verificationTokenExpired() {
+    return new AuthError('Verification token has expired', 'VERIFICATION_TOKEN_EXPIRED');
+  }
 }

@@ -14,9 +14,12 @@ export function useRegister() {
       await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
 
       toast.success('Account created!', {
-        description: `Welcome, ${response.data.user.name}!`,
+        description: 'Please check your email to verify your account',
       });
-      navigate({ to: '/dashboard' });
+      navigate({
+        to: '/verify-email',
+        search: { email: response.data.user.email },
+      });
     },
     onError: (error: Error) => {
       toast.error('Registration failed', {

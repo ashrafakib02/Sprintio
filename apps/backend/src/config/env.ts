@@ -30,6 +30,15 @@ const envSchema = z.object({
 
   // ── Security ─────────────────────────────────────────────────
   BCRYPT_SALT_ROUNDS: z.coerce.number().default(12),
+
+  // ── Email / SMTP ─────────────────────────────────────────────
+  SMTP_HOST: z.string().default('localhost'),
+  SMTP_PORT: z.coerce.number().default(587),
+  SMTP_USER: z.string().default(''),
+  SMTP_PASS: z.string().default(''),
+  EMAIL_FROM: z.string().default('noreply@sprintio.dev'),
+  FRONTEND_URL: z.string().default('http://localhost:5173'),
+  EMAIL_VERIFICATION_EXPIRY_MS: z.coerce.number().default(86400000), // 24 hours
 });
 
 function validateEnv() {

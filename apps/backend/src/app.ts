@@ -46,6 +46,20 @@ const authLimiter = rateLimit({
   },
 });
 
+// Even stricter rate limit for resend verification (prevent email spam)
+const resendVerificationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req, res) => {
+    res.status(429).json({
+      error: 'Too many verification requests, please try again later',
+      code: 'RATE_LIMIT_EXCEEDED',
+    });
+  },
+});
+
 app.use(limiter);
 app.use(compression());
 app.use(express.json({ limit: '10kb' }));
@@ -58,6 +72,9 @@ app.get('/health', (_req, res) => {
 
 // ── API routes ───────────────────────────────────────────────
 app.use('/api/auth', authLimiter, authRoutes);
+
+// Apply stricter rate limit to resend-verification endpoint
+app.use('/api/auth/resend-verification', resendVerificationLimiter);
 
 // ── 404 handler ──────────────────────────────────────────────
 app.use((_req, res) => {

@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as GuestRouteImport } from './routes/_guest'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GuestVerifyEmailExpiredRouteImport } from './routes/_guest.verify-email-expired'
+import { Route as GuestVerifyEmailRouteImport } from './routes/_guest.verify-email'
+import { Route as GuestVerifiedRouteImport } from './routes/_guest.verified'
 import { Route as GuestRegisterRouteImport } from './routes/_guest.register'
 import { Route as GuestLoginRouteImport } from './routes/_guest.login'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
@@ -28,6 +31,21 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const GuestVerifyEmailExpiredRoute = GuestVerifyEmailExpiredRouteImport.update({
+  id: '/verify-email-expired',
+  path: '/verify-email-expired',
+  getParentRoute: () => GuestRoute,
+} as any)
+const GuestVerifyEmailRoute = GuestVerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => GuestRoute,
+} as any)
+const GuestVerifiedRoute = GuestVerifiedRouteImport.update({
+  id: '/verified',
+  path: '/verified',
+  getParentRoute: () => GuestRoute,
 } as any)
 const GuestRegisterRoute = GuestRegisterRouteImport.update({
   id: '/register',
@@ -50,12 +68,18 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/login': typeof GuestLoginRoute
   '/register': typeof GuestRegisterRoute
+  '/verified': typeof GuestVerifiedRoute
+  '/verify-email': typeof GuestVerifyEmailRoute
+  '/verify-email-expired': typeof GuestVerifyEmailExpiredRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/login': typeof GuestLoginRoute
   '/register': typeof GuestRegisterRoute
+  '/verified': typeof GuestVerifiedRoute
+  '/verify-email': typeof GuestVerifyEmailRoute
+  '/verify-email-expired': typeof GuestVerifyEmailExpiredRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -65,12 +89,29 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_guest/login': typeof GuestLoginRoute
   '/_guest/register': typeof GuestRegisterRoute
+  '/_guest/verified': typeof GuestVerifiedRoute
+  '/_guest/verify-email': typeof GuestVerifyEmailRoute
+  '/_guest/verify-email-expired': typeof GuestVerifyEmailExpiredRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/login' | '/register'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/register'
+    | '/verified'
+    | '/verify-email'
+    | '/verify-email-expired'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login' | '/register'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/register'
+    | '/verified'
+    | '/verify-email'
+    | '/verify-email-expired'
   id:
     | '__root__'
     | '/'
@@ -79,6 +120,9 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_guest/login'
     | '/_guest/register'
+    | '/_guest/verified'
+    | '/_guest/verify-email'
+    | '/_guest/verify-email-expired'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -109,6 +153,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_guest/verify-email-expired': {
+      id: '/_guest/verify-email-expired'
+      path: '/verify-email-expired'
+      fullPath: '/verify-email-expired'
+      preLoaderRoute: typeof GuestVerifyEmailExpiredRouteImport
+      parentRoute: typeof GuestRoute
+    }
+    '/_guest/verify-email': {
+      id: '/_guest/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof GuestVerifyEmailRouteImport
+      parentRoute: typeof GuestRoute
+    }
+    '/_guest/verified': {
+      id: '/_guest/verified'
+      path: '/verified'
+      fullPath: '/verified'
+      preLoaderRoute: typeof GuestVerifiedRouteImport
+      parentRoute: typeof GuestRoute
     }
     '/_guest/register': {
       id: '/_guest/register'
@@ -149,11 +214,17 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 interface GuestRouteChildren {
   GuestLoginRoute: typeof GuestLoginRoute
   GuestRegisterRoute: typeof GuestRegisterRoute
+  GuestVerifiedRoute: typeof GuestVerifiedRoute
+  GuestVerifyEmailRoute: typeof GuestVerifyEmailRoute
+  GuestVerifyEmailExpiredRoute: typeof GuestVerifyEmailExpiredRoute
 }
 
 const GuestRouteChildren: GuestRouteChildren = {
   GuestLoginRoute: GuestLoginRoute,
   GuestRegisterRoute: GuestRegisterRoute,
+  GuestVerifiedRoute: GuestVerifiedRoute,
+  GuestVerifyEmailRoute: GuestVerifyEmailRoute,
+  GuestVerifyEmailExpiredRoute: GuestVerifyEmailExpiredRoute,
 }
 
 const GuestRouteWithChildren = GuestRoute._addFileChildren(GuestRouteChildren)

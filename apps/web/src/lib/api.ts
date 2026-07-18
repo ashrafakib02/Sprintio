@@ -122,3 +122,22 @@ export async function logoutApi(): Promise<void> {
     credentials: 'include',
   });
 }
+
+// ── Email verification endpoints ─────────────────────────────
+
+export interface ResendVerificationRequest {
+  email: string;
+}
+
+export interface ResendVerificationResponse {
+  message: string;
+}
+
+export async function resendVerification(
+  data: ResendVerificationRequest,
+): Promise<ApiResponse<ResendVerificationResponse>> {
+  return apiRequest<ResendVerificationResponse>('/auth/resend-verification', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
