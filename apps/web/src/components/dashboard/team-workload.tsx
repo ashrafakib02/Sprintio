@@ -32,7 +32,8 @@ export function TeamWorkload({ members = demoMembers }: TeamWorkloadProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         {members.map((member, i) => {
-          const percent = member.capacity > 0 ? Math.round((member.assigned / member.capacity) * 100) : 0;
+          const percent =
+            member.capacity > 0 ? Math.round((member.assigned / member.capacity) * 100) : 0;
           const isOverloaded = percent >= 90;
           return (
             <div

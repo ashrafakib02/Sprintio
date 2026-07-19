@@ -117,7 +117,10 @@ app.get('/health', (_req, res) => {
 app.use('/api/auth/register', authLimiter as unknown as express.RequestHandler);
 app.use('/api/auth/login', authLimiter as unknown as express.RequestHandler);
 app.use('/api/auth/refresh', authLimiter as unknown as express.RequestHandler);
-app.use('/api/auth/resend-verification', resendVerificationLimiter as unknown as express.RequestHandler);
+app.use(
+  '/api/auth/resend-verification',
+  resendVerificationLimiter as unknown as express.RequestHandler,
+);
 app.use('/api/auth/forgot-password', forgotPasswordLimiter as unknown as express.RequestHandler);
 app.use('/api/auth/reset-password', resetPasswordLimiter as unknown as express.RequestHandler);
 app.use('/api/auth/google/callback', googleCallbackLimiter as unknown as express.RequestHandler);

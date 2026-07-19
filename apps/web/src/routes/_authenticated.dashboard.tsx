@@ -43,7 +43,12 @@ function DashboardPage() {
         color: 'text-destructive',
       },
     ],
-    [dashboard.taskSummary.assigned, dashboard.taskSummary.dueToday, dashboard.taskSummary.dueThisWeek, dashboard.taskSummary.overdue],
+    [
+      dashboard.taskSummary.assigned,
+      dashboard.taskSummary.dueToday,
+      dashboard.taskSummary.dueThisWeek,
+      dashboard.taskSummary.overdue,
+    ],
   );
 
   const mappedTasks = useMemo(
@@ -55,9 +60,7 @@ function DashboardPage() {
         dueDate: t.dueDate
           ? new Date(t.dueDate).toLocaleDateString('en-US', { weekday: 'short' })
           : undefined,
-        assignee: t.assignee
-          ? { name: t.assignee.name, avatar: t.assignee.avatar }
-          : undefined,
+        assignee: t.assignee ? { name: t.assignee.name, avatar: t.assignee.avatar } : undefined,
       })),
     [dashboard.tasks],
   );
@@ -100,25 +103,14 @@ function DashboardPage() {
       />
 
       {/* T1 — Task Summary Cards */}
-      <TaskSummaryCards
-        summaries={summaryItems}
-      />
+      <TaskSummaryCards summaries={summaryItems} />
 
       {/* T2 — My Tasks + Sprint Overview */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <MyTaskList
-            tasks={mappedTasks}
-            total={dashboard.allTasks.length}
-          />
+          <MyTaskList tasks={mappedTasks} total={dashboard.allTasks.length} />
         </div>
-        <div>
-          {sprintProp && (
-            <SprintOverview
-              sprint={sprintProp}
-            />
-          )}
-        </div>
+        <div>{sprintProp && <SprintOverview sprint={sprintProp} />}</div>
       </div>
 
       {/* T3 — Burndown Chart + Activity Feed */}

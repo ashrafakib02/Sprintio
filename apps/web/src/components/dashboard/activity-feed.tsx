@@ -12,13 +12,14 @@ export interface ActivityItem {
   timestamp: string;
 }
 
-const actionColors: Record<'completed' | 'started' | 'created' | 'commented' | 'updated', string> = {
-  completed: 'text-emerald-600 dark:text-emerald-400',
-  started: 'text-blue-600 dark:text-blue-400',
-  created: 'text-primary',
-  commented: 'text-muted-foreground',
-  updated: 'text-amber-600 dark:text-amber-400',
-};
+const actionColors: Record<'completed' | 'started' | 'created' | 'commented' | 'updated', string> =
+  {
+    completed: 'text-emerald-600 dark:text-emerald-400',
+    started: 'text-blue-600 dark:text-blue-400',
+    created: 'text-primary',
+    commented: 'text-muted-foreground',
+    updated: 'text-amber-600 dark:text-amber-400',
+  };
 
 const demoActivity: ActivityItem[] = [
   {
@@ -105,7 +106,8 @@ export function ActivityFeed({ activities = demoActivity, onViewAll }: ActivityF
                   <span
                     className={cn(
                       'font-medium',
-                      actionColors[item.action as keyof typeof actionColors] ?? 'text-muted-foreground',
+                      actionColors[item.action as keyof typeof actionColors] ??
+                        'text-muted-foreground',
                     )}
                   >
                     {item.action}
