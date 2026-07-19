@@ -101,7 +101,7 @@ const googleCallbackLimiter = rateLimit({
   },
 });
 
-app.use(limiter);
+app.use(limiter as express.RequestHandler);
 app.use(compression());
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -114,13 +114,13 @@ app.get('/health', (_req, res) => {
 // ── API routes ───────────────────────────────────────────────
 // Apply rate limiters to specific sensitive endpoints BEFORE mounting routes.
 // This avoids blanket-limiting Google OAuth initiation (which is just a redirect).
-app.use('/api/auth/register', authLimiter);
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/refresh', authLimiter);
-app.use('/api/auth/resend-verification', resendVerificationLimiter);
-app.use('/api/auth/forgot-password', forgotPasswordLimiter);
-app.use('/api/auth/reset-password', resetPasswordLimiter);
-app.use('/api/auth/google/callback', googleCallbackLimiter);
+app.use('/api/auth/register', authLimiter as express.RequestHandler);
+app.use('/api/auth/login', authLimiter as express.RequestHandler);
+app.use('/api/auth/refresh', authLimiter as express.RequestHandler);
+app.use('/api/auth/resend-verification', resendVerificationLimiter as express.RequestHandler);
+app.use('/api/auth/forgot-password', forgotPasswordLimiter as express.RequestHandler);
+app.use('/api/auth/reset-password', resetPasswordLimiter as express.RequestHandler);
+app.use('/api/auth/google/callback', googleCallbackLimiter as express.RequestHandler);
 
 // Mount all auth routes (no blanket limiter)
 app.use('/api/auth', authRoutes);
