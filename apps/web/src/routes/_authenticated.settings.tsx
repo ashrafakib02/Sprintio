@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { ActiveSessions } from '@/components/settings/active-sessions';
 import { ConnectedAccounts } from '@/components/settings/connected-accounts';
 
 export const Route = createFileRoute('/_authenticated/settings')({
@@ -12,6 +13,7 @@ function SettingsPage() {
         <h1 className="text-2xl font-bold">Settings</h1>
       </div>
 
+      <ActiveSessions />
       <ConnectedAccounts />
     </div>
   );

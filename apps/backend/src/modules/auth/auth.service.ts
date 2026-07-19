@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { eq, and, gt } from 'drizzle-orm';
+import { eq, and, gt, desc } from 'drizzle-orm';
 import { db } from '../../config/database.js';
 import { users } from '../../db/schema/users.js';
 import { sessions } from '../../db/schema/sessions.js';
@@ -21,6 +21,7 @@ import {
 } from '../../cache/token-blacklist.js';
 import { createAndSendVerificationEmail } from './email-verification.service.js';
 import type { AuthTokens } from '../../types/auth.js';
+import { parseUserAgent, type DeviceType } from '../../utils/user-agent-parser.js';
 
 // ============================================================
 // Types
@@ -436,4 +437,105 @@ export async function getCurrentUser(userId: string): Promise<UserPayload | null
     createdAt: user.createdAt?.toISOString() ?? new Date().toISOString(),
     updatedAt: user.updatedAt?.toISOString() ?? new Date().toISOString(),
   };
+}
+
+// ============================================================
+// Session Management
+// ============================================================
+
+export interface SessionInfo {
+  id: string;
+  deviceId: string;
+  browser: string;
+  os: string;
+  device: string;
+  deviceType: DeviceType;
+  ipAddress: string | null;
+  isCurrent: boolean;
+  lastActive: string;
+  createdAt: string;
+}
+
+/**
+ * List all active (non-expired) sessions for a user.
+ * Parses user-agent strings and marks the current device.
+ */
+export async function listUserSessions(
+  userId: string,
+  currentDeviceId: string,
+): Promise<SessionInfo[]> {
+  const now = new Date();
+
+  const userSessions = await db
+    .select()
+    .from(sessions)
+    .where(and(eq(sessions.userId, userId), gt(sessions.expiresAt, now)))
+    .orderBy(desc(sessions.createdAt));
+
+  return userSessions.map((session) => {
+    const parsed = parseUserAgent(session.userAgent);
+
+    return {
+      id: session.id,
+      deviceId: session.deviceId ?? '',
+      browser: parsed.browser,
+      os: parsed.os,
+      device: parsed.device,
+      deviceType: parsed.deviceType,
+      ipAddress: session.ipAddress,
+      isCurrent: session.deviceId === currentDeviceId,
+      lastActive: (session.createdAt ?? now).toISOString(),
+      createdAt: (session.createdAt ?? now).toISOString(),
+    };
+  });
+}
+
+/**
+ * Revoke a specific session by ID.
+ * The session must belong to the user and must not be the current session.
+ */
+export async function revokeSession(
+  userId: string,
+  sessionId: string,
+  currentDeviceId: string,
+): Promise<void> {
+  const now = new Date();
+
+  // Find the session
+  const [session] = await db
+    .select()
+    .from(sessions)
+    .where(and(eq(sessions.id, sessionId), eq(sessions.userId, userId)))
+    .limit(1);
+
+  if (!session) {
+    throw new Error('Session not found');
+  }
+
+  // Don't allow revoking the current session
+  if (session.deviceId === currentDeviceId) {
+    throw new Error('Cannot revoke your current session. Use logout instead.');
+  }
+
+  // Find and revoke the refresh token for this session
+  const [refreshToken] = await db
+    .select()
+    .from(refreshTokenTable)
+    .where(and(eq(refreshTokenTable.sessionId, sessionId), gt(refreshTokenTable.expiresAt, now)))
+    .limit(1);
+
+  if (refreshToken) {
+    // Mark user token revocation timestamp in Redis so any outstanding
+    // refresh tokens issued before this point are considered invalid
+    await revokeAllUserTokens(userId);
+
+    // Delete the refresh token from DB
+    await db.delete(refreshTokenTable).where(eq(refreshTokenTable.id, refreshToken.id));
+  }
+
+  // Invalidate session cache
+  await invalidateSession(sessionId);
+
+  // Delete the session from DB
+  await db.delete(sessions).where(eq(sessions.id, sessionId));
 }

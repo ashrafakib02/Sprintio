@@ -255,3 +255,61 @@ export async function me(req: Request, res: Response) {
     return sendError(res, 'Failed to get user', 500);
   }
 }
+
+// ============================================================
+// Session Management Handlers
+// ============================================================
+
+/**
+ * GET /api/auth/sessions
+ */
+export async function listSessions(req: Request, res: Response) {
+  try {
+    const user = req.user as { userId: string; deviceId: string } | undefined;
+    if (!user?.userId) {
+      return sendError(res, 'Authentication required', 401);
+    }
+
+    const sessions = await authService.listUserSessions(user.userId, user.deviceId);
+
+    return sendSuccess(res, { sessions });
+  } catch (error) {
+    console.error('List sessions error:', error);
+    return sendError(res, 'Failed to list sessions', 500);
+  }
+}
+
+/**
+ * DELETE /api/auth/sessions/:sessionId
+ */
+export async function revokeSessionById(req: Request, res: Response) {
+  try {
+    const user = req.user as { userId: string; deviceId: string } | undefined;
+    if (!user?.userId) {
+      return sendError(res, 'Authentication required', 401);
+    }
+
+    const sessionIdParam = req.params.sessionId;
+    const sessionId = Array.isArray(sessionIdParam) ? sessionIdParam[0] : sessionIdParam;
+    if (!sessionId) {
+      return sendError(res, 'Session ID is required', 400);
+    }
+
+    await authService.revokeSession(user.userId, sessionId, user.deviceId);
+
+    return sendSuccess(res, { message: 'Session revoked' });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to revoke session';
+
+    if (message.includes('not found')) {
+      return sendError(res, message, 404);
+    }
+
+    if (message.includes('current session')) {
+      return sendError(res, message, 400);
+    }
+
+    console.error('Revoke session error:', error);
+    return sendError(res, 'Failed to revoke session', 500);
+  }
+}

@@ -1,5 +1,14 @@
 import { Router } from 'express';
-import { register, login, refresh, logout, logoutAll, me } from './auth.controller.js';
+import {
+  register,
+  login,
+  refresh,
+  logout,
+  logoutAll,
+  me,
+  listSessions,
+  revokeSessionById,
+} from './auth.controller.js';
 import { authenticate } from '../../middleware/auth.js';
 import emailVerificationRoutes from './email-verification.routes.js';
 import passwordResetRoutes from './password-reset.routes.js';
@@ -25,5 +34,9 @@ router.use(googleAuthRoutes);
 router.post('/logout', authenticate, logout);
 router.post('/logout-all', authenticate, logoutAll);
 router.get('/me', authenticate, me);
+
+// Session management routes
+router.get('/sessions', authenticate, listSessions);
+router.delete('/sessions/:sessionId', authenticate, revokeSessionById);
 
 export default router;

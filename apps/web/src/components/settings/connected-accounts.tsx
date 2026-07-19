@@ -130,11 +130,7 @@ export function ConnectedAccounts() {
                     {unlinkMutation.isPending ? 'Disconnecting...' : 'Disconnect'}
                   </Button>
                 ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleConnect}
-                  >
+                  <Button variant="outline" size="sm" onClick={handleConnect}>
                     Connect
                   </Button>
                 )}

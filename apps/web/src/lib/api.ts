@@ -207,9 +207,7 @@ export async function handleGoogleCallback(
   });
 }
 
-export async function linkGoogleAccount(
-  code: string,
-): Promise<ApiResponse<{ message: string }>> {
+export async function linkGoogleAccount(code: string): Promise<ApiResponse<{ message: string }>> {
   return apiRequest<{ message: string }>('/auth/google/link', {
     method: 'POST',
     body: JSON.stringify({ code }),
@@ -228,4 +226,29 @@ export async function getLinkedProviders(): Promise<
   return apiRequest<{ providers: Array<{ provider: string; linkedAt: string }> }>(
     '/auth/google/providers',
   );
+}
+
+// ── Session management endpoints ─────────────────────────────
+
+export interface SessionInfo {
+  id: string;
+  deviceId: string;
+  browser: string;
+  os: string;
+  device: string;
+  deviceType: 'desktop' | 'mobile' | 'tablet' | 'bot' | 'unknown';
+  ipAddress: string | null;
+  isCurrent: boolean;
+  lastActive: string;
+  createdAt: string;
+}
+
+export async function fetchSessions(): Promise<ApiResponse<{ sessions: SessionInfo[] }>> {
+  return apiRequest<{ sessions: SessionInfo[] }>('/auth/sessions');
+}
+
+export async function revokeSession(sessionId: string): Promise<ApiResponse<{ message: string }>> {
+  return apiRequest<{ message: string }>(`/auth/sessions/${sessionId}`, {
+    method: 'DELETE',
+  });
 }

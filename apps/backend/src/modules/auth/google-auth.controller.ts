@@ -152,9 +152,7 @@ export async function googleCallback(req: Request, res: Response) {
   } catch (error) {
     console.error('Google callback error:', error);
     const message = error instanceof Error ? error.message : 'google_callback_failed';
-    return res.redirect(
-      `${env.FRONTEND_URL}/auth/callback?error=${encodeURIComponent(message)}`,
-    );
+    return res.redirect(`${env.FRONTEND_URL}/auth/callback?error=${encodeURIComponent(message)}`);
   }
 }
 

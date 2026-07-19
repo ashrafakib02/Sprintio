@@ -95,7 +95,9 @@ const googleCallbackLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   handler: (_req, res) => {
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?error=rate_limit_exceeded`);
+    res.redirect(
+      `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?error=rate_limit_exceeded`,
+    );
   },
 });
 

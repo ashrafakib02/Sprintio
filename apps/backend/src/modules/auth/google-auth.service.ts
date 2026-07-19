@@ -321,12 +321,7 @@ export async function handleGoogleCallback(
         scope: 'openid email profile',
         tokenType: 'Bearer',
       })
-      .where(
-        and(
-          eq(oauthAccounts.userId, user.id),
-          eq(oauthAccounts.provider, 'google'),
-        ),
-      );
+      .where(and(eq(oauthAccounts.userId, user.id), eq(oauthAccounts.provider, 'google')));
 
     // Update avatar if changed
     if (googleUser.picture && user.avatarUrl !== googleUser.picture) {
@@ -354,10 +349,7 @@ export async function handleGoogleCallback(
  * Link a Google account to an authenticated user.
  * Used when a user connects their Google account from settings.
  */
-export async function linkGoogleAccount(
-  userId: string,
-  code: string,
-): Promise<LinkedProvider[]> {
+export async function linkGoogleAccount(userId: string, code: string): Promise<LinkedProvider[]> {
   // Exchange code for tokens
   const googleTokens = await exchangeCodeForTokens(code);
 
@@ -369,10 +361,7 @@ export async function linkGoogleAccount(
     .select()
     .from(oauthAccounts)
     .where(
-      and(
-        eq(oauthAccounts.provider, 'google'),
-        eq(oauthAccounts.providerAccountId, googleUser.id),
-      ),
+      and(eq(oauthAccounts.provider, 'google'), eq(oauthAccounts.providerAccountId, googleUser.id)),
     )
     .limit(1);
 
@@ -384,12 +373,7 @@ export async function linkGoogleAccount(
   const [existingGoogleLink] = await db
     .select()
     .from(oauthAccounts)
-    .where(
-      and(
-        eq(oauthAccounts.userId, userId),
-        eq(oauthAccounts.provider, 'google'),
-      ),
-    )
+    .where(and(eq(oauthAccounts.userId, userId), eq(oauthAccounts.provider, 'google')))
     .limit(1);
 
   if (existingGoogleLink) {
@@ -458,18 +442,10 @@ export async function unlinkGoogleAccount(userId: string): Promise<LinkedProvide
   // Remove the Google OAuth entry
   await db
     .delete(oauthAccounts)
-    .where(
-      and(
-        eq(oauthAccounts.userId, userId),
-        eq(oauthAccounts.provider, 'google'),
-      ),
-    );
+    .where(and(eq(oauthAccounts.userId, userId), eq(oauthAccounts.provider, 'google')));
 
   // Clear user's googleId
-  await db
-    .update(users)
-    .set({ googleId: null, updatedAt: new Date() })
-    .where(eq(users.id, userId));
+  await db.update(users).set({ googleId: null, updatedAt: new Date() }).where(eq(users.id, userId));
 
   return getLinkedProviders(userId);
 }
