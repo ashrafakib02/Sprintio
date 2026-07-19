@@ -1,6 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { Plus, Timer } from 'lucide-react';
 
 export interface GreetingBarProps {
@@ -36,6 +37,7 @@ export function GreetingBar({
             <Timer className="mr-1 h-3 w-3" />
             {daysRemaining}d left
           </Badge>
+          <ThemeToggle />
           <Button size="sm" className="transition-transform hover:scale-105 active:scale-95">
             <Plus className="mr-1 h-4 w-4" />
             New task

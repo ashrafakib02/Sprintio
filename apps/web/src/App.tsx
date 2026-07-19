@@ -3,6 +3,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { Provider as ReduxProvider } from 'react-redux';
 import { Toaster } from 'sonner';
+import { ThemeProvider } from '@/contexts/theme-provider';
 import { store } from './store/store';
 import { routeTree } from './routeTree.gen';
 
@@ -32,11 +33,13 @@ declare module '@tanstack/react-router' {
 export function App() {
   return (
     <ReduxProvider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-        <Toaster position="bottom-right" richColors />
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
+      <ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+          <Toaster position="bottom-right" richColors />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+      </ThemeProvider>
     </ReduxProvider>
   );
 }
