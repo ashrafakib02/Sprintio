@@ -18,7 +18,7 @@ export function GreetingBar({
   daysRemaining = 4,
 }: GreetingBarProps) {
   return (
-    <Card>
+    <Card className="animate-fade-in-up">
       <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">
@@ -32,11 +32,11 @@ export function GreetingBar({
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Badge variant="secondary">
+          <Badge variant="secondary" className="animate-fade-in stagger-2">
             <Timer className="mr-1 h-3 w-3" />
             {daysRemaining}d left
           </Badge>
-          <Button size="sm">
+          <Button size="sm" className="transition-transform hover:scale-105 active:scale-95">
             <Plus className="mr-1 h-4 w-4" />
             New task
           </Button>

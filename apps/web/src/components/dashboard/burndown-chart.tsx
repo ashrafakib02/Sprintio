@@ -29,7 +29,7 @@ export interface BurndownChartProps {
 
 export function BurndownChart({ data = demoData }: BurndownChartProps) {
   return (
-    <Card>
+    <Card className="animate-fade-in-up stagger-8">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg font-medium">Burndown</CardTitle>
       </CardHeader>

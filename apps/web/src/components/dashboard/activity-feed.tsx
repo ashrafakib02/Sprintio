@@ -65,22 +65,32 @@ export interface ActivityFeedProps {
 
 export function ActivityFeed({ activities = demoActivity, onViewAll }: ActivityFeedProps) {
   return (
-    <Card className="flex h-full flex-col">
+    <Card className="flex h-full flex-col animate-fade-in-up stagger-5">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg font-medium">Recent Activity</CardTitle>
         {onViewAll && (
-          <Button variant="ghost" size="sm" onClick={onViewAll}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onViewAll}
+            className="transition-colors hover:text-primary"
+          >
             View all
-            <ArrowRight className="ml-1 h-3 w-3" />
+            <ArrowRight className="ml-1 h-3 w-3 transition-transform group-hover:translate-x-0.5" />
           </Button>
         )}
       </CardHeader>
       <CardContent className="flex-1 p-0">
         <div className="divide-y divide-border">
-          {activities.map((item) => (
+          {activities.map((item, i) => (
             <div
               key={item.id}
-              className="flex cursor-pointer items-start gap-3 px-6 py-3 transition-colors hover:bg-accent/50"
+              className={cn(
+                'flex cursor-pointer items-start gap-3 px-6 py-3 transition-all duration-200',
+                'hover:bg-accent/50 hover:pl-8',
+                'animate-fade-in',
+                `stagger-${Math.min(i + 4, 8)}`,
+              )}
             >
               <Avatar name={item.actor.name} src={item.actor.avatar} size="sm" />
               <div className="min-w-0 flex-1">

@@ -26,17 +26,24 @@ export interface PlanUsageProps {
 
 export function PlanUsage({ usage = demoUsage, planName = 'Pro', onUpgrade }: PlanUsageProps) {
   return (
-    <Card>
+    <Card className="animate-fade-in-up stagger-7">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg font-medium">Plan Usage</CardTitle>
         <span className="text-sm font-medium text-primary">{planName}</span>
       </CardHeader>
       <CardContent className="space-y-4">
-        {usage.map((item) => {
+        {usage.map((item, i) => {
           const percent = Math.min(Math.round((item.current / item.limit) * 100), 100);
           const isNearLimit = percent >= 80;
           return (
-            <div key={item.label}>
+            <div
+              key={item.label}
+              className={cn(
+                'rounded-md p-2 transition-colors duration-200 hover:bg-muted/50',
+                'animate-fade-in',
+                `stagger-${Math.min(i + 5, 8)}`,
+              )}
+            >
               <div className="mb-1.5 flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">{item.label}</span>
                 <span
@@ -56,7 +63,11 @@ export function PlanUsage({ usage = demoUsage, planName = 'Pro', onUpgrade }: Pl
           );
         })}
         {onUpgrade && (
-          <Button variant="outline" className="w-full" onClick={onUpgrade}>
+          <Button
+            variant="outline"
+            className="w-full transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+            onClick={onUpgrade}
+          >
             <Crown className="mr-2 h-4 w-4" />
             Upgrade plan
           </Button>

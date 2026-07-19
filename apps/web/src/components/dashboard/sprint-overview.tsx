@@ -44,11 +44,11 @@ export function SprintOverview({ sprint = demoSprint }: SprintOverviewProps) {
   const StatusIcon = s.icon;
 
   return (
-    <Card className="flex h-full flex-col">
+    <Card className="flex h-full flex-col animate-fade-in-up stagger-4">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-medium">{sprint.name}</CardTitle>
-          <Badge variant={s.variant}>
+          <Badge variant={s.variant} className="animate-scale-in stagger-2">
             <StatusIcon className="mr-1 h-3 w-3" />
             {s.label}
           </Badge>
@@ -78,15 +78,15 @@ export function SprintOverview({ sprint = demoSprint }: SprintOverviewProps) {
 
         {/* Health indicators */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-lg bg-muted p-3 text-center">
+          <div className="rounded-lg bg-muted p-3 text-center transition-all duration-200 hover:bg-muted/80 hover:scale-105">
             <p className="text-lg font-bold text-foreground">{sprint.completedToday ?? 0}</p>
             <p className="text-xs text-muted-foreground">Done today</p>
           </div>
-          <div className="rounded-lg bg-muted p-3 text-center">
+          <div className="rounded-lg bg-muted p-3 text-center transition-all duration-200 hover:bg-muted/80 hover:scale-105">
             <p className="text-lg font-bold text-foreground">{sprint.inProgress ?? 0}</p>
             <p className="text-xs text-muted-foreground">In progress</p>
           </div>
-          <div className="rounded-lg bg-muted p-3 text-center">
+          <div className="rounded-lg bg-muted p-3 text-center transition-all duration-200 hover:bg-muted/80 hover:scale-105">
             <p
               className={cn(
                 'text-lg font-bold',

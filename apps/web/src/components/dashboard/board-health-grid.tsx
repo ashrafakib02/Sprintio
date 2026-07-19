@@ -63,17 +63,22 @@ export interface BoardHealthGridProps {
 
 export function BoardHealthGrid({ boards = demoBoards }: BoardHealthGridProps) {
   return (
-    <Card>
+    <Card className="animate-fade-in-up stagger-6">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg font-medium">Board Health</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {boards.map((board) => {
+          {boards.map((board, i) => {
             return (
               <div
                 key={board.boardId}
-                className="cursor-pointer rounded-lg border border-border p-4 transition-shadow hover:shadow-md"
+                className={cn(
+                  'cursor-pointer rounded-lg border border-border p-4 transition-all duration-200',
+                  'hover:shadow-md hover:-translate-y-0.5 hover:border-primary/30',
+                  'animate-scale-in',
+                  `stagger-${Math.min(i + 5, 8)}`,
+                )}
               >
                 <div className="mb-3 flex items-center justify-between">
                   <h4 className="text-sm font-medium text-foreground">{board.name}</h4>
@@ -85,7 +90,7 @@ export function BoardHealthGrid({ boards = demoBoards }: BoardHealthGridProps) {
                     <div
                       key={col.name}
                       className={cn(
-                        'h-full transition-all',
+                        'h-full transition-all duration-500',
                         colorMap[col.colorToken] ?? 'bg-muted-foreground',
                       )}
                       style={{ width: `${(col.count / board.totalCards) * 100}%` }}

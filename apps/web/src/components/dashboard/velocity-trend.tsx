@@ -15,7 +15,7 @@ export interface VelocityTrendProps {
 
 export function VelocityTrend({ data = demoData }: VelocityTrendProps) {
   return (
-    <Card>
+    <Card className="animate-fade-in-up stagger-8">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg font-medium">Velocity</CardTitle>
       </CardHeader>
