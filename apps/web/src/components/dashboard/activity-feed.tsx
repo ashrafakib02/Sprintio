@@ -92,8 +92,8 @@ export function ActivityFeed({ activities = demoActivity, onViewAll }: ActivityF
               role="listitem"
               aria-label={`${item.actor.name} ${item.action} ${item.target}, ${item.timestamp}`}
               className={cn(
-                'flex w-full items-start gap-3 px-6 py-3 text-left transition-colors duration-200',
-                'hover:bg-accent/50',
+                'flex w-full items-start gap-3 px-6 py-3 text-left transition-all duration-200',
+                'hover:bg-accent/50 hover:pl-8',
                 'focus-visible:outline-none focus-visible:bg-accent/50',
                 'animate-fade-in',
                 `stagger-${Math.min(i + 4, 8)}`,
