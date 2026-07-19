@@ -66,12 +66,39 @@ function AuthenticatedLayout() {
           >
             Dashboard
           </Link>
+          <Link
+            to="/settings"
+            className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-accent"
+            activeProps={{ className: 'bg-accent text-accent-foreground' }}
+          >
+            Settings
+          </Link>
         </nav>
 
         {/* User section */}
         <div className="border-t border-border p-4">
-          <p className="truncate text-sm font-medium">{user.name}</p>
-          <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+          <div className="flex items-center gap-3">
+            {user.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt={user.name}
+                className="h-8 w-8 rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+                {user.name
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')
+                  .toUpperCase()
+                  .slice(0, 2)}
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium">{user.name}</p>
+              <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+            </div>
+          </div>
           <button
             onClick={() => logout.mutate()}
             className="mt-3 w-full rounded-md px-3 py-1.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-foreground"

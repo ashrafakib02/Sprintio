@@ -3,6 +3,7 @@ import { register, login, refresh, logout, logoutAll, me } from './auth.controll
 import { authenticate } from '../../middleware/auth.js';
 import emailVerificationRoutes from './email-verification.routes.js';
 import passwordResetRoutes from './password-reset.routes.js';
+import googleAuthRoutes from './google-auth.routes.js';
 
 const router: ReturnType<typeof Router> = Router();
 
@@ -16,6 +17,9 @@ router.use(emailVerificationRoutes);
 
 // Password reset routes (public)
 router.use(passwordResetRoutes);
+
+// Google OAuth routes
+router.use(googleAuthRoutes);
 
 // Protected routes (require valid access token)
 router.post('/logout', authenticate, logout);

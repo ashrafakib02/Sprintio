@@ -54,7 +54,11 @@ export async function register(req: Request, res: Response) {
       return sendError(res, message, 400);
     }
 
-    const { name, email, password } = parsed.data;
+    const { name, email, password } = parsed.data as {
+      name: string;
+      email: string;
+      password?: string;
+    };
     const deviceId = ensureDeviceIdCookie(res, req);
     const userAgent = req.headers['user-agent'];
     const ipAddress = (req.headers['x-forwarded-for'] as string) ?? req.socket.remoteAddress;
@@ -113,6 +117,10 @@ export async function login(req: Request, res: Response) {
     }
 
     if (message.includes('verify your email')) {
+      return sendError(res, message, 403);
+    }
+
+    if (message.includes('Google Sign-In')) {
       return sendError(res, message, 403);
     }
 

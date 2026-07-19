@@ -86,6 +86,17 @@ export async function login(data: LoginRequest): Promise<ApiResponse<LoginRespon
   });
 }
 
+// ── OAuth types ────────────────────────────────────────────────
+
+export interface OAuthUser {
+  id: string;
+  name: string;
+  email: string;
+  emailVerified: boolean;
+  role: string;
+  provider: string;
+}
+
 // ── Auth session endpoints ───────────────────────────────────
 
 export interface MeResponse {
@@ -178,4 +189,43 @@ export async function resetPassword(
     method: 'POST',
     body: JSON.stringify(data),
   });
+}
+
+// ── Google OAuth endpoints ────────────────────────────────────
+
+export async function getGoogleAuthUrl(): Promise<ApiResponse<{ url: string }>> {
+  return apiRequest<{ url: string }>('/auth/google');
+}
+
+export async function handleGoogleCallback(
+  code: string,
+  state: string,
+): Promise<ApiResponse<{ user: OAuthUser }>> {
+  return apiRequest<{ user: OAuthUser }>('/auth/google/callback', {
+    method: 'POST',
+    body: JSON.stringify({ code, state }),
+  });
+}
+
+export async function linkGoogleAccount(
+  code: string,
+): Promise<ApiResponse<{ message: string }>> {
+  return apiRequest<{ message: string }>('/auth/google/link', {
+    method: 'POST',
+    body: JSON.stringify({ code }),
+  });
+}
+
+export async function unlinkGoogleAccount(): Promise<ApiResponse<{ message: string }>> {
+  return apiRequest<{ message: string }>('/auth/google/unlink', {
+    method: 'POST',
+  });
+}
+
+export async function getLinkedProviders(): Promise<
+  ApiResponse<{ providers: Array<{ provider: string; linkedAt: string }> }>
+> {
+  return apiRequest<{ providers: Array<{ provider: string; linkedAt: string }> }>(
+    '/auth/google/providers',
+  );
 }

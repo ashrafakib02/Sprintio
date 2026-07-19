@@ -106,7 +106,7 @@ async function createTokenPair(
 export async function registerUser(
   name: string,
   email: string,
-  password: string,
+  password: string | undefined,
   options?: { deviceId?: string; userAgent?: string; ipAddress?: string },
 ): Promise<RegisterResult> {
   // Check if user already exists
@@ -120,8 +120,8 @@ export async function registerUser(
     throw new Error('A user with this email already exists');
   }
 
-  // Hash password
-  const passwordHash = await hashPassword(password);
+  // Hash password if provided
+  const passwordHash = password ? await hashPassword(password) : null;
 
   // Create user
   const [newUser] = await db
@@ -137,6 +137,7 @@ export async function registerUser(
       email: users.email,
       emailVerified: users.emailVerified,
       role: users.role,
+      avatarUrl: users.avatarUrl,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,
     });
@@ -162,10 +163,12 @@ export async function registerUser(
   // Create token pair
   const tokens = await createTokenPair(newUser.id, newUser.email, session.id, deviceId);
 
-  // Send verification email (async, don't await to not block registration)
-  createAndSendVerificationEmail(newUser.id, newUser.email).catch((err) => {
-    console.error('Failed to send verification email:', err);
-  });
+  // Send verification email only for password-based registration (async, don't await)
+  if (password) {
+    createAndSendVerificationEmail(newUser.id, newUser.email).catch((err) => {
+      console.error('Failed to send verification email:', err);
+    });
+  }
 
   return {
     user: {
@@ -174,7 +177,7 @@ export async function registerUser(
       email: newUser.email,
       emailVerified: newUser.emailVerified,
       role: newUser.role ?? 'member',
-      avatar: null,
+      avatar: newUser.avatarUrl ?? null,
       createdAt: newUser.createdAt?.toISOString() ?? new Date().toISOString(),
       updatedAt: newUser.updatedAt?.toISOString() ?? new Date().toISOString(),
     },
@@ -196,6 +199,11 @@ export async function loginUser(
 
   if (!user) {
     throw new Error('Invalid email or password');
+  }
+
+  // OAuth-only users can't log in with password
+  if (!user.passwordHash) {
+    throw new Error('This account uses Google Sign-In. Please sign in with Google.');
   }
 
   // Verify password
@@ -237,7 +245,7 @@ export async function loginUser(
       email: user.email,
       emailVerified: user.emailVerified,
       role: user.role ?? 'member',
-      avatar: null,
+      avatar: user.avatarUrl ?? null,
       createdAt: user.createdAt?.toISOString() ?? new Date().toISOString(),
       updatedAt: user.updatedAt?.toISOString() ?? new Date().toISOString(),
     },
@@ -406,6 +414,7 @@ export async function getCurrentUser(userId: string): Promise<UserPayload | null
       email: users.email,
       emailVerified: users.emailVerified,
       role: users.role,
+      avatarUrl: users.avatarUrl,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,
     })
@@ -423,7 +432,7 @@ export async function getCurrentUser(userId: string): Promise<UserPayload | null
     email: user.email,
     emailVerified: user.emailVerified,
     role: user.role ?? 'member',
-    avatar: null,
+    avatar: user.avatarUrl,
     createdAt: user.createdAt?.toISOString() ?? new Date().toISOString(),
     updatedAt: user.updatedAt?.toISOString() ?? new Date().toISOString(),
   };

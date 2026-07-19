@@ -41,6 +41,11 @@ const envSchema = z.object({
   BACKEND_URL: z.string().default('http://localhost:3001'),
   EMAIL_VERIFICATION_EXPIRY_MS: z.coerce.number().default(86400000), // 24 hours
   PASSWORD_RESET_EXPIRY_MS: z.coerce.number().default(3600000), // 1 hour
+
+  // ── Google OAuth ─────────────────────────────────────────────
+  GOOGLE_CLIENT_ID: z.string().default(''),
+  GOOGLE_CLIENT_SECRET: z.string().default(''),
+  GOOGLE_REDIRECT_URI: z.string().default('http://localhost:3001/api/auth/google/callback'),
 });
 
 function validateEnv() {

@@ -11,13 +11,24 @@ export const registerSchema = z
       .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
       .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
       .regex(/[0-9]/, 'Password must contain at least one number')
-      .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
-    confirmPassword: z.string(),
+      .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character')
+      .optional(),
+    confirmPassword: z.string().optional(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
+  .refine(
+    (data) => {
+      // If password is provided, confirmPassword must match
+      if (data.password) {
+        return data.password === data.confirmPassword;
+      }
+      // If no password, confirmPassword should also be absent
+      return !data.confirmPassword;
+    },
+    {
+      message: 'Passwords do not match',
+      path: ['confirmPassword'],
+    },
+  );
 
 export const loginSchema = z.object({
   email: z.string().email('Invalid email address'),

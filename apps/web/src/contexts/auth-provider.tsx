@@ -21,6 +21,7 @@ const GUEST_ROUTES = [
   '/verify-email',
   '/verify-email-expired',
   '/verified',
+  '/auth/callback',
 ];
 
 export function AuthProvider({ children }: AuthProviderProps) {
