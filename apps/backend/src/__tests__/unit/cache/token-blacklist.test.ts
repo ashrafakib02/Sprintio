@@ -152,11 +152,13 @@ describe('token-blacklist', () => {
       expect(result).toBeNull();
     });
 
-    it('should return null when Redis throws an error', async () => {
+    it('should fail-closed (return timestamp) when Redis throws an error', async () => {
       (redis.get as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Redis error'));
 
       const result = await isUserRevoked('user-123');
-      expect(result).toBeNull();
+      // Fail-closed: returns Date.now() to protect user during Redis outage
+      expect(result).toBeTypeOf('number');
+      expect(result).toBeGreaterThan(0);
     });
   });
 });

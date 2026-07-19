@@ -96,9 +96,11 @@ describe('authenticate middleware', () => {
       email: 'test@test.com',
       jti: 'jti-1',
       deviceId: 'device-1',
+      iat: Math.floor(Date.now() / 1000) - 100, // token issued 100s ago
     });
     (isAccessTokenRevoked as ReturnType<typeof vi.fn>).mockResolvedValue(false);
-    (isUserRevoked as ReturnType<typeof vi.fn>).mockResolvedValue(Date.now());
+    // Revocation marker set 50s ago (more recent than token iat * 1000)
+    (isUserRevoked as ReturnType<typeof vi.fn>).mockResolvedValue(Date.now() - 50_000);
 
     await authenticate(req, res as never, next);
 
@@ -218,9 +220,11 @@ describe('optionalAuth middleware', () => {
       email: 'test@test.com',
       jti: 'jti-1',
       deviceId: 'device-1',
+      iat: Math.floor(Date.now() / 1000) - 100, // token issued 100s ago
     });
     (isAccessTokenRevoked as ReturnType<typeof vi.fn>).mockResolvedValue(false);
-    (isUserRevoked as ReturnType<typeof vi.fn>).mockResolvedValue(Date.now());
+    // Revocation marker set 50s ago (more recent than token iat * 1000)
+    (isUserRevoked as ReturnType<typeof vi.fn>).mockResolvedValue(Date.now() - 50_000);
 
     await optionalAuth(req, res as never, next);
 

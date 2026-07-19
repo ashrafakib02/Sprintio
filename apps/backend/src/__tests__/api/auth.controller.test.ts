@@ -239,10 +239,10 @@ describe('auth.controller', () => {
 
       await authController.login(req, res as never);
 
-      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.status).toHaveBeenCalledWith(401);
     });
 
-    it('should return 403 for OAuth-only users', async () => {
+    it('should return 401 for OAuth-only users (no enumeration)', async () => {
       const req = createMockReq({
         body: { email: 'test@test.com', password: 'Password1!' },
       });
@@ -259,7 +259,7 @@ describe('auth.controller', () => {
 
       await authController.login(req, res as never);
 
-      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.status).toHaveBeenCalledWith(401);
     });
   });
 

@@ -166,7 +166,7 @@ describe('requirePermission middleware', () => {
     expect(res.status).toHaveBeenCalledWith(403);
     const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
     expect(body.code).toBe('FORBIDDEN');
-    expect(body.required).toContain('workspace:create');
+    // Permission info is no longer included in 403 responses (security fix)
   });
 
   it('should deny guest from task:update permission', async () => {

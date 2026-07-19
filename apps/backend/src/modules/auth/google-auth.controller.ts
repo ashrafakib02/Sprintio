@@ -159,7 +159,9 @@ export async function googleCallback(req: Request, res: Response) {
       if (error.message.includes('invalid_grant')) safeMessage = 'code_expired_or_used';
       else if (error.message.includes('redirect_uri_mismatch')) safeMessage = 'configuration_error';
     }
-    return res.redirect(`${env.FRONTEND_URL}/auth/callback?error=${encodeURIComponent(safeMessage)}`);
+    return res.redirect(
+      `${env.FRONTEND_URL}/auth/callback?error=${encodeURIComponent(safeMessage)}`,
+    );
   }
 }
 

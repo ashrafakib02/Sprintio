@@ -129,8 +129,8 @@ describe('requireRole middleware', () => {
     expect(res.status).toHaveBeenCalledWith(403);
     const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
     expect(body.code).toBe('FORBIDDEN');
-    expect(body.required).toContain('admin');
-    expect(body.current).toBe('member');
+    expect(body.error).toBe('Insufficient permissions');
+    // Role info is no longer included in 403 responses (security fix)
   });
 
   it('should default to "member" role when user.role is null', async () => {

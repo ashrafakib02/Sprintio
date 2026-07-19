@@ -25,6 +25,7 @@ vi.mock('../../utils/cookie.js', () => ({
   setRefreshTokenCookie: vi.fn(),
   getDeviceIdFromRequest: vi.fn(),
   setDeviceIdCookie: vi.fn(),
+  cookieDomain: vi.fn().mockReturnValue(''),
   ACCESS_TOKEN_COOKIE: 'access_token',
   REFRESH_TOKEN_COOKIE: 'refresh_token',
 }));
@@ -168,7 +169,7 @@ describe('google-auth.controller', () => {
       await controller.googleCallback(req, res as never);
 
       expect(res.redirect).toHaveBeenCalledWith(
-        expect.stringContaining('error=token_exchange_failed'),
+        expect.stringContaining('error=google_callback_failed'),
       );
     });
   });
