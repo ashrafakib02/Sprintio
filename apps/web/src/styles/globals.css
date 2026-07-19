@@ -164,7 +164,7 @@
   }
 }
 
-/* ─── Animation Utility Classes ───────────────────────────────────────────── */
+/* ─── Custom Utility Classes ─────────────────────────────────────────────── */
 
 @layer utilities {
   .animate-shimmer {
@@ -175,32 +175,6 @@
       hsl(var(--muted)) 75%
     );
     background-size: 200% 100%;
-  }
-
-  /* Stagger delays for child elements */
-  .stagger-1 {
-    animation-delay: 50ms;
-  }
-  .stagger-2 {
-    animation-delay: 100ms;
-  }
-  .stagger-3 {
-    animation-delay: 150ms;
-  }
-  .stagger-4 {
-    animation-delay: 200ms;
-  }
-  .stagger-5 {
-    animation-delay: 250ms;
-  }
-  .stagger-6 {
-    animation-delay: 300ms;
-  }
-  .stagger-7 {
-    animation-delay: 350ms;
-  }
-  .stagger-8 {
-    animation-delay: 400ms;
   }
 
   .sr-only {
@@ -225,6 +199,33 @@
     clip: auto;
     white-space: normal;
   }
+}
+
+/* ─── Stagger Delays (unlayered to override @theme animation shorthand) ── */
+
+.stagger-1 {
+  animation-delay: 50ms;
+}
+.stagger-2 {
+  animation-delay: 100ms;
+}
+.stagger-3 {
+  animation-delay: 150ms;
+}
+.stagger-4 {
+  animation-delay: 200ms;
+}
+.stagger-5 {
+  animation-delay: 250ms;
+}
+.stagger-6 {
+  animation-delay: 300ms;
+}
+.stagger-7 {
+  animation-delay: 350ms;
+}
+.stagger-8 {
+  animation-delay: 400ms;
 }
 
 /* ─── Reduced Motion ──────────────────────────────────────────────────────── */
