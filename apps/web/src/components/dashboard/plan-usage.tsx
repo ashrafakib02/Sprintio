@@ -28,7 +28,9 @@ export function PlanUsage({ usage = demoUsage, planName = 'Pro', onUpgrade }: Pl
   return (
     <Card className="animate-fade-in-up stagger-7">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg font-medium">Plan Usage</CardTitle>
+        <CardTitle headingLevel="h2" className="text-lg font-medium">
+          Plan Usage
+        </CardTitle>
         <span className="text-sm font-medium text-primary">{planName}</span>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -58,7 +60,12 @@ export function PlanUsage({ usage = demoUsage, planName = 'Pro', onUpgrade }: Pl
                   )}
                 </span>
               </div>
-              <Progress value={percent} variant={isNearLimit ? 'warning' : 'default'} size="sm" />
+              <Progress
+                value={percent}
+                variant={isNearLimit ? 'warning' : 'default'}
+                size="sm"
+                aria-label={`${item.label}: ${percent}%`}
+              />
             </div>
           );
         })}

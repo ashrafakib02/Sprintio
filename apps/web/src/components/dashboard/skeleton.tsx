@@ -2,7 +2,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export function DashboardSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" role="status" aria-label="Loading dashboard" aria-busy="true">
+      <span className="sr-only">Loading dashboard content...</span>
       {/* Greeting bar skeleton */}
       <Skeleton className="h-[120px] w-full rounded-lg animate-fade-in-up" />
 

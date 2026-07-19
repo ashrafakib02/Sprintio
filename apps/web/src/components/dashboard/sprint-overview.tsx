@@ -47,7 +47,9 @@ export function SprintOverview({ sprint = demoSprint }: SprintOverviewProps) {
     <Card className="flex h-full flex-col animate-fade-in-up stagger-4">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-medium">{sprint.name}</CardTitle>
+          <CardTitle headingLevel="h2" className="text-lg font-medium">
+            {sprint.name}
+          </CardTitle>
           <Badge variant={s.variant} className="animate-scale-in stagger-2">
             <StatusIcon className="mr-1 h-3 w-3" />
             {s.label}
@@ -67,7 +69,7 @@ export function SprintOverview({ sprint = demoSprint }: SprintOverviewProps) {
             <span className="text-muted-foreground">Progress</span>
             <span className="font-medium text-foreground">{sprint.progress}%</span>
           </div>
-          <Progress value={sprint.progress} />
+          <Progress value={sprint.progress} aria-label={`Sprint progress: ${sprint.progress}%`} />
         </div>
 
         {/* Days remaining */}

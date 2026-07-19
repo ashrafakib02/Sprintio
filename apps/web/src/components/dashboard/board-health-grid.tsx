@@ -65,17 +65,26 @@ export function BoardHealthGrid({ boards = demoBoards }: BoardHealthGridProps) {
   return (
     <Card className="animate-fade-in-up stagger-6">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-medium">Board Health</CardTitle>
+        <CardTitle headingLevel="h2" className="text-lg font-medium">
+          Board Health
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          role="group"
+          aria-label="Board health overview"
+        >
           {boards.map((board, i) => {
             return (
-              <div
+              <button
                 key={board.boardId}
+                type="button"
+                aria-label={`${board.name}, ${board.totalCards} cards`}
                 className={cn(
-                  'cursor-pointer rounded-lg border border-border p-4 transition-all duration-200',
+                  'rounded-lg border border-border p-4 text-left transition-all duration-200',
                   'hover:shadow-md hover:-translate-y-0.5 hover:border-primary/30',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary/30',
                   'animate-scale-in',
                   `stagger-${Math.min(i + 5, 8)}`,
                 )}
@@ -114,7 +123,7 @@ export function BoardHealthGrid({ boards = demoBoards }: BoardHealthGridProps) {
                     </div>
                   ))}
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>

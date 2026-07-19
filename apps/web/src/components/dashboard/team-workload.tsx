@@ -26,7 +26,9 @@ export function TeamWorkload({ members = demoMembers }: TeamWorkloadProps) {
   return (
     <Card className="animate-fade-in-up stagger-7">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-medium">Team Workload</CardTitle>
+        <CardTitle headingLevel="h2" className="text-lg font-medium">
+          Team Workload
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {members.map((member, i) => {
@@ -55,6 +57,7 @@ export function TeamWorkload({ members = demoMembers }: TeamWorkloadProps) {
                   value={percent}
                   variant={isOverloaded ? 'warning' : 'default'}
                   size="sm"
+                  aria-label={`${member.name} workload: ${percent}%`}
                 />
               </div>
             </div>

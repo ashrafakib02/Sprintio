@@ -31,7 +31,13 @@ function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" id="main-content">
+      {/* Skip-link target & live region for screen readers */}
+      <div aria-live="polite" className="sr-only">
+        {dashboard.tasks.length} tasks, {dashboard.taskSummary.dueToday} due today,{' '}
+        {dashboard.taskSummary.overdue} overdue
+      </div>
+
       {/* T1 — Greeting & Context Bar */}
       <GreetingBar
         userName={user?.name?.split(' ')[0] ?? 'there'}

@@ -31,10 +31,16 @@ export function BurndownChart({ data = demoData }: BurndownChartProps) {
   return (
     <Card className="animate-fade-in-up stagger-8">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-medium">Burndown</CardTitle>
+        <CardTitle headingLevel="h2" className="text-lg font-medium">
+          Burndown
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={240}>
+        <ResponsiveContainer
+          width="100%"
+          height={240}
+          aria-label="Burndown chart showing ideal vs actual story points"
+        >
           <LineChart data={data} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis

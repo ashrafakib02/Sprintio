@@ -67,7 +67,9 @@ export function ActivityFeed({ activities = demoActivity, onViewAll }: ActivityF
   return (
     <Card className="flex h-full flex-col animate-fade-in-up stagger-5">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg font-medium">Recent Activity</CardTitle>
+        <CardTitle headingLevel="h2" className="text-lg font-medium">
+          Recent Activity
+        </CardTitle>
         {onViewAll && (
           <Button
             variant="ghost"
@@ -81,13 +83,17 @@ export function ActivityFeed({ activities = demoActivity, onViewAll }: ActivityF
         )}
       </CardHeader>
       <CardContent className="flex-1 p-0">
-        <div className="divide-y divide-border">
+        <div className="divide-y divide-border" role="list" aria-label="Recent activity">
           {activities.map((item, i) => (
-            <div
+            <button
               key={item.id}
+              type="button"
+              role="listitem"
+              aria-label={`${item.actor.name} ${item.action} ${item.target}, ${item.timestamp}`}
               className={cn(
-                'flex cursor-pointer items-start gap-3 px-6 py-3 transition-all duration-200',
+                'flex w-full items-start gap-3 px-6 py-3 text-left transition-all duration-200',
                 'hover:bg-accent/50 hover:pl-8',
+                'focus-visible:outline-none focus-visible:bg-accent/50',
                 'animate-fade-in',
                 `stagger-${Math.min(i + 4, 8)}`,
               )}
@@ -108,7 +114,7 @@ export function ActivityFeed({ activities = demoActivity, onViewAll }: ActivityF
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground">{item.timestamp}</p>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </CardContent>

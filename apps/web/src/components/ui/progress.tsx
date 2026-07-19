@@ -27,6 +27,7 @@ function Progress({
   variant = 'default',
   size = 'default',
   showLabel = false,
+  'aria-label': ariaLabel,
   ...props
 }: ProgressProps) {
   const clampedValue = Math.min(100, Math.max(0, value));
@@ -45,6 +46,7 @@ function Progress({
         aria-valuenow={clampedValue}
         aria-valuemin={0}
         aria-valuemax={100}
+        aria-label={ariaLabel ?? 'Progress'}
       >
         <div
           className={cn(

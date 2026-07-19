@@ -26,7 +26,7 @@ export function GreetingBar({
             {greeting}, {userName}
           </h1>
           <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-            <Timer className="h-4 w-4" />
+            <Timer className="h-4 w-4" aria-hidden="true" />
             <span>
               {sprintName} ends in {daysRemaining} days
             </span>
@@ -34,12 +34,12 @@ export function GreetingBar({
         </div>
         <div className="flex items-center gap-3">
           <Badge variant="secondary" className="animate-fade-in stagger-2">
-            <Timer className="mr-1 h-3 w-3" />
+            <Timer className="mr-1 h-3 w-3" aria-hidden="true" />
             {daysRemaining}d left
           </Badge>
           <ThemeToggle />
           <Button size="sm" className="transition-transform hover:scale-105 active:scale-95">
-            <Plus className="mr-1 h-4 w-4" />
+            <Plus className="mr-1 h-4 w-4" aria-hidden="true" />
             New task
           </Button>
         </div>
