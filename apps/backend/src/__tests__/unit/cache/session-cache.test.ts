@@ -47,12 +47,7 @@ describe('session-cache', () => {
       await cacheSession('session-1', 'user-1', data, 60000);
 
       // Should call redis.set with session key, JSON, EX, and ttl
-      expect(redis.set).toHaveBeenCalledWith(
-        'session:session-1',
-        expect.any(String),
-        'EX',
-        60,
-      );
+      expect(redis.set).toHaveBeenCalledWith('session:session-1', expect.any(String), 'EX', 60);
 
       // Verify the JSON content
       const setCall = (redis.set as ReturnType<typeof vi.fn>).mock.calls[0];
@@ -67,20 +62,20 @@ describe('session-cache', () => {
     });
 
     it('should floor TTL to seconds', async () => {
-      await cacheSession('s1', 'u1', {
-        deviceId: null,
-        userAgent: null,
-        ipAddress: null,
-        expiresAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-      }, 9999); // 9.999 seconds → floored to 9
+      await cacheSession(
+        's1',
+        'u1',
+        {
+          deviceId: null,
+          userAgent: null,
+          ipAddress: null,
+          expiresAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+        },
+        9999,
+      ); // 9.999 seconds → floored to 9
 
-      expect(redis.set).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(String),
-        'EX',
-        9,
-      );
+      expect(redis.set).toHaveBeenCalledWith(expect.any(String), expect.any(String), 'EX', 9);
     });
   });
 

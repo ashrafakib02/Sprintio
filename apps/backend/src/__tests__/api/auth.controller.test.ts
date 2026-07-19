@@ -56,10 +56,7 @@ vi.mock('../../modules/auth/auth.validation.js', () => ({
 
 import * as authController from '../../modules/auth/auth.controller.js';
 import * as authService from '../../modules/auth/auth.service.js';
-import {
-  getRefreshTokenFromRequest,
-  getAccessTokenFromRequest,
-} from '../../utils/cookie.js';
+import { getRefreshTokenFromRequest, getAccessTokenFromRequest } from '../../utils/cookie.js';
 import { decodeToken } from '../../utils/jwt.js';
 import { registerSchema, loginSchema } from '../../modules/auth/auth.validation.js';
 import { createMockReq, createMockRes } from '../helpers.js';
@@ -72,7 +69,12 @@ describe('auth.controller', () => {
   describe('register', () => {
     it('should return 201 with user on successful registration', async () => {
       const req = createMockReq({
-        body: { name: 'Test', email: 'test@test.com', password: 'Password1!', confirmPassword: 'Password1!' },
+        body: {
+          name: 'Test',
+          email: 'test@test.com',
+          password: 'Password1!',
+          confirmPassword: 'Password1!',
+        },
         headers: { 'user-agent': 'Chrome/120' },
         socket: { remoteAddress: '127.0.0.1' },
       });
@@ -84,7 +86,16 @@ describe('auth.controller', () => {
       } as never);
 
       vi.mocked(authService.registerUser).mockResolvedValue({
-        user: { id: 'u1', name: 'Test', email: 'test@test.com', emailVerified: false, role: 'member', avatar: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        user: {
+          id: 'u1',
+          name: 'Test',
+          email: 'test@test.com',
+          emailVerified: false,
+          role: 'member',
+          avatar: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
         tokens: { accessToken: 'access', refreshToken: 'refresh' },
       });
 
@@ -113,7 +124,12 @@ describe('auth.controller', () => {
 
     it('should return 409 when email already exists', async () => {
       const req = createMockReq({
-        body: { name: 'Test', email: 'existing@test.com', password: 'Password1!', confirmPassword: 'Password1!' },
+        body: {
+          name: 'Test',
+          email: 'existing@test.com',
+          password: 'Password1!',
+          confirmPassword: 'Password1!',
+        },
       });
       const res = createMockRes();
 
@@ -133,7 +149,12 @@ describe('auth.controller', () => {
 
     it('should return 500 on unexpected errors', async () => {
       const req = createMockReq({
-        body: { name: 'Test', email: 'test@test.com', password: 'Password1!', confirmPassword: 'Password1!' },
+        body: {
+          name: 'Test',
+          email: 'test@test.com',
+          password: 'Password1!',
+          confirmPassword: 'Password1!',
+        },
       });
       const res = createMockRes();
 
@@ -163,7 +184,16 @@ describe('auth.controller', () => {
       } as never);
 
       vi.mocked(authService.loginUser).mockResolvedValue({
-        user: { id: 'u1', name: 'Test', email: 'test@test.com', emailVerified: true, role: 'member', avatar: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        user: {
+          id: 'u1',
+          name: 'Test',
+          email: 'test@test.com',
+          emailVerified: true,
+          role: 'member',
+          avatar: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
         tokens: { accessToken: 'access', refreshToken: 'refresh' },
       });
 
@@ -185,9 +215,7 @@ describe('auth.controller', () => {
         data: { email: 'test@test.com', password: 'WrongPass1!' },
       } as never);
 
-      vi.mocked(authService.loginUser).mockRejectedValue(
-        new Error('Invalid email or password'),
-      );
+      vi.mocked(authService.loginUser).mockRejectedValue(new Error('Invalid email or password'));
 
       await authController.login(req, res as never);
 

@@ -263,9 +263,9 @@ describe('auth.service', () => {
     it('should throw when user not found', async () => {
       (db.select as ReturnType<typeof vi.fn>).mockReturnValue(mockDbChain([]));
 
-      await expect(
-        authService.loginUser('nobody@test.com', 'Password123!'),
-      ).rejects.toThrow('Invalid email or password');
+      await expect(authService.loginUser('nobody@test.com', 'Password123!')).rejects.toThrow(
+        'Invalid email or password',
+      );
     });
 
     it('should throw for OAuth-only users (no password)', async () => {
@@ -279,9 +279,9 @@ describe('auth.service', () => {
         ]),
       );
 
-      await expect(
-        authService.loginUser('test@test.com', 'Password123!'),
-      ).rejects.toThrow('Google Sign-In');
+      await expect(authService.loginUser('test@test.com', 'Password123!')).rejects.toThrow(
+        'Google Sign-In',
+      );
     });
 
     it('should throw for wrong password', async () => {
@@ -298,9 +298,9 @@ describe('auth.service', () => {
         ]),
       );
 
-      await expect(
-        authService.loginUser('test@test.com', 'WrongPassword123!'),
-      ).rejects.toThrow('Invalid email or password');
+      await expect(authService.loginUser('test@test.com', 'WrongPassword123!')).rejects.toThrow(
+        'Invalid email or password',
+      );
     });
 
     it('should throw for unverified email', async () => {
@@ -317,9 +317,9 @@ describe('auth.service', () => {
         ]),
       );
 
-      await expect(
-        authService.loginUser('test@test.com', 'Password123!'),
-      ).rejects.toThrow('verify your email');
+      await expect(authService.loginUser('test@test.com', 'Password123!')).rejects.toThrow(
+        'verify your email',
+      );
     });
   });
 
@@ -374,9 +374,8 @@ describe('auth.service', () => {
         deviceId: 'device-1',
       });
 
-      const { isRefreshTokenRevoked, revokeAllUserTokens } = await import(
-        '../../cache/token-blacklist.js'
-      );
+      const { isRefreshTokenRevoked, revokeAllUserTokens } =
+        await import('../../cache/token-blacklist.js');
       vi.mocked(isRefreshTokenRevoked).mockResolvedValue(true);
       vi.mocked(revokeAllUserTokens).mockResolvedValue(undefined);
 
@@ -430,9 +429,8 @@ describe('auth.service', () => {
 
       await authService.logoutUser(refreshToken, 'access-jti', new Date(Date.now() + 900000));
 
-      const { revokeRefreshToken, revokeAccessToken } = await import(
-        '../../cache/token-blacklist.js'
-      );
+      const { revokeRefreshToken, revokeAccessToken } =
+        await import('../../cache/token-blacklist.js');
       expect(revokeRefreshToken).toHaveBeenCalled();
       expect(revokeAccessToken).toHaveBeenCalledWith('access-jti', expect.any(Date));
     });

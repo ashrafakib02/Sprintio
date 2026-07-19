@@ -128,9 +128,7 @@ describe('jwt utils', () => {
     it('should return null for a token signed with wrong key', async () => {
       // Generate a token with the wrong private key
       const { SignJWT } = await import('jose');
-      const wrongKey = await import('jose').then((j) =>
-        j.importPKCS8(wrongPrivatePem, 'ES256'),
-      );
+      const wrongKey = await import('jose').then((j) => j.importPKCS8(wrongPrivatePem, 'ES256'));
 
       const wrongToken = await new SignJWT({
         userId: 'user-123',
@@ -187,10 +185,7 @@ describe('jwt utils', () => {
 
     it('should return null for a token signed with wrong key', async () => {
       const { SignJWT, importPKCS8 } = await import('jose');
-      const wrongKey = await importPKCS8(
-        wrongPrivatePem,
-        'ES256',
-      );
+      const wrongKey = await importPKCS8(wrongPrivatePem, 'ES256');
 
       const wrongToken = await new SignJWT({
         userId: 'user-123',

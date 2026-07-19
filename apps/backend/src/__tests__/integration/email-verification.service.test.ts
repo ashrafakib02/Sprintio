@@ -80,9 +80,7 @@ describe('email-verification.service', () => {
       const token = await generateVerificationToken('user-1');
 
       expect(typeof token).toBe('string');
-      expect(token).toMatch(
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
-      );
+      expect(token).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
 
       // Should delete old tokens and insert new one
       expect(db.delete).toHaveBeenCalled();
@@ -93,7 +91,9 @@ describe('email-verification.service', () => {
       const token = await generateVerificationToken('user-1');
       const expectedHash = hashToken(token);
 
-      const valuesCall = (db.values as ReturnType<typeof vi.fn>).mock.calls[0];
+      // db.insert().values() — insert() returns db mock via mockReturnThis(), so values is on db
+      const valuesFn = (db as unknown as Record<string, ReturnType<typeof vi.fn>>).values;
+      const valuesCall = valuesFn.mock.calls[0];
       const values = valuesCall[0]; // first argument to .values()
       expect(values.tokenHash).toBe(expectedHash);
     });
@@ -171,9 +171,7 @@ describe('email-verification.service', () => {
   describe('resendVerification', () => {
     it('should send verification email for unverified user', async () => {
       (db.select as ReturnType<typeof vi.fn>).mockReturnValue(
-        mockDbChain([
-          { id: 'user-1', email: 'test@test.com', emailVerified: false },
-        ]),
+        mockDbChain([{ id: 'user-1', email: 'test@test.com', emailVerified: false }]),
       );
 
       const result = await resendVerification('test@test.com');
@@ -195,9 +193,7 @@ describe('email-verification.service', () => {
 
     it('should fail when email is already verified', async () => {
       (db.select as ReturnType<typeof vi.fn>).mockReturnValue(
-        mockDbChain([
-          { id: 'user-1', email: 'test@test.com', emailVerified: true },
-        ]),
+        mockDbChain([{ id: 'user-1', email: 'test@test.com', emailVerified: true }]),
       );
 
       const result = await resendVerification('test@test.com');

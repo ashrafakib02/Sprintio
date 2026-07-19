@@ -33,7 +33,7 @@ describe('cookie utils', () => {
       );
       expect(header).toBeDefined();
 
-      const cookieValue = header[1] as string[];
+      const cookieValue = header![1] as string[];
       const accessCookie = cookieValue.find((c: string) => c.startsWith('access_token='));
       expect(accessCookie).toBeDefined();
       expect(accessCookie).toContain('access_token=test-access-token');
@@ -52,7 +52,7 @@ describe('cookie utils', () => {
       const header = (res.setHeader as ReturnType<typeof vi.fn>).mock.calls.find(
         (call: unknown[]) => call[0] === 'Set-Cookie',
       );
-      const cookieValue = (header[1] as string[]).find((c: string) =>
+      const cookieValue = (header![1] as string[]).find((c: string) =>
         c.startsWith('access_token='),
       );
       expect(cookieValue).not.toContain('Domain=');
@@ -69,7 +69,7 @@ describe('cookie utils', () => {
       );
       expect(header).toBeDefined();
 
-      const cookieValue = header[1] as string[];
+      const cookieValue = header![1] as string[];
       const refreshCookie = cookieValue.find((c: string) => c.startsWith('refresh_token='));
       expect(refreshCookie).toBeDefined();
       expect(refreshCookie).toContain('refresh_token=test-refresh-token');
@@ -90,7 +90,7 @@ describe('cookie utils', () => {
       );
       expect(header).toBeDefined();
 
-      const cookieValue = header[1] as string[];
+      const cookieValue = header![1] as string[];
       const deviceCookie = cookieValue.find((c: string) => c.startsWith('device_id='));
       expect(deviceCookie).toBeDefined();
       expect(deviceCookie).toContain('device_id=my-device-uuid');
@@ -161,9 +161,7 @@ describe('cookie utils', () => {
       clearAuthCookies(res as never);
 
       const setHeaderCalls = (res.setHeader as ReturnType<typeof vi.fn>).mock.calls;
-      const cookieCalls = setHeaderCalls.filter(
-        (call: unknown[]) => call[0] === 'Set-Cookie',
-      );
+      const cookieCalls = setHeaderCalls.filter((call: unknown[]) => call[0] === 'Set-Cookie');
 
       // clearAuthCookies calls appendCookie 3 times (access, refresh, device)
       expect(cookieCalls).toHaveLength(3);
@@ -191,7 +189,7 @@ describe('cookie utils', () => {
       const cookieCall = (res.setHeader as ReturnType<typeof vi.fn>).mock.calls.find(
         (call: unknown[]) => call[0] === 'Set-Cookie',
       );
-      const values = cookieCall[1] as string[];
+      const values = cookieCall![1] as string[];
       expect(values).toHaveLength(2);
       expect(values[0]).toBe('existing-cookie=1');
       expect(values[1]).toContain('access_token=token');

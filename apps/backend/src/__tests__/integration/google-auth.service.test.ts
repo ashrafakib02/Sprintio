@@ -367,9 +367,7 @@ describe('google-auth.service', () => {
     it('should unlink Google account when user has a password', async () => {
       // Mock: user has passwordHash
       (db.select as ReturnType<typeof vi.fn>)
-        .mockReturnValueOnce(
-          mockDbChain([{ id: 'user-1', passwordHash: 'some-hash' }]),
-        )
+        .mockReturnValueOnce(mockDbChain([{ id: 'user-1', passwordHash: 'some-hash' }]))
         .mockReturnValueOnce(mockDbChain([])) // other OAuth providers check
         .mockReturnValueOnce(mockDbChain([])); // getLinkedProviders after unlink
 
@@ -382,21 +380,15 @@ describe('google-auth.service', () => {
 
     it('should prevent unlink when user has no password and no other providers', async () => {
       (db.select as ReturnType<typeof vi.fn>)
-        .mockReturnValueOnce(
-          mockDbChain([{ id: 'user-1', passwordHash: null }]),
-        )
+        .mockReturnValueOnce(mockDbChain([{ id: 'user-1', passwordHash: null }]))
         .mockReturnValueOnce(mockDbChain([])); // no other providers
 
-      await expect(unlinkGoogleAccount('user-1')).rejects.toThrow(
-        'Cannot unlink Google account',
-      );
+      await expect(unlinkGoogleAccount('user-1')).rejects.toThrow('Cannot unlink Google account');
     });
 
     it('should allow unlink when user has another OAuth provider', async () => {
       (db.select as ReturnType<typeof vi.fn>)
-        .mockReturnValueOnce(
-          mockDbChain([{ id: 'user-1', passwordHash: null }]),
-        )
+        .mockReturnValueOnce(mockDbChain([{ id: 'user-1', passwordHash: null }]))
         .mockReturnValueOnce(
           mockDbChain([{ provider: 'github' }]), // has github provider
         )

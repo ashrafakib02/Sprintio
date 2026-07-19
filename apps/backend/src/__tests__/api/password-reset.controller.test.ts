@@ -16,7 +16,10 @@ vi.mock('../../modules/auth/password-reset.validation.js', () => ({
 
 import * as controller from '../../modules/auth/password-reset.controller.js';
 import * as service from '../../modules/auth/password-reset.service.js';
-import { forgotPasswordSchema, resetPasswordSchema } from '../../modules/auth/password-reset.validation.js';
+import {
+  forgotPasswordSchema,
+  resetPasswordSchema,
+} from '../../modules/auth/password-reset.validation.js';
 import { createMockReq, createMockRes } from '../helpers.js';
 
 describe('password-reset.controller', () => {

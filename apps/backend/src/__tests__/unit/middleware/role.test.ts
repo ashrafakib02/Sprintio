@@ -87,7 +87,8 @@ describe('requireRole middleware', () => {
     await middleware(req, res as never, next);
 
     expect(next).toHaveBeenCalledWith();
-    expect((req as Record<string, unknown>).userRole).toBe('admin');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect((req as any).userRole).toBe('admin');
   });
 
   it('should allow multiple accepted roles', async () => {

@@ -1,6 +1,12 @@
+import { resolve } from 'path';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@sprintio/shared': resolve(__dirname, 'packages/shared/src'),
+    },
+  },
   test: {
     globals: true,
     environment: 'node',

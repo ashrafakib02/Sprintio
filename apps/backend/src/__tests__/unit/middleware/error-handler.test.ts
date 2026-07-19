@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AppError } from '@sprintio/shared';
 import { errorHandler } from '../../../middleware/error-handler.js';
 import { createMockReq, createMockRes, createMockNext } from '../../helpers.js';
 
 describe('errorHandler middleware', () => {
-  let consoleErrorSpy: ReturnType<typeof vi.fn>;
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

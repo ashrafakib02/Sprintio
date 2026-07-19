@@ -49,9 +49,7 @@ describe('google-auth.controller', () => {
 
       await controller.googleLogin(req, res as never);
 
-      expect(res.redirect).toHaveBeenCalledWith(
-        expect.stringContaining('accounts.google.com'),
-      );
+      expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('accounts.google.com'));
       expect(googleAuthService.getGoogleAuthUrl).toHaveBeenCalledWith(expect.any(String));
     });
 
@@ -92,15 +90,22 @@ describe('google-auth.controller', () => {
       const res = createMockRes();
 
       vi.mocked(googleAuthService.handleGoogleCallback).mockResolvedValue({
-        user: { id: 'u1', name: 'Test', email: 'test@test.com', emailVerified: true, role: 'member', avatar: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        user: {
+          id: 'u1',
+          name: 'Test',
+          email: 'test@test.com',
+          emailVerified: true,
+          role: 'member',
+          avatar: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
         tokens: { accessToken: 'access', refreshToken: 'refresh' },
       });
 
       await controller.googleCallback(req, res as never);
 
-      expect(res.redirect).toHaveBeenCalledWith(
-        expect.stringContaining('success=true'),
-      );
+      expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('success=true'));
     });
 
     it('should redirect with error when Google returns an error', async () => {
@@ -111,9 +116,7 @@ describe('google-auth.controller', () => {
 
       await controller.googleCallback(req, res as never);
 
-      expect(res.redirect).toHaveBeenCalledWith(
-        expect.stringContaining('error=access_denied'),
-      );
+      expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('error=access_denied'));
     });
 
     it('should redirect with error when no code is provided', async () => {
@@ -124,9 +127,7 @@ describe('google-auth.controller', () => {
 
       await controller.googleCallback(req, res as never);
 
-      expect(res.redirect).toHaveBeenCalledWith(
-        expect.stringContaining('error=no_code_provided'),
-      );
+      expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('error=no_code_provided'));
     });
 
     it('should redirect with error when state is invalid', async () => {
@@ -138,9 +139,7 @@ describe('google-auth.controller', () => {
 
       await controller.googleCallback(req, res as never);
 
-      expect(res.redirect).toHaveBeenCalledWith(
-        expect.stringContaining('error=invalid_state'),
-      );
+      expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('error=invalid_state'));
     });
 
     it('should redirect with error when state cookie is missing', async () => {
@@ -152,9 +151,7 @@ describe('google-auth.controller', () => {
 
       await controller.googleCallback(req, res as never);
 
-      expect(res.redirect).toHaveBeenCalledWith(
-        expect.stringContaining('error=invalid_state'),
-      );
+      expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('error=invalid_state'));
     });
 
     it('should redirect with error when service throws', async () => {
@@ -328,9 +325,7 @@ describe('google-auth.controller', () => {
       const req = createMockReq({ user: { userId: 'user-1' } });
       const res = createMockRes();
 
-      vi.mocked(googleAuthService.getLinkedProviders).mockRejectedValue(
-        new Error('DB error'),
-      );
+      vi.mocked(googleAuthService.getLinkedProviders).mockRejectedValue(new Error('DB error'));
 
       await controller.googleProviders(req, res as never);
 

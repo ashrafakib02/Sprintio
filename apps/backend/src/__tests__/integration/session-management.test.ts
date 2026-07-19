@@ -111,7 +111,6 @@ import { db } from '../../config/database.js';
 import { listUserSessions, revokeSession } from '../../modules/auth/auth.service.js';
 import { invalidateSession } from '../../cache/session-cache.js';
 
-
 describe('session management', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -234,9 +233,9 @@ describe('session management', () => {
       const sessionChain = {
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([
-          { id: 'session-2', userId: 'user-1', deviceId: 'device-other' },
-        ]),
+        limit: vi
+          .fn()
+          .mockResolvedValue([{ id: 'session-2', userId: 'user-1', deviceId: 'device-other' }]),
         select: vi.fn().mockReturnThis(),
       };
 
@@ -244,9 +243,7 @@ describe('session management', () => {
       const tokenChain = {
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([
-          { id: 'rt-2', sessionId: 'session-2', expiresAt: now },
-        ]),
+        limit: vi.fn().mockResolvedValue([{ id: 'rt-2', sessionId: 'session-2', expiresAt: now }]),
         select: vi.fn().mockReturnThis(),
       };
 
@@ -280,9 +277,9 @@ describe('session management', () => {
       const sessionChain = {
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([
-          { id: 'session-1', userId: 'user-1', deviceId: 'device-current' },
-        ]),
+        limit: vi
+          .fn()
+          .mockResolvedValue([{ id: 'session-1', userId: 'user-1', deviceId: 'device-current' }]),
         select: vi.fn().mockReturnThis(),
       };
       (db.select as ReturnType<typeof vi.fn>).mockReturnValue(sessionChain);

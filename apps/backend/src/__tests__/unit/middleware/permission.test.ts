@@ -115,7 +115,8 @@ describe('requirePermission middleware', () => {
 
   it('should skip DB lookup when role is already cached on req.userRole', async () => {
     const req = createMockReq({ user: { userId: 'user-1' } });
-    (req as Record<string, unknown>).userRole = 'owner';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (req as any).userRole = 'owner';
     const res = createMockRes();
     const next = createMockNext();
 
