@@ -102,7 +102,7 @@ export function BoardHealthGrid({ boards = demoBoards }: BoardHealthGridProps) {
                         'h-full transition-all duration-500',
                         colorMap[col.colorToken] ?? 'bg-muted-foreground',
                       )}
-                      style={{ width: `${(col.count / board.totalCards) * 100}%` }}
+                      style={{ width: `${board.totalCards > 0 ? (col.count / board.totalCards) * 100 : 0}%` }}
                       title={`${col.name}: ${col.count}`}
                     />
                   ))}

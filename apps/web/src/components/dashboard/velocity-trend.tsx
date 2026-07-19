@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { VelocityPoint } from '@/types/dashboard';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
 const demoData = [
@@ -10,7 +11,7 @@ const demoData = [
 ];
 
 export interface VelocityTrendProps {
-  data?: typeof demoData;
+  data?: VelocityPoint[];
 }
 
 export function VelocityTrend({ data = demoData }: VelocityTrendProps) {

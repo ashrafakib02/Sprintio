@@ -12,7 +12,7 @@ export interface ActivityItem {
   timestamp: string;
 }
 
-const actionColors: Record<string, string> = {
+const actionColors: Record<'completed' | 'started' | 'created' | 'commented' | 'updated', string> = {
   completed: 'text-emerald-600 dark:text-emerald-400',
   started: 'text-blue-600 dark:text-blue-400',
   created: 'text-primary',
@@ -91,8 +91,8 @@ export function ActivityFeed({ activities = demoActivity, onViewAll }: ActivityF
               role="listitem"
               aria-label={`${item.actor.name} ${item.action} ${item.target}, ${item.timestamp}`}
               className={cn(
-                'flex w-full items-start gap-3 px-6 py-3 text-left transition-all duration-200',
-                'hover:bg-accent/50 hover:pl-8',
+                'flex w-full items-start gap-3 px-6 py-3 text-left transition-colors duration-200',
+                'hover:bg-accent/50',
                 'focus-visible:outline-none focus-visible:bg-accent/50',
                 'animate-fade-in',
                 `stagger-${Math.min(i + 4, 8)}`,
@@ -105,7 +105,7 @@ export function ActivityFeed({ activities = demoActivity, onViewAll }: ActivityF
                   <span
                     className={cn(
                       'font-medium',
-                      actionColors[item.action] ?? 'text-muted-foreground',
+                      actionColors[item.action as keyof typeof actionColors] ?? 'text-muted-foreground',
                     )}
                   >
                     {item.action}

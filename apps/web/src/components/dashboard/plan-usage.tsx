@@ -35,7 +35,7 @@ export function PlanUsage({ usage = demoUsage, planName = 'Pro', onUpgrade }: Pl
       </CardHeader>
       <CardContent className="space-y-4">
         {usage.map((item, i) => {
-          const percent = Math.min(Math.round((item.current / item.limit) * 100), 100);
+          const percent = item.limit > 0 ? Math.min(Math.round((item.current / item.limit) * 100), 100) : 0;
           const isNearLimit = percent >= 80;
           return (
             <div

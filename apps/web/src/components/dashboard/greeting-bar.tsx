@@ -17,6 +17,7 @@ export function GreetingBar({
   greeting = 'Good morning',
   sprintName = 'Sprint 3',
   daysRemaining = 4,
+  onNewTask,
 }: GreetingBarProps) {
   return (
     <Card className="animate-fade-in-up">
@@ -38,7 +39,7 @@ export function GreetingBar({
             {daysRemaining}d left
           </Badge>
           <ThemeToggle />
-          <Button size="sm" className="transition-transform hover:scale-105 active:scale-95">
+          <Button size="sm" className="transition-transform hover:scale-105 active:scale-95" onClick={onNewTask}>
             <Plus className="mr-1 h-4 w-4" aria-hidden="true" />
             New task
           </Button>

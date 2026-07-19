@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { useAuth } from '@/hooks/use-auth';
 import { useDashboardState } from '@/hooks/use-dashboard-state';
@@ -25,6 +26,59 @@ function DashboardPage() {
   const isAdmin = user?.role === 'owner' || user?.role === 'admin';
   const isOwner = user?.role === 'owner';
 
+  const summaryItems = useMemo(
+    () => [
+      { label: 'Assigned', count: dashboard.taskSummary.assigned, icon: ClipboardList },
+      {
+        label: 'Due today',
+        count: dashboard.taskSummary.dueToday,
+        icon: CalendarClock,
+        color: 'text-primary',
+      },
+      { label: 'This week', count: dashboard.taskSummary.dueThisWeek, icon: CalendarRange },
+      {
+        label: 'Overdue',
+        count: dashboard.taskSummary.overdue,
+        icon: AlertTriangle,
+        color: 'text-destructive',
+      },
+    ],
+    [dashboard.taskSummary.assigned, dashboard.taskSummary.dueToday, dashboard.taskSummary.dueThisWeek, dashboard.taskSummary.overdue],
+  );
+
+  const mappedTasks = useMemo(
+    () =>
+      dashboard.tasks.map((t) => ({
+        id: t.id,
+        title: t.title,
+        priority: t.priority,
+        dueDate: t.dueDate
+          ? new Date(t.dueDate).toLocaleDateString('en-US', { weekday: 'short' })
+          : undefined,
+        assignee: t.assignee
+          ? { name: t.assignee.name, avatar: t.assignee.avatar }
+          : undefined,
+      })),
+    [dashboard.tasks],
+  );
+
+  const sprintProp = useMemo(
+    () =>
+      dashboard.sprint
+        ? {
+            name: dashboard.sprint.name,
+            goal: dashboard.sprint.goal ?? undefined,
+            daysRemaining: dashboard.sprint.daysRemaining,
+            progress: dashboard.sprint.progress,
+            status: dashboard.sprint.health,
+            completedToday: dashboard.sprint.completedToday,
+            inProgress: dashboard.sprint.inProgress,
+            blocked: dashboard.sprint.blocked,
+          }
+        : null,
+    [dashboard.sprint],
+  );
+
   // Show skeleton while initial data loads
   if (dashboard.isLoading.tasks && dashboard.isLoading.sprint) {
     return <DashboardSkeleton />;
@@ -47,55 +101,21 @@ function DashboardPage() {
 
       {/* T1 — Task Summary Cards */}
       <TaskSummaryCards
-        summaries={[
-          { label: 'Assigned', count: dashboard.taskSummary.assigned, icon: ClipboardList },
-          {
-            label: 'Due today',
-            count: dashboard.taskSummary.dueToday,
-            icon: CalendarClock,
-            color: 'text-primary',
-          },
-          { label: 'This week', count: dashboard.taskSummary.dueThisWeek, icon: CalendarRange },
-          {
-            label: 'Overdue',
-            count: dashboard.taskSummary.overdue,
-            icon: AlertTriangle,
-            color: 'text-destructive',
-          },
-        ]}
+        summaries={summaryItems}
       />
 
       {/* T2 — My Tasks + Sprint Overview */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <MyTaskList
-            tasks={dashboard.tasks.map((t) => ({
-              id: t.id,
-              title: t.title,
-              priority: t.priority,
-              dueDate: t.dueDate
-                ? new Date(t.dueDate).toLocaleDateString('en-US', { weekday: 'short' })
-                : undefined,
-              assignee: t.assignee
-                ? { name: t.assignee.name, avatar: t.assignee.avatar }
-                : undefined,
-            }))}
+            tasks={mappedTasks}
             total={dashboard.allTasks.length}
           />
         </div>
         <div>
-          {dashboard.sprint && (
+          {sprintProp && (
             <SprintOverview
-              sprint={{
-                name: dashboard.sprint.name,
-                goal: dashboard.sprint.goal ?? undefined,
-                daysRemaining: dashboard.sprint.daysRemaining,
-                progress: dashboard.sprint.progress,
-                status: dashboard.sprint.health,
-                completedToday: dashboard.sprint.completedToday,
-                inProgress: dashboard.sprint.inProgress,
-                blocked: dashboard.sprint.blocked,
-              }}
+              sprint={sprintProp}
             />
           )}
         </div>

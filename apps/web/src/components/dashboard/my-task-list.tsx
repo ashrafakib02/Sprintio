@@ -81,8 +81,8 @@ export function MyTaskList({ tasks = demoTasks, total = 12, onViewAll }: MyTaskL
                 role="listitem"
                 aria-label={`${task.title}, ${p.label} priority${task.dueDate ? `, due ${task.dueDate}` : ''}`}
                 className={cn(
-                  'flex w-full items-center gap-3 px-6 py-3 text-left transition-all duration-200',
-                  'hover:bg-accent/50 hover:pl-8',
+                  'flex w-full items-center gap-3 px-6 py-3 text-left transition-colors duration-200',
+                  'hover:bg-accent/50',
                   'focus-visible:outline-none focus-visible:bg-accent/50',
                   'animate-fade-in',
                   `stagger-${Math.min(i + 3, 8)}`,

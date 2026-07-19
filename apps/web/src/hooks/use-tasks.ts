@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { mockTasks } from '@/lib/mock-data';
 import type { TaskWithAssignee, DashboardFilters } from '@/types/dashboard';
+const EMPTY_ARRAY: never[] = Object.freeze([]) as never[];
 
 export const TASKS_QUERY_KEY = ['dashboard', 'tasks'] as const;
 
@@ -21,7 +22,7 @@ export function useTasks(filters?: Partial<DashboardFilters>) {
   });
 
   const filteredTasks = useMemo(() => {
-    if (!query.data) return [];
+    if (!query.data) return EMPTY_ARRAY;
     let tasks = query.data;
 
     if (filters?.priority && filters.priority.length > 0) {
@@ -75,7 +76,7 @@ export function useTasks(filters?: Partial<DashboardFilters>) {
 
   return {
     ...query,
-    tasks: query.data ?? [],
+    tasks: query.data ?? EMPTY_ARRAY,
     filteredTasks,
     taskSummary,
   };

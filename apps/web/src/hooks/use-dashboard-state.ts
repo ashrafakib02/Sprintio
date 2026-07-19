@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
+const EMPTY_ARRAY: never[] = Object.freeze([]) as never[];
 import { useTasks } from './use-tasks';
 import { useActiveSprint } from './use-sprints';
 import { useBoards } from './use-boards';
@@ -45,7 +46,7 @@ export function useDashboardState() {
   // ─── Derived State ───────────────────────────────────────────────────
   const selectedTask = useMemo(() => {
     if (!selectedTaskId) return null;
-    return tasksQuery.tasks.find((t) => t.id) ?? null;
+    return tasksQuery.tasks.find((t) => t.id === selectedTaskId) ?? null;
   }, [selectedTaskId, tasksQuery.tasks]);
 
   // ─── Actions ─────────────────────────────────────────────────────────
@@ -81,12 +82,12 @@ export function useDashboardState() {
     allTasks: tasksQuery.tasks,
     taskSummary: tasksQuery.taskSummary,
     sprint: sprintQuery.data ?? null,
-    boards: boardsQuery.data ?? [],
-    activity: activityQuery.data ?? [],
+    boards: boardsQuery.data ?? EMPTY_ARRAY,
+    activity: activityQuery.data ?? EMPTY_ARRAY,
     workspace: workspaceQuery.data ?? null,
-    burndown: burndownQuery.data ?? [],
-    velocity: velocityQuery.data ?? [],
-    teamWorkload: teamWorkloadQuery.data ?? [],
+    burndown: burndownQuery.data ?? EMPTY_ARRAY,
+    velocity: velocityQuery.data ?? EMPTY_ARRAY,
+    teamWorkload: teamWorkloadQuery.data ?? EMPTY_ARRAY,
 
     // Loading
     isLoading: {

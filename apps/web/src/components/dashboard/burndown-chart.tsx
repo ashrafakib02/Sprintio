@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { BurndownPoint } from '@/types/dashboard';
 import {
   ResponsiveContainer,
   LineChart,
@@ -24,7 +25,7 @@ const demoData = [
 ];
 
 export interface BurndownChartProps {
-  data?: typeof demoData;
+  data?: BurndownPoint[];
 }
 
 export function BurndownChart({ data = demoData }: BurndownChartProps) {
