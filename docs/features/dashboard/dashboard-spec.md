@@ -195,9 +195,9 @@ User opens on phone
 
 ### Widget Sizing Rules
 
-- **Desktop (>1280px):** 12-column grid, 24px gutters, max-width 1280px centered
-- **Tablet (768–1280px):** 8-column grid, 16px gutters, full-width with 16px padding
-- **Mobile (<768px):** Single column, 16px horizontal padding, stacked widgets
+- **Desktop (>1280px):** 12-column CSS Grid (`grid-cols-12`), `gap-6` (24px) gutters, `max-w-7xl mx-auto` centered
+- **Tablet (768–1280px):** 8-column CSS Grid (`grid-cols-8`), `gap-4` (16px) gutters, full-width with `p-4`
+- **Mobile (<768px):** Single column (`grid-cols-1`), `px-4` horizontal padding, stacked widgets
 
 ### Card Dimensions
 
@@ -270,13 +270,13 @@ User opens on phone
 
 ### Desktop Grid Specification
 
-- **Grid system:** 12-column CSS Grid
+- **Grid system:** 12-column CSS Grid (`grid grid-cols-12 gap-6`)
 - **Column width:** Flexible (min 60px, max 120px)
-- **Gutter:** 24px
-- **Page padding:** 32px (left/right of main content)
-- **Max content width:** 1280px (centered)
-- **Sidebar:** Fixed 240px, does not scroll with content
-- **Main content:** Scrollable, full height of viewport minus top bar (if any)
+- **Gutter:** `gap-6` (24px) — consistent with 8px spacing scale
+- **Page padding:** `px-8` (32px) left/right of main content
+- **Max content width:** `max-w-7xl` (1280px, `mx-auto`)
+- **Sidebar:** Fixed `w-60` (240px), does not scroll with content
+- **Main content:** `overflow-auto`, `h-dvh` minus top bar height
 
 ---
 
@@ -334,34 +334,38 @@ User opens on phone
 
 ### Mobile Top Bar
 
-- **Height:** 56px
-- **Background:** `bg-background` with `border-b`
+- **Height:** `h-14` (56px)
+- **Background:** `bg-background` with `border-b border-border`
 - **Left:** Hamburger menu (opens sidebar as overlay drawer)
-- **Center:** "Sprintio" brand text
-- **Right:** Notification bell with unread badge
+- **Center:** "Sprintio" brand text (`text-lg font-semibold text-foreground`)
+- **Right:** Notification bell (`Bell` Lucide icon) with unread badge (`bg-destructive text-destructive-foreground rounded-full text-xs`)
 
 ### Mobile Bottom Navigation
 
-- **Height:** 64px (48px icons + 16px safe area)
+- **Height:** `h-16` (64px, includes safe area padding)
+- **Background:** `bg-background` with `border-t border-border`
 - **Items (5 max):**
-  1. 📋 My Tasks (link to /tasks)
-  2. 📊 Dashboard (current)
-  3. 📁 Boards (link to /boards)
-  4. 👤 Profile (link to /settings)
-  5. ⚙️ More (opens action sheet)
-- **Active state:** Filled icon + primary color + label
-- **Inactive state:** Outline icon + muted-foreground + label
-- **Touch target:** Minimum 44×44pt
+  1. My Tasks (link to /tasks)
+  2. Dashboard (current, link to /dashboard)
+  3. Boards (link to /boards)
+  4. Profile (link to /settings)
+  5. More (opens action sheet)
+- **Active state:** `text-primary font-medium` + filled Lucide icon + label text
+- **Inactive state:** `text-muted-foreground` + outline Lucide icon + label text
+- **Touch target:** Minimum `min-h-11 min-w-11` (44px) per Apple HIG
+- **Safe area:** `pb-safe` or `pb-[env(safe-area-inset-bottom)]`
 
 ### Mobile Sidebar (Drawer)
 
-- **Trigger:** Hamburger menu icon in top bar
+- **Trigger:** Hamburger menu icon in top bar (`Menu` Lucide icon)
 - **Behavior:** Slides in from left, overlays content
 - **Backdrop:** `bg-black/50` with click-to-close
-- **Width:** 280px max (85% viewport)
+- **Width:** `w-72` (280px max, 85% viewport)
+- **Background:** `bg-background` with `shadow-lg`
 - **Content:** Same nav items as desktop sidebar
-- **Close:** Swipe left, tap backdrop, or tap close icon
-- **Scroll:** Independent scroll within drawer
+- **Close:** Swipe left, tap backdrop, or tap `X` close icon
+- **Scroll:** `overflow-y-auto` within drawer
+- **Animation:** `transition-transform duration-200 ease-out`
 
 ---
 
@@ -369,28 +373,28 @@ User opens on phone
 
 ### Breakpoints
 
-| Name        | Range       | Layout                                        |
-| ----------- | ----------- | --------------------------------------------- |
-| **Mobile**  | <768px      | Single column, bottom nav, drawer sidebar     |
-| **Tablet**  | 768–1024px  | 2-column grid, collapsed sidebar (icons only) |
-| **Desktop** | 1024–1280px | Full sidebar, 12-column grid                  |
-| **Wide**    | >1280px     | Max-width container centered, same as desktop |
+| Name        | Tailwind Prefix | Range       | Layout                                        |
+| ----------- | --------------- | ----------- | --------------------------------------------- |
+| **Mobile**  | (base)          | <768px      | Single column, bottom nav, drawer sidebar     |
+| **Tablet**  | `md:`           | 768–1024px  | 2-column grid, collapsed sidebar (icons only) |
+| **Desktop** | `lg:`           | 1024–1280px | Full sidebar, 12-column grid                  |
+| **Wide**    | `xl:`           | >1280px     | Max-width container centered, same as desktop |
 
 ### Breakpoint Transitions
 
 ```
-Mobile → Tablet (768px)
-  - Summary cards: 2×2 grid → 4×1 row
-  - My Tasks + Sprint: stack → side-by-side (6/6)
-  - Sidebar: hidden → collapsed (icons only, 64px)
-  - Bottom nav: visible → hidden
+Mobile → Tablet (md: 768px)
+  - Summary cards: grid-cols-2 → grid-cols-4
+  - My Tasks + Sprint: stack → grid-cols-2 gap-6 (equal split)
+  - Sidebar: hidden → w-16 collapsed (icons only)
+  - Bottom nav: hidden (md:hidden)
   - Top bar: always visible
 
-Tablet → Desktop (1024px)
-  - Sidebar: collapsed → expanded (240px)
-  - My Tasks + Sprint: 6/6 → 8/4 split
-  - Activity + Board Health: stack → side-by-side (6/6)
-  - Content padding: 16px → 32px
+Tablet → Desktop (lg: 1024px)
+  - Sidebar: w-16 → w-60 expanded (icons + labels)
+  - My Tasks + Sprint: 2-col → col-span-8 + col-span-4 (2/3 + 1/3)
+  - Activity + Board Health: stack → grid-cols-2 gap-6
+  - Content padding: p-4 → p-8
 ```
 
 ### Widget Reordering (Mobile)
@@ -447,11 +451,11 @@ Sprintio (brand)          → /
 
 ### Active State Styling
 
-- **Background:** `bg-accent` (HSL: 210 40% 96.1%)
+- **Background:** `bg-accent` (uses `--accent` semantic token)
 - **Text:** `text-accent-foreground`
-- **Left border:** 2px solid `primary` (HSL: 238.7 83.5% 66.7%)
+- **Left border:** `border-l-2 border-primary` (uses `--primary` semantic token)
 - **Font weight:** `font-medium` (500)
-- **Transition:** `transition-colors duration-150`
+- **Transition:** `transition-colors duration-150 ease-in-out`
 
 ### Breadcrumbs (Sub-pages)
 
@@ -488,9 +492,14 @@ Dashboard > Boards > Sprint Board > Task: "Fix auth bug"
 └──────────────────────────────────────────┘
 ```
 
-- **Icon:** Building/office icon (Lucide: `Building2`)
-- **Primary action:** "Create Workspace" button (if user has `workspace:create` permission)
-- **Secondary text:** "Or ask your team lead to invite you" (for members/guests)
+**Styling:**
+
+- **Container:** `bg-card border border-border rounded-lg p-8 text-center`
+- **Icon:** `Building2` (Lucide), `text-muted-foreground`, `h-12 w-12 mx-auto mb-4`
+- **Heading:** `text-lg font-medium text-foreground mb-2`
+- **Description:** `text-sm text-muted-foreground mb-6 max-w-sm mx-auto`
+- **Primary action:** `Button variant="default"` — "Create Workspace" (if user has `workspace:create` permission)
+- **Secondary text:** `text-sm text-muted-foreground` — "Or ask your team lead to invite you" (for members/guests)
 
 ### 9.2 No Active Sprint
 
@@ -509,10 +518,15 @@ Dashboard > Boards > Sprint Board > Task: "Fix auth bug"
 └──────────────────────────────────────────┘
 ```
 
-- **Icon:** Calendar off icon (Lucide: `CalendarOff`)
-- **Primary action:** "Create Sprint" (admin/owner only)
-- **Secondary action:** "View all sprints" link
-- **For members:** Shows "Waiting for admin to start a sprint"
+**Styling:**
+
+- **Container:** `bg-card border border-border rounded-lg p-8 text-center`
+- **Icon:** `CalendarOff` (Lucide), `text-muted-foreground`, `h-12 w-12 mx-auto mb-4`
+- **Heading:** `text-lg font-medium text-foreground mb-2`
+- **Description:** `text-sm text-muted-foreground mb-6 max-w-sm mx-auto`
+- **Primary action:** `Button variant="default"` — "Create Sprint" (admin/owner only)
+- **Secondary action:** `Button variant="ghost"` — "View all sprints"
+- **For members:** Shows "Waiting for admin to start a sprint" (`text-sm text-muted-foreground`)
 
 ### 9.3 No Tasks Assigned
 
@@ -532,9 +546,14 @@ Dashboard > Boards > Sprint Board > Task: "Fix auth bug"
 └──────────────────────────────────────────┘
 ```
 
-- **Icon:** Check circle (Lucide: `CheckCircle2`)
+**Styling:**
+
+- **Container:** `bg-card border border-border rounded-lg p-8 text-center`
+- **Icon:** `CheckCircle2` (Lucide), `text-primary`, `h-12 w-12 mx-auto mb-4` (positive tone via primary color)
+- **Heading:** `text-lg font-medium text-foreground mb-2`
+- **Description:** `text-sm text-muted-foreground mb-6 max-w-sm mx-auto`
+- **Action:** `Button variant="outline"` — "Browse Boards" → `/boards`
 - **Tone:** Positive — "caught up" not "empty"
-- **Action:** "Browse Boards" link to `/boards`
 
 ### 9.4 No Activity
 
@@ -551,30 +570,43 @@ Dashboard > Boards > Sprint Board > Task: "Fix auth bug"
 └──────────────────────────────────────────┘
 ```
 
-- **Icon:** Activity icon (Lucide: `Activity`)
+**Styling:**
+
+- **Container:** `bg-card border border-border rounded-lg p-8 text-center`
+- **Icon:** `Activity` (Lucide), `text-muted-foreground`, `h-10 w-10 mx-auto mb-3`
+- **Heading:** `text-base font-medium text-muted-foreground mb-1` (de-emphasized)
+- **Description:** `text-sm text-muted-foreground max-w-sm mx-auto`
 - **No action** — purely informational
-- **Text is muted** to de-emphasize
 
 ### 9.5 New User (First Login)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                                                              │
-│   Welcome to Sprintio, Alex! 🎉                             │
+│   Welcome to Sprintio!                              [×]     │
 │                                                              │
 │   Here's how to get started:                                │
 │                                                              │
-│   1. Create or join a workspace                             │
-│   2. Set up your first board                                │
-│   3. Add tasks and start a sprint                           │
+│   ✓ Create or join a workspace                              │
+│   ○ Set up your first board                                 │
+│   ○ Add tasks and start a sprint                            │
 │                                                              │
 │   [Create Workspace]  [Take a tour]                         │
 │                                                              │
 └──────────────────────────────────────────────────────────────┘
 ```
 
-- **Full-width hero card** at top of dashboard
-- **Dismissable:** "X" button, once dismissed never shows again (stored in localStorage)
+**Styling:**
+
+- **Container:** `bg-card border border-border rounded-lg p-6 mb-6` (full-width hero card at top)
+- **Dismiss button:** `absolute top-4 right-4` → `Button variant="ghost" size="icon"` with `X` icon
+- **Heading:** `text-2xl font-bold text-foreground mb-2`
+- **Description:** `text-base text-muted-foreground mb-6`
+- **Step list:** `space-y-3 mb-6`
+  - Completed: `text-foreground` with `CheckCircle2` icon in `text-primary`
+  - Pending: `text-muted-foreground` with `Circle` icon in `text-muted-foreground`
+- **Actions:** `Button variant="default"` for primary, `Button variant="ghost"` for secondary
+- **Dismissable:** "X" button, once dismissed never shows again (stored in `localStorage` key `sprintio_welcome_dismissed`)
 - **Progress indicator:** Checkmarks for completed steps
 
 ---
@@ -600,9 +632,14 @@ Dashboard > Boards > Sprint Board > Task: "Fix auth bug"
 └──────────────────────────────────────────┘
 ```
 
-- **Icon:** Wifi off (Lucide: `WifiOff`)
-- **Primary action:** "Retry" button
-- **Secondary info:** Shows last cached timestamp if available
+**Styling:**
+
+- **Container:** `bg-card border border-border rounded-lg p-8 text-center`
+- **Icon:** `WifiOff` (Lucide), `text-muted-foreground`, `h-12 w-12 mx-auto mb-4`
+- **Heading:** `text-lg font-medium text-foreground mb-2`
+- **Description:** `text-sm text-muted-foreground mb-6 max-w-sm mx-auto`
+- **Action:** `Button variant="outline"` — "Retry"
+- **Secondary info:** `text-xs text-muted-foreground mt-4`
 - **Retry behavior:** Exponential backoff (1s, 2s, 4s, max 3 retries)
 
 ### 10.2 Partial Load Failure
@@ -614,7 +651,7 @@ When some widgets fail but others succeed:
 │  [Widgets that loaded OK render normally] │
 │                                          │
 │  ┌──────────────────────────────────┐    │
-│  │  ⚠️ Couldn't load sprint data    │    │
+│  │  ⚠ Couldn't load sprint data    │    │
 │  │                                  │    │
 │  │  [Retry]                         │    │
 │  └──────────────────────────────────┘    │
@@ -623,8 +660,13 @@ When some widgets fail but others succeed:
 └──────────────────────────────────────────┘
 ```
 
-- **Failed widget shows inline error** with retry
-- **Other widgets unaffected** — independent loading
+**Styling:**
+
+- **Failed widget container:** `bg-destructive/5 border border-destructive/20 rounded-lg p-6`
+- **Error icon:** `AlertTriangle` (Lucide), `text-destructive`, `h-5 w-5`
+- **Error message:** `text-sm text-destructive font-medium`
+- **Retry button:** `Button variant="outline" size="sm"` — "Retry"
+- **Other widgets unaffected** — independent loading via TanStack Query
 - **No full-page error** — graceful degradation
 
 ### 10.3 Authentication Expired
@@ -644,8 +686,14 @@ When some widgets fail but others succeed:
 └──────────────────────────────────────────┘
 ```
 
-- **Auto-redirect** to `/login` after 5 seconds
-- **Query param:** `?reason=session_expired`
+**Styling:**
+
+- **Container:** `bg-card border border-border rounded-lg p-8 text-center`
+- **Icon:** `Lock` (Lucide), `text-muted-foreground`, `h-12 w-12 mx-auto mb-4`
+- **Heading:** `text-lg font-medium text-foreground mb-2`
+- **Description:** `text-sm text-muted-foreground mb-6`
+- **Action:** `Button variant="default"` — "Sign In"
+- **Behavior:** Auto-redirect to `/login` after 5 seconds, query param `?reason=session_expired`
 
 ### 10.4 Permission Denied
 
@@ -665,7 +713,12 @@ When some widgets fail but others succeed:
 └──────────────────────────────────────────┘
 ```
 
-- **Icon:** Shield alert (Lucide: `ShieldAlert`)
+**Styling:**
+
+- **Container:** `bg-card border border-border rounded-lg p-8 text-center`
+- **Icon:** `ShieldAlert` (Lucide), `text-muted-foreground`, `h-12 w-12 mx-auto mb-4`
+- **Heading:** `text-lg font-medium text-foreground mb-2`
+- **Description:** `text-sm text-muted-foreground max-w-sm mx-auto`
 - **No action** for the user — contact admin
 - **Tone:** Informative, not punitive
 
@@ -695,6 +748,14 @@ All widgets use **skeleton placeholders** (shimmer effect) during load. No spinn
 └──────────────────────────────────────────┘
 ```
 
+**Skeleton styling pattern:**
+
+- **Skeleton block:** `bg-muted rounded-md animate-pulse`
+- **Text skeleton:** `h-4 bg-muted rounded-md` (width varies)
+- **Card skeleton:** `bg-card border border-border rounded-lg p-6` with skeleton children
+- **Shimmer animation:** Tailwind `animate-pulse` (respects `prefers-reduced-motion`)
+- **Height tokens:** `h-3` (small text), `h-4` (body text), `h-6` (heading), `h-20` (summary card)
+
 ### Loading Phases
 
 | Phase       | Widgets                     | Timing     | Strategy             |
@@ -709,10 +770,10 @@ All widgets use **skeleton placeholders** (shimmer effect) during load. No spinn
 Widgets enter with a staggered fade-in animation:
 
 - **Delay:** 50ms between each widget
-- **Duration:** 200ms
-- **Easing:** ease-out
-- **Transform:** `translateY(8px)` → `translateY(0)` + `opacity 0→1`
-- **Respects:** `prefers-reduced-motion` — instant display if reduced
+- **Duration:** `duration-200` (200ms)
+- **Easing:** `ease-out`
+- **Transform:** `translate-y-2` → `translate-y-0` + `opacity-0` → `opacity-100`
+- **Respects:** `prefers-reduced-motion: reduce` — instant display if reduced
 
 ### Data Freshness
 
@@ -747,8 +808,8 @@ Widgets enter with a staggered fade-in animation:
 
 ### Focus Management
 
-- **Focus ring:** 2px solid `ring` (HSL: 238.7 83.5% 66.7%) with 2px offset
-- **Focus-visible only:** No focus ring on mouse click (Tailwind `focus-visible:`)
+- **Focus ring:** 2px solid `ring` (uses `--ring` semantic token, same as `--primary`) with 2px offset
+- **Focus-visible only:** No focus ring on mouse click — use `focus-visible:` prefix
 - **Skip link:** "Skip to main content" — first element in DOM, visible on focus
 - **Focus restoration:** After modal close, focus returns to trigger element
 
@@ -766,24 +827,26 @@ Widgets enter with a staggered fade-in animation:
 
 ### Color & Contrast
 
-| Element        | Foreground                             | Background                    | Ratio  | WCAG           |
-| -------------- | -------------------------------------- | ----------------------------- | ------ | -------------- |
-| Body text      | `foreground` (222.2 84% 4.9%)          | `background` (0 0% 100%)      | 17.4:1 | AAA            |
-| Muted text     | `muted-foreground` (215.4 16.3% 46.9%) | `background`                  | 5.2:1  | AA             |
-| Primary button | `primary-foreground` (210 40% 98%)     | `primary` (238.7 83.5% 66.7%) | 7.1:1  | AAA            |
-| Border         | `border` (214.3 31.8% 91.4%)           | `background`                  | 1.3:1  | — (decorative) |
+| Element        | Foreground Token     | Background Token | Ratio  | WCAG           |
+| -------------- | -------------------- | ---------------- | ------ | -------------- |
+| Body text      | `foreground`         | `background`     | 17.4:1 | AAA            |
+| Muted text     | `muted-foreground`   | `background`     | 5.2:1  | AA             |
+| Primary button | `primary-foreground` | `primary`        | 7.1:1  | AAA            |
+| Border         | `border`             | `background`     | 1.3:1  | — (decorative) |
 
 ### Task Priority Color Encoding
 
 Priority is **never conveyed by color alone** — always paired with a text label and icon:
 
-| Priority | Color                     | Icon         | Text Label |
-| -------- | ------------------------- | ------------ | ---------- |
-| Urgent   | Red (`destructive`)       | ⚠ Triangle   | "Urgent"   |
-| High     | Orange (`#f97316`)        | ↑ Arrow up   | "High"     |
-| Medium   | Yellow (`#eab308`)        | — Dash       | "Medium"   |
-| Low      | Blue (`primary`)          | ↓ Arrow down | "Low"      |
-| None     | Gray (`muted-foreground`) | ○ Circle     | "None"     |
+| Priority | Token               | HSL Value           | Icon           | Text Label |
+| -------- | ------------------- | ------------------- | -------------- | ---------- |
+| Urgent   | `destructive`       | `0 84.2% 60.2%`     | Triangle icon  | "Urgent"   |
+| High     | `--priority-high`   | `25 95% 53%`        | ArrowUp icon   | "High"     |
+| Medium   | `--priority-medium` | `48 96% 53%`        | Minus icon     | "Medium"   |
+| Low      | `primary`           | `238.7 83.5% 66.7%` | ArrowDown icon | "Low"      |
+| None     | `muted-foreground`  | `215.4 16.3% 46.9%` | Circle icon    | "None"     |
+
+All priority tokens are defined in the Additional Dashboard Tokens section (§14).
 
 ### Reduced Motion
 
@@ -986,10 +1049,10 @@ GET /api/boards/stats
       "name": "Sprint Board",
       "totalCards": 12,
       "columns": [
-        { "name": "To Do", "count": 3, "color": "#6b7280" },
-        { "name": "In Progress", "count": 5, "color": "#3b82f6" },
-        { "name": "Review", "count": 2, "color": "#f59e0b" },
-        { "name": "Done", "count": 2, "color": "#22c55e" }
+        { "name": "To Do", "count": 3, "colorToken": "muted-foreground" },
+        { "name": "In Progress", "count": 5, "colorToken": "primary" },
+        { "name": "Review", "count": 2, "colorToken": "--priority-medium" },
+        { "name": "Done", "count": 2, "colorToken": "--sprint-on-track" }
       ]
     }
   ]
@@ -1000,85 +1063,263 @@ GET /api/boards/stats
 
 ## 14. Design Tokens & Visual System
 
-### Color Tokens (from existing globals.css)
+### Token Architecture
 
-| Token                | Light Value         | Usage              |
-| -------------------- | ------------------- | ------------------ |
-| `--background`       | `0 0% 100%`         | Page background    |
-| `--foreground`       | `222.2 84% 4.9%`    | Primary text       |
-| `--primary`          | `238.7 83.5% 66.7%` | Brand blue, CTAs   |
-| `--secondary`        | `210 40% 96.1%`     | Card backgrounds   |
-| `--muted`            | `210 40% 96.1%`     | Subtle backgrounds |
-| `--muted-foreground` | `215.4 16.3% 46.9%` | Secondary text     |
-| `--accent`           | `210 40% 96.1%`     | Hover states       |
-| `--destructive`      | `0 84.2% 60.2%`     | Errors, overdue    |
-| `--border`           | `214.3 31.8% 91.4%` | Borders, dividers  |
+Three-layer token system aligned with the project's existing HSL CSS variables in `globals.css`:
 
-### Additional Dashboard Tokens
+```
+Primitive (raw HSL values from Tailwind)
+       ↓
+Semantic (purpose-based aliases — existing globals.css)
+       ↓
+Component (dashboard-specific tokens)
+```
+
+All dashboard styles must reference **semantic tokens**, never raw hex/HSL values.
+
+### Layer 1: Existing Semantic Tokens (globals.css)
+
+These are already defined in `apps/web/src/styles/globals.css` and are the source of truth:
+
+| Token                  | Light Value         | Dark Value          | Tailwind Class                | Usage              |
+| ---------------------- | ------------------- | ------------------- | ----------------------------- | ------------------ |
+| `--background`         | `0 0% 100%`         | `222.2 84% 4.9%`    | `bg-background`               | Page background    |
+| `--foreground`         | `222.2 84% 4.9%`    | `210 40% 98%`       | `text-foreground`             | Primary text       |
+| `--primary`            | `238.7 83.5% 66.7%` | `238.7 83.5% 66.7%` | `bg-primary` / `text-primary` | Brand blue, CTAs   |
+| `--primary-foreground` | `210 40% 98%`       | `222.2 47.4% 11.2%` | `text-primary-foreground`     | Text on primary    |
+| `--secondary`          | `210 40% 96.1%`     | `217.2 32.6% 17.5%` | `bg-secondary`                | Card backgrounds   |
+| `--muted`              | `210 40% 96.1%`     | `217.2 32.6% 17.5%` | `bg-muted`                    | Subtle backgrounds |
+| `--muted-foreground`   | `215.4 16.3% 46.9%` | `215 20.2% 65.1%`   | `text-muted-foreground`       | Secondary text     |
+| `--accent`             | `210 40% 96.1%`     | `217.2 32.6% 17.5%` | `bg-accent`                   | Hover states       |
+| `--destructive`        | `0 84.2% 60.2%`     | `0 62.8% 30.6%`     | `bg-destructive`              | Errors, overdue    |
+| `--border`             | `214.3 31.8% 91.4%` | `217.2 32.6% 17.5%` | `border-border`               | Borders, dividers  |
+| `--ring`               | `238.7 83.5% 66.7%` | `238.7 83.5% 66.7%` | `ring-ring`                   | Focus rings        |
+| `--radius`             | `0.5rem`            | `0.5rem`            | `rounded-lg`                  | Base border radius |
+
+### Layer 2: Dashboard Semantic Tokens
+
+Additional tokens for dashboard-specific needs. These reference the existing primitives:
 
 ```css
+/* === Dashboard Semantic Tokens === */
 :root {
-  /* Sprint status colors */
-  --sprint-on-track: 142 76% 36%; /* Green */
-  --sprint-at-risk: 38 92% 50%; /* Amber */
-  --sprint-behind: 0 84% 60%; /* Red */
+  /* Sprint status — semantic aliases */
+  --sprint-on-track: 142 76% 36%; /* Green-600 equivalent */
+  --sprint-at-risk: 38 92% 50%; /* Amber-500 equivalent */
+  --sprint-behind: 0 84% 60%; /* Maps to --destructive */
 
-  /* Priority colors */
-  --priority-urgent: 0 84% 60%; /* Red */
-  --priority-high: 25 95% 53%; /* Orange */
-  --priority-medium: 48 96% 53%; /* Yellow */
-  --priority-low: 238.7 83.5% 66.7%; /* Primary blue */
-  --priority-none: 215.4 16.3% 46.9%; /* Muted */
+  /* Priority — semantic aliases */
+  --priority-urgent: 0 84.2% 60.2%; /* Maps to --destructive */
+  --priority-high: 25 95% 53%; /* Orange-500 */
+  --priority-medium: 48 96% 53%; /* Yellow-500 */
+  --priority-low: 238.7 83.5% 66.7%; /* Maps to --primary */
+  --priority-none: 215.4 16.3% 46.9%; /* Maps to --muted-foreground */
 
-  /* Chart colors */
+  /* Chart palette — accessible, themeable */
   --chart-1: 238.7 83.5% 66.7%; /* Primary blue */
   --chart-2: 142 76% 36%; /* Green */
   --chart-3: 38 92% 50%; /* Amber */
-  --chart-4: 0 84% 60%; /* Red */
+  --chart-4: 0 84.2% 60.2%; /* Red (destructive) */
   --chart-5: 280 65% 60%; /* Purple */
 
-  /* Spacing scale (8px base) */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
-  --space-16: 64px;
+  /* Card surface — slightly elevated from background */
+  --card-surface: 0 0% 100%; /* White in light */
+  --card-surface-foreground: 222.2 84% 4.9%;
+  --card-border: 214.3 31.8% 91.4%; /* Maps to --border */
+}
+
+.dark {
+  --card-surface: 222.2 84% 6%; /* Slightly lighter than bg in dark */
+  --card-surface-foreground: 210 40% 98%;
+  --card-border: 217.2 32.6% 17.5%; /* Maps to --border dark */
 }
 ```
 
+### Layer 3: Component Token Usage
+
+All dashboard components reference semantic tokens via Tailwind utilities:
+
+| Component        | Background                         | Text                          | Border                      | Radius         |
+| ---------------- | ---------------------------------- | ----------------------------- | --------------------------- | -------------- |
+| Card             | `bg-card`                          | `text-card-foreground`        | `border-border`             | `rounded-lg`   |
+| Summary card     | `bg-card`                          | `text-foreground`             | `border-border`             | `rounded-lg`   |
+| Active nav item  | `bg-accent`                        | `text-accent-foreground`      | `border-l-2 border-primary` | —              |
+| Badge (urgent)   | `bg-destructive`                   | `text-destructive-foreground` | —                           | `rounded-full` |
+| Badge (on-track) | `bg-[hsl(var(--sprint-on-track))]` | `text-white`                  | —                           | `rounded-full` |
+| Skeleton         | `bg-muted`                         | —                             | —                           | `rounded-md`   |
+| Empty state icon | `text-muted-foreground`            | —                             | —                           | —              |
+
+### Spacing System
+
+**Use Tailwind's built-in spacing utilities exclusively.** No custom CSS spacing variables needed.
+
+| Tailwind Class  | Value | Usage Context                           |
+| --------------- | ----- | --------------------------------------- |
+| `p-1` / `gap-1` | 4px   | Tight: icon padding, inline gaps        |
+| `p-2` / `gap-2` | 8px   | Compact: badge padding, small gaps      |
+| `p-3` / `gap-3` | 12px  | Default: input padding                  |
+| `p-4` / `gap-4` | 16px  | Standard: card content padding          |
+| `p-6` / `gap-6` | 24px  | Comfortable: card gaps, section padding |
+| `p-8` / `gap-8` | 32px  | Spacious: page margins                  |
+| `p-10`          | 40px  | Hero sections                           |
+| `p-12`          | 48px  | Large section spacing                   |
+| `p-16`          | 64px  | Maximum spacing                         |
+
+**Semantic spacing mapping:**
+
+| Purpose                 | Tailwind                          | Value   |
+| ----------------------- | --------------------------------- | ------- |
+| Inline element gap      | `gap-1`                           | 4px     |
+| Between related items   | `gap-2`                           | 8px     |
+| Between groups          | `gap-4`                           | 16px    |
+| Between sections        | `gap-6`                           | 24px    |
+| Card padding            | `p-4` or `p-6`                    | 16–24px |
+| Page horizontal padding | `px-4` (mobile), `px-8` (desktop) | 16–32px |
+| Page vertical padding   | `py-6`                            | 24px    |
+
 ### Typography Scale
 
-| Token       | Size | Weight | Line Height | Usage                |
-| ----------- | ---- | ------ | ----------- | -------------------- |
-| `text-xs`   | 12px | 400    | 16px        | Metadata, timestamps |
-| `text-sm`   | 14px | 400    | 20px        | Body text, labels    |
-| `text-base` | 16px | 400    | 24px        | Primary body         |
-| `text-lg`   | 18px | 500    | 28px        | Card titles          |
-| `text-xl`   | 20px | 600    | 28px        | Section headers      |
-| `text-2xl`  | 24px | 700    | 32px        | Page title           |
-| `text-3xl`  | 30px | 700    | 36px        | Greeting             |
+**Use Tailwind's built-in type utilities.** Weight hierarchy reinforces visual importance:
+
+| Tailwind Class | Size | Weight                | Line Height        | Usage                      |
+| -------------- | ---- | --------------------- | ------------------ | -------------------------- |
+| `text-xs`      | 12px | `font-normal` (400)   | `leading-4` (16px) | Metadata, timestamps       |
+| `text-sm`      | 14px | `font-normal` (400)   | `leading-5` (20px) | Body text, labels          |
+| `text-sm`      | 14px | `font-medium` (500)   | `leading-5` (20px) | Navigation items, emphasis |
+| `text-base`    | 16px | `font-normal` (400)   | `leading-6` (24px) | Primary body text          |
+| `text-base`    | 16px | `font-medium` (500)   | `leading-6` (24px) | Sub-headings               |
+| `text-lg`      | 18px | `font-medium` (500)   | `leading-7` (28px) | Card titles                |
+| `text-xl`      | 20px | `font-semibold` (600) | `leading-7` (28px) | Section headings           |
+| `text-2xl`     | 24px | `font-bold` (700)     | `leading-8` (32px) | Page title                 |
+| `text-3xl`     | 30px | `font-bold` (700)     | `leading-9` (36px) | Greeting / hero text       |
+
+**Visual hierarchy rule:** Each level increases by one weight step and one size step. Never skip levels within a single component.
 
 ### Shadow Scale
 
-| Level       | Value                          | Usage               |
-| ----------- | ------------------------------ | ------------------- |
-| `shadow-sm` | `0 1px 2px rgb(0 0 0 / 0.05)`  | Cards, panels       |
-| `shadow-md` | `0 4px 6px rgb(0 0 0 / 0.07)`  | Dropdowns, popovers |
-| `shadow-lg` | `0 10px 15px rgb(0 0 0 / 0.1)` | Modals, drawers     |
+| Tailwind Class | CSS Value                                                   | Usage               |
+| -------------- | ----------------------------------------------------------- | ------------------- |
+| `shadow-sm`    | `0 1px 2px rgb(0 0 0 / 0.05)`                               | Cards, panels       |
+| `shadow`       | `0 1px 3px rgb(0 0 0 / 0.1), 0 1px 2px rgb(0 0 0 / 0.06)`   | Default elevation   |
+| `shadow-md`    | `0 4px 6px rgb(0 0 0 / 0.07), 0 2px 4px rgb(0 0 0 / 0.06)`  | Dropdowns, popovers |
+| `shadow-lg`    | `0 10px 15px rgb(0 0 0 / 0.1), 0 4px 6px rgb(0 0 0 / 0.05)` | Modals, drawers     |
+
+**Shadow transition:** `transition-shadow duration-200 ease-out` on interactive cards.
 
 ### Border Radius
 
-| Token          | Value  | Usage           |
-| -------------- | ------ | --------------- |
-| `rounded`      | 6px    | Buttons, inputs |
-| `rounded-lg`   | 8px    | Cards           |
-| `rounded-xl`   | 12px   | Modals          |
-| `rounded-full` | 9999px | Avatars, badges |
+Uses the project's base `--radius: 0.5rem` with Tailwind scale:
+
+| Tailwind Class | Value    | Usage                            |
+| -------------- | -------- | -------------------------------- |
+| `rounded-md`   | 0.375rem | Buttons, inputs, skeleton blocks |
+| `rounded-lg`   | 0.5rem   | Cards, panels (default)          |
+| `rounded-xl`   | 0.75rem  | Modals, dialogs                  |
+| `rounded-full` | 9999px   | Avatars, badges, status dots     |
+
+**Consistency rule:** All cards use `rounded-lg`. All badges use `rounded-full`. All buttons use `rounded-md` (from Button component default).
+
+### Interactive States
+
+Standard state treatments for all interactive dashboard elements:
+
+| State    | Visual Change                                 | Tailwind Pattern                                                           |
+| -------- | --------------------------------------------- | -------------------------------------------------------------------------- |
+| Default  | Base appearance                               | Token defaults                                                             |
+| Hover    | Slight background shift, subtle shadow lift   | `hover:bg-accent hover:shadow-md`                                          |
+| Active   | Darkest shade, scale down                     | `active:scale-[0.98]`                                                      |
+| Focus    | Focus ring visible                            | `focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2` |
+| Disabled | Reduced opacity, cursor change                | `disabled:opacity-50 disabled:cursor-not-allowed`                          |
+| Loading  | Spinner replaces content, pointer-events none | `aria-busy="true"` + spinner                                               |
+
+**Transition timing:** `transition-all duration-150 ease-in-out` for color changes; `transition-transform duration-200 ease-out` for scale/shadow.
+
+### Card Anatomy (Standard Pattern)
+
+All dashboard cards follow this consistent structure:
+
+```
+┌─────────────────────────────────────────────┐
+│ Card Header (optional)                       │ ← p-6 pb-0
+│   Title: text-lg font-medium text-foreground  │
+│   Description: text-sm text-muted-foreground  │
+├─────────────────────────────────────────────┤
+│ Card Content                                 │ ← p-6
+│   Main content area                          │
+│   gap between items: gap-4                   │
+├─────────────────────────────────────────────┤
+│ Card Footer (optional)                       │ ← p-6 pt-0
+│   Actions row: flex justify-between items-center │
+└─────────────────────────────────────────────┘
+```
+
+**Card wrapper classes:** `bg-card text-card-foreground border border-border rounded-lg shadow-sm`
+
+**Card spacing standard:**
+
+| Area          | Padding                  | Tailwind    |
+| ------------- | ------------------------ | ----------- |
+| Header        | 24px top/sides, 0 bottom | `p-6 pb-0`  |
+| Content       | 24px all sides           | `p-6`       |
+| Footer        | 0 top, 24px sides/bottom | `p-6 pt-0`  |
+| Between items | 16px                     | `space-y-4` |
+
+**Interactive card variant:** Add `hover:shadow-md transition-shadow duration-200 ease-out cursor-pointer` for clickable cards.
+
+### Visual Hierarchy Principles
+
+The dashboard uses three hierarchy levers — **size, weight, and color** — applied consistently:
+
+1. **Size hierarchy** determines spatial importance:
+   - Page title: `text-2xl` → Section heading: `text-xl` → Card title: `text-lg` → Body: `text-base` → Label: `text-sm` → Metadata: `text-xs`
+
+2. **Weight hierarchy** reinforces scanning:
+   - Bold (700): Page title, key metrics
+   - Semibold (600): Section headings
+   - Medium (500): Card titles, navigation items, labels
+   - Normal (400): Body text, descriptions
+
+3. **Color hierarchy** guides attention:
+   - `foreground`: Primary content (highest contrast)
+   - `muted-foreground`: Secondary info (reduced contrast)
+   - `primary`: Actions and interactive emphasis
+   - `destructive`: Errors, overdue, urgent attention
+   - Status tokens: Sprint health, priority indicators
+
+4. **Spacing hierarchy** creates grouping:
+   - `gap-6`: Between independent sections/cards
+   - `gap-4`: Between related items within a section
+   - `gap-2`: Between tightly coupled elements (label + value)
+   - `p-6`: Card content padding (comfortable)
+   - `p-4`: Compact card content padding
+
+### Dark Mode Consistency
+
+All dashboard components must work in both light and dark themes. Rules:
+
+1. **Never use raw colors** — always reference semantic tokens (`bg-background`, `text-foreground`, etc.)
+2. **Card surfaces** use `bg-card` / `text-card-foreground` — these automatically adapt via CSS variables
+3. **Borders** use `border-border` — automatically adjusts for dark mode
+4. **Status colors** (priority, sprint) must have sufficient contrast in both themes
+5. **Charts** use `--chart-*` tokens which must be defined for both `:root` and `.dark`
+6. **Skeleton loaders** use `bg-muted` — automatically lightens in dark mode
+7. **Shadows** become less prominent in dark mode — use `shadow-sm` not `shadow-lg` for cards
+8. **Focus rings** use `ring-ring` which maps to `--primary` in both themes
+
+### Consistency Checklist
+
+Before shipping any dashboard component, verify:
+
+- [ ] All colors use semantic tokens (no raw hex/HSL in className)
+- [ ] Spacing follows the 8px grid (multiples of `p-1` through `p-16`)
+- [ ] Typography follows the weight hierarchy (400→500→600→700)
+- [ ] Card structure follows the standard anatomy
+- [ ] Interactive states (hover, focus, disabled) are all implemented
+- [ ] Dark mode renders correctly (test with `.dark` class)
+- [ ] `prefers-reduced-motion` disables all non-essential animations
+- [ ] Focus ring is visible on keyboard navigation
+- [ ] All text meets WCAG AA contrast (4.5:1 for body, 3:1 for large text)
+- [ ] Touch targets are minimum 44×44px on mobile
 
 ---
 
@@ -1129,12 +1370,16 @@ GET /api/boards/stats
 
 ### 15.6 Toast Notifications
 
-| Event          | Toast                             | Duration | Position     |
-| -------------- | --------------------------------- | -------- | ------------ |
-| Task completed | "Task marked as done" + undo      | 5s       | Bottom-right |
-| Task created   | "Task created" + view             | 3s       | Bottom-right |
-| Sprint started | "Sprint started"                  | 3s       | Bottom-right |
-| Error loading  | "Failed to load [widget]" + retry | 5s       | Bottom-right |
+Implemented via Sonner (already installed). All toasts use `bottom-right` position:
+
+| Event          | Toast                             | Variant   | Duration | Position     |
+| -------------- | --------------------------------- | --------- | -------- | ------------ |
+| Task completed | "Task marked as done" + undo      | `success` | 5s       | Bottom-right |
+| Task created   | "Task created" + view link        | `success` | 3s       | Bottom-right |
+| Sprint started | "Sprint started"                  | `success` | 3s       | Bottom-right |
+| Error loading  | "Failed to load [widget]" + retry | `error`   | 5s       | Bottom-right |
+
+**Sonner styling:** Uses the project's CSS variables automatically via `sonner` component.
 
 ### 15.7 Keyboard Shortcuts
 
@@ -1150,6 +1395,20 @@ GET /api/boards/stats
 ---
 
 ## Appendix A: Component Inventory (New)
+
+### Existing Components (in `components/ui/`)
+
+These are already implemented and should be used directly:
+
+| Component  | Path                         | Variants                                                              |
+| ---------- | ---------------------------- | --------------------------------------------------------------------- |
+| `Button`   | `components/ui/button.tsx`   | default, destructive, outline, secondary, ghost, link                 |
+| `Card`     | `components/ui/card.tsx`     | Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter |
+| `Input`    | `components/ui/input.tsx`    | Default text input                                                    |
+| `Label`    | `components/ui/label.tsx`    | Form label                                                            |
+| `Checkbox` | `components/ui/checkbox.tsx` | Boolean toggle                                                        |
+
+**Existing utilities:** `cn()` from `lib/utils.ts` (clsx + twMerge)
 
 ### New Components Required
 
