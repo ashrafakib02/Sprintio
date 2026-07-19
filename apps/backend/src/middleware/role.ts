@@ -43,8 +43,6 @@ export function requireRole(...roles: string[]) {
       res.status(403).json({
         error: 'Insufficient permissions',
         code: 'FORBIDDEN',
-        required: roles,
-        current: userRole,
       });
       return;
     }

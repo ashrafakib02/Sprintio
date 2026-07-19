@@ -17,7 +17,7 @@ function appendCookie(res: Response, cookieValue: string): void {
   res.setHeader('Set-Cookie', [...cookies, cookieValue]);
 }
 
-function cookieDomain(): string {
+export function cookieDomain(): string {
   return env.NODE_ENV === 'production' ? `Domain=${env.COOKIE_DOMAIN}` : '';
 }
 
@@ -116,7 +116,7 @@ export function clearAuthCookies(res: Response): void {
   ].filter(Boolean);
 
   const refreshParts = [
-    `${REFRESH_TOKEN_COOKIE}=; Path=/api/auth/refresh`,
+    `${REFRESH_TOKEN_COOKIE}=; Path=/`,
     'HttpOnly',
     'SameSite=Strict',
     env.COOKIE_SECURE ? 'Secure' : '',

@@ -75,6 +75,8 @@ export async function isUserRevoked(userId: string): Promise<number | null> {
     const timestamp = await redis.get(userBlacklistMarker(userId));
     return timestamp ? parseInt(timestamp, 10) : null;
   } catch {
-    return null;
+    // Fail CLOSED for user-wide revocation — treat as revoked to protect user
+    // This is a user's emergency action; better to block than to allow
+    return Date.now();
   }
 }

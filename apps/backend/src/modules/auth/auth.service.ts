@@ -525,11 +525,8 @@ export async function revokeSession(
     .limit(1);
 
   if (refreshToken) {
-    // Mark user token revocation timestamp in Redis so any outstanding
-    // refresh tokens issued before this point are considered invalid
-    await revokeAllUserTokens(userId);
-
-    // Delete the refresh token from DB
+    // Delete only this session's refresh token from DB (not all user tokens).
+    // The refresh flow checks the DB row exists, so deletion is sufficient.
     await db.delete(refreshTokenTable).where(eq(refreshTokenTable.id, refreshToken.id));
   }
 

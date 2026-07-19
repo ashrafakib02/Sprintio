@@ -66,6 +66,7 @@ export interface AccessTokenPayload {
   email: string;
   jti: string;
   deviceId: string;
+  iat?: number;
 }
 
 export interface RefreshTokenPayloadJwt {
@@ -127,6 +128,7 @@ export async function verifyAccessToken(token: string): Promise<AccessTokenPaylo
       email: payload.email as string,
       jti: payload.jti as string,
       deviceId: payload.deviceId as string,
+      iat: payload.iat as number | undefined,
     };
   } catch {
     return null;

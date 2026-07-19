@@ -117,11 +117,11 @@ export async function login(req: Request, res: Response) {
     }
 
     if (message.includes('verify your email')) {
-      return sendError(res, message, 403);
+      return sendError(res, 'Invalid email or password', 401);
     }
 
     if (message.includes('Google Sign-In')) {
-      return sendError(res, message, 403);
+      return sendError(res, 'Invalid email or password', 401);
     }
 
     console.error('Login error:', error);

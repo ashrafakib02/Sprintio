@@ -31,8 +31,9 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
   }
 
   // Check if all tokens for this user have been revoked (logout-all)
-  const userRevoked = await isUserRevoked(payload.userId);
-  if (userRevoked) {
+  // Only reject tokens issued BEFORE the revocation marker (iat is in seconds, marker in ms)
+  const userRevokedAt = await isUserRevoked(payload.userId);
+  if (userRevokedAt && payload.iat && payload.iat * 1000 < userRevokedAt) {
     return next(AppError.unauthorized('Token has been revoked'));
   }
 
@@ -51,7 +52,8 @@ export async function optionalAuth(
     if (payload) {
       // Only attach if not revoked
       const revoked = await isAccessTokenRevoked(payload.jti);
-      const userRevoked = await isUserRevoked(payload.userId);
+      const userRevokedAt = await isUserRevoked(payload.userId);
+      const userRevoked = userRevokedAt && payload.iat && payload.iat * 1000 < userRevokedAt;
       if (!revoked && !userRevoked) {
         req.user = payload;
       }

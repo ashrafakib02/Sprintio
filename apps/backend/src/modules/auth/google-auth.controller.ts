@@ -6,6 +6,7 @@ import {
   setRefreshTokenCookie,
   getDeviceIdFromRequest,
   setDeviceIdCookie,
+  cookieDomain,
 } from '../../utils/cookie.js';
 import { env } from '../../config/env.js';
 
@@ -94,6 +95,7 @@ export async function googleLogin(req: Request, res: Response) {
       'SameSite=Lax',
       env.COOKIE_SECURE ? 'Secure' : '',
       `Max-Age=${GOOGLE_STATE_MAX_AGE}`,
+      cookieDomain(),
     ].filter(Boolean);
 
     appendCookie(res, parts.join('; '));
@@ -151,8 +153,13 @@ export async function googleCallback(req: Request, res: Response) {
     return res.redirect(`${env.FRONTEND_URL}/auth/callback?success=true`);
   } catch (error) {
     console.error('Google callback error:', error);
-    const message = error instanceof Error ? error.message : 'google_callback_failed';
-    return res.redirect(`${env.FRONTEND_URL}/auth/callback?error=${encodeURIComponent(message)}`);
+    // Map known errors to safe messages; never expose raw exception details
+    let safeMessage = 'google_callback_failed';
+    if (error instanceof Error) {
+      if (error.message.includes('invalid_grant')) safeMessage = 'code_expired_or_used';
+      else if (error.message.includes('redirect_uri_mismatch')) safeMessage = 'configuration_error';
+    }
+    return res.redirect(`${env.FRONTEND_URL}/auth/callback?error=${encodeURIComponent(safeMessage)}`);
   }
 }
 
