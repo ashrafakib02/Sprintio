@@ -57,6 +57,16 @@
   --color-border: hsl(var(--border));
   --color-ring: hsl(var(--ring));
   --radius: var(--radius);
+
+  /* Animations */
+  --animate-fade-in: fade-in 0.3s ease-out both;
+  --animate-fade-in-up: fade-in-up 0.4s ease-out both;
+  --animate-fade-in-down: fade-in-down 0.4s ease-out both;
+  --animate-scale-in: scale-in 0.3s ease-out both;
+  --animate-slide-in-right: slide-in-right 0.4s ease-out both;
+  --animate-shimmer: shimmer 1.5s ease-in-out infinite;
+  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
+  --animate-progress-fill: progress-fill 0.8s ease-out both;
 }
 
 @variant dark (&:where(.dark, .dark *));
@@ -157,26 +167,6 @@
 /* ─── Animation Utility Classes ───────────────────────────────────────────── */
 
 @layer utilities {
-  .animate-fade-in {
-    animation: fade-in 0.3s ease-out both;
-  }
-
-  .animate-fade-in-up {
-    animation: fade-in-up 0.4s ease-out both;
-  }
-
-  .animate-fade-in-down {
-    animation: fade-in-down 0.4s ease-out both;
-  }
-
-  .animate-scale-in {
-    animation: scale-in 0.3s ease-out both;
-  }
-
-  .animate-slide-in-right {
-    animation: slide-in-right 0.4s ease-out both;
-  }
-
   .animate-shimmer {
     background: linear-gradient(
       90deg,
@@ -185,15 +175,6 @@
       hsl(var(--muted)) 75%
     );
     background-size: 200% 100%;
-    animation: shimmer 1.5s ease-in-out infinite;
-  }
-
-  .animate-pulse-soft {
-    animation: pulse-soft 2s ease-in-out infinite;
-  }
-
-  .animate-progress-fill {
-    animation: progress-fill 0.8s ease-out both;
   }
 
   /* Stagger delays for child elements */
