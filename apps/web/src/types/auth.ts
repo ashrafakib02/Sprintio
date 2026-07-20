@@ -1,15 +1,10 @@
-export interface AuthUser {
-  id: string;
-  name: string;
-  email: string;
-  emailVerified: boolean;
-  role: string;
-  avatar: string | null;
+import type { AuthResponse } from '@sprintio/shared';
+
+// AuthUser is the user shape returned by the auth API
+export type AuthUser = AuthResponse['user'] & {
   avatarUrl?: string | null;
   googleId?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+};
 
 export interface AuthState {
   user: AuthUser | null;

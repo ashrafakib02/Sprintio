@@ -44,6 +44,7 @@ describe('jwt utils', () => {
   const testAccessPayload = {
     userId: 'user-123',
     email: 'test@example.com',
+    role: 'member',
     deviceId: 'device-456',
   };
 

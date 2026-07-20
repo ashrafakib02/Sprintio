@@ -7,6 +7,6 @@ export const workspaces = pgTable('workspaces', {
   description: text('description'),
   logo: text('logo'),
   plan: varchar('plan', { length: 20 }).notNull().default('free'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
 });

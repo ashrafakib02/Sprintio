@@ -60,7 +60,7 @@ function DashboardPage() {
         dueDate: t.dueDate
           ? new Date(t.dueDate).toLocaleDateString('en-US', { weekday: 'short' })
           : undefined,
-        assignee: t.assignee ? { name: t.assignee.name, avatar: t.assignee.avatar } : undefined,
+        assignee: t.assignee ? { name: t.assignee.name, avatarUrl: t.assignee.avatarUrl } : undefined,
       })),
     [dashboard.tasks],
   );

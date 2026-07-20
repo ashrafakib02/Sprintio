@@ -1,13 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import { eq, and, gt, desc } from 'drizzle-orm';
 import { db } from '../../config/database.js';
-import { users } from '../../db/schema/users.js';
-import { sessions } from '../../db/schema/sessions.js';
-import { refreshTokens as refreshTokenTable } from '../../db/schema/refresh-tokens.js';
+import { users, sessions, refreshTokens as refreshTokenTable } from '@sprintio/db';
 import { hashPassword, comparePassword } from '../../utils/password.js';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../utils/jwt.js';
 import { hashToken } from '../../utils/token-hash.js';
 import { env } from '../../config/env.js';
+import { AppError } from '@sprintio/shared';
 import {
   cacheSession,
   invalidateSession,
@@ -20,7 +19,7 @@ import {
   revokeAllUserTokens,
 } from '../../cache/token-blacklist.js';
 import { createAndSendVerificationEmail } from './email-verification.service.js';
-import type { AuthTokens } from '../../types/auth.js';
+import type { AuthTokens } from '@sprintio/shared';
 import { parseUserAgent, type DeviceType } from '../../utils/user-agent-parser.js';
 
 // ============================================================
@@ -33,7 +32,7 @@ export interface UserPayload {
   email: string;
   emailVerified: boolean;
   role: string;
-  avatar: string | null;
+  avatarUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -60,10 +59,11 @@ export interface LoginResult {
 async function createTokenPair(
   userId: string,
   email: string,
+  role: string,
   sessionId: string,
   deviceId: string,
 ): Promise<AuthTokens> {
-  const accessToken = await generateAccessToken({ userId, email, deviceId });
+  const accessToken = await generateAccessToken({ userId, email, role, deviceId });
   const refreshToken = await generateRefreshToken({ userId, sessionId, deviceId });
 
   const now = new Date();
@@ -118,7 +118,7 @@ export async function registerUser(
     .limit(1);
 
   if (existingUser.length > 0) {
-    throw new Error('A user with this email already exists');
+    throw AppError.conflict('A user with this email already exists');
   }
 
   // Hash password if provided
@@ -162,12 +162,12 @@ export async function registerUser(
     .returning({ id: sessions.id });
 
   // Create token pair
-  const tokens = await createTokenPair(newUser.id, newUser.email, session.id, deviceId);
+  const tokens = await createTokenPair(newUser.id, newUser.email, newUser.role ?? 'member', session.id, deviceId);
 
   // Send verification email only for password-based registration (async, don't await)
   if (password) {
-    createAndSendVerificationEmail(newUser.id, newUser.email).catch((err) => {
-      console.error('Failed to send verification email:', err);
+    createAndSendVerificationEmail(newUser.id, newUser.email).catch(() => {
+      // Email send failure is non-critical in dev mode
     });
   }
 
@@ -178,7 +178,7 @@ export async function registerUser(
       email: newUser.email,
       emailVerified: newUser.emailVerified,
       role: newUser.role ?? 'member',
-      avatar: newUser.avatarUrl ?? null,
+      avatarUrl: newUser.avatarUrl ?? null,
       createdAt: newUser.createdAt?.toISOString() ?? new Date().toISOString(),
       updatedAt: newUser.updatedAt?.toISOString() ?? new Date().toISOString(),
     },
@@ -199,23 +199,23 @@ export async function loginUser(
   const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
   if (!user) {
-    throw new Error('Invalid email or password');
+    throw AppError.unauthorized('Invalid email or password');
   }
 
   // OAuth-only users can't log in with password
   if (!user.passwordHash) {
-    throw new Error('This account uses Google Sign-In. Please sign in with Google.');
+    throw AppError.badRequest('This account uses Google Sign-In. Please sign in with Google.');
   }
 
   // Verify password
   const isPasswordValid = await comparePassword(password, user.passwordHash);
   if (!isPasswordValid) {
-    throw new Error('Invalid email or password');
+    throw AppError.unauthorized('Invalid email or password');
   }
 
   // Check email verification
   if (!user.emailVerified) {
-    throw new Error('Please verify your email before signing in');
+    throw AppError.unauthorized('Please verify your email before signing in');
   }
 
   // Generate or use provided device ID
@@ -237,7 +237,7 @@ export async function loginUser(
     .returning({ id: sessions.id });
 
   // Create token pair
-  const tokens = await createTokenPair(user.id, user.email, session.id, deviceId);
+  const tokens = await createTokenPair(user.id, user.email, user.role ?? 'member', session.id, deviceId);
 
   return {
     user: {
@@ -246,7 +246,7 @@ export async function loginUser(
       email: user.email,
       emailVerified: user.emailVerified,
       role: user.role ?? 'member',
-      avatar: user.avatarUrl ?? null,
+      avatarUrl: user.avatarUrl ?? null,
       createdAt: user.createdAt?.toISOString() ?? new Date().toISOString(),
       updatedAt: user.updatedAt?.toISOString() ?? new Date().toISOString(),
     },
@@ -269,7 +269,7 @@ export async function refreshTokens(
   // Verify the JWT signature and expiry first
   const payload = await verifyRefreshToken(refreshTokenValue);
   if (!payload) {
-    throw new Error('Invalid or expired refresh token');
+    throw AppError.unauthorized('Invalid or expired refresh token');
   }
 
   // Check if this refresh token has been revoked
@@ -277,7 +277,7 @@ export async function refreshTokens(
   if (isRevoked) {
     // Possible stolen token reuse — revoke entire device
     await revokeAllUserTokens(payload.userId);
-    throw new Error('Invalid or expired refresh token');
+    throw AppError.unauthorized('Invalid or expired refresh token');
   }
 
   // Hash the incoming token to look it up
@@ -293,7 +293,7 @@ export async function refreshTokens(
     .limit(1);
 
   if (!storedToken) {
-    throw new Error('Invalid or expired refresh token');
+    throw AppError.unauthorized('Invalid or expired refresh token');
   }
 
   // Delete the old refresh token (rotation — single use)
@@ -328,11 +328,20 @@ export async function refreshTokens(
     .limit(1);
 
   if (!user) {
-    throw new Error('User not found');
+    throw AppError.notFound('User');
   }
 
+  // Fetch user role for token
+  const [roleRow] = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.id, storedToken.userId))
+    .limit(1);
+
+  const role = roleRow?.role ?? 'member';
+
   // Create new token pair
-  return createTokenPair(storedToken.userId, user.email, newSession.id, payload.deviceId);
+  return createTokenPair(storedToken.userId, user.email, role, newSession.id, payload.deviceId);
 }
 
 /**
@@ -433,7 +442,7 @@ export async function getCurrentUser(userId: string): Promise<UserPayload | null
     email: user.email,
     emailVerified: user.emailVerified,
     role: user.role ?? 'member',
-    avatar: user.avatarUrl,
+    avatarUrl: user.avatarUrl,
     createdAt: user.createdAt?.toISOString() ?? new Date().toISOString(),
     updatedAt: user.updatedAt?.toISOString() ?? new Date().toISOString(),
   };
@@ -509,12 +518,12 @@ export async function revokeSession(
     .limit(1);
 
   if (!session) {
-    throw new Error('Session not found');
+    throw AppError.notFound('Session');
   }
 
   // Don't allow revoking the current session
   if (session.deviceId === currentDeviceId) {
-    throw new Error('Cannot revoke your current session. Use logout instead.');
+    throw AppError.badRequest('Cannot revoke your current session. Use logout instead.');
   }
 
   // Find and revoke the refresh token for this session

@@ -106,7 +106,7 @@ export interface MeResponse {
     email: string;
     emailVerified: boolean;
     role: string;
-    avatar: string | null;
+    avatarUrl: string | null;
     createdAt: string;
     updatedAt: string;
   };

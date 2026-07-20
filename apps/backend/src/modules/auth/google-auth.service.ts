@@ -2,15 +2,13 @@ import { randomUUID } from 'node:crypto';
 import { eq, and } from 'drizzle-orm';
 import { google } from 'googleapis';
 import { db } from '../../config/database.js';
-import { users } from '../../db/schema/users.js';
-import { oauthAccounts } from '../../db/schema/oauth-accounts.js';
-import { sessions } from '../../db/schema/sessions.js';
-import { refreshTokens as refreshTokenTable } from '../../db/schema/refresh-tokens.js';
+import { users, oauthAccounts, sessions, refreshTokens as refreshTokenTable } from '@sprintio/db';
 import { generateAccessToken, generateRefreshToken } from '../../utils/jwt.js';
 import { hashToken } from '../../utils/token-hash.js';
 import { env } from '../../config/env.js';
 import { cacheSession } from '../../cache/session-cache.js';
-import type { AuthTokens } from '../../types/auth.js';
+import type { AuthTokens } from '@sprintio/shared';
+import { AppError } from '@sprintio/shared';
 
 // ============================================================
 // Types
@@ -38,7 +36,7 @@ export interface GoogleAuthResult {
     email: string;
     emailVerified: boolean;
     role: string;
-    avatar: string | null;
+    avatarUrl: string | null;
     createdAt: string;
     updatedAt: string;
   };
@@ -93,7 +91,7 @@ async function createTokenPair(
     })
     .returning({ id: sessions.id });
 
-  const accessToken = await generateAccessToken({ userId, email, deviceId });
+  const accessToken = await generateAccessToken({ userId, email, role: 'member', deviceId });
   const refreshToken = await generateRefreshToken({ userId, sessionId: session.id, deviceId });
 
   const tokenExpiresAt = new Date(now.getTime() + env.JWT_REFRESH_EXPIRY_MS);
@@ -139,7 +137,7 @@ function formatUserPayload(user: {
     email: user.email,
     emailVerified: user.emailVerified ?? false,
     role: user.role ?? 'member',
-    avatar: user.avatarUrl ?? null,
+    avatarUrl: user.avatarUrl ?? null,
     createdAt: user.createdAt?.toISOString() ?? new Date().toISOString(),
     updatedAt: user.updatedAt?.toISOString() ?? new Date().toISOString(),
   };
@@ -164,7 +162,7 @@ export function getGoogleAuthUrl(state: string): string {
     redirect_uri: env.GOOGLE_REDIRECT_URI,
   });
 
-  console.log('[Google OAuth] Redirect URI:', env.GOOGLE_REDIRECT_URI);
+  // Redirect URI logged at startup via env validation
 
   return url;
 }
@@ -226,7 +224,7 @@ export async function handleGoogleCallback(
   const googleUser = await getGoogleUserInfo(googleTokens.accessToken);
 
   if (!googleUser.email) {
-    throw new Error('Could not retrieve email from Google account');
+    throw AppError.badRequest('Could not retrieve email from Google account');
   }
 
   // 3. Check if user exists by googleId
@@ -333,7 +331,7 @@ export async function handleGoogleCallback(
   }
 
   if (!user) {
-    throw new Error('Failed to create or find user');
+    throw AppError.internal('Failed to create or find user');
   }
 
   // 6. Create session and token pair
@@ -366,7 +364,7 @@ export async function linkGoogleAccount(userId: string, code: string): Promise<L
     .limit(1);
 
   if (existingLink && existingLink.userId !== userId) {
-    throw new Error('This Google account is already linked to another user');
+    throw AppError.conflict('This Google account is already linked to another user');
   }
 
   // Check if user already has a Google link
@@ -377,7 +375,7 @@ export async function linkGoogleAccount(userId: string, code: string): Promise<L
     .limit(1);
 
   if (existingGoogleLink) {
-    throw new Error('Google account is already linked');
+    throw AppError.conflict('Google account is already linked');
   }
 
   // Create oauth_accounts entry
@@ -422,7 +420,7 @@ export async function unlinkGoogleAccount(userId: string): Promise<LinkedProvide
     .limit(1);
 
   if (!user) {
-    throw new Error('User not found');
+    throw AppError.notFound('User');
   }
 
   // Check if user has other OAuth providers besides Google
@@ -434,7 +432,7 @@ export async function unlinkGoogleAccount(userId: string): Promise<LinkedProvide
 
   // Safety check: user must have a password OR another OAuth provider
   if (!user.passwordHash && !hasOtherOAuthProviders) {
-    throw new Error(
+    throw AppError.badRequest(
       'Cannot unlink Google account. You must set a password first or link another OAuth provider.',
     );
   }

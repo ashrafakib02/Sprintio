@@ -64,6 +64,7 @@ async function getRefreshPublicKey(): Promise<KeyLike> {
 export interface AccessTokenPayload {
   userId: string;
   email: string;
+  role: string;
   jti: string;
   deviceId: string;
   iat?: number;
@@ -87,6 +88,7 @@ export async function generateAccessToken(
   return new SignJWT({
     userId: payload.userId,
     email: payload.email,
+    role: payload.role,
     jti,
     deviceId: payload.deviceId,
   } as unknown as JWTPayload)
@@ -126,6 +128,7 @@ export async function verifyAccessToken(token: string): Promise<AccessTokenPaylo
     return {
       userId: payload.userId as string,
       email: payload.email as string,
+      role: (payload.role as string) ?? 'member',
       jti: payload.jti as string,
       deviceId: payload.deviceId as string,
       iat: payload.iat as number | undefined,

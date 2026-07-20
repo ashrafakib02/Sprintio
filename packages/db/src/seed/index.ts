@@ -1,4 +1,4 @@
-import { db } from '../connection.js';
+import { db as _db } from '../connection.js';
 
 async function seed() {
   console.log('🌱 Seeding database...');

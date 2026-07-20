@@ -1,4 +1,13 @@
 export type { User, UserRole, UserProfile } from './user.js';
+export type {
+  AuthTokens,
+  TokenPair,
+  TokenPayload,
+  RefreshTokenPayload,
+  AccessTokenFullPayload,
+  RefreshTokenFullPayload,
+  AuthResponse,
+} from './auth.js';
 export type { Workspace, WorkspaceMembership } from './workspace.js';
 export type { Board, Column, Card, BoardView } from './board.js';
 export type { Task, Subtask, TaskComment, TaskPriority, TaskStatus } from './task.js';

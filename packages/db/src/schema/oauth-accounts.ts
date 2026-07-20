@@ -24,5 +24,3 @@ export const oauthAccounts = pgTable(
     ),
   }),
 );
-
-export type OAuthAccount = typeof oauthAccounts.$inferSelect;

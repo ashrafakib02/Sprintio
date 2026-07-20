@@ -1,7 +1,4 @@
 import type { Request, Response, NextFunction } from 'express';
-import { eq } from 'drizzle-orm';
-import { db } from '../config/database.js';
-import { users } from '../db/schema/users.js';
 import { PERMISSIONS } from '@sprintio/shared';
 
 /**
@@ -60,30 +57,21 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
  *
  * Checks if the authenticated user has ALL of the specified permissions.
  * Owner bypasses all checks.
+ * Reads role from the JWT payload (no DB query needed).
  *
  * Must be used after `authenticate` middleware.
  */
 export function requirePermission(...permissions: string[]) {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user?.userId) {
       res.status(401).json({ error: 'Authentication required', code: 'UNAUTHORIZED' });
       return;
     }
 
-    // Use cached role from requireRole if already resolved, else fetch
+    // Use cached role from requireRole if already resolved, else read from JWT
     let role = req.userRole;
     if (!role) {
-      const [user] = await db
-        .select({ role: users.role })
-        .from(users)
-        .where(eq(users.id, req.user.userId))
-        .limit(1);
-
-      if (!user) {
-        res.status(401).json({ error: 'User not found', code: 'UNAUTHORIZED' });
-        return;
-      }
-      role = user.role ?? 'member';
+      role = (req.user as unknown as { role?: string }).role ?? 'member';
       req.userRole = role;
     }
 

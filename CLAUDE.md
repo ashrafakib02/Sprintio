@@ -19,8 +19,7 @@ pnpm format         # Prettier write (auto-fix)
 - `apps/backend` — Express API server
 - `apps/web` — React + TanStack Router frontend
 - `apps/ai` — Python FastAPI AI service
-- `packages/api` — Shared API layer
-- `packages/db` — Drizzle ORM schemas
+- `packages/db` — Drizzle ORM schemas, connection, and migrations
 - `packages/shared` — Shared types, schemas, utils, errors
 - `packages/config` — Shared tsconfig, eslint, turbo configs
 

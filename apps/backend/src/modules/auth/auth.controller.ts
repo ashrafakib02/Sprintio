@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { Request, Response } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import * as authService from './auth.service.js';
 import { registerSchema, loginSchema } from './auth.validation.js';
 import {
@@ -19,10 +19,6 @@ import { decodeToken } from '../../utils/jwt.js';
 
 function sendSuccess(res: Response, data: unknown, statusCode = 200) {
   return res.status(statusCode).json({ data });
-}
-
-function sendError(res: Response, message: string, statusCode = 400) {
-  return res.status(statusCode).json({ error: message });
 }
 
 function setAuthCookies(res: Response, accessToken: string, refreshToken: string) {
@@ -46,12 +42,12 @@ function ensureDeviceIdCookie(res: Response, req: Request): string {
 /**
  * POST /api/auth/register
  */
-export async function register(req: Request, res: Response) {
+export async function register(req: Request, res: Response, next: NextFunction) {
   try {
     const parsed = registerSchema.safeParse(req.body);
     if (!parsed.success) {
       const message = parsed.error.errors.map((e) => e.message).join(', ');
-      return sendError(res, message, 400);
+      return res.status(400).json({ error: message });
     }
 
     const { name, email, password } = parsed.data as {
@@ -73,26 +69,19 @@ export async function register(req: Request, res: Response) {
 
     return sendSuccess(res, { user: result.user }, 201);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Registration failed';
-
-    if (message.includes('already exists')) {
-      return sendError(res, message, 409);
-    }
-
-    console.error('Register error:', error);
-    return sendError(res, 'Registration failed', 500);
+    next(error);
   }
 }
 
 /**
  * POST /api/auth/login
  */
-export async function login(req: Request, res: Response) {
+export async function login(req: Request, res: Response, next: NextFunction) {
   try {
     const parsed = loginSchema.safeParse(req.body);
     if (!parsed.success) {
       const message = parsed.error.errors.map((e) => e.message).join(', ');
-      return sendError(res, message, 400);
+      return res.status(400).json({ error: message });
     }
 
     const { email, password } = parsed.data;
@@ -110,33 +99,18 @@ export async function login(req: Request, res: Response) {
 
     return sendSuccess(res, { user: result.user });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Login failed';
-
-    if (message.includes('Invalid email or password')) {
-      return sendError(res, 'Invalid email or password', 401);
-    }
-
-    if (message.includes('verify your email')) {
-      return sendError(res, 'Invalid email or password', 401);
-    }
-
-    if (message.includes('Google Sign-In')) {
-      return sendError(res, 'Invalid email or password', 401);
-    }
-
-    console.error('Login error:', error);
-    return sendError(res, 'Login failed', 500);
+    next(error);
   }
 }
 
 /**
  * POST /api/auth/refresh
  */
-export async function refresh(req: Request, res: Response) {
+export async function refresh(req: Request, res: Response, next: NextFunction) {
   try {
     const refreshToken = getRefreshTokenFromRequest(req);
     if (!refreshToken) {
-      return sendError(res, 'Refresh token not found', 401);
+      return res.status(401).json({ error: 'Refresh token not found' });
     }
 
     const userAgent = req.headers['user-agent'];
@@ -148,22 +122,15 @@ export async function refresh(req: Request, res: Response) {
 
     return sendSuccess(res, { message: 'Tokens refreshed' });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Token refresh failed';
-
-    if (message.includes('Invalid or expired')) {
-      clearAuthCookies(res);
-      return sendError(res, message, 401);
-    }
-
-    console.error('Refresh error:', error);
-    return sendError(res, 'Token refresh failed', 500);
+    clearAuthCookies(res);
+    next(error);
   }
 }
 
 /**
  * POST /api/auth/logout
  */
-export async function logout(req: Request, res: Response) {
+export async function logout(req: Request, res: Response, next: NextFunction) {
   try {
     const refreshToken = getRefreshTokenFromRequest(req);
 
@@ -192,21 +159,20 @@ export async function logout(req: Request, res: Response) {
 
     return sendSuccess(res, { message: 'Logged out' });
   } catch (error) {
-    console.error('Logout error:', error);
     // Still clear cookies even if DB operation fails
     clearAuthCookies(res);
-    return sendError(res, 'Logout failed', 500);
+    next(error);
   }
 }
 
 /**
  * POST /api/auth/logout-all
  */
-export async function logoutAll(req: Request, res: Response) {
+export async function logoutAll(req: Request, res: Response, next: NextFunction) {
   try {
     const user = req.user as { userId: string; jti?: string } | undefined;
     if (!user?.userId) {
-      return sendError(res, 'Authentication required', 401);
+      return res.status(401).json({ error: 'Authentication required' });
     }
 
     // Extract access token JTI and expiry for blacklisting
@@ -227,32 +193,30 @@ export async function logoutAll(req: Request, res: Response) {
 
     return sendSuccess(res, { message: 'All sessions logged out' });
   } catch (error) {
-    console.error('Logout all error:', error);
     clearAuthCookies(res);
-    return sendError(res, 'Logout failed', 500);
+    next(error);
   }
 }
 
 /**
  * GET /api/auth/me
  */
-export async function me(req: Request, res: Response) {
+export async function me(req: Request, res: Response, next: NextFunction) {
   try {
     const user = req.user as { userId: string } | undefined;
     if (!user?.userId) {
-      return sendError(res, 'Authentication required', 401);
+      return res.status(401).json({ error: 'Authentication required' });
     }
 
     const userProfile = await authService.getCurrentUser(user.userId);
 
     if (!userProfile) {
-      return sendError(res, 'User not found', 404);
+      return res.status(404).json({ error: 'User not found' });
     }
 
     return sendSuccess(res, { user: userProfile });
   } catch (error) {
-    console.error('Get user error:', error);
-    return sendError(res, 'Failed to get user', 500);
+    next(error);
   }
 }
 
@@ -263,53 +227,41 @@ export async function me(req: Request, res: Response) {
 /**
  * GET /api/auth/sessions
  */
-export async function listSessions(req: Request, res: Response) {
+export async function listSessions(req: Request, res: Response, next: NextFunction) {
   try {
     const user = req.user as { userId: string; deviceId: string } | undefined;
     if (!user?.userId) {
-      return sendError(res, 'Authentication required', 401);
+      return res.status(401).json({ error: 'Authentication required' });
     }
 
     const sessions = await authService.listUserSessions(user.userId, user.deviceId);
 
     return sendSuccess(res, { sessions });
   } catch (error) {
-    console.error('List sessions error:', error);
-    return sendError(res, 'Failed to list sessions', 500);
+    next(error);
   }
 }
 
 /**
  * DELETE /api/auth/sessions/:sessionId
  */
-export async function revokeSessionById(req: Request, res: Response) {
+export async function revokeSessionById(req: Request, res: Response, next: NextFunction) {
   try {
     const user = req.user as { userId: string; deviceId: string } | undefined;
     if (!user?.userId) {
-      return sendError(res, 'Authentication required', 401);
+      return res.status(401).json({ error: 'Authentication required' });
     }
 
     const sessionIdParam = req.params.sessionId;
     const sessionId = Array.isArray(sessionIdParam) ? sessionIdParam[0] : sessionIdParam;
     if (!sessionId) {
-      return sendError(res, 'Session ID is required', 400);
+      return res.status(400).json({ error: 'Session ID is required' });
     }
 
     await authService.revokeSession(user.userId, sessionId, user.deviceId);
 
     return sendSuccess(res, { message: 'Session revoked' });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to revoke session';
-
-    if (message.includes('not found')) {
-      return sendError(res, message, 404);
-    }
-
-    if (message.includes('current session')) {
-      return sendError(res, message, 400);
-    }
-
-    console.error('Revoke session error:', error);
-    return sendError(res, 'Failed to revoke session', 500);
+    next(error);
   }
 }

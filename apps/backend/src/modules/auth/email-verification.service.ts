@@ -1,8 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { db } from '../../config/database.js';
-import { users } from '../../db/schema/users.js';
-import { emailVerificationTokens } from '../../db/schema/email-verification-tokens.js';
+import { users, emailVerificationTokens } from '@sprintio/db';
 import { hashToken } from '../../utils/token-hash.js';
 import { env } from '../../config/env.js';
 import { sendVerificationEmail } from '../../services/email.js';

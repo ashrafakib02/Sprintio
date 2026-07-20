@@ -9,5 +9,5 @@ export const columns = pgTable('board_columns', {
     .references(() => boards.id, { onDelete: 'cascade' }),
   position: integer('position').notNull().default(0),
   color: varchar('color', { length: 7 }),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
 });

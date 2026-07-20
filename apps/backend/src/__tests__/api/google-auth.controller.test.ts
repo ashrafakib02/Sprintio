@@ -97,7 +97,7 @@ describe('google-auth.controller', () => {
           email: 'test@test.com',
           emailVerified: true,
           role: 'member',
-          avatar: null,
+          avatarUrl: null,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },

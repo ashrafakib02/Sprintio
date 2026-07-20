@@ -1,17 +1,19 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AppError } from '@sprintio/shared';
 import { errorHandler } from '../../../middleware/error-handler.js';
 import { createMockReq, createMockRes, createMockNext } from '../../helpers.js';
 
+vi.mock('../../../utils/logger.js', () => ({
+  logger: {
+    error: vi.fn(),
+  },
+}));
+
+import { logger } from '../../../utils/logger.js';
+
 describe('errorHandler middleware', () => {
-  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
-
   beforeEach(() => {
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
+    vi.clearAllMocks();
   });
 
   it('should map AppError to its status code and JSON body', () => {
@@ -56,14 +58,14 @@ describe('errorHandler middleware', () => {
     });
   });
 
-  it('should log unknown errors to console', () => {
+  it('should log unknown errors via logger.error', () => {
     const res = createMockRes();
     const next = createMockNext();
 
     const error = new Error('Unexpected');
     errorHandler(error, createMockReq(), res as never, next);
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Unhandled error:', error);
+    expect(logger.error).toHaveBeenCalledWith({ err: error }, 'Unhandled error');
   });
 
   it('should handle AppError.notFound factory', () => {

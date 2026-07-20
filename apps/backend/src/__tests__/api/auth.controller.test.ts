@@ -59,7 +59,8 @@ import * as authService from '../../modules/auth/auth.service.js';
 import { getRefreshTokenFromRequest, getAccessTokenFromRequest } from '../../utils/cookie.js';
 import { decodeToken } from '../../utils/jwt.js';
 import { registerSchema, loginSchema } from '../../modules/auth/auth.validation.js';
-import { createMockReq, createMockRes } from '../helpers.js';
+import { createMockReq, createMockRes, createMockNext } from '../helpers.js';
+import { AppError } from '@sprintio/shared';
 
 describe('auth.controller', () => {
   beforeEach(() => {
@@ -92,14 +93,14 @@ describe('auth.controller', () => {
           email: 'test@test.com',
           emailVerified: false,
           role: 'member',
-          avatar: null,
+          avatarUrl: null,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },
         tokens: { accessToken: 'access', refreshToken: 'refresh' },
       });
 
-      await authController.register(req, res as never);
+      await authController.register(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(201);
       const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
@@ -115,7 +116,7 @@ describe('auth.controller', () => {
         error: { errors: [{ message: 'Name is required' }] },
       } as never);
 
-      await authController.register(req, res as never);
+      await authController.register(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(400);
       const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
@@ -139,12 +140,13 @@ describe('auth.controller', () => {
       } as never);
 
       vi.mocked(authService.registerUser).mockRejectedValue(
-        new Error('A user with this email already exists'),
+        AppError.conflict('A user with this email already exists'),
       );
 
-      await authController.register(req, res as never);
+      const next = createMockNext();
+      await authController.register(req, res as never, next);
 
-      expect(res.status).toHaveBeenCalledWith(409);
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 409 }));
     });
 
     it('should return 500 on unexpected errors', async () => {
@@ -163,11 +165,12 @@ describe('auth.controller', () => {
         data: { name: 'Test', email: 'test@test.com', password: 'Password1!' },
       } as never);
 
-      vi.mocked(authService.registerUser).mockRejectedValue(new Error('DB error'));
+      vi.mocked(authService.registerUser).mockRejectedValue(AppError.internal('DB error'));
 
-      await authController.register(req, res as never);
+      const next = createMockNext();
+      await authController.register(req, res as never, next);
 
-      expect(res.status).toHaveBeenCalledWith(500);
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 500 }));
     });
   });
 
@@ -190,14 +193,14 @@ describe('auth.controller', () => {
           email: 'test@test.com',
           emailVerified: true,
           role: 'member',
-          avatar: null,
+          avatarUrl: null,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },
         tokens: { accessToken: 'access', refreshToken: 'refresh' },
       });
 
-      await authController.login(req, res as never);
+      await authController.login(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(200);
       const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
@@ -215,11 +218,14 @@ describe('auth.controller', () => {
         data: { email: 'test@test.com', password: 'WrongPass1!' },
       } as never);
 
-      vi.mocked(authService.loginUser).mockRejectedValue(new Error('Invalid email or password'));
+      vi.mocked(authService.loginUser).mockRejectedValue(
+        AppError.unauthorized('Invalid email or password'),
+      );
 
-      await authController.login(req, res as never);
+      const next = createMockNext();
+      await authController.login(req, res as never, next);
 
-      expect(res.status).toHaveBeenCalledWith(401);
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 401 }));
     });
 
     it('should return 403 for unverified email', async () => {
@@ -234,12 +240,13 @@ describe('auth.controller', () => {
       } as never);
 
       vi.mocked(authService.loginUser).mockRejectedValue(
-        new Error('Please verify your email before signing in'),
+        AppError.unauthorized('Please verify your email before signing in'),
       );
 
-      await authController.login(req, res as never);
+      const next = createMockNext();
+      await authController.login(req, res as never, next);
 
-      expect(res.status).toHaveBeenCalledWith(401);
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 401 }));
     });
 
     it('should return 401 for OAuth-only users (no enumeration)', async () => {
@@ -254,12 +261,13 @@ describe('auth.controller', () => {
       } as never);
 
       vi.mocked(authService.loginUser).mockRejectedValue(
-        new Error('This account uses Google Sign-In'),
+        AppError.unauthorized('This account uses Google Sign-In'),
       );
 
-      await authController.login(req, res as never);
+      const next = createMockNext();
+      await authController.login(req, res as never, next);
 
-      expect(res.status).toHaveBeenCalledWith(401);
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 401 }));
     });
   });
 
@@ -275,7 +283,7 @@ describe('auth.controller', () => {
         refreshToken: 'new-refresh',
       });
 
-      await authController.refresh(req, res as never);
+      await authController.refresh(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(200);
       const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
@@ -288,7 +296,7 @@ describe('auth.controller', () => {
 
       vi.mocked(getRefreshTokenFromRequest).mockReturnValue(undefined);
 
-      await authController.refresh(req, res as never);
+      await authController.refresh(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(401);
       const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
@@ -301,12 +309,13 @@ describe('auth.controller', () => {
 
       vi.mocked(getRefreshTokenFromRequest).mockReturnValue('invalid-token');
       vi.mocked(authService.refreshTokens).mockRejectedValue(
-        new Error('Invalid or expired refresh token'),
+        AppError.unauthorized('Invalid or expired refresh token'),
       );
 
-      await authController.refresh(req, res as never);
+      const next = createMockNext();
+      await authController.refresh(req, res as never, next);
 
-      expect(res.status).toHaveBeenCalledWith(401);
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 401 }));
       const { clearAuthCookies } = await import('../../utils/cookie.js');
       expect(clearAuthCookies).toHaveBeenCalled();
     });
@@ -320,7 +329,7 @@ describe('auth.controller', () => {
       vi.mocked(getRefreshTokenFromRequest).mockReturnValue('refresh-token');
       vi.mocked(getAccessTokenFromRequest).mockReturnValue(undefined);
 
-      await authController.logout(req, res as never);
+      await authController.logout(req, res as never, createMockNext());
 
       const { clearAuthCookies } = await import('../../utils/cookie.js');
       expect(clearAuthCookies).toHaveBeenCalled();
@@ -333,13 +342,14 @@ describe('auth.controller', () => {
 
       vi.mocked(getRefreshTokenFromRequest).mockReturnValue('bad-token');
       vi.mocked(getAccessTokenFromRequest).mockReturnValue(undefined);
-      vi.mocked(authService.logoutUser).mockRejectedValue(new Error('DB error'));
+      vi.mocked(authService.logoutUser).mockRejectedValue(AppError.internal('DB error'));
 
-      await authController.logout(req, res as never);
+      const next = createMockNext();
+      await authController.logout(req, res as never, next);
 
       const { clearAuthCookies } = await import('../../utils/cookie.js');
       expect(clearAuthCookies).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(500);
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 500 }));
     });
   });
 
@@ -353,7 +363,7 @@ describe('auth.controller', () => {
       vi.mocked(getAccessTokenFromRequest).mockReturnValue('access-token');
       vi.mocked(decodeToken).mockReturnValue({ exp: Date.now() / 1000 + 900 } as never);
 
-      await authController.logoutAll(req, res as never);
+      await authController.logoutAll(req, res as never, createMockNext());
 
       expect(authService.logoutAllSessions).toHaveBeenCalledWith(
         'user-1',
@@ -367,7 +377,7 @@ describe('auth.controller', () => {
       const req = createMockReq();
       const res = createMockRes();
 
-      await authController.logoutAll(req, res as never);
+      await authController.logoutAll(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(401);
     });
@@ -384,12 +394,12 @@ describe('auth.controller', () => {
         email: 'test@test.com',
         emailVerified: true,
         role: 'admin',
-        avatar: null,
+        avatarUrl: null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
 
-      await authController.me(req, res as never);
+      await authController.me(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(200);
       const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
@@ -400,7 +410,7 @@ describe('auth.controller', () => {
       const req = createMockReq();
       const res = createMockRes();
 
-      await authController.me(req, res as never);
+      await authController.me(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(401);
     });
@@ -411,7 +421,7 @@ describe('auth.controller', () => {
 
       vi.mocked(authService.getCurrentUser).mockResolvedValue(null);
 
-      await authController.me(req, res as never);
+      await authController.me(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(404);
     });
@@ -437,7 +447,7 @@ describe('auth.controller', () => {
         },
       ]);
 
-      await authController.listSessions(req, res as never);
+      await authController.listSessions(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(200);
       const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
@@ -448,7 +458,7 @@ describe('auth.controller', () => {
       const req = createMockReq();
       const res = createMockRes();
 
-      await authController.listSessions(req, res as never);
+      await authController.listSessions(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(401);
     });
@@ -464,7 +474,7 @@ describe('auth.controller', () => {
 
       vi.mocked(authService.revokeSession).mockResolvedValue(undefined);
 
-      await authController.revokeSessionById(req, res as never);
+      await authController.revokeSessionById(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(200);
       const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
@@ -478,7 +488,7 @@ describe('auth.controller', () => {
       });
       const res = createMockRes();
 
-      await authController.revokeSessionById(req, res as never);
+      await authController.revokeSessionById(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(400);
     });
@@ -490,11 +500,12 @@ describe('auth.controller', () => {
       });
       const res = createMockRes();
 
-      vi.mocked(authService.revokeSession).mockRejectedValue(new Error('Session not found'));
+      vi.mocked(authService.revokeSession).mockRejectedValue(AppError.notFound('Session'));
 
-      await authController.revokeSessionById(req, res as never);
+      const next = createMockNext();
+      await authController.revokeSessionById(req, res as never, next);
 
-      expect(res.status).toHaveBeenCalledWith(404);
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 404 }));
     });
 
     it('should return 400 when trying to revoke current session', async () => {
@@ -505,12 +516,13 @@ describe('auth.controller', () => {
       const res = createMockRes();
 
       vi.mocked(authService.revokeSession).mockRejectedValue(
-        new Error('Cannot revoke your current session'),
+        AppError.badRequest('Cannot revoke your current session'),
       );
 
-      await authController.revokeSessionById(req, res as never);
+      const next = createMockNext();
+      await authController.revokeSessionById(req, res as never, next);
 
-      expect(res.status).toHaveBeenCalledWith(400);
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
     });
   });
 });

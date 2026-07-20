@@ -9,8 +9,8 @@ export const projects = pgTable('projects', {
     .notNull()
     .references(() => workspaces.id, { onDelete: 'cascade' }),
   status: varchar('status', { length: 20 }).notNull().default('active'),
-  startDate: timestamp('start_date'),
-  endDate: timestamp('end_date'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  startDate: timestamp('start_date', { withTimezone: true, mode: 'date' }),
+  endDate: timestamp('end_date', { withTimezone: true, mode: 'date' }),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
 });

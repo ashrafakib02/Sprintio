@@ -8,8 +8,8 @@ export const sprints = pgTable('sprints', {
     .references(() => projects.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 100 }).notNull(),
   goal: text('goal'),
-  startDate: timestamp('start_date').notNull(),
-  endDate: timestamp('end_date').notNull(),
+  startDate: timestamp('start_date', { withTimezone: true, mode: 'date' }).notNull(),
+  endDate: timestamp('end_date', { withTimezone: true, mode: 'date' }).notNull(),
   status: varchar('status', { length: 20 }).notNull().default('planned'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
 });

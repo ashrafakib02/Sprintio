@@ -12,7 +12,7 @@ export const cards = pgTable('cards', {
   priority: varchar('priority', { length: 20 }).notNull().default('none'),
   assigneeIds: jsonb('assignee_ids').$type<string[]>().default([]),
   labelIds: jsonb('label_ids').$type<string[]>().default([]),
-  dueDate: timestamp('due_date'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  dueDate: timestamp('due_date', { withTimezone: true, mode: 'date' }),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
 });

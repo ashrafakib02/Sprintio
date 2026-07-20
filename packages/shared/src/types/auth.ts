@@ -15,6 +15,7 @@ export interface TokenPair {
 export interface TokenPayload {
   userId: string;
   email: string;
+  role: string;
   jti: string;
   deviceId: string;
 }
@@ -31,6 +32,7 @@ export interface RefreshTokenPayload {
 export interface AccessTokenFullPayload {
   userId: string;
   email: string;
+  role: string;
   jti: string;
   deviceId: string;
   iat: number;
@@ -54,6 +56,10 @@ export interface AuthResponse {
     name: string;
     email: string;
     emailVerified: boolean;
+    role: string;
+    avatarUrl: string | null;
+    createdAt: string;
+    updatedAt: string;
   };
   tokens: AuthTokens;
 }

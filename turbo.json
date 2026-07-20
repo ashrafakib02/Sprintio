@@ -1,0 +1,4 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["./packages/config/turbo/base.json"]
+}

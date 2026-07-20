@@ -19,7 +19,7 @@ export const tasks = pgTable('tasks', {
   sprintId: uuid('sprint_id'),
   position: integer('position').notNull().default(0),
   labels: jsonb('labels').$type<string[]>().default([]),
-  dueDate: timestamp('due_date'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  dueDate: timestamp('due_date', { withTimezone: true, mode: 'date' }),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
 });

@@ -1,8 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { db } from '../../config/database.js';
-import { users } from '../../db/schema/users.js';
-import { passwordResetTokens } from '../../db/schema/password-reset-tokens.js';
+import { users, passwordResetTokens, refreshTokens, sessions } from '@sprintio/db';
 import { hashToken } from '../../utils/token-hash.js';
 import { hashPassword } from '../../utils/password.js';
 import { env } from '../../config/env.js';
@@ -108,8 +107,6 @@ export async function resetPassword(token: string, newPassword: string): Promise
   await invalidateAllUserSessions(storedToken.userId);
 
   // Delete all refresh tokens and sessions from DB
-  const { refreshTokens } = await import('../../db/schema/refresh-tokens.js');
-  const { sessions } = await import('../../db/schema/sessions.js');
   await db.delete(refreshTokens).where(eq(refreshTokens.userId, storedToken.userId));
   await db.delete(sessions).where(eq(sessions.userId, storedToken.userId));
 

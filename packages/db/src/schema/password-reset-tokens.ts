@@ -1,16 +1,12 @@
-import { pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+import { pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 import { users } from './users.js';
 
-export const sessions = pgTable('sessions', {
+export const passwordResetTokens = pgTable('password_reset_tokens', {
   id: uuid('id').primaryKey().defaultRandom(),
+  tokenHash: varchar('token_hash', { length: 64 }).notNull().unique(),
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  deviceId: varchar('device_id', { length: 36 }),
-  userAgent: text('user_agent'),
-  ipAddress: varchar('ip_address', { length: 45 }),
   expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow(),
 });
-
-export type Session = typeof sessions.$inferSelect;

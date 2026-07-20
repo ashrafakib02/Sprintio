@@ -1,27 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createMockReq, createMockRes, createMockNext } from '../../helpers.js';
 
-vi.mock('../../../config/env.js', () => ({
-  env: {},
-}));
-
-vi.mock('../../../config/database.js', () => ({
-  db: {
-    select: vi.fn().mockReturnThis(),
-    from: vi.fn().mockReturnThis(),
-    where: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockResolvedValue([]),
-  },
-}));
-
-vi.mock('../../../db/schema/users.js', () => ({
-  users: { id: 'id', role: 'role' },
-}));
-
-vi.mock('drizzle-orm', () => ({
-  eq: vi.fn(),
-}));
-
 vi.mock('@sprintio/shared', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@sprintio/shared')>();
   return {
@@ -55,65 +34,50 @@ vi.mock('@sprintio/shared', async (importOriginal) => {
 });
 
 import { requirePermission } from '../../../middleware/permission.js';
-import { db } from '../../../config/database.js';
 
 describe('requirePermission middleware', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should return 401 when req.user is not set', async () => {
+  it('should return 401 when req.user is not set', () => {
     const req = createMockReq();
     const res = createMockRes();
     const next = createMockNext();
 
     const middleware = requirePermission('workspace:create');
-    await middleware(req, res as never, next);
+    middleware(req, res as never, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();
   });
 
-  it('should return 401 when user not found in database', async () => {
-    const req = createMockReq({ user: { userId: 'user-1' } });
+  it('should return 401 when req.user has no userId', () => {
+    const req = createMockReq({ user: { email: 'test@test.com' } });
     const res = createMockRes();
     const next = createMockNext();
-
-    (db.select as ReturnType<typeof vi.fn>).mockReturnValue({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue({
-          limit: vi.fn().mockResolvedValue([]),
-        }),
-      }),
-    });
 
     const middleware = requirePermission('workspace:create');
-    await middleware(req, res as never, next);
+    middleware(req, res as never, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
+    expect(next).not.toHaveBeenCalled();
   });
 
-  it('should allow owner to bypass all permission checks', async () => {
-    const req = createMockReq({ user: { userId: 'user-1' } });
+  it('should allow owner to bypass all permission checks', () => {
+    const req = createMockReq({
+      user: { userId: 'user-1', role: 'owner' },
+    });
     const res = createMockRes();
     const next = createMockNext();
 
-    // Owner should bypass even without DB lookup (but code still queries if no cached role)
-    (db.select as ReturnType<typeof vi.fn>).mockReturnValue({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue({
-          limit: vi.fn().mockResolvedValue([{ role: 'owner' }]),
-        }),
-      }),
-    });
-
     const middleware = requirePermission('workspace:create', 'workspace:delete');
-    await middleware(req, res as never, next);
+    middleware(req, res as never, next);
 
     expect(next).toHaveBeenCalledWith();
   });
 
-  it('should skip DB lookup when role is already cached on req.userRole', async () => {
+  it('should skip role lookup when role is already cached on req.userRole', () => {
     const req = createMockReq({ user: { userId: 'user-1' } });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (req as any).userRole = 'owner';
@@ -121,47 +85,33 @@ describe('requirePermission middleware', () => {
     const next = createMockNext();
 
     const middleware = requirePermission('workspace:create');
-    await middleware(req, res as never, next);
+    middleware(req, res as never, next);
 
-    // Should NOT call db.select since role is cached
-    expect(db.select).not.toHaveBeenCalled();
     expect(next).toHaveBeenCalledWith();
   });
 
-  it('should allow member to access board:create permission', async () => {
-    const req = createMockReq({ user: { userId: 'user-1' } });
+  it('should allow member to access board:create permission', () => {
+    const req = createMockReq({
+      user: { userId: 'user-1', role: 'member' },
+    });
     const res = createMockRes();
     const next = createMockNext();
-
-    (db.select as ReturnType<typeof vi.fn>).mockReturnValue({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue({
-          limit: vi.fn().mockResolvedValue([{ role: 'member' }]),
-        }),
-      }),
-    });
 
     const middleware = requirePermission('board:create');
-    await middleware(req, res as never, next);
+    middleware(req, res as never, next);
 
     expect(next).toHaveBeenCalledWith();
   });
 
-  it('should deny member from workspace:create permission', async () => {
-    const req = createMockReq({ user: { userId: 'user-1' } });
+  it('should deny member from workspace:create permission', () => {
+    const req = createMockReq({
+      user: { userId: 'user-1', role: 'member' },
+    });
     const res = createMockRes();
     const next = createMockNext();
 
-    (db.select as ReturnType<typeof vi.fn>).mockReturnValue({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue({
-          limit: vi.fn().mockResolvedValue([{ role: 'member' }]),
-        }),
-      }),
-    });
-
     const middleware = requirePermission('workspace:create');
-    await middleware(req, res as never, next);
+    middleware(req, res as never, next);
 
     expect(res.status).toHaveBeenCalledWith(403);
     const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
@@ -169,81 +119,57 @@ describe('requirePermission middleware', () => {
     // Permission info is no longer included in 403 responses (security fix)
   });
 
-  it('should deny guest from task:update permission', async () => {
-    const req = createMockReq({ user: { userId: 'user-1' } });
+  it('should deny guest from task:update permission', () => {
+    const req = createMockReq({
+      user: { userId: 'user-1', role: 'guest' },
+    });
     const res = createMockRes();
     const next = createMockNext();
 
-    (db.select as ReturnType<typeof vi.fn>).mockReturnValue({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue({
-          limit: vi.fn().mockResolvedValue([{ role: 'guest' }]),
-        }),
-      }),
-    });
-
     const middleware = requirePermission('task:update');
-    await middleware(req, res as never, next);
+    middleware(req, res as never, next);
 
     expect(res.status).toHaveBeenCalledWith(403);
   });
 
-  it('should require ALL permissions when multiple are specified', async () => {
-    const req = createMockReq({ user: { userId: 'user-1' } });
+  it('should require ALL permissions when multiple are specified', () => {
+    const req = createMockReq({
+      user: { userId: 'user-1', role: 'guest' },
+    });
     const res = createMockRes();
     const next = createMockNext();
-
-    (db.select as ReturnType<typeof vi.fn>).mockReturnValue({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue({
-          limit: vi.fn().mockResolvedValue([{ role: 'guest' }]),
-        }),
-      }),
-    });
 
     // Guest has board:create and task:create, but NOT task:update
     const middleware = requirePermission('board:create', 'task:update');
-    await middleware(req, res as never, next);
+    middleware(req, res as never, next);
 
     expect(res.status).toHaveBeenCalledWith(403);
   });
 
-  it('should pass when admin has required workspace permissions', async () => {
-    const req = createMockReq({ user: { userId: 'user-1' } });
+  it('should pass when admin has required workspace permissions', () => {
+    const req = createMockReq({
+      user: { userId: 'user-1', role: 'admin' },
+    });
     const res = createMockRes();
     const next = createMockNext();
 
-    (db.select as ReturnType<typeof vi.fn>).mockReturnValue({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue({
-          limit: vi.fn().mockResolvedValue([{ role: 'admin' }]),
-        }),
-      }),
-    });
-
     const middleware = requirePermission('workspace:update', 'workspace:manage_members');
-    await middleware(req, res as never, next);
+    middleware(req, res as never, next);
 
     expect(next).toHaveBeenCalledWith();
   });
 
-  it('should default to member role when user.role is null', async () => {
-    const req = createMockReq({ user: { userId: 'user-1' } });
+  it('should default to member role when user.role is undefined', () => {
+    const req = createMockReq({
+      user: { userId: 'user-1' },
+    });
     const res = createMockRes();
     const next = createMockNext();
 
-    (db.select as ReturnType<typeof vi.fn>).mockReturnValue({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue({
-          limit: vi.fn().mockResolvedValue([{ role: null }]),
-        }),
-      }),
-    });
-
     const middleware = requirePermission('board:create');
-    await middleware(req, res as never, next);
+    middleware(req, res as never, next);
 
-    // null role defaults to 'member', which has board:create
+    // undefined role defaults to 'member', which has board:create
     expect(next).toHaveBeenCalledWith();
   });
 });

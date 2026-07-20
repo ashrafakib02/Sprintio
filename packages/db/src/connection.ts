@@ -1,17 +1,18 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 import * as schema from './schema/index.js';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+const client = postgres(process.env.DATABASE_URL!, {
   max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
+  idle_timeout: 30,
+  connect_timeout: 5,
 });
 
-export const db = drizzle(pool, { schema });
+export const db = drizzle(client, { schema });
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  pool.end().catch(console.error);
-});
+export async function closeDatabase(): Promise<void> {
+  await client.end();
+}
+
+/** Raw postgres-js client for advanced queries */
+export { client };

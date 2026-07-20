@@ -1,4 +1,9 @@
 export { users } from './users.js';
+export { sessions } from './sessions.js';
+export { refreshTokens } from './refresh-tokens.js';
+export { emailVerificationTokens } from './email-verification-tokens.js';
+export { passwordResetTokens } from './password-reset-tokens.js';
+export { oauthAccounts } from './oauth-accounts.js';
 export { workspaces } from './workspaces.js';
 export { workspaceMembers } from './workspace-members.js';
 export { boards } from './boards.js';

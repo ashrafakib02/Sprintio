@@ -10,7 +10,7 @@ export interface TaskItem {
   title: string;
   priority: 'urgent' | 'high' | 'medium' | 'low' | 'none';
   dueDate?: string;
-  assignee?: { name: string; avatar?: string | null };
+  assignee?: { name: string; avatarUrl?: string | null };
 }
 
 const priorityConfig: Record<
@@ -101,7 +101,7 @@ export function MyTaskList({ tasks = demoTasks, total = 12, onViewAll }: MyTaskL
                   </div>
                 </div>
                 {task.assignee && (
-                  <Avatar name={task.assignee.name} src={task.assignee.avatar} size="sm" />
+                  <Avatar name={task.assignee.name} src={task.assignee.avatarUrl ?? undefined} size="sm" />
                 )}
               </button>
             );
