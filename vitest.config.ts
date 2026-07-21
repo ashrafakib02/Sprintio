@@ -5,6 +5,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@sprintio/shared': resolve(__dirname, 'packages/shared/src'),
+      '@sprintio/db': resolve(__dirname, 'packages/db/src'),
     },
   },
   test: {
