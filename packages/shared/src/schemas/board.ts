@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { BOARD_VIEW_TYPES } from '../constants/status.js';
+
+export const BoardViewTypeSchema = z.enum(BOARD_VIEW_TYPES);
 
 export const CreateBoardSchema = z.object({
   name: z.string().min(1).max(100),

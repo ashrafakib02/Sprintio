@@ -5,22 +5,19 @@ vi.mock('../../modules/auth/password-reset.service.js', () => ({
   resetPassword: vi.fn(),
 }));
 
-vi.mock('../../modules/auth/password-reset.validation.js', () => ({
-  forgotPasswordSchema: {
-    safeParse: vi.fn(),
-  },
-  resetPasswordSchema: {
-    safeParse: vi.fn(),
-  },
-}));
+vi.mock('@sprintio/shared', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  return {
+    ...actual,
+    ForgotPasswordSchema: { safeParse: vi.fn() },
+    ResetPasswordSchema: { safeParse: vi.fn() },
+  };
+});
 
 import * as controller from '../../modules/auth/password-reset.controller.js';
 import * as service from '../../modules/auth/password-reset.service.js';
-import {
-  forgotPasswordSchema,
-  resetPasswordSchema,
-} from '../../modules/auth/password-reset.validation.js';
-import { createMockReq, createMockRes } from '../helpers.js';
+import { ForgotPasswordSchema, ResetPasswordSchema } from '@sprintio/shared';
+import { createMockReq, createMockRes, createMockNext } from '../helpers.js';
 
 describe('password-reset.controller', () => {
   beforeEach(() => {
@@ -32,7 +29,7 @@ describe('password-reset.controller', () => {
       const req = createMockReq({ body: { email: 'test@test.com' } });
       const res = createMockRes();
 
-      vi.mocked(forgotPasswordSchema.safeParse).mockReturnValue({
+      vi.mocked(ForgotPasswordSchema.safeParse).mockReturnValue({
         success: true,
         data: { email: 'test@test.com' },
       } as never);
@@ -42,7 +39,7 @@ describe('password-reset.controller', () => {
         message: 'If an account with that email exists, a password reset link has been sent',
       });
 
-      await controller.forgotPassword(req, res as never);
+      await controller.forgotPassword(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(200);
       const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
@@ -53,30 +50,31 @@ describe('password-reset.controller', () => {
       const req = createMockReq({ body: { email: 'not-an-email' } });
       const res = createMockRes();
 
-      vi.mocked(forgotPasswordSchema.safeParse).mockReturnValue({
+      vi.mocked(ForgotPasswordSchema.safeParse).mockReturnValue({
         success: false,
         error: { errors: [{ message: 'Invalid email address' }] },
       } as never);
 
-      await controller.forgotPassword(req, res as never);
+      await controller.forgotPassword(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(400);
     });
 
-    it('should return 500 when service throws', async () => {
+    it('should forward error to next when service throws', async () => {
       const req = createMockReq({ body: { email: 'test@test.com' } });
       const res = createMockRes();
 
-      vi.mocked(forgotPasswordSchema.safeParse).mockReturnValue({
+      vi.mocked(ForgotPasswordSchema.safeParse).mockReturnValue({
         success: true,
         data: { email: 'test@test.com' },
       } as never);
 
       vi.mocked(service.forgotPassword).mockRejectedValue(new Error('DB error'));
 
-      await controller.forgotPassword(req, res as never);
+      const next = createMockNext();
+      await controller.forgotPassword(req, res as never, next);
 
-      expect(res.status).toHaveBeenCalledWith(500);
+      expect(next).toHaveBeenCalledWith(expect.any(Error));
     });
   });
 
@@ -87,7 +85,7 @@ describe('password-reset.controller', () => {
       });
       const res = createMockRes();
 
-      vi.mocked(resetPasswordSchema.safeParse).mockReturnValue({
+      vi.mocked(ResetPasswordSchema.safeParse).mockReturnValue({
         success: true,
         data: { token: 'valid-token', password: 'NewPass1!', confirmPassword: 'NewPass1!' },
       } as never);
@@ -97,7 +95,7 @@ describe('password-reset.controller', () => {
         message: 'Password reset successful',
       });
 
-      await controller.resetPassword(req, res as never);
+      await controller.resetPassword(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(200);
       const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
@@ -110,7 +108,7 @@ describe('password-reset.controller', () => {
       });
       const res = createMockRes();
 
-      vi.mocked(resetPasswordSchema.safeParse).mockReturnValue({
+      vi.mocked(ResetPasswordSchema.safeParse).mockReturnValue({
         success: true,
         data: { token: 'invalid-token', password: 'NewPass1!', confirmPassword: 'NewPass1!' },
       } as never);
@@ -120,7 +118,7 @@ describe('password-reset.controller', () => {
         message: 'Invalid or expired reset link',
       });
 
-      await controller.resetPassword(req, res as never);
+      await controller.resetPassword(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(400);
     });
@@ -129,32 +127,33 @@ describe('password-reset.controller', () => {
       const req = createMockReq({ body: {} });
       const res = createMockRes();
 
-      vi.mocked(resetPasswordSchema.safeParse).mockReturnValue({
+      vi.mocked(ResetPasswordSchema.safeParse).mockReturnValue({
         success: false,
         error: { errors: [{ message: 'Reset token is required' }] },
       } as never);
 
-      await controller.resetPassword(req, res as never);
+      await controller.resetPassword(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(400);
     });
 
-    it('should return 500 when service throws', async () => {
+    it('should forward error to next when service throws', async () => {
       const req = createMockReq({
         body: { token: 'token', password: 'NewPass1!', confirmPassword: 'NewPass1!' },
       });
       const res = createMockRes();
 
-      vi.mocked(resetPasswordSchema.safeParse).mockReturnValue({
+      vi.mocked(ResetPasswordSchema.safeParse).mockReturnValue({
         success: true,
         data: { token: 'token', password: 'NewPass1!', confirmPassword: 'NewPass1!' },
       } as never);
 
       vi.mocked(service.resetPassword).mockRejectedValue(new Error('Unexpected'));
 
-      await controller.resetPassword(req, res as never);
+      const next = createMockNext();
+      await controller.resetPassword(req, res as never, next);
 
-      expect(res.status).toHaveBeenCalledWith(500);
+      expect(next).toHaveBeenCalledWith(expect.any(Error));
     });
   });
 });

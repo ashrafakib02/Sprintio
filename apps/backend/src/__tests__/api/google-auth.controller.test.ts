@@ -23,6 +23,8 @@ vi.mock('../../modules/auth/google-auth.service.js', () => ({
 vi.mock('../../utils/cookie.js', () => ({
   setAccessTokenCookie: vi.fn(),
   setRefreshTokenCookie: vi.fn(),
+  setAuthCookies: vi.fn(),
+  ensureDeviceIdCookie: vi.fn().mockReturnValue('test-device-id'),
   getDeviceIdFromRequest: vi.fn(),
   setDeviceIdCookie: vi.fn(),
   cookieDomain: vi.fn().mockReturnValue(''),
@@ -30,9 +32,25 @@ vi.mock('../../utils/cookie.js', () => ({
   REFRESH_TOKEN_COOKIE: 'refresh_token',
 }));
 
+vi.mock('../../utils/response.js', () => ({
+  sendSuccess: vi.fn().mockImplementation((_res, data, statusCode = 200) => {
+    _res.status(statusCode).json({ data });
+  }),
+  sendError: vi.fn().mockImplementation((_res, message, statusCode = 400) => {
+    _res.status(statusCode).json({ error: message });
+  }),
+}));
+
+vi.mock('../../utils/logger.js', () => ({
+  logger: {
+    error: vi.fn(),
+    info: vi.fn(),
+  },
+}));
+
 import * as controller from '../../modules/auth/google-auth.controller.js';
 import * as googleAuthService from '../../modules/auth/google-auth.service.js';
-import { createMockReq, createMockRes } from '../helpers.js';
+import { createMockReq, createMockRes, createMockNext } from '../helpers.js';
 
 describe('google-auth.controller', () => {
   beforeEach(() => {
@@ -48,7 +66,7 @@ describe('google-auth.controller', () => {
         'https://accounts.google.com/o/oauth2/auth?client_id=test',
       );
 
-      await controller.googleLogin(req, res as never);
+      await controller.googleLogin(req, res as never, createMockNext());
 
       expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('accounts.google.com'));
       expect(googleAuthService.getGoogleAuthUrl).toHaveBeenCalledWith(expect.any(String));
@@ -60,7 +78,7 @@ describe('google-auth.controller', () => {
 
       vi.mocked(googleAuthService.getGoogleAuthUrl).mockReturnValue('https://google.com/auth');
 
-      await controller.googleLogin(req, res as never);
+      await controller.googleLogin(req, res as never, createMockNext());
 
       // Should set a state cookie
       expect(res.setHeader).toHaveBeenCalled();
@@ -74,7 +92,7 @@ describe('google-auth.controller', () => {
         throw new Error('OAuth not configured');
       });
 
-      await controller.googleLogin(req, res as never);
+      await controller.googleLogin(req, res as never, createMockNext());
 
       expect(res.redirect).toHaveBeenCalledWith(
         expect.stringContaining('error=google_auth_init_failed'),
@@ -104,7 +122,7 @@ describe('google-auth.controller', () => {
         tokens: { accessToken: 'access', refreshToken: 'refresh' },
       });
 
-      await controller.googleCallback(req, res as never);
+      await controller.googleCallback(req, res as never, createMockNext());
 
       expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('success=true'));
     });
@@ -115,7 +133,7 @@ describe('google-auth.controller', () => {
       });
       const res = createMockRes();
 
-      await controller.googleCallback(req, res as never);
+      await controller.googleCallback(req, res as never, createMockNext());
 
       expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('error=access_denied'));
     });
@@ -126,7 +144,7 @@ describe('google-auth.controller', () => {
       });
       const res = createMockRes();
 
-      await controller.googleCallback(req, res as never);
+      await controller.googleCallback(req, res as never, createMockNext());
 
       expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('error=no_code_provided'));
     });
@@ -138,7 +156,7 @@ describe('google-auth.controller', () => {
       });
       const res = createMockRes();
 
-      await controller.googleCallback(req, res as never);
+      await controller.googleCallback(req, res as never, createMockNext());
 
       expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('error=invalid_state'));
     });
@@ -150,7 +168,7 @@ describe('google-auth.controller', () => {
       });
       const res = createMockRes();
 
-      await controller.googleCallback(req, res as never);
+      await controller.googleCallback(req, res as never, createMockNext());
 
       expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('error=invalid_state'));
     });
@@ -166,7 +184,7 @@ describe('google-auth.controller', () => {
         new Error('token_exchange_failed'),
       );
 
-      await controller.googleCallback(req, res as never);
+      await controller.googleCallback(req, res as never, createMockNext());
 
       expect(res.redirect).toHaveBeenCalledWith(
         expect.stringContaining('error=google_callback_failed'),
@@ -186,7 +204,7 @@ describe('google-auth.controller', () => {
         { provider: 'google', providerAccountId: 'g-123', linkedAt: new Date().toISOString() },
       ]);
 
-      await controller.googleLink(req, res as never);
+      await controller.googleLink(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(200);
       const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
@@ -197,7 +215,7 @@ describe('google-auth.controller', () => {
       const req = createMockReq({ body: { code: 'auth-code' } });
       const res = createMockRes();
 
-      await controller.googleLink(req, res as never);
+      await controller.googleLink(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(401);
     });
@@ -209,7 +227,7 @@ describe('google-auth.controller', () => {
       });
       const res = createMockRes();
 
-      await controller.googleLink(req, res as never);
+      await controller.googleLink(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(400);
     });
@@ -225,7 +243,7 @@ describe('google-auth.controller', () => {
         new Error('This Google account is already linked to another user'),
       );
 
-      await controller.googleLink(req, res as never);
+      await controller.googleLink(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(409);
     });
@@ -241,7 +259,7 @@ describe('google-auth.controller', () => {
         new Error('Google account is already linked'),
       );
 
-      await controller.googleLink(req, res as never);
+      await controller.googleLink(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(409);
     });
@@ -254,7 +272,7 @@ describe('google-auth.controller', () => {
 
       vi.mocked(googleAuthService.unlinkGoogleAccount).mockResolvedValue([]);
 
-      await controller.googleUnlink(req, res as never);
+      await controller.googleUnlink(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(200);
       const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
@@ -265,7 +283,7 @@ describe('google-auth.controller', () => {
       const req = createMockReq();
       const res = createMockRes();
 
-      await controller.googleUnlink(req, res as never);
+      await controller.googleUnlink(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(401);
     });
@@ -278,7 +296,7 @@ describe('google-auth.controller', () => {
         new Error('Cannot unlink Google account. You must set a password first.'),
       );
 
-      await controller.googleUnlink(req, res as never);
+      await controller.googleUnlink(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(400);
     });
@@ -291,7 +309,7 @@ describe('google-auth.controller', () => {
         new Error('Database connection failed'),
       );
 
-      await controller.googleUnlink(req, res as never);
+      await controller.googleUnlink(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(500);
     });
@@ -306,7 +324,7 @@ describe('google-auth.controller', () => {
         { provider: 'google', providerAccountId: 'g-123', linkedAt: new Date().toISOString() },
       ]);
 
-      await controller.googleProviders(req, res as never);
+      await controller.googleProviders(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(200);
       const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
@@ -317,7 +335,7 @@ describe('google-auth.controller', () => {
       const req = createMockReq();
       const res = createMockRes();
 
-      await controller.googleProviders(req, res as never);
+      await controller.googleProviders(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(401);
     });
@@ -328,7 +346,7 @@ describe('google-auth.controller', () => {
 
       vi.mocked(googleAuthService.getLinkedProviders).mockRejectedValue(new Error('DB error'));
 
-      await controller.googleProviders(req, res as never);
+      await controller.googleProviders(req, res as never, createMockNext());
 
       expect(res.status).toHaveBeenCalledWith(500);
     });

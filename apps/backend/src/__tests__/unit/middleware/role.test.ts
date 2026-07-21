@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createMockReq, createMockRes, createMockNext } from '../../helpers.js';
 
+vi.mock('../../../config/env.js', () => ({
+  env: {
+    DEFAULT_USER_ROLE: 'member',
+  },
+}));
+
 import { requireRole } from '../../../middleware/role.js';
 
 describe('requireRole middleware', () => {

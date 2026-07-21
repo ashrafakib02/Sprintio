@@ -30,6 +30,8 @@ vi.mock('../../modules/auth/auth.service.js', () => ({
 vi.mock('../../utils/cookie.js', () => ({
   setAccessTokenCookie: vi.fn(),
   setRefreshTokenCookie: vi.fn(),
+  setAuthCookies: vi.fn(),
+  ensureDeviceIdCookie: vi.fn().mockReturnValue('test-device-id'),
   clearAuthCookies: vi.fn(),
   getRefreshTokenFromRequest: vi.fn(),
   getAccessTokenFromRequest: vi.fn(),
@@ -44,21 +46,21 @@ vi.mock('../../utils/jwt.js', () => ({
   decodeToken: vi.fn(),
 }));
 
-// Mock validation
-vi.mock('../../modules/auth/auth.validation.js', () => ({
-  registerSchema: {
-    safeParse: vi.fn(),
-  },
-  loginSchema: {
-    safeParse: vi.fn(),
-  },
-}));
+// Mock validation (shared schemas)
+vi.mock('@sprintio/shared', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  return {
+    ...actual,
+    RegisterSchema: { safeParse: vi.fn() },
+    LoginSchema: { safeParse: vi.fn() },
+  };
+});
 
 import * as authController from '../../modules/auth/auth.controller.js';
 import * as authService from '../../modules/auth/auth.service.js';
 import { getRefreshTokenFromRequest, getAccessTokenFromRequest } from '../../utils/cookie.js';
 import { decodeToken } from '../../utils/jwt.js';
-import { registerSchema, loginSchema } from '../../modules/auth/auth.validation.js';
+import { RegisterSchema, LoginSchema } from '@sprintio/shared';
 import { createMockReq, createMockRes, createMockNext } from '../helpers.js';
 import { AppError } from '@sprintio/shared';
 
@@ -81,7 +83,7 @@ describe('auth.controller', () => {
       });
       const res = createMockRes();
 
-      vi.mocked(registerSchema.safeParse).mockReturnValue({
+      vi.mocked(RegisterSchema.safeParse).mockReturnValue({
         success: true,
         data: { name: 'Test', email: 'test@test.com', password: 'Password1!' },
       } as never);
@@ -111,7 +113,7 @@ describe('auth.controller', () => {
       const req = createMockReq({ body: {} });
       const res = createMockRes();
 
-      vi.mocked(registerSchema.safeParse).mockReturnValue({
+      vi.mocked(RegisterSchema.safeParse).mockReturnValue({
         success: false,
         error: { errors: [{ message: 'Name is required' }] },
       } as never);
@@ -134,7 +136,7 @@ describe('auth.controller', () => {
       });
       const res = createMockRes();
 
-      vi.mocked(registerSchema.safeParse).mockReturnValue({
+      vi.mocked(RegisterSchema.safeParse).mockReturnValue({
         success: true,
         data: { name: 'Test', email: 'existing@test.com', password: 'Password1!' },
       } as never);
@@ -160,7 +162,7 @@ describe('auth.controller', () => {
       });
       const res = createMockRes();
 
-      vi.mocked(registerSchema.safeParse).mockReturnValue({
+      vi.mocked(RegisterSchema.safeParse).mockReturnValue({
         success: true,
         data: { name: 'Test', email: 'test@test.com', password: 'Password1!' },
       } as never);
@@ -181,7 +183,7 @@ describe('auth.controller', () => {
       });
       const res = createMockRes();
 
-      vi.mocked(loginSchema.safeParse).mockReturnValue({
+      vi.mocked(LoginSchema.safeParse).mockReturnValue({
         success: true,
         data: { email: 'test@test.com', password: 'Password1!' },
       } as never);
@@ -213,7 +215,7 @@ describe('auth.controller', () => {
       });
       const res = createMockRes();
 
-      vi.mocked(loginSchema.safeParse).mockReturnValue({
+      vi.mocked(LoginSchema.safeParse).mockReturnValue({
         success: true,
         data: { email: 'test@test.com', password: 'WrongPass1!' },
       } as never);
@@ -234,7 +236,7 @@ describe('auth.controller', () => {
       });
       const res = createMockRes();
 
-      vi.mocked(loginSchema.safeParse).mockReturnValue({
+      vi.mocked(LoginSchema.safeParse).mockReturnValue({
         success: true,
         data: { email: 'test@test.com', password: 'Password1!' },
       } as never);
@@ -255,7 +257,7 @@ describe('auth.controller', () => {
       });
       const res = createMockRes();
 
-      vi.mocked(loginSchema.safeParse).mockReturnValue({
+      vi.mocked(LoginSchema.safeParse).mockReturnValue({
         success: true,
         data: { email: 'test@test.com', password: 'Password1!' },
       } as never);

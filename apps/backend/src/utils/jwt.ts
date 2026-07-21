@@ -128,7 +128,7 @@ export async function verifyAccessToken(token: string): Promise<AccessTokenPaylo
     return {
       userId: payload.userId as string,
       email: payload.email as string,
-      role: (payload.role as string) ?? 'member',
+      role: (payload.role as string) ?? env.DEFAULT_USER_ROLE,
       jti: payload.jti as string,
       deviceId: payload.deviceId as string,
       iat: payload.iat as number | undefined,

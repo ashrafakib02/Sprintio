@@ -101,7 +101,11 @@ export function MyTaskList({ tasks = demoTasks, total = 12, onViewAll }: MyTaskL
                   </div>
                 </div>
                 {task.assignee && (
-                  <Avatar name={task.assignee.name} src={task.assignee.avatarUrl ?? undefined} size="sm" />
+                  <Avatar
+                    name={task.assignee.name}
+                    src={task.assignee.avatarUrl ?? undefined}
+                    size="sm"
+                  />
                 )}
               </button>
             );

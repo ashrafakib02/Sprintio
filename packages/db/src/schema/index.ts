@@ -8,7 +8,6 @@ export { workspaces } from './workspaces.js';
 export { workspaceMembers } from './workspace-members.js';
 export { boards } from './boards.js';
 export { columns } from './columns.js';
-export { cards } from './cards.js';
 export { tasks } from './tasks.js';
 export { documents } from './documents.js';
 export { projects } from './projects.js';

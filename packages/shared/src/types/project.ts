@@ -1,9 +1,14 @@
+import { PROJECT_STATUSES } from '../constants/status.js';
+
+export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
+export type SprintStatus = 'planned' | 'active' | 'completed';
+
 export interface Project {
   id: string;
   name: string;
   description: string | null;
   workspaceId: string;
-  status: 'active' | 'paused' | 'completed' | 'archived';
+  status: ProjectStatus;
   startDate: string | null;
   endDate: string | null;
   createdAt: string;
@@ -26,6 +31,6 @@ export interface Sprint {
   goal: string | null;
   startDate: string;
   endDate: string;
-  status: 'planned' | 'active' | 'completed';
+  status: SprintStatus;
   createdAt: string;
 }

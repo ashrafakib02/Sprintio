@@ -2,13 +2,11 @@ import { randomUUID } from 'node:crypto';
 import { eq, and } from 'drizzle-orm';
 import { google } from 'googleapis';
 import { db } from '../../config/database.js';
-import { users, oauthAccounts, sessions, refreshTokens as refreshTokenTable } from '@sprintio/db';
-import { generateAccessToken, generateRefreshToken } from '../../utils/jwt.js';
-import { hashToken } from '../../utils/token-hash.js';
+import { users, oauthAccounts, sessions } from '@sprintio/db';
 import { env } from '../../config/env.js';
-import { cacheSession } from '../../cache/session-cache.js';
 import type { AuthTokens } from '@sprintio/shared';
 import { AppError } from '@sprintio/shared';
+import { createTokenPair } from './auth.service.js';
 
 // ============================================================
 // Types
@@ -67,60 +65,6 @@ function getOAuth2Client() {
   );
 }
 
-/**
- * Creates a session and token pair for a user.
- * Replicates the pattern from auth.service.ts createTokenPair.
- */
-async function createTokenPair(
-  userId: string,
-  email: string,
-  deviceId: string,
-): Promise<AuthTokens> {
-  // Create session
-  const now = new Date();
-  const sessionExpiresAt = new Date(now.getTime() + env.JWT_REFRESH_EXPIRY_MS);
-
-  const [session] = await db
-    .insert(sessions)
-    .values({
-      userId,
-      deviceId,
-      userAgent: null,
-      ipAddress: null,
-      expiresAt: sessionExpiresAt,
-    })
-    .returning({ id: sessions.id });
-
-  const accessToken = await generateAccessToken({ userId, email, role: 'member', deviceId });
-  const refreshToken = await generateRefreshToken({ userId, sessionId: session.id, deviceId });
-
-  const tokenExpiresAt = new Date(now.getTime() + env.JWT_REFRESH_EXPIRY_MS);
-  const tokenHash = await hashToken(refreshToken);
-
-  await db.insert(refreshTokenTable).values({
-    tokenHash,
-    sessionId: session.id,
-    userId,
-    expiresAt: tokenExpiresAt,
-  });
-
-  // Cache session in Redis
-  await cacheSession(
-    session.id,
-    userId,
-    {
-      deviceId,
-      userAgent: null,
-      ipAddress: null,
-      expiresAt: tokenExpiresAt.toISOString(),
-      createdAt: now.toISOString(),
-    },
-    env.JWT_REFRESH_EXPIRY_MS,
-  );
-
-  return { accessToken, refreshToken };
-}
-
 function formatUserPayload(user: {
   id: string;
   name: string;
@@ -136,7 +80,7 @@ function formatUserPayload(user: {
     name: user.name,
     email: user.email,
     emailVerified: user.emailVerified ?? false,
-    role: user.role ?? 'member',
+    role: user.role ?? env.DEFAULT_USER_ROLE,
     avatarUrl: user.avatarUrl ?? null,
     createdAt: user.createdAt?.toISOString() ?? new Date().toISOString(),
     updatedAt: user.updatedAt?.toISOString() ?? new Date().toISOString(),
@@ -335,7 +279,22 @@ export async function handleGoogleCallback(
   }
 
   // 6. Create session and token pair
-  const tokens = await createTokenPair(user.id, user.email, deviceId);
+  const now = new Date();
+  const sessionExpiresAt = new Date(now.getTime() + env.JWT_REFRESH_EXPIRY_MS);
+
+  const [session] = await db
+    .insert(sessions)
+    .values({
+      userId: user.id,
+      deviceId,
+      userAgent: options?.userAgent ?? null,
+      ipAddress: options?.ipAddress ?? null,
+      expiresAt: sessionExpiresAt,
+    })
+    .returning({ id: sessions.id });
+
+  const role = user.role ?? env.DEFAULT_USER_ROLE;
+  const tokens = await createTokenPair(user.id, user.email, role, session.id, deviceId);
 
   return {
     user: formatUserPayload(user),

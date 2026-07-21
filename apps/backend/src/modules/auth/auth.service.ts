@@ -56,7 +56,7 @@ export interface LoginResult {
  * The refresh token value is hashed before being stored in the database.
  * Both tokens are issued for a specific device.
  */
-async function createTokenPair(
+export async function createTokenPair(
   userId: string,
   email: string,
   role: string,
@@ -162,7 +162,13 @@ export async function registerUser(
     .returning({ id: sessions.id });
 
   // Create token pair
-  const tokens = await createTokenPair(newUser.id, newUser.email, newUser.role ?? 'member', session.id, deviceId);
+  const tokens = await createTokenPair(
+    newUser.id,
+    newUser.email,
+    newUser.role ?? env.DEFAULT_USER_ROLE,
+    session.id,
+    deviceId,
+  );
 
   // Send verification email only for password-based registration (async, don't await)
   if (password) {
@@ -177,7 +183,7 @@ export async function registerUser(
       name: newUser.name,
       email: newUser.email,
       emailVerified: newUser.emailVerified,
-      role: newUser.role ?? 'member',
+      role: newUser.role ?? env.DEFAULT_USER_ROLE,
       avatarUrl: newUser.avatarUrl ?? null,
       createdAt: newUser.createdAt?.toISOString() ?? new Date().toISOString(),
       updatedAt: newUser.updatedAt?.toISOString() ?? new Date().toISOString(),
@@ -237,7 +243,13 @@ export async function loginUser(
     .returning({ id: sessions.id });
 
   // Create token pair
-  const tokens = await createTokenPair(user.id, user.email, user.role ?? 'member', session.id, deviceId);
+  const tokens = await createTokenPair(
+    user.id,
+    user.email,
+    user.role ?? env.DEFAULT_USER_ROLE,
+    session.id,
+    deviceId,
+  );
 
   return {
     user: {
@@ -245,7 +257,7 @@ export async function loginUser(
       name: user.name,
       email: user.email,
       emailVerified: user.emailVerified,
-      role: user.role ?? 'member',
+      role: user.role ?? env.DEFAULT_USER_ROLE,
       avatarUrl: user.avatarUrl ?? null,
       createdAt: user.createdAt?.toISOString() ?? new Date().toISOString(),
       updatedAt: user.updatedAt?.toISOString() ?? new Date().toISOString(),
@@ -338,7 +350,7 @@ export async function refreshTokens(
     .where(eq(users.id, storedToken.userId))
     .limit(1);
 
-  const role = roleRow?.role ?? 'member';
+  const role = roleRow?.role ?? env.DEFAULT_USER_ROLE;
 
   // Create new token pair
   return createTokenPair(storedToken.userId, user.email, role, newSession.id, payload.deviceId);
@@ -441,7 +453,7 @@ export async function getCurrentUser(userId: string): Promise<UserPayload | null
     name: user.name,
     email: user.email,
     emailVerified: user.emailVerified,
-    role: user.role ?? 'member',
+    role: user.role ?? env.DEFAULT_USER_ROLE,
     avatarUrl: user.avatarUrl,
     createdAt: user.createdAt?.toISOString() ?? new Date().toISOString(),
     updatedAt: user.updatedAt?.toISOString() ?? new Date().toISOString(),

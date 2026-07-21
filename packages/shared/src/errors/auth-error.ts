@@ -27,6 +27,6 @@ export class AuthError extends AppError {
   }
 
   static verificationTokenExpired() {
-    return new AuthError('Verification token has expired', 'VERIFICATION_TOKEN_EXPIRED');
+    return new AuthError('Verification token has expired', 'TOKEN_EXPIRED');
   }
 }

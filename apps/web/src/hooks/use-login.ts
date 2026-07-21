@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
-import { login, type LoginRequest } from '@/lib/api';
+import { login } from '@/lib/api';
+import type { LoginInput } from '@sprintio/shared';
 import { AUTH_QUERY_KEY } from '@/contexts/auth-provider';
 
 export function useLogin() {
@@ -9,7 +10,7 @@ export function useLogin() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: LoginRequest) => login(data),
+    mutationFn: (data: LoginInput) => login(data),
     onSuccess: async (response) => {
       // Manually set user data to clear any stale 401 error before navigating.
       // This prevents the AuthProvider useEffect from re-firing with the old error.

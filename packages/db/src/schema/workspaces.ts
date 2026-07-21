@@ -8,5 +8,8 @@ export const workspaces = pgTable('workspaces', {
   logo: text('logo'),
   plan: varchar('plan', { length: 20 }).notNull().default('free'),
   createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });

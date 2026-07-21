@@ -1,13 +1,14 @@
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
-import { resetPassword, type ResetPasswordRequest } from '@/lib/api';
+import { resetPassword } from '@/lib/api';
 
 export function useResetPassword() {
   const navigate = useNavigate({ from: '/reset-password' });
 
   return useMutation({
-    mutationFn: (data: ResetPasswordRequest) => resetPassword(data),
+    mutationFn: (data: { token: string; password: string; confirmPassword: string }) =>
+      resetPassword(data),
     onSuccess: () => {
       toast.success('Password reset successful', {
         description: 'You can now sign in with your new password',

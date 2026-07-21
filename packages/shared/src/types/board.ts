@@ -1,3 +1,7 @@
+import { BOARD_VIEW_TYPES } from '../constants/status.js';
+
+export type BoardViewType = (typeof BOARD_VIEW_TYPES)[number];
+
 export interface Board {
   id: string;
   name: string;
@@ -33,7 +37,7 @@ export interface Card {
 export interface BoardView {
   id: string;
   name: string;
-  type: 'board' | 'list' | 'calendar' | 'timeline' | 'spreadsheet';
+  type: BoardViewType;
   boardId: string;
   isDefault: boolean;
 }

@@ -1,14 +1,14 @@
-// ── Token Pairs ──────────────────────────────────────────────
+import type { User } from './user.js';
 
-export interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
-}
+// ── Token Pair ───────────────────────────────────────────────
 
 export interface TokenPair {
   accessToken: string;
   refreshToken: string;
 }
+
+/** @deprecated Use TokenPair instead */
+export type AuthTokens = TokenPair;
 
 // ── Minimal Payloads (used by service layer) ─────────────────
 
@@ -51,15 +51,6 @@ export interface RefreshTokenFullPayload {
 // ── Auth Response ────────────────────────────────────────────
 
 export interface AuthResponse {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    emailVerified: boolean;
-    role: string;
-    avatarUrl: string | null;
-    createdAt: string;
-    updatedAt: string;
-  };
-  tokens: AuthTokens;
+  user: User;
+  tokens: TokenPair;
 }

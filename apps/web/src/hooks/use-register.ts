@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
-import { register, type RegisterRequest } from '@/lib/api';
+import { register } from '@/lib/api';
+import type { RegisterInput } from '@sprintio/shared';
 import { AUTH_QUERY_KEY } from '@/contexts/auth-provider';
 
 export function useRegister() {
@@ -9,7 +10,7 @@ export function useRegister() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: RegisterRequest) => register(data),
+    mutationFn: (data: RegisterInput) => register(data),
     onSuccess: async (response) => {
       await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
 

@@ -1,16 +1,18 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useResendVerification } from '@/hooks/use-resend-verification';
+import { Spinner } from '@/components/ui/spinner';
 
 export const Route = createFileRoute('/_guest/verify-email-expired')({
   component: VerifyEmailExpiredPage,
 });
 
 function VerifyEmailExpiredPage() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const resendMutation = useResendVerification();
 
@@ -21,8 +23,7 @@ function VerifyEmailExpiredPage() {
       { email },
       {
         onSuccess: () => {
-          // Navigate to verify-email page on success
-          window.location.href = `/verify-email?email=${encodeURIComponent(email)}`;
+          navigate({ to: '/verify-email', search: { email } });
         },
       },
     );
@@ -80,26 +81,7 @@ function VerifyEmailExpiredPage() {
             <Button type="submit" className="w-full" disabled={resendMutation.isPending || !email}>
               {resendMutation.isPending ? (
                 <span className="flex items-center gap-2">
-                  <svg
-                    className="h-4 w-4 animate-spin"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
+                  <Spinner className="h-4 w-4" />
                   Sending...
                 </span>
               ) : (

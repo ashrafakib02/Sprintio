@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379"
     ai_model: str = "llama3"
     openai_api_key: str = ""
-    jwt_secret: str = "dev-secret"
+    jwt_access_public_key: str = "dev-public-key"
     sentry_dsn: str = ""
 
 

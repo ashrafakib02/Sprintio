@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { PERMISSIONS } from '@sprintio/shared';
+import { env } from '../config/env.js';
 
 /**
  * Static role → permission mapping (MVP).
@@ -71,7 +72,7 @@ export function requirePermission(...permissions: string[]) {
     // Use cached role from requireRole if already resolved, else read from JWT
     let role = req.userRole;
     if (!role) {
-      role = (req.user as unknown as { role?: string }).role ?? 'member';
+      role = (req.user as unknown as { role?: string }).role ?? env.DEFAULT_USER_ROLE;
       req.userRole = role;
     }
 

@@ -1,19 +1,10 @@
 import type { Request, Response } from 'express';
 import * as emailVerificationService from './email-verification.service.js';
-import { resendVerificationSchema } from './email-verification.validation.js';
+import { ResendVerificationSchema } from '@sprintio/shared';
 import { env } from '../../config/env.js';
-
-// ============================================================
-// Helpers
-// ============================================================
-
-function sendSuccess(res: Response, data: unknown, statusCode = 200) {
-  return res.status(statusCode).json({ data });
-}
-
-function sendError(res: Response, message: string, statusCode = 400) {
-  return res.status(statusCode).json({ error: message });
-}
+import { sendSuccess, sendError } from '../../utils/response.js';
+import { asyncHandler } from '../../utils/async-handler.js';
+import { logger } from '../../utils/logger.js';
 
 // ============================================================
 // Handlers
@@ -24,14 +15,14 @@ function sendError(res: Response, message: string, statusCode = 400) {
  * Verifies the email using the token from the verification link.
  * Redirects to frontend pages (link is opened from email client).
  */
-export async function verifyEmail(req: Request, res: Response) {
+export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
+  const token = req.params.token as string;
+
+  if (!token) {
+    return res.redirect(`${env.FRONTEND_URL}/verify-email/expired`);
+  }
+
   try {
-    const token = req.params.token as string;
-
-    if (!token) {
-      return res.redirect(`${env.FRONTEND_URL}/verify-email/expired`);
-    }
-
     const result = await emailVerificationService.verifyEmailToken(token);
 
     if (result.success) {
@@ -41,33 +32,28 @@ export async function verifyEmail(req: Request, res: Response) {
     // Token expired or invalid
     return res.redirect(`${env.FRONTEND_URL}/verify-email/expired`);
   } catch (error) {
-    console.error('Verify email error:', error);
+    logger.error({ err: error }, 'Verify email error');
     return res.redirect(`${env.FRONTEND_URL}/verify-email/expired`);
   }
-}
+});
 
 /**
  * POST /api/auth/resend-verification
  * Resends the verification email to the specified address.
  */
-export async function resendVerification(req: Request, res: Response) {
-  try {
-    const parsed = resendVerificationSchema.safeParse(req.body);
-    if (!parsed.success) {
-      const message = parsed.error.errors.map((err) => err.message).join(', ');
-      return sendError(res, message, 400);
-    }
-
-    const { email } = parsed.data;
-    const result = await emailVerificationService.resendVerification(email);
-
-    if (!result.success) {
-      return sendError(res, result.message, 409);
-    }
-
-    return sendSuccess(res, { message: result.message });
-  } catch (error) {
-    console.error('Resend verification error:', error);
-    return sendError(res, 'Failed to resend verification email', 500);
+export const resendVerification = asyncHandler(async (req: Request, res: Response) => {
+  const parsed = ResendVerificationSchema.safeParse(req.body);
+  if (!parsed.success) {
+    const message = parsed.error.errors.map((err) => err.message).join(', ');
+    return sendError(res, message, 400);
   }
-}
+
+  const { email } = parsed.data;
+  const result = await emailVerificationService.resendVerification(email);
+
+  if (!result.success) {
+    return sendError(res, result.message, 409);
+  }
+
+  return sendSuccess(res, { message: result.message });
+});

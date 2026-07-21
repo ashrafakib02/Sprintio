@@ -1,7 +1,8 @@
 import { z } from 'zod';
+import { TASK_STATUSES, TASK_PRIORITIES } from '../constants/status.js';
 
-export const TaskStatusSchema = z.enum(['todo', 'in_progress', 'in_review', 'done', 'cancelled']);
-export const TaskPrioritySchema = z.enum(['none', 'low', 'medium', 'high', 'urgent']);
+export const TaskStatusSchema = z.enum(TASK_STATUSES);
+export const TaskPrioritySchema = z.enum(TASK_PRIORITIES);
 
 export const CreateTaskSchema = z.object({
   title: z.string().min(1).max(255),

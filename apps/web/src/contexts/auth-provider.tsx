@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { fetchMe, refreshTokens, logoutApi } from '@/lib/api';
 import type { AuthContextValue } from '@/types/auth';
+import { setAuthState } from '@/lib/auth-store';
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -81,6 +82,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const user = userData?.data?.user ?? null;
   const isAuthenticated = !isLoading && !!user;
+
+  // Bridge auth state to module-level store for route guards (beforeLoad)
+  useEffect(() => {
+    setAuthState({ user, isLoading });
+  }, [user, isLoading]);
 
   const logout = useCallback(async () => {
     try {

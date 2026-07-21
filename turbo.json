@@ -1,4 +1,11 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "extends": ["./packages/config/turbo/base.json"]
+  "tasks": {
+    "build": { "dependsOn": ["^build"], "outputs": ["dist/**"] },
+    "dev": { "cache": false, "persistent": true },
+    "lint": {},
+    "typecheck": { "dependsOn": ["^build"] },
+    "test": {},
+    "clean": { "cache": false }
+  }
 }

@@ -1,10 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { resendVerification, type ResendVerificationRequest } from '@/lib/api';
+import { resendVerification } from '@/lib/api';
 
 export function useResendVerification() {
   return useMutation({
-    mutationFn: (data: ResendVerificationRequest) => resendVerification(data),
+    mutationFn: (data: { email: string }) => resendVerification(data),
     onSuccess: () => {
       toast.success('Verification email sent', {
         description: 'Check your inbox for the verification link',

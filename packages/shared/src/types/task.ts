@@ -1,5 +1,7 @@
-export type TaskStatus = 'todo' | 'in_progress' | 'in_review' | 'done' | 'cancelled';
-export type TaskPriority = 'none' | 'low' | 'medium' | 'high' | 'urgent';
+import { TASK_STATUSES, TASK_PRIORITIES } from '../constants/status.js';
+
+export type TaskStatus = (typeof TASK_STATUSES)[number];
+export type TaskPriority = (typeof TASK_PRIORITIES)[number];
 
 export interface Task {
   id: string;

@@ -23,7 +23,6 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "typecheck": "tsc --noEmit",
-    "migrate": "drizzle-kit generate && drizzle-kit migrate",
     "seed": "tsx src/seed/index.ts",
     "studio": "drizzle-kit studio",
     "clean": "rm -rf dist"

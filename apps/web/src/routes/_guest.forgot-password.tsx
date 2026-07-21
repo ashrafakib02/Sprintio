@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useForgotPassword } from '@/hooks/use-forgot-password';
 import { cn } from '@/lib/cn';
+import { Spinner } from '@/components/ui/spinner';
+import { ForgotPasswordSchema } from '@sprintio/shared/schemas';
 
 export const Route = createFileRoute('/_guest/forgot-password')({
   component: ForgotPasswordPage,
@@ -19,12 +21,16 @@ function ForgotPasswordPage() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email) {
-      setErrors({ email: 'Email is required' });
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setErrors({ email: 'Please enter a valid email address' });
+    const result = ForgotPasswordSchema.safeParse({ email });
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as string;
+        if (field && !fieldErrors[field]) {
+          fieldErrors[field] = issue.message;
+        }
+      }
+      setErrors(fieldErrors);
       return;
     }
     setErrors({});
@@ -125,26 +131,7 @@ function ForgotPasswordPage() {
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? (
                 <span className="flex items-center gap-2">
-                  <svg
-                    className="h-4 w-4 animate-spin"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
+                  <Spinner className="h-4 w-4" />
                   Sending reset link...
                 </span>
               ) : (

@@ -7,6 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useResetPassword } from '@/hooks/use-reset-password';
 import { cn } from '@/lib/cn';
+import { Spinner } from '@/components/ui/spinner';
+import {
+  getPasswordStrength,
+  PASSWORD_RULES,
+  PasswordRule,
+} from '@/components/auth/password-strength';
 
 export const Route = createFileRoute('/_guest/reset-password')({
   component: ResetPasswordPage,
@@ -14,67 +20,6 @@ export const Route = createFileRoute('/_guest/reset-password')({
     token: (search.token as string) || '',
   }),
 });
-
-// ── Password strength helper ──────────────────────────────────
-
-function getPasswordStrength(password: string): {
-  score: number;
-  label: string;
-  color: string;
-  segments: number;
-} {
-  let score = 0;
-  if (password.length >= 8) score++;
-  if (password.length >= 12) score++;
-  if (/[A-Z]/.test(password)) score++;
-  if (/[a-z]/.test(password)) score++;
-  if (/[0-9]/.test(password)) score++;
-  if (/[^A-Za-z0-9]/.test(password)) score++;
-
-  if (score <= 2) return { score, label: 'Weak', color: 'bg-red-500', segments: 1 };
-  if (score <= 4) return { score, label: 'Medium', color: 'bg-yellow-500', segments: 2 };
-  return { score, label: 'Strong', color: 'bg-green-500', segments: 3 };
-}
-
-// ── Validation rules config ───────────────────────────────────
-
-const PASSWORD_RULES = [
-  { label: 'At least 8 characters', test: (p: string) => p.length >= 8 },
-  { label: 'At least one uppercase letter', test: (p: string) => /[A-Z]/.test(p) },
-  { label: 'At least one lowercase letter', test: (p: string) => /[a-z]/.test(p) },
-  { label: 'At least one number', test: (p: string) => /[0-9]/.test(p) },
-  { label: 'At least one special character', test: (p: string) => /[^A-Za-z0-9]/.test(p) },
-];
-
-// ── Password rule row ─────────────────────────────────────────
-
-function PasswordRule({ label, met }: { label: string; met: boolean }) {
-  return (
-    <div className="flex items-center gap-2 text-xs">
-      <div
-        className={cn(
-          'flex h-4 w-4 shrink-0 items-center justify-center rounded-full transition-colors',
-          met ? 'bg-green-500' : 'border border-muted-foreground/30',
-        )}
-      >
-        {met ? (
-          <svg
-            className="h-2.5 w-2.5 text-white"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={3}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        ) : null}
-      </div>
-      <span className={cn('transition-colors', met ? 'text-green-600' : 'text-muted-foreground')}>
-        {label}
-      </span>
-    </div>
-  );
-}
 
 // ── Page Component ────────────────────────────────────────────
 
@@ -347,26 +292,7 @@ function ResetPasswordPage() {
             >
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
-                  <svg
-                    className="h-4 w-4 animate-spin"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
+                  <Spinner className="h-4 w-4" />
                   Resetting password...
                 </span>
               ) : (

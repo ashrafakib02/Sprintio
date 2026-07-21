@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { GoogleLoginButton } from '@/components/auth/google-login-button';
 import { useLogin } from '@/hooks/use-login';
-import { Link } from '@tanstack/react-router';
+import { Spinner } from '@/components/ui/spinner';
+import { LoginSchema } from '@sprintio/shared/schemas';
 
 export const Route = createFileRoute('/_guest/login')({
   component: LoginPage,
@@ -27,20 +28,20 @@ function LoginPage() {
   const isSubmitting = loginMutation.isPending;
 
   function validate(): boolean {
-    const newErrors: Record<string, string> = {};
-
-    if (!form.email) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      newErrors.email = 'Invalid email address';
+    const result = LoginSchema.safeParse({ email: form.email, password: form.password });
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as string;
+        if (field && !fieldErrors[field]) {
+          fieldErrors[field] = issue.message;
+        }
+      }
+      setErrors(fieldErrors);
+      return false;
     }
-
-    if (!form.password) {
-      newErrors.password = 'Password is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors({});
+    return true;
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -126,35 +127,16 @@ function LoginPage() {
                   Remember me
                 </Label>
               </div>
-              <a href="/forgot-password" className="text-sm text-primary hover:underline">
+              <Link to="/forgot-password" className="text-sm text-primary hover:underline">
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             {/* Submit */}
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
-                  <svg
-                    className="h-4 w-4 animate-spin"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
+                  <Spinner className="h-4 w-4" />
                   Signing in...
                 </span>
               ) : (

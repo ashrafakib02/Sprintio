@@ -30,6 +30,7 @@ const envSchema = z.object({
 
   // ── Security ─────────────────────────────────────────────────
   BCRYPT_SALT_ROUNDS: z.coerce.number().default(12),
+  DEFAULT_USER_ROLE: z.string().default('member'),
 
   // ── Email / SMTP ─────────────────────────────────────────────
   SMTP_HOST: z.string().default('localhost'),

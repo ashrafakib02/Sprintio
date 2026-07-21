@@ -1,4 +1,7 @@
 import type { User } from './user.js';
+import { WORKSPACE_ROLES } from '../constants/roles.js';
+
+export type WorkspaceRole = (typeof WORKSPACE_ROLES)[number];
 
 export interface Workspace {
   id: string;
@@ -15,7 +18,7 @@ export interface WorkspaceMembership {
   id: string;
   workspaceId: string;
   userId: string;
-  role: 'owner' | 'admin' | 'member' | 'guest';
+  role: WorkspaceRole;
   user?: User;
   createdAt: string;
 }

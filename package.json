@@ -6,16 +6,16 @@
   "scripts": {
     "prepare": "husky",
     "commitlint": "commitlint --edit",
-    "build": "pnpm -r build",
-    "dev": "pnpm -r --parallel dev",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "turbo run typecheck",
     "test": "vitest run",
     "test:watch": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "clean": "pnpm -r clean"
+    "clean": "turbo run clean"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [
@@ -28,14 +28,15 @@
   "devDependencies": {
     "@commitlint/cli": "^19.0.0",
     "@commitlint/config-conventional": "^19.0.0",
-    "eslint": "^9.0.0",
     "@eslint/js": "^9.0.0",
-    "typescript-eslint": "^8.0.0",
-    "prettier": "^3.4.0",
-    "vitest": "^3.0.0",
     "@vitest/coverage-v8": "^3.0.0",
+    "eslint": "^9.0.0",
     "husky": "^9.0.0",
-    "lint-staged": "^15.0.0"
+    "lint-staged": "^15.0.0",
+    "prettier": "^3.4.0",
+    "turbo": "^2.10.5",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^3.0.0"
   },
   "engines": {
     "node": ">=20",

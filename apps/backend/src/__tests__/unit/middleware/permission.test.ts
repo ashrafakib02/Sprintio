@@ -33,6 +33,12 @@ vi.mock('@sprintio/shared', async (importOriginal) => {
   };
 });
 
+vi.mock('../../../config/env.js', () => ({
+  env: {
+    DEFAULT_USER_ROLE: 'member',
+  },
+}));
+
 import { requirePermission } from '../../../middleware/permission.js';
 
 describe('requirePermission middleware', () => {

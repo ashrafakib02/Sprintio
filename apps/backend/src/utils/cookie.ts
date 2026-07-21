@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import type { Request, Response } from 'express';
 import { parse } from 'cookie';
 import { env } from '../config/env.js';
@@ -136,4 +137,27 @@ export function clearAuthCookies(res: Response): void {
   appendCookie(res, accessParts.join('; '));
   appendCookie(res, refreshParts.join('; '));
   appendCookie(res, deviceParts.join('; '));
+}
+
+// ── Compound Helpers ────────────────────────────────────────
+
+/**
+ * Set both access and refresh token cookies at once.
+ */
+export function setAuthCookies(res: Response, accessToken: string, refreshToken: string): void {
+  setAccessTokenCookie(res, accessToken);
+  setRefreshTokenCookie(res, refreshToken);
+}
+
+/**
+ * Read the existing device ID from the request cookie, or generate a new
+ * one and set it on the response.
+ */
+export function ensureDeviceIdCookie(res: Response, req: Request): string {
+  const existing = getDeviceIdFromRequest(req);
+  if (existing) return existing;
+
+  const deviceId = randomUUID();
+  setDeviceIdCookie(res, deviceId);
+  return deviceId;
 }

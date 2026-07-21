@@ -1,9 +1,17 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { createFileRoute, Outlet, redirect, Link } from '@tanstack/react-router';
 import { useAuth } from '@/hooks/use-auth';
 import { useLogout } from '@/hooks/use-logout';
-import { Link } from '@tanstack/react-router';
+import { Spinner } from '@/components/ui/spinner';
+import { getAuthState } from '@/lib/auth-store';
 
 export const Route = createFileRoute('/_authenticated')({
+  beforeLoad: () => {
+    const { user, isLoading } = getAuthState();
+    // Only redirect if auth has finished loading and user is not present
+    if (!isLoading && !user) {
+      throw redirect({ to: '/login' });
+    }
+  },
   component: AuthenticatedLayout,
 });
 
@@ -16,34 +24,14 @@ function AuthenticatedLayout() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="flex items-center gap-2 text-muted-foreground">
-          <svg
-            className="h-5 w-5 animate-spin"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-            />
-          </svg>
+          <Spinner className="h-5 w-5" />
           <span className="text-sm">Loading...</span>
         </div>
       </div>
     );
   }
 
-  // Redirect will be handled by the parent route's beforeLoad in future;
-  // for now, the AuthProvider handles the redirect on failed /me fetch
+  // Fallback if beforeLoad didn't catch it (e.g., auth resolved after load)
   if (!user) {
     return null;
   }

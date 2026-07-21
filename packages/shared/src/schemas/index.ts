@@ -6,3 +6,7 @@ export * from './board.js';
 export * from './task.js';
 export * from './document.js';
 export * from './common.js';
+export * from './project.js';
+export * from './column.js';
+export * from './notification.js';
+export * from './attachment.js';

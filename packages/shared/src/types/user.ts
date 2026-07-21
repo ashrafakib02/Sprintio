@@ -1,4 +1,6 @@
-export type UserRole = 'owner' | 'admin' | 'member' | 'guest';
+import { USER_ROLES } from '../constants/roles.js';
+
+export type UserRole = (typeof USER_ROLES)[number];
 
 export interface User {
   id: string;
@@ -6,7 +8,8 @@ export interface User {
   name: string;
   avatarUrl: string | null;
   emailVerified: boolean;
-  role: UserRole;
+  /** The canonical role union is UserRole, but the API may return any string. */
+  role: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,27 +1,9 @@
+import type { ApiResponse, AuthResponse, LoginInput, RegisterInput } from '@sprintio/shared';
+
 const API_BASE = '/api';
 
 export interface ApiError {
   error: string;
-}
-
-export interface ApiResponse<T> {
-  data: T;
-}
-
-export interface RegisterResponse {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    emailVerified: boolean;
-  };
-}
-
-export interface RegisterRequest {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
 }
 
 export async function apiRequest<T>(path: string, options?: RequestInit): Promise<ApiResponse<T>> {
@@ -58,29 +40,15 @@ export async function apiRequest<T>(path: string, options?: RequestInit): Promis
   return body as ApiResponse<T>;
 }
 
-export async function register(data: RegisterRequest): Promise<ApiResponse<RegisterResponse>> {
-  return apiRequest<RegisterResponse>('/auth/register', {
+export async function register(data: RegisterInput): Promise<ApiResponse<AuthResponse>> {
+  return apiRequest<AuthResponse>('/auth/register', {
     method: 'POST',
     body: JSON.stringify(data),
   });
 }
 
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    emailVerified: boolean;
-  };
-}
-
-export async function login(data: LoginRequest): Promise<ApiResponse<LoginResponse>> {
-  return apiRequest<LoginResponse>('/auth/login', {
+export async function login(data: LoginInput): Promise<ApiResponse<AuthResponse>> {
+  return apiRequest<AuthResponse>('/auth/login', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -99,21 +67,8 @@ export interface OAuthUser {
 
 // ── Auth session endpoints ───────────────────────────────────
 
-export interface MeResponse {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    emailVerified: boolean;
-    role: string;
-    avatarUrl: string | null;
-    createdAt: string;
-    updatedAt: string;
-  };
-}
-
-export async function fetchMe(): Promise<ApiResponse<MeResponse>> {
-  return apiRequest<MeResponse>('/auth/me');
+export async function fetchMe(): Promise<ApiResponse<AuthResponse>> {
+  return apiRequest<AuthResponse>('/auth/me');
 }
 
 export async function refreshTokens(): Promise<void> {
@@ -136,18 +91,10 @@ export async function logoutApi(): Promise<void> {
 
 // ── Email verification endpoints ─────────────────────────────
 
-export interface ResendVerificationRequest {
+export async function resendVerification(data: {
   email: string;
-}
-
-export interface ResendVerificationResponse {
-  message: string;
-}
-
-export async function resendVerification(
-  data: ResendVerificationRequest,
-): Promise<ApiResponse<ResendVerificationResponse>> {
-  return apiRequest<ResendVerificationResponse>('/auth/resend-verification', {
+}): Promise<ApiResponse<{ message: string }>> {
+  return apiRequest<{ message: string }>('/auth/resend-verification', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -155,37 +102,21 @@ export async function resendVerification(
 
 // ── Password reset endpoints ──────────────────────────────────
 
-export interface ForgotPasswordRequest {
+export async function forgotPassword(data: {
   email: string;
-}
-
-export interface ForgotPasswordResponse {
-  message: string;
-}
-
-export async function forgotPassword(
-  data: ForgotPasswordRequest,
-): Promise<ApiResponse<ForgotPasswordResponse>> {
-  return apiRequest<ForgotPasswordResponse>('/auth/forgot-password', {
+}): Promise<ApiResponse<{ message: string }>> {
+  return apiRequest<{ message: string }>('/auth/forgot-password', {
     method: 'POST',
     body: JSON.stringify(data),
   });
 }
 
-export interface ResetPasswordRequest {
+export async function resetPassword(data: {
   token: string;
   password: string;
   confirmPassword: string;
-}
-
-export interface ResetPasswordResponse {
-  message: string;
-}
-
-export async function resetPassword(
-  data: ResetPasswordRequest,
-): Promise<ApiResponse<ResetPasswordResponse>> {
-  return apiRequest<ResetPasswordResponse>('/auth/reset-password', {
+}): Promise<ApiResponse<{ message: string }>> {
+  return apiRequest<{ message: string }>('/auth/reset-password', {
     method: 'POST',
     body: JSON.stringify(data),
   });
