@@ -64,11 +64,7 @@ function ForgotPasswordPage() {
               </p>
 
               <div className="mt-6 w-full space-y-3">
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => reset()}
-                >
+                <Button variant="outline" className="w-full" onClick={() => reset()}>
                   <Mail className="mr-2 h-4 w-4" />
                   Resend email
                 </Button>

@@ -197,12 +197,16 @@ export const revokeSessionById = asyncHandler(async (req: Request, res: Response
     return res.status(401).json({ error: 'Authentication required' });
   }
 
-  const sessionId = req.params.sessionId;
+  const sessionId = req.params.sessionId as string;
   if (!sessionId) {
     return res.status(400).json({ error: 'Session ID is required' });
   }
 
-  await authService.revokeSession(req.user.userId, sessionId, req.user.deviceId);
+  await authService.revokeSession(
+    req.user.userId as string,
+    sessionId,
+    req.user.deviceId as string,
+  );
 
   return sendSuccess(res, { message: 'Session revoked' });
 });

@@ -135,7 +135,8 @@ describe('session management', () => {
       const chainMock = {
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        orderBy: vi.fn().mockResolvedValue(sessions),
+        orderBy: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue(sessions),
         select: vi.fn().mockReturnThis(),
       };
       (db.select as ReturnType<typeof vi.fn>).mockReturnValue(chainMock);
@@ -166,7 +167,8 @@ describe('session management', () => {
       const chainMock = {
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        orderBy: vi.fn().mockResolvedValue(sessions),
+        orderBy: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue(sessions),
         select: vi.fn().mockReturnThis(),
       };
       (db.select as ReturnType<typeof vi.fn>).mockReturnValue(chainMock);
@@ -179,7 +181,8 @@ describe('session management', () => {
       const chainMock = {
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        orderBy: vi.fn().mockResolvedValue([]),
+        orderBy: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue([]),
         select: vi.fn().mockReturnThis(),
       };
       (db.select as ReturnType<typeof vi.fn>).mockReturnValue(chainMock);
@@ -213,7 +216,8 @@ describe('session management', () => {
       const chainMock = {
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        orderBy: vi.fn().mockResolvedValue(sessions),
+        orderBy: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue(sessions),
         select: vi.fn().mockReturnThis(),
       };
       (db.select as ReturnType<typeof vi.fn>).mockReturnValue(chainMock);
