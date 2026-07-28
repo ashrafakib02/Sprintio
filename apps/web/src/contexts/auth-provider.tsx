@@ -1,4 +1,4 @@
-import { createContext, useEffect, useCallback, useRef } from 'react';
+import { createContext, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { fetchMe, refreshTokens, logoutApi } from '@/lib/api';
@@ -28,11 +28,11 @@ const GUEST_ROUTES = [
 export function AuthProvider({ children }: AuthProviderProps) {
   const queryClient = useQueryClient();
   const navigate = useNavigate({ from: '/' });
-  const routerState = useRouterState();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   // Use a ref for pathname to avoid recreating handleAuthError on navigation
-  const pathnameRef = useRef(routerState.location.pathname);
-  pathnameRef.current = routerState.location.pathname;
+  const pathnameRef = useRef(pathname);
+  pathnameRef.current = pathname;
 
   // Track if a refresh is already in progress to prevent double-fires
   const refreshingRef = useRef(false);
@@ -102,13 +102,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
   }, [queryClient]);
 
-  const value: AuthContextValue = {
-    user,
-    isLoading,
-    isAuthenticated,
-    logout,
-    refetchUser,
-  };
+  const value: AuthContextValue = useMemo(
+    () => ({
+      user,
+      isLoading,
+      isAuthenticated,
+      logout,
+      refetchUser,
+    }),
+    [user, isLoading, isAuthenticated, logout, refetchUser],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

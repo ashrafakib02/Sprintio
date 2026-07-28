@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { shallowEqual } from 'react-redux';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 const EMPTY_ARRAY: never[] = Object.freeze([]) as never[];
 import { useTasks } from './use-tasks';
@@ -28,8 +29,8 @@ export function useDashboardState() {
   const dispatch = useAppDispatch();
 
   // ─── Redux State ─────────────────────────────────────────────────────
-  const filters = useAppSelector((s) => s.dashboard.filters);
-  const viewPreferences = useAppSelector((s) => s.dashboard.viewPreferences);
+  const filters = useAppSelector((s) => s.dashboard.filters, shallowEqual);
+  const viewPreferences = useAppSelector((s) => s.dashboard.viewPreferences, shallowEqual);
   const selectedTaskId = useAppSelector((s) => s.dashboard.selectedTaskId);
   const sidebarCollapsed = useAppSelector((s) => s.dashboard.sidebarCollapsed);
 
@@ -76,37 +77,66 @@ export function useDashboardState() {
     [dispatch],
   );
 
-  return {
-    // Data
-    tasks: tasksQuery.filteredTasks,
-    allTasks: tasksQuery.tasks,
-    taskSummary: tasksQuery.taskSummary,
-    sprint: sprintQuery.data ?? null,
-    boards: boardsQuery.data ?? EMPTY_ARRAY,
-    activity: activityQuery.data ?? EMPTY_ARRAY,
-    workspace: workspaceQuery.data ?? null,
-    burndown: burndownQuery.data ?? EMPTY_ARRAY,
-    velocity: velocityQuery.data ?? EMPTY_ARRAY,
-    teamWorkload: teamWorkloadQuery.data ?? EMPTY_ARRAY,
+  return useMemo(
+    () => ({
+      // Data
+      tasks: tasksQuery.filteredTasks,
+      allTasks: tasksQuery.tasks,
+      taskSummary: tasksQuery.taskSummary,
+      sprint: sprintQuery.data ?? null,
+      boards: boardsQuery.data ?? EMPTY_ARRAY,
+      activity: activityQuery.data ?? EMPTY_ARRAY,
+      workspace: workspaceQuery.data ?? null,
+      burndown: burndownQuery.data ?? EMPTY_ARRAY,
+      velocity: velocityQuery.data ?? EMPTY_ARRAY,
+      teamWorkload: teamWorkloadQuery.data ?? EMPTY_ARRAY,
 
-    // Loading
-    isLoading: {
-      tasks: tasksQuery.isLoading,
-      sprint: sprintQuery.isLoading,
-      boards: boardsQuery.isLoading,
-      activity: activityQuery.isLoading,
-      workspace: workspaceQuery.isLoading,
-      analytics: burndownQuery.isLoading || velocityQuery.isLoading || teamWorkloadQuery.isLoading,
-    },
+      // Loading
+      isLoading: {
+        tasks: tasksQuery.isLoading,
+        sprint: sprintQuery.isLoading,
+        boards: boardsQuery.isLoading,
+        activity: activityQuery.isLoading,
+        workspace: workspaceQuery.isLoading,
+        analytics:
+          burndownQuery.isLoading || velocityQuery.isLoading || teamWorkloadQuery.isLoading,
+      },
 
-    // UI State (from Redux)
-    filters,
-    viewPreferences,
-    selectedTask,
-    selectedTaskId,
-    sidebarCollapsed,
+      // UI State (from Redux)
+      filters,
+      viewPreferences,
+      selectedTask,
+      selectedTaskId,
+      sidebarCollapsed,
 
-    // Actions
-    actions,
-  };
+      // Actions
+      actions,
+    }),
+    [
+      tasksQuery.filteredTasks,
+      tasksQuery.tasks,
+      tasksQuery.taskSummary,
+      tasksQuery.isLoading,
+      sprintQuery.data,
+      sprintQuery.isLoading,
+      boardsQuery.data,
+      boardsQuery.isLoading,
+      activityQuery.data,
+      activityQuery.isLoading,
+      workspaceQuery.data,
+      workspaceQuery.isLoading,
+      burndownQuery.data,
+      burndownQuery.isLoading,
+      velocityQuery.data,
+      velocityQuery.isLoading,
+      teamWorkloadQuery.data,
+      teamWorkloadQuery.isLoading,
+      filters,
+      viewPreferences,
+      selectedTask,
+      selectedTaskId,
+      sidebarCollapsed,
+      actions,
+    ],
+  );
 }

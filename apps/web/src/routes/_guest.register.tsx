@@ -153,7 +153,6 @@ export function RegisterPage() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground hover:text-foreground"
-                  tabIndex={-1}
                 >
                   {showPassword ? 'Hide' : 'Show'}
                 </button>
@@ -207,11 +206,11 @@ export function RegisterPage() {
                 />
                 <Label htmlFor="terms" className="text-sm font-normal leading-snug">
                   I agree to the{' '}
-                  <a href="/terms" className="text-primary hover:underline" target="_blank">
+                  <a href="/terms" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
                     Terms of Service
                   </a>{' '}
                   and{' '}
-                  <a href="/privacy" className="text-primary hover:underline" target="_blank">
+                  <a href="/privacy" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
                     Privacy Policy
                   </a>
                 </Label>

@@ -85,7 +85,7 @@ function DashboardPage() {
   );
 
   // Show skeleton while initial data loads
-  if (dashboard.isLoading.tasks && dashboard.isLoading.sprint) {
+  if (dashboard.isLoading.tasks || dashboard.isLoading.sprint) {
     return <DashboardSkeleton />;
   }
 

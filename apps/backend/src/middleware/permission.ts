@@ -72,7 +72,7 @@ export function requirePermission(...permissions: string[]) {
     // Use cached role from requireRole if already resolved, else read from JWT
     let role = req.userRole;
     if (!role) {
-      role = (req.user as unknown as { role?: string }).role ?? env.DEFAULT_USER_ROLE;
+      role = req.user?.role ?? env.DEFAULT_USER_ROLE;
       req.userRole = role;
     }
 

@@ -13,14 +13,10 @@ export default defineConfig({
         target: 'http://localhost:3001',
         changeOrigin: true,
       },
-      '/ws': {
-        target: 'ws://localhost:3001',
-        ws: true,
-      },
     },
   },
   build: {
     target: 'es2022',
-    sourcemap: true,
+    sourcemap: false,
   },
 });

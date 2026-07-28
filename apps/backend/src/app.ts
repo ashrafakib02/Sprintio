@@ -9,6 +9,9 @@ import { errorHandler } from './middleware/error-handler.js';
 
 const app: express.Express = express();
 
+// ── Trust proxy (required behind load balancers/reverse proxies) ──
+app.set('trust proxy', 1);
+
 // ── Security middleware ──────────────────────────────────────
 app.use(helmet());
 app.use(
@@ -35,7 +38,7 @@ const limiter = rateLimit({
 app.use(limiter as unknown as express.RequestHandler);
 app.use(compression());
 app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // ── Health check ─────────────────────────────────────────────
 app.get('/health', (_req, res) => {

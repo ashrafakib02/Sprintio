@@ -332,9 +332,9 @@ export async function refreshTokens(
     })
     .returning({ id: sessions.id });
 
-  // Fetch user email for token generation
+  // Fetch user email and role for token generation (single query)
   const [user] = await db
-    .select({ email: users.email })
+    .select({ email: users.email, role: users.role })
     .from(users)
     .where(eq(users.id, storedToken.userId))
     .limit(1);
@@ -343,14 +343,7 @@ export async function refreshTokens(
     throw AppError.notFound('User');
   }
 
-  // Fetch user role for token
-  const [roleRow] = await db
-    .select({ role: users.role })
-    .from(users)
-    .where(eq(users.id, storedToken.userId))
-    .limit(1);
-
-  const role = roleRow?.role ?? env.DEFAULT_USER_ROLE;
+  const role = user.role ?? env.DEFAULT_USER_ROLE;
 
   // Create new token pair
   return createTokenPair(storedToken.userId, user.email, role, newSession.id, payload.deviceId);
@@ -491,7 +484,8 @@ export async function listUserSessions(
     .select()
     .from(sessions)
     .where(and(eq(sessions.userId, userId), gt(sessions.expiresAt, now)))
-    .orderBy(desc(sessions.createdAt));
+    .orderBy(desc(sessions.createdAt))
+    .limit(50);
 
   return userSessions.map((session) => {
     const parsed = parseUserAgent(session.userAgent);

@@ -15,7 +15,7 @@ export const Route = createFileRoute('/_guest/forgot-password')({
 });
 
 function ForgotPasswordPage() {
-  const { mutate, isPending, submittedEmail } = useForgotPassword();
+  const { mutate, isPending, submittedEmail, reset } = useForgotPassword();
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -67,7 +67,7 @@ function ForgotPasswordPage() {
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => window.location.reload()}
+                  onClick={() => reset()}
                 >
                   <Mail className="mr-2 h-4 w-4" />
                   Resend email

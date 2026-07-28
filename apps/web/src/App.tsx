@@ -4,6 +4,7 @@ import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { Provider as ReduxProvider } from 'react-redux';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from '@/contexts/theme-provider';
+import { ErrorBoundary } from '@/components/error-boundary';
 import { store } from './store/store';
 import { routeTree } from './routeTree.gen';
 
@@ -17,7 +18,7 @@ const queryClient = new QueryClient({
         return failureCount < 2;
       },
       retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30_000),
-      refetchOnWindowFocus: true,
+      refetchOnWindowFocus: false,
     },
   },
 });
@@ -35,9 +36,11 @@ export function App() {
     <ReduxProvider store={store}>
       <ThemeProvider>
         <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
+          <ErrorBoundary>
+            <RouterProvider router={router} />
+          </ErrorBoundary>
           <Toaster position="bottom-right" richColors />
-          <ReactQueryDevtools initialIsOpen={false} />
+          {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
         </QueryClientProvider>
       </ThemeProvider>
     </ReduxProvider>

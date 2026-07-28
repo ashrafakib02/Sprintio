@@ -11,6 +11,7 @@ import {
 import { decodeToken } from '../../utils/jwt.js';
 import { sendSuccess } from '../../utils/response.js';
 import { asyncHandler } from '../../utils/async-handler.js';
+import { revokeAccessToken } from '../../cache/token-blacklist.js';
 
 // ============================================================
 // Handlers
@@ -26,11 +27,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     return res.status(400).json({ error: message });
   }
 
-  const { name, email, password } = parsed.data as {
-    name: string;
-    email: string;
-    password?: string;
-  };
+  const { name, email, password } = parsed.data;
   const deviceId = ensureDeviceIdCookie(res, req);
   const userAgent = req.headers['user-agent'];
   const ipAddress = (req.headers['x-forwarded-for'] as string) ?? req.socket.remoteAddress;
@@ -120,7 +117,6 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
       await authService.logoutUser(refreshToken, accessTokenJti, accessTokenExpiresAt);
     } else if (accessTokenJti && accessTokenExpiresAt) {
       // Even without refresh token, blacklist the access token
-      const { revokeAccessToken } = await import('../../cache/token-blacklist.js');
       await revokeAccessToken(accessTokenJti, accessTokenExpiresAt);
     }
   } finally {
@@ -201,8 +197,7 @@ export const revokeSessionById = asyncHandler(async (req: Request, res: Response
     return res.status(401).json({ error: 'Authentication required' });
   }
 
-  const sessionIdParam = req.params.sessionId;
-  const sessionId = Array.isArray(sessionIdParam) ? sessionIdParam[0] : sessionIdParam;
+  const sessionId = req.params.sessionId;
   if (!sessionId) {
     return res.status(400).json({ error: 'Session ID is required' });
   }

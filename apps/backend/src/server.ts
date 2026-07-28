@@ -9,6 +9,11 @@ const server = app.listen(env.PORT, () => {
   logger.info({ port: env.PORT, env: env.NODE_ENV }, '🚀 Server running');
 });
 
+// ── Server timeouts ─────────────────────────────────────────
+server.timeout = 30_000; // 30s request timeout
+server.keepAliveTimeout = 65_000; // 65s keepalive (must be > load balancer's keepalive)
+server.headersTimeout = 66_000; // slightly > keepAliveTimeout
+
 // ── Graceful shutdown ────────────────────────────────────────
 
 async function gracefulShutdown(signal: string) {
@@ -23,7 +28,7 @@ async function gracefulShutdown(signal: string) {
     await closeRedis();
     logger.info('Redis connection closed');
 
-    process.exit(0);
+    process.exitCode = 0;
   });
 
   // Force shutdown after 10s

@@ -24,7 +24,7 @@ export function requireRole(...roles: string[]) {
       return;
     }
 
-    const userRole = (req.user as unknown as { role?: string }).role ?? env.DEFAULT_USER_ROLE;
+    const userRole = req.user?.role ?? env.DEFAULT_USER_ROLE;
 
     if (!roles.includes(userRole)) {
       res.status(403).json({

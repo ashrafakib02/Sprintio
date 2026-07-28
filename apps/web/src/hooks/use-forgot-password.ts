@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { forgotPassword } from '@/lib/api';
@@ -21,5 +21,10 @@ export function useForgotPassword() {
     },
   });
 
-  return { ...mutation, submittedEmail };
+  const resetState = useCallback(() => {
+    setSubmittedEmail(null);
+    mutation.reset();
+  }, [mutation]);
+
+  return { ...mutation, submittedEmail, reset: resetState };
 }
