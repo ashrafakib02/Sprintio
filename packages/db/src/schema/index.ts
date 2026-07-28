@@ -4,6 +4,8 @@ export { refreshTokens } from './refresh-tokens.js';
 export { emailVerificationTokens } from './email-verification-tokens.js';
 export { passwordResetTokens } from './password-reset-tokens.js';
 export { oauthAccounts } from './oauth-accounts.js';
+export { organizations } from './organizations.js';
+export { organizationMembers } from './organization-members.js';
 export { workspaces } from './workspaces.js';
 export { workspaceMembers } from './workspace-members.js';
 export { boards } from './boards.js';
@@ -14,3 +16,10 @@ export { projects } from './projects.js';
 export { sprints } from './sprints.js';
 export { notifications } from './notifications.js';
 export { attachments } from './attachments.js';
+export {
+  organizationsRelations,
+  organizationMembersRelations,
+  workspacesRelations,
+  workspaceMembersRelations,
+  usersRelations,
+} from './relations.js';

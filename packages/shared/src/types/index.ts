@@ -8,6 +8,7 @@ export type {
   RefreshTokenFullPayload,
   AuthResponse,
 } from './auth.js';
+export type { Organization, OrganizationMembership, OrganizationRole } from './organization.js';
 export type { Workspace, WorkspaceMembership, WorkspaceRole } from './workspace.js';
 export type { Board, Column, Card, BoardView, BoardViewType } from './board.js';
 export type { Task, Subtask, TaskComment, TaskPriority, TaskStatus } from './task.js';

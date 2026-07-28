@@ -9,6 +9,7 @@ export interface Workspace {
   slug: string;
   description: string | null;
   logo: string | null;
+  organizationId: string | null;
   plan: 'free' | 'pro' | 'enterprise';
   createdAt: string;
   updatedAt: string;

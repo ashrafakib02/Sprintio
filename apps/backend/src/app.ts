@@ -5,6 +5,8 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import { env } from './config/env.js';
 import { authRoutes } from './modules/auth/index.js';
+import { organizationRoutes } from './modules/organization/index.js';
+import { workspaceRoutes } from './modules/workspace/index.js';
 import { errorHandler } from './middleware/error-handler.js';
 
 const app: express.Express = express();
@@ -47,6 +49,8 @@ app.get('/health', (_req, res) => {
 
 // ── API routes ───────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
+app.use('/api/organizations', organizationRoutes);
+app.use('/api/workspaces', workspaceRoutes);
 
 // ── 404 handler ──────────────────────────────────────────────
 app.use((_req, res) => {

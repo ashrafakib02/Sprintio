@@ -1,4 +1,12 @@
 export const PERMISSIONS = {
+  ORGANIZATION: {
+    CREATE: 'organization:create',
+    UPDATE: 'organization:update',
+    DELETE: 'organization:delete',
+    MANAGE_MEMBERS: 'organization:manage_members',
+    MANAGE_BILLING: 'organization:manage_billing',
+    SETTINGS: 'organization:settings',
+  },
   WORKSPACE: {
     CREATE: 'workspace:create',
     UPDATE: 'workspace:update',

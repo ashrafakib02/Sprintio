@@ -408,6 +408,7 @@ export const mockWorkspace: WorkspaceData = {
   slug: 'sprintio',
   description: 'Sprint management platform',
   logo: null,
+  organizationId: null,
   plan: 'pro',
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-07-18T00:00:00Z',
