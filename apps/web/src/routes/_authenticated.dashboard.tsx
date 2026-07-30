@@ -134,7 +134,7 @@ function DashboardPage() {
 
       {/* T5 — Plan Usage (owner only) */}
       {isOwner && dashboard.workspace && (
-        <PlanUsage usage={dashboard.workspace.usage} planName={dashboard.workspace.plan} />
+        <PlanUsage planName={dashboard.workspace.plan} />
       )}
     </div>
   );

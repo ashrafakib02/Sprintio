@@ -183,3 +183,304 @@ export async function revokeSession(sessionId: string): Promise<ApiResponse<{ me
     method: 'DELETE',
   });
 }
+
+// ── Workspace Members endpoints ──────────────────────────────
+
+export interface WorkspaceMember {
+  id: string;
+  workspaceId: string;
+  userId: string;
+  role: 'owner' | 'admin' | 'member' | 'guest';
+  createdAt: string;
+}
+
+export interface WorkspaceInvitation {
+  id: string;
+  workspaceId: string;
+  email: string;
+  role: 'admin' | 'member' | 'guest';
+  invitedById: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  expiresAt: string;
+  createdAt: string;
+}
+
+export async function listWorkspaceMembers(
+  workspaceId: string,
+): Promise<ApiResponse<{ members: WorkspaceMember[] }>> {
+  return apiRequest<{ members: WorkspaceMember[] }>(`/workspaces/${workspaceId}/members`);
+}
+
+export async function addWorkspaceMember(
+  workspaceId: string,
+  data: { userId: string; role: string },
+): Promise<ApiResponse<{ member: WorkspaceMember }>> {
+  return apiRequest<{ member: WorkspaceMember }>(`/workspaces/${workspaceId}/members`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function removeWorkspaceMember(
+  workspaceId: string,
+  userId: string,
+): Promise<ApiResponse<{ message: string }>> {
+  return apiRequest<{ message: string }>(`/workspaces/${workspaceId}/members/${userId}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function inviteWorkspaceMember(
+  workspaceId: string,
+  data: { email: string; role: string },
+): Promise<ApiResponse<{ invitation: WorkspaceInvitation }>> {
+  return apiRequest<{ invitation: WorkspaceInvitation }>(
+    `/workspaces/${workspaceId}/invitations`,
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    },
+  );
+}
+
+export async function listWorkspaceInvitations(
+  workspaceId: string,
+): Promise<ApiResponse<{ invitations: WorkspaceInvitation[] }>> {
+  return apiRequest<{ invitations: WorkspaceInvitation[] }>(
+    `/workspaces/${workspaceId}/invitations`,
+  );
+}
+
+export async function acceptInvitation(
+  token: string,
+): Promise<ApiResponse<{ member: WorkspaceMember }>> {
+  return apiRequest<{ member: WorkspaceMember }>('/workspaces/invitations/accept', {
+    method: 'POST',
+    body: JSON.stringify({ token }),
+  });
+}
+
+export async function rejectInvitation(
+  token: string,
+): Promise<ApiResponse<{ message: string }>> {
+  return apiRequest<{ message: string }>('/workspaces/invitations/reject', {
+    method: 'POST',
+    body: JSON.stringify({ token }),
+  });
+}
+
+export async function transferOwnership(
+  workspaceId: string,
+  data: { newOwnerId: string },
+): Promise<ApiResponse<{ previousOwner: WorkspaceMember; newOwner: WorkspaceMember }>> {
+  return apiRequest<{ previousOwner: WorkspaceMember; newOwner: WorkspaceMember }>(
+    `/workspaces/${workspaceId}/transfer-ownership`,
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    },
+  );
+}
+
+// ── Workspace Settings endpoints ─────────────────────────────
+
+export interface WorkspaceSettingsData {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  logo: string | null;
+  brandColor: string | null;
+  customDomain: string | null;
+  organizationId: string | null;
+  plan: string;
+  archivedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WorkspaceContextMember {
+  id: string;
+  workspaceId: string;
+  userId: string;
+  role: string;
+  createdAt: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    avatarUrl: string | null;
+  };
+}
+
+export async function getWorkspace(
+  workspaceId: string,
+): Promise<ApiResponse<{ workspace: WorkspaceSettingsData }>> {
+  return apiRequest<{ workspace: WorkspaceSettingsData }>(`/workspaces/${workspaceId}`);
+}
+
+export async function getWorkspaceContext(
+  workspaceId: string,
+): Promise<
+  ApiResponse<{ workspace: WorkspaceSettingsData; userRole: string; members: WorkspaceContextMember[] }>
+> {
+  return apiRequest<{
+    workspace: WorkspaceSettingsData;
+    userRole: string;
+    members: WorkspaceContextMember[];
+  }>(`/workspaces/${workspaceId}/context`);
+}
+
+export async function switchWorkspace(
+  workspaceId: string,
+): Promise<ApiResponse<{ workspace: WorkspaceSettingsData; userRole: string; members: WorkspaceContextMember[] }>> {
+  return apiRequest<{
+    workspace: WorkspaceSettingsData;
+    userRole: string;
+    members: WorkspaceContextMember[];
+  }>(`/workspaces/${workspaceId}/switch`, {
+    method: 'POST',
+  });
+}
+
+export async function updateWorkspaceSettings(
+  workspaceId: string,
+  data: {
+    name?: string;
+    description?: string | null;
+    logo?: string | null;
+    brandColor?: string | null;
+    customDomain?: string | null;
+  },
+): Promise<ApiResponse<{ workspace: WorkspaceSettingsData }>> {
+  return apiRequest<{ workspace: WorkspaceSettingsData }>(
+    `/workspaces/${workspaceId}/settings`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    },
+  );
+}
+
+export async function updateMemberRole(
+  workspaceId: string,
+  userId: string,
+  role: string,
+): Promise<ApiResponse<{ member: WorkspaceMember }>> {
+  return apiRequest<{ member: WorkspaceMember }>(
+    `/workspaces/${workspaceId}/members/${userId}/role`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
+    },
+  );
+}
+
+// ── Role Management endpoints ───────────────────────────────
+
+export interface WorkspaceRoleDefinition {
+  id: string;
+  name: string;
+  description: string | null;
+  isSystem: boolean;
+  permissions: string[];
+}
+
+export interface WorkspacePermission {
+  id: string;
+  name: string;
+  resource: string;
+  action: string;
+  description: string | null;
+}
+
+export async function listWorkspaceRoles(
+  workspaceId: string,
+): Promise<ApiResponse<{ roles: WorkspaceRoleDefinition[] }>> {
+  return apiRequest<{ roles: WorkspaceRoleDefinition[] }>(`/workspaces/${workspaceId}/roles`);
+}
+
+export async function createWorkspaceRole(
+  workspaceId: string,
+  data: { name: string; description?: string; permissionIds?: string[] },
+): Promise<ApiResponse<{ role: WorkspaceRoleDefinition }>> {
+  return apiRequest<{ role: WorkspaceRoleDefinition }>(`/workspaces/${workspaceId}/roles`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateWorkspaceRoleApi(
+  workspaceId: string,
+  roleId: string,
+  data: { name?: string; description?: string | null; permissionIds?: string[] },
+): Promise<ApiResponse<{ role: WorkspaceRoleDefinition }>> {
+  return apiRequest<{ role: WorkspaceRoleDefinition }>(
+    `/workspaces/${workspaceId}/roles/${roleId}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    },
+  );
+}
+
+export async function deleteWorkspaceRole(
+  workspaceId: string,
+  roleId: string,
+): Promise<ApiResponse<{ message: string }>> {
+  return apiRequest<{ message: string }>(`/workspaces/${workspaceId}/roles/${roleId}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function listPermissions(): Promise<
+  ApiResponse<{ permissions: WorkspacePermission[] }>
+> {
+  return apiRequest<{ permissions: WorkspacePermission[] }>('/workspaces/permissions');
+}
+
+// ── Workspace Archive / Delete endpoints ──────────────────────
+
+export async function archiveWorkspace(
+  workspaceId: string,
+): Promise<ApiResponse<{ workspace: WorkspaceSettingsData }>> {
+  return apiRequest<{ workspace: WorkspaceSettingsData }>(
+    `/workspaces/${workspaceId}/archive`,
+    { method: 'POST' },
+  );
+}
+
+export async function restoreWorkspace(
+  workspaceId: string,
+): Promise<ApiResponse<{ workspace: WorkspaceSettingsData }>> {
+  return apiRequest<{ workspace: WorkspaceSettingsData }>(
+    `/workspaces/${workspaceId}/restore`,
+    { method: 'POST' },
+  );
+}
+
+export async function deleteWorkspacePermanently(
+  workspaceId: string,
+): Promise<ApiResponse<{ message: string }>> {
+  return apiRequest<{ message: string }>(`/workspaces/${workspaceId}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function listWorkspaces(
+  includeArchived?: boolean,
+): Promise<ApiResponse<{ workspaces: WorkspaceSettingsData[] }>> {
+  const params = includeArchived ? '?includeArchived=true' : '';
+  return apiRequest<{ workspaces: WorkspaceSettingsData[] }>(`/workspaces${params}`);
+}
+
+export async function createWorkspace(data: {
+  name: string;
+  description?: string;
+  organizationId?: string;
+}): Promise<ApiResponse<{ workspace: WorkspaceSettingsData }>> {
+  return apiRequest<{ workspace: WorkspaceSettingsData }>('/workspaces', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}

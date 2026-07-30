@@ -20,3 +20,15 @@ export function blacklistRefreshKey(jti: string): string {
 export function userBlacklistMarker(userId: string): string {
   return `blacklist:user:${userId}`;
 }
+
+// ── RBAC Cache Keys ──────────────────────────────────────────
+
+export function rbacPermissionsKey(userId: string, scope: string, scopeId?: string | null): string {
+  const sid = scopeId ?? 'global';
+  return `rbac:perms:${userId}:${scope}:${sid}`;
+}
+
+export function rbacRoleKey(userId: string, scope: string, scopeId?: string | null): string {
+  const sid = scopeId ?? 'global';
+  return `rbac:role:${userId}:${scope}:${sid}`;
+}

@@ -72,6 +72,7 @@ router.patch(
 router.post(
   '/:organizationId/archive',
   authenticate,
+  organizationLimiter as unknown as express.RequestHandler,
   requireOrganizationPermission('organization:update'),
   archiveOrganization,
 );
@@ -80,6 +81,7 @@ router.post(
 router.post(
   '/:organizationId/restore',
   authenticate,
+  organizationLimiter as unknown as express.RequestHandler,
   requireOrganizationPermission('organization:update'),
   restoreOrganization,
 );
@@ -88,6 +90,7 @@ router.post(
 router.delete(
   '/:organizationId',
   authenticate,
+  organizationLimiter as unknown as express.RequestHandler,
   requireOrganizationPermission('organization:delete'),
   deleteOrganization,
 );

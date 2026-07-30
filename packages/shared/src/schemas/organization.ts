@@ -21,15 +21,6 @@ export const UpdateOrganizationMemberSchema = z.object({
   role: z.enum(['owner', 'admin', 'member', 'guest']),
 });
 
-export const AddWorkspaceMemberSchema = z.object({
-  userId: z.string().uuid(),
-  role: z.enum(['admin', 'member', 'guest']).default('member'),
-});
-
-export const UpdateWorkspaceMemberSchema = z.object({
-  role: z.enum(['owner', 'admin', 'member', 'guest']),
-});
-
 export const ListOrganizationsSchema = z.object({
   includeArchived: z.enum(['true', 'false']).default('false').optional(),
 });
@@ -38,6 +29,4 @@ export type CreateOrganizationInput = z.infer<typeof CreateOrganizationSchema>;
 export type UpdateOrganizationInput = z.infer<typeof UpdateOrganizationSchema>;
 export type AddOrganizationMemberInput = z.infer<typeof AddOrganizationMemberSchema>;
 export type UpdateOrganizationMemberInput = z.infer<typeof UpdateOrganizationMemberSchema>;
-export type AddWorkspaceMemberInput = z.infer<typeof AddWorkspaceMemberSchema>;
-export type UpdateWorkspaceMemberInput = z.infer<typeof UpdateWorkspaceMemberSchema>;
 export type ListOrganizationsInput = z.infer<typeof ListOrganizationsSchema>;

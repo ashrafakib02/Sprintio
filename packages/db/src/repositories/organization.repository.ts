@@ -155,15 +155,28 @@ export async function create(
 
 /**
  * Update an organization by ID. Returns the updated record.
+ * Only updates fields that are explicitly provided (non-undefined).
  */
 export async function updateById(
   db: PostgresJsDatabase,
   id: string,
   data: UpdateOrganizationData,
 ): Promise<OrganizationRecord | undefined> {
+  // Filter out undefined values so Drizzle .set() doesn't overwrite
+  // existing columns with NULL. Only explicitly-provided fields are updated.
+  const cleaned: Record<string, unknown> = {};
+  if (data.name !== undefined) cleaned.name = data.name;
+  if (data.description !== undefined) cleaned.description = data.description;
+  if (data.website !== undefined) cleaned.website = data.website;
+
+  // Nothing to update — return current record as-is
+  if (Object.keys(cleaned).length === 0) {
+    return findById(db, id);
+  }
+
   const [updated] = await db
     .update(organizations)
-    .set(data)
+    .set(cleaned)
     .where(eq(organizations.id, id))
     .returning();
 
@@ -223,6 +236,11 @@ export async function deleteById(db: PostgresJsDatabase, id: string): Promise<bo
 
 /**
  * Add a member to an organization.
+ *
+ * If the user is already a member (unique-index violation on
+ * organization_id + user_id), the existing row is returned instead of
+ * throwing — callers that need to distinguish should check `isMember`
+ * first.
  */
 export async function addMember(
   db: PostgresJsDatabase,
@@ -230,12 +248,35 @@ export async function addMember(
   userId: string,
   role: string = 'member',
 ): Promise<OrganizationMemberRecord> {
-  const [member] = await db
-    .insert(organizationMembers)
-    .values({ organizationId, userId, role })
-    .returning();
+  try {
+    const [member] = await db
+      .insert(organizationMembers)
+      .values({ organizationId, userId, role })
+      .returning();
 
-  return member;
+    return member;
+  } catch (err: unknown) {
+    // PostgreSQL unique_violation (23505) — user is already a member.
+    // Fetch and return the existing row so the caller isn't forced to
+    // handle an uncaught exception.
+    if (err instanceof Error && 'code' in err && (err as { code: string }).code === '23505') {
+      const existing = await db
+        .select()
+        .from(organizationMembers)
+        .where(
+          and(
+            eq(organizationMembers.organizationId, organizationId),
+            eq(organizationMembers.userId, userId),
+          ),
+        )
+        .limit(1);
+
+      if (existing[0]) {
+        return existing[0];
+      }
+    }
+    throw err;
+  }
 }
 
 /**

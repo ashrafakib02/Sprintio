@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS "organizations" (
   "logo" text,
   "website" varchar(500),
   "created_at" timestamp with time zone NOT NULL DEFAULT now(),
-  "updated_at" timestamp with time zone NOT NULL DEFAULT now()
+  "updated_at" timestamp with time zone NOT NULL DEFAULT now(),
+  "archived_at" timestamp with time zone
 );
 
 -- ============================================================
