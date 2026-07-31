@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { repoDb } from '../config/db-for-repos.js';
 import { organizationRepo } from '@sprintio/db/repositories';
+import { PERMISSIONS } from '@sprintio/shared';
 
 declare global {
   namespace Express {
@@ -12,20 +13,62 @@ declare global {
 
 /**
  * Static organization role → permission mapping.
- * Mirrors the workspace-level PERMISSIONS.ORGANIZATION values.
+ * Uses PERMISSIONS constants for consistency with the rest of the codebase.
  */
 const ORG_ROLE_PERMISSIONS: Record<string, string[]> = {
   owner: [
-    'organization:create',
-    'organization:update',
-    'organization:delete',
-    'organization:manage_members',
-    'organization:manage_billing',
-    'organization:settings',
+    PERMISSIONS.ORGANIZATION.CREATE,
+    PERMISSIONS.ORGANIZATION.UPDATE,
+    PERMISSIONS.ORGANIZATION.DELETE,
+    PERMISSIONS.ORGANIZATION.MANAGE_MEMBERS,
+    PERMISSIONS.ORGANIZATION.MANAGE_BILLING,
+    PERMISSIONS.ORGANIZATION.SETTINGS,
+    PERMISSIONS.WORKSPACE.CREATE,
+    PERMISSIONS.WORKSPACE.UPDATE,
+    PERMISSIONS.WORKSPACE.DELETE,
+    PERMISSIONS.WORKSPACE.MANAGE_MEMBERS,
+    PERMISSIONS.WORKSPACE.MANAGE_BILLING,
+    PERMISSIONS.BOARD.CREATE,
+    PERMISSIONS.BOARD.UPDATE,
+    PERMISSIONS.BOARD.DELETE,
+    PERMISSIONS.TASK.CREATE,
+    PERMISSIONS.TASK.UPDATE,
+    PERMISSIONS.TASK.DELETE,
+    PERMISSIONS.TASK.ASSIGN,
+    PERMISSIONS.DOCUMENT.CREATE,
+    PERMISSIONS.DOCUMENT.UPDATE,
+    PERMISSIONS.DOCUMENT.DELETE,
   ],
-  admin: ['organization:update', 'organization:manage_members', 'organization:settings'],
-  member: [],
-  guest: [],
+  admin: [
+    PERMISSIONS.ORGANIZATION.UPDATE,
+    PERMISSIONS.ORGANIZATION.MANAGE_MEMBERS,
+    PERMISSIONS.ORGANIZATION.SETTINGS,
+    PERMISSIONS.WORKSPACE.UPDATE,
+    PERMISSIONS.WORKSPACE.MANAGE_MEMBERS,
+    PERMISSIONS.BOARD.CREATE,
+    PERMISSIONS.BOARD.UPDATE,
+    PERMISSIONS.BOARD.DELETE,
+    PERMISSIONS.TASK.CREATE,
+    PERMISSIONS.TASK.UPDATE,
+    PERMISSIONS.TASK.DELETE,
+    PERMISSIONS.TASK.ASSIGN,
+    PERMISSIONS.DOCUMENT.CREATE,
+    PERMISSIONS.DOCUMENT.UPDATE,
+    PERMISSIONS.DOCUMENT.DELETE,
+  ],
+  member: [
+    PERMISSIONS.BOARD.CREATE,
+    PERMISSIONS.BOARD.UPDATE,
+    PERMISSIONS.BOARD.DELETE,
+    PERMISSIONS.TASK.CREATE,
+    PERMISSIONS.TASK.UPDATE,
+    PERMISSIONS.TASK.DELETE,
+    PERMISSIONS.TASK.ASSIGN,
+    PERMISSIONS.DOCUMENT.CREATE,
+    PERMISSIONS.DOCUMENT.UPDATE,
+    PERMISSIONS.DOCUMENT.DELETE,
+  ],
+  guest: [PERMISSIONS.BOARD.CREATE, PERMISSIONS.TASK.CREATE, PERMISSIONS.DOCUMENT.CREATE],
 };
 
 /**

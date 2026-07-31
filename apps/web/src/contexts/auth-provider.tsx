@@ -47,7 +47,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     staleTime: 5 * 60_000,
     gcTime: 10 * 60_000,
     retry: (failureCount, error: Error & { status?: number }) => {
-      if (error?.status === 401) return false;
+      // Don't retry 401s or network errors (backend unreachable) — resolve quickly
+      if (error?.status === 401 || !error?.status) return false;
       return failureCount < 2;
     },
     refetchOnWindowFocus: true,

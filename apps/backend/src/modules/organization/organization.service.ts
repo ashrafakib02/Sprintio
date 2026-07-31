@@ -1,7 +1,54 @@
 import { repoDb } from '../../config/db-for-repos.js';
 import { organizationRepo } from '@sprintio/db/repositories';
-import { slugify, AppError, PERMISSIONS } from '@sprintio/shared';
+import {
+  slugify,
+  AppError,
+  PERMISSIONS,
+  ORGANIZATION_ROLES,
+  ROLE_HIERARCHY,
+} from '@sprintio/shared';
 import type { CreateOrganizationInput, UpdateOrganizationInput } from '@sprintio/shared';
+
+/** Helper to detect PostgreSQL unique-constraint violation (error code 23505). */
+function isPgUniqueViolation(err: unknown): boolean {
+  return err instanceof Error && 'code' in err && (err as { code: string }).code === '23505';
+}
+
+/**
+ * Validates that the requested role is a valid organization role.
+ * Defense-in-depth: the Zod schema should already enforce this,
+ * but the service should not blindly trust the input layer.
+ */
+function validateRole(role: string): void {
+  if (!(ORGANIZATION_ROLES as readonly string[]).includes(role)) {
+    throw AppError.badRequest(
+      `Invalid role '${role}'. Must be one of: ${ORGANIZATION_ROLES.join(', ')}`,
+    );
+  }
+}
+
+/**
+ * Validates that an assigner can grant a target role.
+ * - Only the owner can assign the 'owner' role.
+ * - A user cannot assign a role equal to or higher than their own.
+ * This prevents privilege escalation and owner hijacking.
+ */
+function assertCanAssignRole(assignerRole: string, targetRole: string): void {
+  const assignerLevel = ROLE_HIERARCHY[assignerRole] ?? 0;
+  const targetLevel = ROLE_HIERARCHY[targetRole] ?? 0;
+
+  // Only owners can assign the owner role
+  if (targetRole === 'owner' && assignerRole !== 'owner') {
+    throw AppError.forbidden('Only the organization owner can assign the owner role');
+  }
+
+  // Cannot assign a role equal to or higher than your own
+  if (targetLevel >= assignerLevel) {
+    throw AppError.forbidden(
+      `Cannot assign a role equal to or higher than your own (${assignerRole})`,
+    );
+  }
+}
 
 // ============================================================
 // Types
@@ -59,7 +106,13 @@ function toMemberResult(
 
 /**
  * Checks if the requester has the required permission within an organization.
- * Owner always passes.
+ * Owner always passes. This uses the canonical PERMISSIONS constants so the
+ * mapping stays in sync with the middleware's ORG_ROLE_PERMISSIONS map.
+ *
+ * NOTE: This is a defense-in-depth check — the route-level middleware
+ * (requireOrganizationPermission) enforces the same rules. Keeping both
+ * ensures that direct service calls (e.g. from jobs or tests) are still
+ * authorized.
  */
 function assertPermission(role: string | undefined, permission: string): void {
   if (!role) {
@@ -70,7 +123,16 @@ function assertPermission(role: string | undefined, permission: string): void {
     return;
   }
 
+  // Must stay in sync with the middleware's ORG_ROLE_PERMISSIONS.
   const ORG_ROLE_PERMISSIONS: Record<string, string[]> = {
+    owner: [
+      PERMISSIONS.ORGANIZATION.CREATE,
+      PERMISSIONS.ORGANIZATION.UPDATE,
+      PERMISSIONS.ORGANIZATION.DELETE,
+      PERMISSIONS.ORGANIZATION.MANAGE_MEMBERS,
+      PERMISSIONS.ORGANIZATION.MANAGE_BILLING,
+      PERMISSIONS.ORGANIZATION.SETTINGS,
+    ],
     admin: [
       PERMISSIONS.ORGANIZATION.UPDATE,
       PERMISSIONS.ORGANIZATION.MANAGE_MEMBERS,
@@ -99,30 +161,49 @@ export async function createOrganization(
 ): Promise<OrganizationResult> {
   const slug = slugify(data.name);
 
-  // Check for slug uniqueness
+  // Check for slug uniqueness (optimistic check before insert)
   const existing = await organizationRepo.findBySlug(repoDb, slug);
   if (existing) {
     throw AppError.conflict('An organization with a similar name already exists');
   }
 
-  const org = await organizationRepo.create(repoDb, {
-    name: data.name,
-    slug,
-    description: data.description,
-    website: data.website,
-    createdById: userId,
-  });
+  try {
+    const org = await organizationRepo.create(repoDb, {
+      name: data.name,
+      slug,
+      description: data.description,
+      website: data.website,
+      createdById: userId,
+    });
 
-  return toOrganizationResult(org);
+    return toOrganizationResult(org);
+  } catch (err: unknown) {
+    // Handle race condition: another request may have inserted the same slug
+    // between our check and insert. PostgreSQL error code 23505 = unique_violation.
+    if (isPgUniqueViolation(err)) {
+      throw AppError.conflict('An organization with a similar name already exists');
+    }
+    throw err;
+  }
 }
 
 /**
  * Get an organization by ID.
+ * The requester must be a member of the organization.
  */
-export async function getOrganization(orgId: string): Promise<OrganizationResult> {
+export async function getOrganization(
+  orgId: string,
+  requestedBy: string,
+): Promise<OrganizationResult> {
   const org = await organizationRepo.findById(repoDb, orgId);
   if (!org) {
     throw AppError.notFound('Organization');
+  }
+
+  // Verify the requester is a member
+  const isMember = await organizationRepo.isMember(repoDb, orgId, requestedBy);
+  if (!isMember) {
+    throw AppError.forbidden('You are not a member of this organization');
   }
 
   return toOrganizationResult(org);
@@ -157,6 +238,11 @@ export async function updateOrganization(
   const role = await organizationRepo.getMemberRole(repoDb, orgId, requestedBy);
   assertPermission(role, PERMISSIONS.ORGANIZATION.UPDATE);
 
+  // Archived organizations cannot be updated
+  if (org.archivedAt) {
+    throw AppError.badRequest('Cannot update an archived organization. Restore it first.');
+  }
+
   // If name is changing, check slug uniqueness
   if (data.name && data.name !== org.name) {
     const newSlug = slugify(data.name);
@@ -166,11 +252,21 @@ export async function updateOrganization(
     }
   }
 
-  const updated = await organizationRepo.updateById(repoDb, orgId, {
-    name: data.name,
-    description: data.description,
-    website: data.website,
-  });
+  let updated;
+  try {
+    updated = await organizationRepo.updateById(repoDb, orgId, {
+      name: data.name,
+      description: data.description,
+      website: data.website,
+    });
+  } catch (err: unknown) {
+    // Handle race condition: concurrent slug change may have violated the unique constraint.
+    // PostgreSQL error code 23505 = unique_violation.
+    if (isPgUniqueViolation(err)) {
+      throw AppError.conflict('An organization with a similar name already exists');
+    }
+    throw err;
+  }
 
   if (!updated) {
     throw AppError.internal('Failed to update organization');
@@ -238,14 +334,16 @@ export async function restoreOrganization(
 /**
  * Permanently delete an organization.
  * The requester must have DELETE permission.
+ * The organization must be archived first (enforces archive → delete lifecycle).
  */
-export async function deleteOrganization(
-  orgId: string,
-  requestedBy: string,
-): Promise<void> {
+export async function deleteOrganization(orgId: string, requestedBy: string): Promise<void> {
   const org = await organizationRepo.findById(repoDb, orgId);
   if (!org) {
     throw AppError.notFound('Organization');
+  }
+
+  if (!org.archivedAt) {
+    throw AppError.badRequest('Organization must be archived before it can be permanently deleted');
   }
 
   const role = await organizationRepo.getMemberRole(repoDb, orgId, requestedBy);
@@ -267,6 +365,9 @@ export async function addOrganizationMember(
   role: string,
   requestedBy: string,
 ): Promise<OrganizationMemberResult> {
+  // Defense-in-depth: validate role is a valid organization role
+  validateRole(role);
+
   // Check the organization exists
   const org = await organizationRepo.findById(repoDb, orgId);
   if (!org) {
@@ -276,6 +377,9 @@ export async function addOrganizationMember(
   // Check requester's permission
   const requesterRole = await organizationRepo.getMemberRole(repoDb, orgId, requestedBy);
   assertPermission(requesterRole, PERMISSIONS.ORGANIZATION.MANAGE_MEMBERS);
+
+  // Validate role hierarchy: prevent privilege escalation and owner hijacking
+  assertCanAssignRole(requesterRole!, role);
 
   // Check if user is already a member
   const existingMember = await organizationRepo.isMember(repoDb, orgId, userId);
@@ -307,8 +411,14 @@ export async function removeOrganizationMember(
   const requesterRole = await organizationRepo.getMemberRole(repoDb, orgId, requestedBy);
   assertPermission(requesterRole, PERMISSIONS.ORGANIZATION.MANAGE_MEMBERS);
 
-  // Cannot remove the owner
+  // Check target exists and is a member — use a single generic error to avoid
+  // information disclosure about whether a specific user is the owner.
   const targetRole = await organizationRepo.getMemberRole(repoDb, orgId, userId);
+  if (!targetRole) {
+    throw AppError.notFound('Member');
+  }
+
+  // Cannot remove the owner
   if (targetRole === 'owner') {
     throw AppError.badRequest('Cannot remove the organization owner');
   }
@@ -321,11 +431,21 @@ export async function removeOrganizationMember(
 
 /**
  * Get all members of an organization.
+ * The requester must be a member of the organization.
  */
-export async function getOrganizationMembers(orgId: string): Promise<OrganizationMemberResult[]> {
+export async function getOrganizationMembers(
+  orgId: string,
+  requestedBy: string,
+): Promise<OrganizationMemberResult[]> {
   const org = await organizationRepo.findById(repoDb, orgId);
   if (!org) {
     throw AppError.notFound('Organization');
+  }
+
+  // Verify the requester is a member — prevents information disclosure
+  const isMember = await organizationRepo.isMember(repoDb, orgId, requestedBy);
+  if (!isMember) {
+    throw AppError.forbidden('You are not a member of this organization');
   }
 
   const members = await organizationRepo.getMembers(repoDb, orgId);

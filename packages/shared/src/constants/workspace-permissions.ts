@@ -1,0 +1,55 @@
+/**
+ * Canonical workspace role → permission mapping.
+ * Imported by both the RBAC middleware and the workspace service to
+ * prevent authorization drift (M-C03).
+ */
+export const WORKSPACE_ROLE_PERMISSIONS: Record<string, string[]> = {
+  owner: [
+    'workspace:update',
+    'workspace:delete',
+    'workspace:manage_members',
+    'workspace:manage_billing',
+    'workspace:settings',
+    'workspace:manage_roles',
+    'board:create',
+    'board:update',
+    'board:delete',
+    'task:create',
+    'task:update',
+    'task:delete',
+    'task:assign',
+    'document:create',
+    'document:update',
+    'document:delete',
+  ],
+  admin: [
+    'workspace:update',
+    'workspace:manage_members',
+    'workspace:manage_billing',
+    'workspace:settings',
+    'workspace:manage_roles',
+    'board:create',
+    'board:update',
+    'board:delete',
+    'task:create',
+    'task:update',
+    'task:delete',
+    'task:assign',
+    'document:create',
+    'document:update',
+    'document:delete',
+  ],
+  member: [
+    'board:create',
+    'board:update',
+    'board:delete',
+    'task:create',
+    'task:update',
+    'task:delete',
+    'task:assign',
+    'document:create',
+    'document:update',
+    'document:delete',
+  ],
+  guest: ['board:create', 'task:create', 'document:create'],
+};

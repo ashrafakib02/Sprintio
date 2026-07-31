@@ -2,6 +2,8 @@ import { createFileRoute, Outlet, redirect, Link } from '@tanstack/react-router'
 import { useAuth } from '@/hooks/use-auth';
 import { useLogout } from '@/hooks/use-logout';
 import { Spinner } from '@/components/ui/spinner';
+import { WorkspaceSwitcher } from '@/components/workspace/workspace-switcher';
+import { OrganizationSwitcher } from '@/components/organization/organization-switcher';
 import { getAuthState } from '@/lib/auth-store';
 
 export const Route = createFileRoute('/_authenticated')({
@@ -44,6 +46,16 @@ function AuthenticatedLayout() {
           <Link to="/" className="text-lg font-semibold">
             Sprintio
           </Link>
+        </div>
+
+        {/* Organization Switcher */}
+        <div className="border-b border-border p-3">
+          <OrganizationSwitcher />
+        </div>
+
+        {/* Workspace Switcher */}
+        <div className="border-b border-border p-3">
+          <WorkspaceSwitcher />
         </div>
 
         <nav className="flex-1 space-y-1 p-3">

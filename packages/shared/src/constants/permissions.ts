@@ -13,6 +13,8 @@ export const PERMISSIONS = {
     DELETE: 'workspace:delete',
     MANAGE_MEMBERS: 'workspace:manage_members',
     MANAGE_BILLING: 'workspace:manage_billing',
+    SETTINGS: 'workspace:settings',
+    MANAGE_ROLES: 'workspace:manage_roles',
   },
   BOARD: {
     CREATE: 'board:create',

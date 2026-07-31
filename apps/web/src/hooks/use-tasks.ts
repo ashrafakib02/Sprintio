@@ -1,24 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { mockTasks } from '@/lib/mock-data';
+import { apiRequest } from '@/lib/api';
 import type { TaskWithAssignee, DashboardFilters } from '@/types/dashboard';
 const EMPTY_ARRAY: never[] = Object.freeze([]) as never[];
 
 export const TASKS_QUERY_KEY = ['dashboard', 'tasks'] as const;
 
 /**
- * Fetches tasks for the dashboard.
- * Currently returns mock data — swap queryFn for real API call.
+ * Fetches tasks for the dashboard from the real API.
+ * Returns an empty array when the backend has no tasks yet.
  */
 export function useTasks(filters?: Partial<DashboardFilters>) {
   const query = useQuery({
     queryKey: [...TASKS_QUERY_KEY, filters],
     queryFn: async (): Promise<TaskWithAssignee[]> => {
-      // TODO: Replace with real API call
-      // return api.get('/api/tasks/my', { params: filters });
-      return mockTasks;
+      const res = await apiRequest<{ tasks: TaskWithAssignee[] }>('/tasks/my');
+      return res.data.tasks ?? [];
     },
     staleTime: 30_000,
+    retry: false,
   });
 
   const filteredTasks = useMemo(() => {

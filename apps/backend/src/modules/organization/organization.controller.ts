@@ -1,8 +1,26 @@
 import type { Request, Response } from 'express';
 import * as organizationService from './organization.service.js';
-import { CreateOrganizationSchema, UpdateOrganizationSchema, AddOrganizationMemberSchema } from '@sprintio/shared';
+import {
+  CreateOrganizationSchema,
+  UpdateOrganizationSchema,
+  AddOrganizationMemberSchema,
+  ListOrganizationsSchema,
+  UuidSchema,
+} from '@sprintio/shared';
 import { sendSuccess } from '../../utils/response.js';
 import { asyncHandler } from '../../utils/async-handler.js';
+
+// ============================================================
+// Helpers
+// ============================================================
+
+function validateUuid(value: string, label: string): string | null {
+  const result = UuidSchema.safeParse(value);
+  if (!result.success) {
+    return `Invalid ${label} format`;
+  }
+  return null;
+}
 
 // ============================================================
 // Handlers
@@ -27,15 +45,17 @@ export const createOrganization = asyncHandler(async (req: Request, res: Respons
 
 /**
  * GET /api/organizations/:organizationId
- * Get an organization by ID.
+ * Get an organization by ID. Requires membership.
  */
 export const getOrganization = asyncHandler(async (req: Request, res: Response) => {
   const organizationId = req.params.organizationId as string;
-  if (!organizationId) {
-    return res.status(400).json({ error: 'Organization ID is required' });
+  const uuidError = validateUuid(organizationId, 'organization ID');
+  if (uuidError) {
+    return res.status(400).json({ error: uuidError });
   }
 
-  const organization = await organizationService.getOrganization(organizationId);
+  const requestedBy = req.user!.userId;
+  const organization = await organizationService.getOrganization(organizationId, requestedBy);
 
   return sendSuccess(res, { organization });
 });
@@ -45,8 +65,15 @@ export const getOrganization = asyncHandler(async (req: Request, res: Response) 
  * List all organizations the authenticated user belongs to.
  */
 export const listOrganizations = asyncHandler(async (req: Request, res: Response) => {
+  const parsed = ListOrganizationsSchema.safeParse(req.query);
+  if (!parsed.success) {
+    const message = parsed.error.errors.map((e) => e.message).join(', ');
+    return res.status(400).json({ error: message });
+  }
+
   const userId = req.user!.userId;
-  const organizations = await organizationService.getUserOrganizations(userId);
+  const includeArchived = parsed.data.includeArchived === 'true';
+  const organizations = await organizationService.getUserOrganizations(userId, includeArchived);
 
   return sendSuccess(res, { organizations });
 });
@@ -57,8 +84,9 @@ export const listOrganizations = asyncHandler(async (req: Request, res: Response
  */
 export const addMember = asyncHandler(async (req: Request, res: Response) => {
   const organizationId = req.params.organizationId as string;
-  if (!organizationId) {
-    return res.status(400).json({ error: 'Organization ID is required' });
+  const uuidError = validateUuid(organizationId, 'organization ID');
+  if (uuidError) {
+    return res.status(400).json({ error: uuidError });
   }
 
   const parsed = AddOrganizationMemberSchema.safeParse(req.body);
@@ -86,11 +114,13 @@ export const removeMember = asyncHandler(async (req: Request, res: Response) => 
   const organizationId = req.params.organizationId as string;
   const targetUserId = req.params.userId as string;
 
-  if (!organizationId) {
-    return res.status(400).json({ error: 'Organization ID is required' });
+  const orgError = validateUuid(organizationId, 'organization ID');
+  if (orgError) {
+    return res.status(400).json({ error: orgError });
   }
-  if (!targetUserId) {
-    return res.status(400).json({ error: 'User ID is required' });
+  const userError = validateUuid(targetUserId, 'user ID');
+  if (userError) {
+    return res.status(400).json({ error: userError });
   }
 
   const requestedBy = req.user!.userId;
@@ -105,11 +135,13 @@ export const removeMember = asyncHandler(async (req: Request, res: Response) => 
  */
 export const listMembers = asyncHandler(async (req: Request, res: Response) => {
   const organizationId = req.params.organizationId as string;
-  if (!organizationId) {
-    return res.status(400).json({ error: 'Organization ID is required' });
+  const uuidError = validateUuid(organizationId, 'organization ID');
+  if (uuidError) {
+    return res.status(400).json({ error: uuidError });
   }
 
-  const members = await organizationService.getOrganizationMembers(organizationId);
+  const requestedBy = req.user!.userId;
+  const members = await organizationService.getOrganizationMembers(organizationId, requestedBy);
 
   return sendSuccess(res, { members });
 });
@@ -120,8 +152,9 @@ export const listMembers = asyncHandler(async (req: Request, res: Response) => {
  */
 export const updateOrganization = asyncHandler(async (req: Request, res: Response) => {
   const organizationId = req.params.organizationId as string;
-  if (!organizationId) {
-    return res.status(400).json({ error: 'Organization ID is required' });
+  const uuidError = validateUuid(organizationId, 'organization ID');
+  if (uuidError) {
+    return res.status(400).json({ error: uuidError });
   }
 
   const parsed = UpdateOrganizationSchema.safeParse(req.body);
@@ -146,8 +179,9 @@ export const updateOrganization = asyncHandler(async (req: Request, res: Respons
  */
 export const archiveOrganization = asyncHandler(async (req: Request, res: Response) => {
   const organizationId = req.params.organizationId as string;
-  if (!organizationId) {
-    return res.status(400).json({ error: 'Organization ID is required' });
+  const uuidError = validateUuid(organizationId, 'organization ID');
+  if (uuidError) {
+    return res.status(400).json({ error: uuidError });
   }
 
   const requestedBy = req.user!.userId;
@@ -162,8 +196,9 @@ export const archiveOrganization = asyncHandler(async (req: Request, res: Respon
  */
 export const restoreOrganization = asyncHandler(async (req: Request, res: Response) => {
   const organizationId = req.params.organizationId as string;
-  if (!organizationId) {
-    return res.status(400).json({ error: 'Organization ID is required' });
+  const uuidError = validateUuid(organizationId, 'organization ID');
+  if (uuidError) {
+    return res.status(400).json({ error: uuidError });
   }
 
   const requestedBy = req.user!.userId;
@@ -178,8 +213,9 @@ export const restoreOrganization = asyncHandler(async (req: Request, res: Respon
  */
 export const deleteOrganization = asyncHandler(async (req: Request, res: Response) => {
   const organizationId = req.params.organizationId as string;
-  if (!organizationId) {
-    return res.status(400).json({ error: 'Organization ID is required' });
+  const uuidError = validateUuid(organizationId, 'organization ID');
+  if (uuidError) {
+    return res.status(400).json({ error: uuidError });
   }
 
   const requestedBy = req.user!.userId;
