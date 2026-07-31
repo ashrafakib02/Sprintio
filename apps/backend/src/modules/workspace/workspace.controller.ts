@@ -43,12 +43,8 @@ export const createWorkspace = asyncHandler(async (req: Request, res: Response) 
   }
 
   const userId = req.user!.userId;
-  const organizationId = req.body.organizationId as string | undefined;
 
-  const workspace = await workspaceService.createWorkspace(userId, {
-    ...parsed.data,
-    organizationId,
-  });
+  const workspace = await workspaceService.createWorkspace(userId, parsed.data);
 
   return sendSuccess(res, { workspace }, 201);
 });
@@ -526,12 +522,7 @@ export const updateMemberRoleHandler = asyncHandler(async (req: Request, res: Re
   }
 
   const requestedBy = req.user!.userId;
-  const member = await workspaceService.updateMemberRole(
-    workspaceId,
-    userId,
-    newRole,
-    requestedBy,
-  );
+  const member = await workspaceService.updateMemberRole(workspaceId, userId, newRole, requestedBy);
 
   return sendSuccess(res, { member });
 });

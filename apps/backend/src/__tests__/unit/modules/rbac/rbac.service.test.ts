@@ -347,9 +347,9 @@ describe('RBAC Service', () => {
       // getUserPrimaryRole for target user → returns 'owner'
       vi.mocked(rbacRepo.getUserPrimaryRole).mockResolvedValue('owner');
 
-      await expect(
-        rbacService.revokeRole('user-2', 'workspace', 'ws-1', 'user-1'),
-      ).rejects.toThrow('Cannot revoke the owner role');
+      await expect(rbacService.revokeRole('user-2', 'workspace', 'ws-1', 'user-1')).rejects.toThrow(
+        'Cannot revoke the owner role',
+      );
     });
   });
 

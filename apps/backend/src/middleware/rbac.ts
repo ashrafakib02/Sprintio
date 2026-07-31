@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { repoDb } from '../config/db-for-repos.js';
 import { workspaceRepo, organizationRepo } from '@sprintio/db/repositories';
+import { WORKSPACE_ROLE_PERMISSIONS } from '@sprintio/shared';
 
 // ============================================================
 // Type Augmentation
@@ -17,61 +18,6 @@ declare global {
 // ============================================================
 // requireWorkspacePermission
 // ============================================================
-
-/**
- * Static workspace role → permission mapping (MVP fallback).
- * Used when the RBAC user_roles table has no entry for this user+workspace.
- */
-const WORKSPACE_ROLE_PERMISSIONS: Record<string, string[]> = {
-  owner: [
-    'workspace:update',
-    'workspace:delete',
-    'workspace:manage_members',
-    'workspace:manage_billing',
-    'workspace:settings',
-    'workspace:manage_roles',
-    'board:create',
-    'board:update',
-    'board:delete',
-    'task:create',
-    'task:update',
-    'task:delete',
-    'task:assign',
-    'document:create',
-    'document:update',
-    'document:delete',
-  ],
-  admin: [
-    'workspace:update',
-    'workspace:manage_members',
-    'workspace:manage_billing',
-    'workspace:settings',
-    'workspace:manage_roles',
-    'board:create',
-    'board:update',
-    'board:delete',
-    'task:create',
-    'task:update',
-    'task:delete',
-    'task:assign',
-    'document:create',
-    'document:update',
-    'document:delete',
-  ],
-  member: [
-    'board:create',
-    'board:update',
-    'board:delete',
-    'task:create',
-    'task:update',
-    'task:delete',
-    'task:assign',
-    'document:create',
-    'document:update',
-    'document:delete',
-  ],
-  guest: ['board:create', 'task:create', 'document:create'],
-};
 
 /**
  * requireWorkspacePermission(...permissions)

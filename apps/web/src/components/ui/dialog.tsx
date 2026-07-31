@@ -24,7 +24,12 @@ interface DialogProps {
   children: React.ReactNode;
 }
 
-function Dialog({ open: controlledOpen, onOpenChange, defaultOpen = false, children }: DialogProps) {
+function Dialog({
+  open: controlledOpen,
+  onOpenChange,
+  defaultOpen = false,
+  children,
+}: DialogProps) {
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen);
   const open = controlledOpen ?? uncontrolledOpen;
   const handleChange = onOpenChange ?? setUncontrolledOpen;
@@ -125,11 +130,18 @@ function DialogContent({ className, children, showClose = true, ...props }: Dial
 }
 
 function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('flex flex-col space-y-1.5 text-center sm:text-left', className)} {...props} />;
+  return (
+    <div
+      className={cn('flex flex-col space-y-1.5 text-center sm:text-left', className)}
+      {...props}
+    />
+  );
 }
 
 function DialogTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h2 className={cn('text-lg font-semibold leading-none tracking-tight', className)} {...props} />;
+  return (
+    <h2 className={cn('text-lg font-semibold leading-none tracking-tight', className)} {...props} />
+  );
 }
 
 function DialogDescription({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
@@ -145,4 +157,12 @@ function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
   );
 }
 
-export { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter };
+export {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+};

@@ -34,8 +34,7 @@ vi.mock('@sprintio/shared', async (importOriginal) => {
     ListOrganizationsSchema: { safeParse: vi.fn() },
     UuidSchema: {
       safeParse: vi.fn((val: string) => {
-        const uuidRegex =
-          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (uuidRegex.test(val)) return { success: true, data: val };
         return { success: false, error: { errors: [{ message: 'Invalid UUID' }] } };
       }),
@@ -212,9 +211,7 @@ describe('Organization Controller', () => {
         success: true,
         data: { includeArchived: 'false' },
       } as never);
-      vi.mocked(organizationService.getUserOrganizations).mockResolvedValue(
-        [ORG_RESULT] as never,
-      );
+      vi.mocked(organizationService.getUserOrganizations).mockResolvedValue([ORG_RESULT] as never);
 
       await organizationController.listOrganizations(req, res as never, createMockNext());
 
@@ -274,9 +271,10 @@ describe('Organization Controller', () => {
         success: true,
         data: { name: 'Updated' },
       } as never);
-      vi.mocked(organizationService.updateOrganization).mockResolvedValue(
-        { ...ORG_RESULT, name: 'Updated' } as never,
-      );
+      vi.mocked(organizationService.updateOrganization).mockResolvedValue({
+        ...ORG_RESULT,
+        name: 'Updated',
+      } as never);
 
       await organizationController.updateOrganization(req, res as never, createMockNext());
 
@@ -326,9 +324,10 @@ describe('Organization Controller', () => {
         user: { userId: USER_ID },
       });
       const res = createMockRes();
-      vi.mocked(organizationService.archiveOrganization).mockResolvedValue(
-        { ...ORG_RESULT, archivedAt: '2025-07-01T00:00:00.000Z' } as never,
-      );
+      vi.mocked(organizationService.archiveOrganization).mockResolvedValue({
+        ...ORG_RESULT,
+        archivedAt: '2025-07-01T00:00:00.000Z',
+      } as never);
 
       await organizationController.archiveOrganization(req, res as never, createMockNext());
 
@@ -376,9 +375,7 @@ describe('Organization Controller', () => {
         user: { userId: USER_ID },
       });
       const res = createMockRes();
-      vi.mocked(organizationService.restoreOrganization).mockResolvedValue(
-        ORG_RESULT as never,
-      );
+      vi.mocked(organizationService.restoreOrganization).mockResolvedValue(ORG_RESULT as never);
 
       await organizationController.restoreOrganization(req, res as never, createMockNext());
 
@@ -615,9 +612,9 @@ describe('Organization Controller', () => {
         user: { userId: USER_ID },
       });
       const res = createMockRes();
-      vi.mocked(organizationService.getOrganizationMembers).mockResolvedValue(
-        [MEMBER_RESULT] as never,
-      );
+      vi.mocked(organizationService.getOrganizationMembers).mockResolvedValue([
+        MEMBER_RESULT,
+      ] as never);
 
       await organizationController.listMembers(req, res as never, createMockNext());
 

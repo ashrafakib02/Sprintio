@@ -121,9 +121,7 @@ export function WorkspaceGeneralSettings({ workspaceId }: WorkspaceGeneralSettin
           <CardTitle headingLevel="h2" className="text-xl">
             General Settings
           </CardTitle>
-          <CardDescription>
-            Manage your workspace name and description.
-          </CardDescription>
+          <CardDescription>Manage your workspace name and description.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -138,9 +136,7 @@ export function WorkspaceGeneralSettings({ workspaceId }: WorkspaceGeneralSettin
                 disabled={!canEdit}
                 maxLength={100}
               />
-              <p className="text-xs text-muted-foreground">
-                {name.length}/100 characters
-              </p>
+              <p className="text-xs text-muted-foreground">{name.length}/100 characters</p>
             </div>
 
             {/* Description */}
@@ -156,9 +152,7 @@ export function WorkspaceGeneralSettings({ workspaceId }: WorkspaceGeneralSettin
                 rows={3}
                 className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
               />
-              <p className="text-xs text-muted-foreground">
-                {description.length}/500 characters
-              </p>
+              <p className="text-xs text-muted-foreground">{description.length}/500 characters</p>
             </div>
 
             {/* Workspace Info */}
@@ -203,7 +197,10 @@ export function WorkspaceGeneralSettings({ workspaceId }: WorkspaceGeneralSettin
       {canEdit && (
         <Card className="border-destructive/50">
           <CardHeader>
-            <CardTitle headingLevel="h2" className="text-xl flex items-center gap-2 text-destructive">
+            <CardTitle
+              headingLevel="h2"
+              className="text-xl flex items-center gap-2 text-destructive"
+            >
               <AlertTriangle className="h-5 w-5" />
               Danger Zone
             </CardTitle>
@@ -309,8 +306,8 @@ export function WorkspaceGeneralSettings({ workspaceId }: WorkspaceGeneralSettin
                   <DialogHeader>
                     <DialogTitle>Permanently Delete Workspace?</DialogTitle>
                     <DialogDescription>
-                      This action is <span className="font-bold text-destructive">PERMANENT</span> and
-                      cannot be undone. All data will be lost including projects, boards, tasks,
+                      This action is <span className="font-bold text-destructive">PERMANENT</span>{' '}
+                      and cannot be undone. All data will be lost including projects, boards, tasks,
                       files, and member associations. Please type{' '}
                       <span className="font-mono font-bold">{workspace.name}</span> to confirm.
                     </DialogDescription>
@@ -339,9 +336,7 @@ export function WorkspaceGeneralSettings({ workspaceId }: WorkspaceGeneralSettin
                     <Button
                       variant="destructive"
                       onClick={handleDelete}
-                      disabled={
-                        deleteConfirmName !== workspace.name || deleteMutation.isPending
-                      }
+                      disabled={deleteConfirmName !== workspace.name || deleteMutation.isPending}
                     >
                       {deleteMutation.isPending && <Spinner className="mr-2 h-4 w-4" />}
                       Delete Permanently

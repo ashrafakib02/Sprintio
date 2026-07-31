@@ -6,6 +6,7 @@ import { switchWorkspace } from '@/lib/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Briefcase } from 'lucide-react';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_authenticated/workspace/$workspaceId')({
   component: WorkspaceLayout,
@@ -26,29 +27,46 @@ function WorkspaceLayout() {
 
     let cancelled = false;
 
+    // Safety timeout — if the switch + query never resolves, redirect
+    // to dashboard so the user is never stuck on a loading page.
+    const fallbackTimer = setTimeout(() => {
+      if (!cancelled) {
+        navigate({ to: '/dashboard' });
+      }
+    }, 8_000);
+
     switchWorkspace(workspaceId)
       .then((response) => {
         if (cancelled) return;
 
         // Seed the query cache so child routes and other consumers
         // see up-to-date workspace data without an extra fetch.
-        queryClient.setQueryData(
-          WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
-          response,
-        );
+        queryClient.setQueryData(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId), response);
       })
       .catch((err: Error) => {
         if (cancelled) return;
 
-        // If the workspace is not found or access is denied, redirect
-        // to the dashboard so the user is never stuck on a broken page.
-        if (err.message?.includes('not found') || err.message?.includes('access')) {
-          navigate({ to: '/dashboard' });
+        const msg = err.message ?? '';
+
+        if (
+          msg.includes('CSRF_MISSING_HEADER') ||
+          msg.includes('CSRF_ORIGIN_MISMATCH') ||
+          msg.includes('CSRF validation failed')
+        ) {
+          toast.error('Session validation failed', {
+            description: 'A security check failed. Please refresh the page and try again.',
+          });
         }
+
+        navigate({ to: '/dashboard' });
+      })
+      .finally(() => {
+        clearTimeout(fallbackTimer);
       });
 
     return () => {
       cancelled = true;
+      clearTimeout(fallbackTimer);
     };
   }, [workspaceId, queryClient, navigate]);
 
@@ -56,7 +74,7 @@ function WorkspaceLayout() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center">
+      <div className="flex h-full items-center justify-center" role="status" aria-live="polite">
         <div className="flex flex-col items-center gap-3 text-muted-foreground">
           <Spinner className="h-8 w-8" />
           <p className="text-sm">Loading workspace…</p>
@@ -69,7 +87,11 @@ function WorkspaceLayout() {
 
   if (isError || !data) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 text-muted-foreground">
+      <div
+        className="flex h-full flex-col items-center justify-center gap-4 text-muted-foreground"
+        role="alert"
+        aria-live="assertive"
+      >
         <div className="rounded-full bg-destructive/10 p-4">
           <AlertTriangle className="h-10 w-10 text-destructive" />
         </div>

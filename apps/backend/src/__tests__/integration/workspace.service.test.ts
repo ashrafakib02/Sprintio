@@ -35,7 +35,10 @@ vi.mock('@sprintio/shared', async (importOriginal) => {
   return {
     ...actual,
     slugify: vi.fn((name: string) =>
-      name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, ''),
     ),
   };
 });
@@ -52,12 +55,22 @@ const WS_ID = '550e8400-e29b-41d4-a716-446655440000';
 const USER_ID = '550e8400-e29b-41d4-a716-446655440001';
 const OTHER_USER_ID = '550e8400-e29b-41d4-a716-446655440002';
 
-function makeWs(overrides: Partial<{
-  id: string; name: string; slug: string; description: string | null;
-  logo: string | null; brandColor: string | null; customDomain: string | null;
-  organizationId: string | null; plan: string;
-  archivedAt: Date | null; createdAt: Date; updatedAt: Date;
-}> = {}) {
+function makeWs(
+  overrides: Partial<{
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    logo: string | null;
+    brandColor: string | null;
+    customDomain: string | null;
+    organizationId: string | null;
+    plan: string;
+    archivedAt: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+  }> = {},
+) {
   return {
     id: WS_ID,
     name: 'Test Workspace',
@@ -75,9 +88,15 @@ function makeWs(overrides: Partial<{
   };
 }
 
-function makeMember(overrides: Partial<{
-  id: string; workspaceId: string; userId: string; role: string; createdAt: Date;
-}> = {}) {
+function makeMember(
+  overrides: Partial<{
+    id: string;
+    workspaceId: string;
+    userId: string;
+    role: string;
+    createdAt: Date;
+  }> = {},
+) {
   return {
     id: 'member-1',
     workspaceId: WS_ID,
@@ -120,9 +139,7 @@ describe('Workspace Service — Integration Flows', () => {
       repo.getMemberRole.mockResolvedValue('owner');
       repo.findBySlug.mockResolvedValue(undefined);
       repo.updateById.mockResolvedValue(makeWs({ name: 'Updated', slug: 'updated' }));
-      const updated = await workspaceService.updateWorkspace(
-        WS_ID, { name: 'Updated' }, USER_ID,
-      );
+      const updated = await workspaceService.updateWorkspace(WS_ID, { name: 'Updated' }, USER_ID);
       expect(updated.name).toBe('Updated');
 
       // ARCHIVE (as owner)
@@ -151,9 +168,7 @@ describe('Workspace Service — Integration Flows', () => {
       );
       repo.getMemberRole.mockResolvedValue('owner');
       repo.deleteById.mockResolvedValue(true);
-      await expect(
-        workspaceService.deleteWorkspace(WS_ID, USER_ID),
-      ).resolves.toBeUndefined();
+      await expect(workspaceService.deleteWorkspace(WS_ID, USER_ID)).resolves.toBeUndefined();
     });
   });
 
@@ -171,7 +186,10 @@ describe('Workspace Service — Integration Flows', () => {
       repo.isMember.mockResolvedValue(false);
       repo.addMember.mockResolvedValue(makeMember({ userId: OTHER_USER_ID, role: 'member' }));
       const added = await workspaceService.addWorkspaceMember(
-        WS_ID, OTHER_USER_ID, 'member', USER_ID,
+        WS_ID,
+        OTHER_USER_ID,
+        'member',
+        USER_ID,
       );
       expect(added.userId).toBe(OTHER_USER_ID);
 
@@ -187,9 +205,7 @@ describe('Workspace Service — Integration Flows', () => {
 
       // REMOVE MEMBER (as admin)
       repo.findById.mockResolvedValue(ws);
-      repo.getMemberRole
-        .mockResolvedValueOnce('admin')
-        .mockResolvedValueOnce('member');
+      repo.getMemberRole.mockResolvedValueOnce('admin').mockResolvedValueOnce('member');
       repo.removeMember.mockResolvedValue(true);
       await expect(
         workspaceService.removeWorkspaceMember(WS_ID, OTHER_USER_ID, USER_ID),
@@ -212,7 +228,10 @@ describe('Workspace Service — Integration Flows', () => {
       repo.addMember.mockResolvedValue(makeMember({ role: 'admin', userId: OTHER_USER_ID }));
 
       const admin = await workspaceService.addWorkspaceMember(
-        WS_ID, OTHER_USER_ID, 'admin', USER_ID,
+        WS_ID,
+        OTHER_USER_ID,
+        'admin',
+        USER_ID,
       );
       expect(admin.role).toBe('admin');
     });
@@ -225,26 +244,22 @@ describe('Workspace Service — Integration Flows', () => {
         workspaceService.addWorkspaceMember(WS_ID, OTHER_USER_ID, 'member', USER_ID),
       ).rejects.toThrow(AppError);
 
-      await expect(
-        workspaceService.updateWorkspace(WS_ID, { name: 'X' }, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.updateWorkspace(WS_ID, { name: 'X' }, USER_ID)).rejects.toThrow(
+        AppError,
+      );
 
-      await expect(
-        workspaceService.archiveWorkspace(WS_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.archiveWorkspace(WS_ID, USER_ID)).rejects.toThrow(AppError);
     });
 
     it('should enforce membership check on read operations', async () => {
       repo.findById.mockResolvedValue(ws);
       repo.isMember.mockResolvedValue(false);
 
-      await expect(
-        workspaceService.getWorkspace(WS_ID, OTHER_USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.getWorkspace(WS_ID, OTHER_USER_ID)).rejects.toThrow(AppError);
 
-      await expect(
-        workspaceService.getWorkspaceMembers(WS_ID, OTHER_USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.getWorkspaceMembers(WS_ID, OTHER_USER_ID)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should enforce archive-before-delete lifecycle', async () => {
@@ -252,18 +267,14 @@ describe('Workspace Service — Integration Flows', () => {
       repo.findById.mockResolvedValue(makeWs());
       repo.getMemberRole.mockResolvedValue('owner');
 
-      await expect(
-        workspaceService.deleteWorkspace(WS_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.deleteWorkspace(WS_ID, USER_ID)).rejects.toThrow(AppError);
 
       // Archived workspace — can delete
       repo.findById.mockResolvedValue(makeWs({ archivedAt: new Date() }));
       repo.getMemberRole.mockResolvedValue('owner');
       repo.deleteById.mockResolvedValue(true);
 
-      await expect(
-        workspaceService.deleteWorkspace(WS_ID, USER_ID),
-      ).resolves.toBeUndefined();
+      await expect(workspaceService.deleteWorkspace(WS_ID, USER_ID)).resolves.toBeUndefined();
     });
   });
 });

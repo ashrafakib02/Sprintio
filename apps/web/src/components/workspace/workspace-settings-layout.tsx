@@ -3,6 +3,7 @@ import { useWorkspaceContext } from '@/hooks/use-workspace-settings';
 import { Spinner } from '@/components/ui/spinner';
 import { Settings, Palette, Users, Shield, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { getWorkspaceInitials, getAvatarGradient } from '@/lib/workspace-utils';
 
 interface WorkspaceSettingsLayoutProps {
   workspaceId: string;
@@ -47,32 +48,6 @@ const SETTINGS_NAV = [
   },
 ] as const;
 
-function getWorkspaceInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-}
-
-const WORKSPACE_AVATAR_COLORS = [
-  'from-blue-500 to-indigo-600',
-  'from-purple-500 to-violet-600',
-  'from-emerald-500 to-teal-600',
-  'from-amber-500 to-orange-600',
-  'from-rose-500 to-pink-600',
-  'from-cyan-500 to-blue-600',
-];
-
-function getAvatarGradient(name: string): string {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return WORKSPACE_AVATAR_COLORS[Math.abs(hash) % WORKSPACE_AVATAR_COLORS.length];
-}
-
 export function WorkspaceSettingsLayout({ workspaceId }: WorkspaceSettingsLayoutProps) {
   const { data, isLoading, error } = useWorkspaceContext(workspaceId);
   const matchRoute = useMatchRoute();
@@ -88,9 +63,7 @@ export function WorkspaceSettingsLayout({ workspaceId }: WorkspaceSettingsLayout
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-sm text-muted-foreground">
-          Failed to load workspace settings.
-        </p>
+        <p className="text-sm text-muted-foreground">Failed to load workspace settings.</p>
         <p className="text-xs text-muted-foreground/70 mt-1">{error.message}</p>
       </div>
     );
@@ -171,15 +144,15 @@ export function WorkspaceSettingsLayout({ workspaceId }: WorkspaceSettingsLayout
                 <div
                   className={cn(
                     'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200',
-                    isActive
-                      ? 'bg-primary/10'
-                      : 'bg-muted group-hover:bg-muted/80',
+                    isActive ? 'bg-primary/10' : 'bg-muted group-hover:bg-muted/80',
                   )}
                 >
                   <Icon
                     className={cn(
                       'h-4 w-4 transition-colors duration-200',
-                      isActive ? item.iconColor : 'text-muted-foreground group-hover:text-foreground',
+                      isActive
+                        ? item.iconColor
+                        : 'text-muted-foreground group-hover:text-foreground',
                     )}
                   />
                 </div>

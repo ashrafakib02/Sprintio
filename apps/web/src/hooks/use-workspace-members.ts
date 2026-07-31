@@ -13,7 +13,10 @@ import {
   type WorkspaceContextMember,
   type WorkspaceSettingsData,
 } from '@/lib/api';
-import { WORKSPACE_LIST_QUERY_KEY } from '@/hooks/use-workspace-settings';
+import {
+  WORKSPACE_LIST_QUERY_KEY,
+  WORKSPACE_CONTEXT_QUERY_KEY,
+} from '@/hooks/use-workspace-settings';
 import { toast } from 'sonner';
 
 // ── Internal Types ──────────────────────────────────────────
@@ -36,9 +39,6 @@ export const WORKSPACE_MEMBERS_QUERY_KEY = (workspaceId: string) =>
 
 export const WORKSPACE_INVITATIONS_QUERY_KEY = (workspaceId: string) =>
   ['workspace', workspaceId, 'invitations'] as const;
-
-export const WORKSPACE_CONTEXT_QUERY_KEY = (workspaceId: string) =>
-  ['workspace', workspaceId, 'context'] as const;
 
 // ---------------------------------------------------------------------------
 // Queries
@@ -86,8 +86,7 @@ export function useInviteMember(workspaceId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { email: string; role: string }) =>
-      inviteWorkspaceMember(workspaceId, data),
+    mutationFn: (data: { email: string; role: string }) => inviteWorkspaceMember(workspaceId, data),
 
     onMutate: async (data) => {
       await queryClient.cancelQueries({
@@ -162,19 +161,19 @@ export function useRemoveMember(workspaceId: string) {
       const previousMembers = queryClient.getQueryData<WorkspaceMember[]>(
         WORKSPACE_MEMBERS_QUERY_KEY(workspaceId),
       );
-      const previousContext = queryClient.getQueryData(
-        WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
-      );
+      const previousContext = queryClient.getQueryData(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId));
 
       queryClient.setQueryData<WorkspaceMember[]>(
         WORKSPACE_MEMBERS_QUERY_KEY(workspaceId),
         (old) => old?.filter((m) => m.userId !== userId) ?? [],
       );
 
-      queryClient.setQueryData(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId), (old: WorkspaceContextRawResponse) =>
-        old?.data?.memberCount != null
-          ? { ...old, data: { ...old.data, memberCount: old.data.memberCount - 1 } }
-          : old,
+      queryClient.setQueryData(
+        WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        (old: WorkspaceContextRawResponse) =>
+          old?.data?.memberCount != null
+            ? { ...old, data: { ...old.data, memberCount: old.data.memberCount - 1 } }
+            : old,
       );
 
       return { previousMembers, previousContext };
@@ -182,10 +181,7 @@ export function useRemoveMember(workspaceId: string) {
 
     onError: (_error: Error, _userId, context) => {
       if (context?.previousMembers) {
-        queryClient.setQueryData(
-          WORKSPACE_MEMBERS_QUERY_KEY(workspaceId),
-          context.previousMembers,
-        );
+        queryClient.setQueryData(WORKSPACE_MEMBERS_QUERY_KEY(workspaceId), context.previousMembers);
       }
       if (context?.previousContext) {
         queryClient.setQueryData(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId), context.previousContext);
@@ -310,6 +306,37 @@ export function useRejectInvitation() {
 }
 
 /**
+ * Transfer workspace ownership to another member.
+ *
+ * Invalidates the workspace context cache on settlement so the role changes
+ * are reflected everywhere.
+ */
+export function useTransferOwnership(workspaceId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (newOwnerId: string) => transferOwnership(workspaceId, { newOwnerId }),
+
+    onError: (error: Error) => {
+      toast.error('Failed to transfer ownership', { description: error.message });
+    },
+
+    onSettled: () => {
+      void queryClient.invalidateQueries({
+        queryKey: WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: WORKSPACE_MEMBERS_QUERY_KEY(workspaceId),
+      });
+    },
+
+    onSuccess: () => {
+      toast.success('Ownership transferred successfully');
+    },
+  });
+}
+
+/**
  * Switch to a workspace - validates membership and returns workspace context.
  * Used by the workspace switcher to validate and fetch workspace data.
  */
@@ -322,14 +349,11 @@ export function useSwitchWorkspace(workspaceId: string) {
       const { workspace, userRole, members } = response.data;
 
       // Update the workspace context cache with the new workspace data
-      queryClient.setQueryData(
-        WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
-        {
-          workspace,
-          userRole,
-          members,
-        },
-      );
+      queryClient.setQueryData(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId), {
+        workspace,
+        userRole,
+        members,
+      });
 
       // Invalidate the workspace list to refresh the switcher
       queryClient.invalidateQueries({ queryKey: WORKSPACE_LIST_QUERY_KEY });

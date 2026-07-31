@@ -6,12 +6,12 @@ The Organization module has **115 tests** across **4 test files**, covering unit
 
 ## Test Files
 
-| File | Type | Tests | Focus |
-|------|------|-------|-------|
-| `apps/backend/src/__tests__/unit/modules/organization/organization.service.test.ts` | Unit | 49 | Service function logic, authorization, error paths |
-| `apps/backend/src/__tests__/unit/modules/organization/organization.controller.test.ts` | Unit | 31 | Controller handler delegation, validation, UUID checks, error propagation |
-| `apps/backend/src/__tests__/integration/organization.service.test.ts` | Integration | 6 | Multi-step CRUD and member management lifecycles |
-| `apps/backend/src/__tests__/api/organization.controller.test.ts` | API | 29 | Full request → validation → service → response cycle |
+| File                                                                                   | Type        | Tests | Focus                                                                     |
+| -------------------------------------------------------------------------------------- | ----------- | ----- | ------------------------------------------------------------------------- |
+| `apps/backend/src/__tests__/unit/modules/organization/organization.service.test.ts`    | Unit        | 49    | Service function logic, authorization, error paths                        |
+| `apps/backend/src/__tests__/unit/modules/organization/organization.controller.test.ts` | Unit        | 31    | Controller handler delegation, validation, UUID checks, error propagation |
+| `apps/backend/src/__tests__/integration/organization.service.test.ts`                  | Integration | 6     | Multi-step CRUD and member management lifecycles                          |
+| `apps/backend/src/__tests__/api/organization.controller.test.ts`                       | API         | 29    | Full request → validation → service → response cycle                      |
 
 ## Running Tests
 
@@ -76,9 +76,7 @@ repo.isMember.mockResolvedValue(true);
 
 ```typescript
 const next = createMockNext();
-vi.mocked(organizationService.getOrganization).mockRejectedValue(
-  AppError.notFound('Organization'),
-);
+vi.mocked(organizationService.getOrganization).mockRejectedValue(AppError.notFound('Organization'));
 
 await organizationController.getOrganization(req, res as never, next);
 
@@ -89,23 +87,24 @@ expect(next).toHaveBeenCalledWith(expect.any(AppError));
 
 ### Service Layer (49 unit tests)
 
-| Function | Tests | Scenarios |
-|----------|-------|-----------|
-| `createOrganization` | 5 | Success, duplicate slug (409), validation error (400) |
-| `getOrganization` | 3 | Success (member), not found (404), not a member (403) |
-| `getUserOrganizations` | 3 | Active only, include archived, empty result |
-| `updateOrganization` | 8 | Success (owner/admin), not found, not authorized, archived rejection, slug conflict, validation |
-| `archiveOrganization` | 4 | Success, not found, not authorized, already archived |
-| `restoreOrganization` | 3 | Success, not found, not archived |
-| `deleteOrganization` | 4 | Success (archived), not archived rejection, not found, not owner |
-| `addOrganizationMember` | 8 | Success (owner assigns any role), admin assigns member, not authorized, already a member, can't assign owner, can't assign higher role |
-| `removeOrganizationMember` | 5 | Success, can't remove owner, self-removal, member not found, not authorized |
-| `getOrganizationMembers` | 3 | Success, not found, not a member |
-| `getUserOrganizationRole` | 2 | Success, not a member |
+| Function                   | Tests | Scenarios                                                                                                                              |
+| -------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `createOrganization`       | 5     | Success, duplicate slug (409), validation error (400)                                                                                  |
+| `getOrganization`          | 3     | Success (member), not found (404), not a member (403)                                                                                  |
+| `getUserOrganizations`     | 3     | Active only, include archived, empty result                                                                                            |
+| `updateOrganization`       | 8     | Success (owner/admin), not found, not authorized, archived rejection, slug conflict, validation                                        |
+| `archiveOrganization`      | 4     | Success, not found, not authorized, already archived                                                                                   |
+| `restoreOrganization`      | 3     | Success, not found, not archived                                                                                                       |
+| `deleteOrganization`       | 4     | Success (archived), not archived rejection, not found, not owner                                                                       |
+| `addOrganizationMember`    | 8     | Success (owner assigns any role), admin assigns member, not authorized, already a member, can't assign owner, can't assign higher role |
+| `removeOrganizationMember` | 5     | Success, can't remove owner, self-removal, member not found, not authorized                                                            |
+| `getOrganizationMembers`   | 3     | Success, not found, not a member                                                                                                       |
+| `getUserOrganizationRole`  | 2     | Success, not a member                                                                                                                  |
 
 ### Controller Layer (31 unit tests)
 
 Tests verify:
+
 - HTTP status codes (200, 201, 400)
 - Request parameter extraction and UUID validation
 - Schema validation delegation
@@ -114,17 +113,18 @@ Tests verify:
 
 ### Integration Tests (6 tests)
 
-| Lifecycle | Steps |
-|-----------|-------|
-| Full CRUD lifecycle | create → get → update → archive → restore → delete |
-| Member management lifecycle | add → list → remove member |
-| Role hierarchy enforcement | owner assigns any role, member rejected for admin actions |
-| Non-member access prevention | getOrganization rejected, getMembers rejected |
-| Archive-before-delete lifecycle | active org rejected, archived org allowed |
+| Lifecycle                       | Steps                                                     |
+| ------------------------------- | --------------------------------------------------------- |
+| Full CRUD lifecycle             | create → get → update → archive → restore → delete        |
+| Member management lifecycle     | add → list → remove member                                |
+| Role hierarchy enforcement      | owner assigns any role, member rejected for admin actions |
+| Non-member access prevention    | getOrganization rejected, getMembers rejected             |
+| Archive-before-delete lifecycle | active org rejected, archived org allowed                 |
 
 ### API Tests (29 tests)
 
 Covers all 10 HTTP endpoints with:
+
 - Success responses (200, 201) with correct body structure
 - Validation errors (400) with error messages
 - Conflict errors (409) via `asyncHandler → next(err)`
@@ -144,18 +144,18 @@ createMockNext()                                   // Express NextFunction mock 
 
 ## Authorization Test Matrix
 
-| Operation | Owner | Admin | Member | Guest | Non-Member |
-|-----------|-------|-------|--------|-------|------------|
-| Create org | ✅ | — | — | — | — |
-| Get org | ✅ | ✅ | ✅ | — | ❌ (403) |
-| List orgs | ✅ | ✅ | ✅ | — | — |
-| Update org | ✅ | ✅ | ❌ (403) | — | ❌ (403) |
-| Archive org | ✅ | ✅ | ❌ (403) | — | ❌ (403) |
-| Restore org | ✅ | ✅ | ❌ (403) | — | ❌ (403) |
-| Delete org | ✅ | ❌ (403) | ❌ (403) | — | ❌ (403) |
-| Add member | ✅ | ✅ | ❌ (403) | ❌ (403) | ❌ (403) |
-| Remove member | ✅ | ✅ | ❌ (403) | — | — |
-| List members | ✅ | ✅ | ✅ | — | ❌ (403) |
+| Operation     | Owner | Admin    | Member   | Guest    | Non-Member |
+| ------------- | ----- | -------- | -------- | -------- | ---------- |
+| Create org    | ✅    | —        | —        | —        | —          |
+| Get org       | ✅    | ✅       | ✅       | —        | ❌ (403)   |
+| List orgs     | ✅    | ✅       | ✅       | —        | —          |
+| Update org    | ✅    | ✅       | ❌ (403) | —        | ❌ (403)   |
+| Archive org   | ✅    | ✅       | ❌ (403) | —        | ❌ (403)   |
+| Restore org   | ✅    | ✅       | ❌ (403) | —        | ❌ (403)   |
+| Delete org    | ✅    | ❌ (403) | ❌ (403) | —        | ❌ (403)   |
+| Add member    | ✅    | ✅       | ❌ (403) | ❌ (403) | ❌ (403)   |
+| Remove member | ✅    | ✅       | ❌ (403) | —        | —          |
+| List members  | ✅    | ✅       | ✅       | —        | ❌ (403)   |
 
 ## Edge Cases Covered
 

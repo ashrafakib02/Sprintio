@@ -50,12 +50,12 @@ Organization authorization controls who can access and modify organization resou
 
 ### Role Definitions
 
-| Role | Level | Description |
-|------|-------|-------------|
-| `owner` | 4 | Full control. Can manage billing, delete org, transfer ownership. |
-| `admin` | 3 | Can update org settings, manage members, manage workspaces. |
-| `member` | 2 | Standard member. Can view org and participate in workspaces. |
-| `guest` | 1 | Read-only access. Cannot modify org settings or members. |
+| Role     | Level | Description                                                       |
+| -------- | ----- | ----------------------------------------------------------------- |
+| `owner`  | 4     | Full control. Can manage billing, delete org, transfer ownership. |
+| `admin`  | 3     | Can update org settings, manage members, manage workspaces.       |
+| `member` | 2     | Standard member. Can view org and participate in workspaces.      |
+| `guest`  | 1     | Read-only access. Cannot modify org settings or members.          |
 
 ### Role Hierarchy
 
@@ -66,6 +66,7 @@ owner (4) > admin (3) > member (2) > guest (1)
 ```
 
 **Enforcement rules:**
+
 - Only the **owner** can assign the `owner` role.
 - A user **cannot** assign a role equal to or higher than their own.
 - An **admin** cannot assign another admin (only owner can).
@@ -74,11 +75,11 @@ owner (4) > admin (3) > member (2) > guest (1)
 ### Role Assignment Matrix
 
 | Assigner ↓ \ Target → | owner | admin | member | guest |
-|------------------------|-------|-------|--------|-------|
-| **owner** | ✅ | ✅ | ✅ | ✅ |
-| **admin** | ❌ | ❌ | ✅ | ✅ |
-| **member** | ❌ | ❌ | ❌ | ✅ |
-| **guest** | ❌ | ❌ | ❌ | ❌ |
+| --------------------- | ----- | ----- | ------ | ----- |
+| **owner**             | ✅    | ✅    | ✅     | ✅    |
+| **admin**             | ❌    | ❌    | ✅     | ✅    |
+| **member**            | ❌    | ❌    | ❌     | ✅    |
+| **guest**             | ❌    | ❌    | ❌     | ❌    |
 
 ---
 
@@ -86,14 +87,14 @@ owner (4) > admin (3) > member (2) > guest (1)
 
 Permissions are derived from roles. The `owner` role bypasses all permission checks.
 
-| Permission | owner | admin | member | guest |
-|------------|-------|-------|--------|-------|
-| `organization:create` | ✅ | — | — | — |
-| `organization:update` | ✅ | ✅ | ❌ | ❌ |
-| `organization:delete` | ✅ | ❌ | ❌ | ❌ |
-| `organization:manage_members` | ✅ | ✅ | ❌ | ❌ |
-| `organization:manage_billing` | ✅ | ❌ | ❌ | ❌ |
-| `organization:settings` | ✅ | ✅ | ❌ | ❌ |
+| Permission                    | owner | admin | member | guest |
+| ----------------------------- | ----- | ----- | ------ | ----- |
+| `organization:create`         | ✅    | —     | —      | —     |
+| `organization:update`         | ✅    | ✅    | ❌     | ❌    |
+| `organization:delete`         | ✅    | ❌    | ❌     | ❌    |
+| `organization:manage_members` | ✅    | ✅    | ❌     | ❌    |
+| `organization:manage_billing` | ✅    | ❌    | ❌     | ❌    |
+| `organization:settings`       | ✅    | ✅    | ❌     | ❌    |
 
 > **Note:** `organization:create` is a global permission (any authenticated user can create an org). The other permissions are org-scoped.
 
@@ -123,18 +124,18 @@ All organization routes are protected by the `authenticate` middleware. Write op
 
 ### Route → Permission Mapping
 
-| Route | Method | Permission Required | Rate Limit |
-|-------|--------|---------------------|------------|
-| `/api/organizations` | POST | None (auth only) | 30/15min |
-| `/api/organizations` | GET | None (auth only) | — |
-| `/api/organizations/:id` | GET | Membership | — |
-| `/api/organizations/:id` | PATCH | `organization:update` | 30/15min |
-| `/api/organizations/:id/archive` | POST | `organization:update` | 30/15min |
-| `/api/organizations/:id/restore` | POST | `organization:update` | 30/15min |
-| `/api/organizations/:id` | DELETE | `organization:delete` | 30/15min |
-| `/api/organizations/:id/members` | POST | `organization:manage_members` | 20/15min |
-| `/api/organizations/:id/members/:userId` | DELETE | `organization:manage_members` | — |
-| `/api/organizations/:id/members` | GET | Membership | — |
+| Route                                    | Method | Permission Required           | Rate Limit |
+| ---------------------------------------- | ------ | ----------------------------- | ---------- |
+| `/api/organizations`                     | POST   | None (auth only)              | 30/15min   |
+| `/api/organizations`                     | GET    | None (auth only)              | —          |
+| `/api/organizations/:id`                 | GET    | Membership                    | —          |
+| `/api/organizations/:id`                 | PATCH  | `organization:update`         | 30/15min   |
+| `/api/organizations/:id/archive`         | POST   | `organization:update`         | 30/15min   |
+| `/api/organizations/:id/restore`         | POST   | `organization:update`         | 30/15min   |
+| `/api/organizations/:id`                 | DELETE | `organization:delete`         | 30/15min   |
+| `/api/organizations/:id/members`         | POST   | `organization:manage_members` | 20/15min   |
+| `/api/organizations/:id/members/:userId` | DELETE | `organization:manage_members` | —          |
+| `/api/organizations/:id/members`         | GET    | Membership                    | —          |
 
 ### Middleware Chain
 
@@ -142,17 +143,17 @@ All organization routes are protected by the `authenticate` middleware. Write op
 // Example: Update organization
 router.patch(
   '/:organizationId',
-  authenticate,                          // 1. Verify JWT
-  organizationLimiter,                   // 2. Rate limit
-  requireOrganizationPermission('organization:update'),  // 3. Check org role
-  updateOrganization,                    // 4. Handler
+  authenticate, // 1. Verify JWT
+  organizationLimiter, // 2. Rate limit
+  requireOrganizationPermission('organization:update'), // 3. Check org role
+  updateOrganization, // 4. Handler
 );
 
 // Example: List members (membership check only)
 router.get(
   '/:organizationId/members',
-  authenticate,                          // 1. Verify JWT
-  listMembers,                           // 2. Handler (service checks membership)
+  authenticate, // 1. Verify JWT
+  listMembers, // 2. Handler (service checks membership)
 );
 ```
 
@@ -168,10 +169,10 @@ Extracts the JWT access token from the request cookie, verifies it, checks the t
 req.user = {
   userId: string,
   email: string,
-  role: string,    // Global user role (from JWT)
-  jti: string,     // Token ID for revocation
-  iat: number,     // Issued at
-}
+  role: string, // Global user role (from JWT)
+  jti: string, // Token ID for revocation
+  iat: number, // Issued at
+};
 ```
 
 ### `requireOrganizationPermission(...permissions)` (`apps/backend/src/middleware/organization-permission.ts`)
@@ -179,6 +180,7 @@ req.user = {
 Looks up the user's role in the specific organization via `organizationRepo.getMemberRole()`, checks against the `ORG_ROLE_PERMISSIONS` map, and caches the role on `req.organizationRole` for downstream use.
 
 **Resolution order for organization ID:**
+
 1. `req.organizationId` (set by tenant middleware)
 2. `req.params.organizationId` (from route params)
 3. `req.query.organizationId` (from query string)
@@ -200,7 +202,7 @@ Validates that a user's role grants the required permission. Uses the same `ORG_
 ```ts
 function assertPermission(role: string | undefined, permission: string): void {
   if (!role) throw AppError.forbidden('You are not a member of this organization');
-  if (role === 'owner') return;  // Owner bypass
+  if (role === 'owner') return; // Owner bypass
 
   const permissions = ORG_ROLE_PERMISSIONS[role] ?? [];
   if (!permissions.includes(permission)) {
@@ -216,7 +218,9 @@ Validates that a role string is one of the valid `ORGANIZATION_ROLES`. Defense-i
 ```ts
 function validateRole(role: string): void {
   if (!(ORGANIZATION_ROLES as readonly string[]).includes(role)) {
-    throw AppError.badRequest(`Invalid role '${role}'. Must be one of: owner, admin, member, guest`);
+    throw AppError.badRequest(
+      `Invalid role '${role}'. Must be one of: owner, admin, member, guest`,
+    );
   }
 }
 ```
@@ -237,7 +241,9 @@ function assertCanAssignRole(assignerRole: string, targetRole: string): void {
 
   // Cannot assign a role equal to or higher than your own
   if (targetLevel >= assignerLevel) {
-    throw AppError.forbidden(`Cannot assign a role equal to or higher than your own (${assignerRole})`);
+    throw AppError.forbidden(
+      `Cannot assign a role equal to or higher than your own (${assignerRole})`,
+    );
   }
 }
 ```
@@ -289,16 +295,16 @@ All queries that return organization data are filtered by `organization_id`:
 
 ```ts
 // Find org by ID
-db.select().from(organizations).where(eq(organizations.id, id))
+db.select().from(organizations).where(eq(organizations.id, id));
 
 // Find orgs a user belongs to
-db.select().from(organizations)
+db.select()
+  .from(organizations)
   .innerJoin(organizationMembers, eq(organizations.id, organizationMembers.organizationId))
-  .where(eq(organizationMembers.userId, userId))
+  .where(eq(organizationMembers.userId, userId));
 
 // Find members of an org
-db.select().from(organizationMembers)
-  .where(eq(organizationMembers.organizationId, organizationId))
+db.select().from(organizationMembers).where(eq(organizationMembers.organizationId, organizationId));
 ```
 
 ### Cross-Organization Access Prevention
@@ -314,13 +320,13 @@ db.select().from(organizationMembers)
 
 ### Authorization Errors
 
-| HTTP Status | Code | Condition |
-|-------------|------|-----------|
-| `401` | `UNAUTHORIZED` | Not authenticated (missing/invalid token) |
-| `403` | `FORBIDDEN` | Not a member of the organization |
-| `403` | `FORBIDDEN` | Insufficient role permissions |
-| `403` | `FORBIDDEN` | Cannot assign role (hierarchy violation) |
-| `403` | `FORBIDDEN` | Only owner can assign owner role |
+| HTTP Status | Code           | Condition                                 |
+| ----------- | -------------- | ----------------------------------------- |
+| `401`       | `UNAUTHORIZED` | Not authenticated (missing/invalid token) |
+| `403`       | `FORBIDDEN`    | Not a member of the organization          |
+| `403`       | `FORBIDDEN`    | Insufficient role permissions             |
+| `403`       | `FORBIDDEN`    | Cannot assign role (hierarchy violation)  |
+| `403`       | `FORBIDDEN`    | Only owner can assign owner role          |
 
 ### Error Message Strategy
 
@@ -337,16 +343,16 @@ Error messages are **generic** to prevent information disclosure:
 
 ### What's Prevented
 
-| Attack | Mitigation |
-|--------|------------|
-| **Privilege escalation** | `assertCanAssignRole` enforces hierarchy; Zod schema excludes `owner` from assignable roles |
-| **Owner hijacking** | Only owner can assign owner role; owner cannot be removed |
-| **Unauthorized access** | Membership verified on all read operations |
-| **Cross-tenant access** | All queries scoped by `organization_id` |
-| **Information disclosure** | Generic error messages; membership check on member listing |
-| **Slug collision** | Unique constraint + PG 23505 catch for race conditions |
-| **Invalid roles** | Zod validation + `validateRole()` + DB CHECK constraint |
-| **Rate limiting** | Write operations rate-limited to prevent abuse |
+| Attack                     | Mitigation                                                                                  |
+| -------------------------- | ------------------------------------------------------------------------------------------- |
+| **Privilege escalation**   | `assertCanAssignRole` enforces hierarchy; Zod schema excludes `owner` from assignable roles |
+| **Owner hijacking**        | Only owner can assign owner role; owner cannot be removed                                   |
+| **Unauthorized access**    | Membership verified on all read operations                                                  |
+| **Cross-tenant access**    | All queries scoped by `organization_id`                                                     |
+| **Information disclosure** | Generic error messages; membership check on member listing                                  |
+| **Slug collision**         | Unique constraint + PG 23505 catch for race conditions                                      |
+| **Invalid roles**          | Zod validation + `validateRole()` + DB CHECK constraint                                     |
+| **Rate limiting**          | Write operations rate-limited to prevent abuse                                              |
 
 ### Defense-in-Depth Layers
 
@@ -359,20 +365,20 @@ Error messages are **generic** to prevent information disclosure:
 
 ## File Reference
 
-| Layer | File |
-|-------|------|
-| Auth middleware | `apps/backend/src/middleware/auth.ts` |
-| Org permission middleware | `apps/backend/src/middleware/organization-permission.ts` |
-| Global permission middleware | `apps/backend/src/middleware/permission.ts` |
-| Role middleware | `apps/backend/src/middleware/role.ts` |
-| Tenant middleware | `apps/backend/src/middleware/tenant.ts` |
+| Layer                         | File                                                            |
+| ----------------------------- | --------------------------------------------------------------- |
+| Auth middleware               | `apps/backend/src/middleware/auth.ts`                           |
+| Org permission middleware     | `apps/backend/src/middleware/organization-permission.ts`        |
+| Global permission middleware  | `apps/backend/src/middleware/permission.ts`                     |
+| Role middleware               | `apps/backend/src/middleware/role.ts`                           |
+| Tenant middleware             | `apps/backend/src/middleware/tenant.ts`                         |
 | Service (authorization logic) | `apps/backend/src/modules/organization/organization.service.ts` |
-| Repository (DB queries) | `packages/db/src/repositories/organization.repository.ts` |
-| Schema (constraints) | `packages/db/src/schema/organization-members.ts` |
-| Role constants | `packages/shared/src/constants/roles.ts` |
-| Permission constants | `packages/shared/src/constants/permissions.ts` |
-| Validation schemas | `packages/shared/src/schemas/organization.ts` |
-| Migration (CHECK constraint) | `packages/db/migrations/0002_add_org_member_role_check.sql` |
+| Repository (DB queries)       | `packages/db/src/repositories/organization.repository.ts`       |
+| Schema (constraints)          | `packages/db/src/schema/organization-members.ts`                |
+| Role constants                | `packages/shared/src/constants/roles.ts`                        |
+| Permission constants          | `packages/shared/src/constants/permissions.ts`                  |
+| Validation schemas            | `packages/shared/src/schemas/organization.ts`                   |
+| Migration (CHECK constraint)  | `packages/db/migrations/0002_add_org_member_role_check.sql`     |
 
 ---
 

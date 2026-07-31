@@ -8,11 +8,7 @@ import {
   useTransferOwnership,
 } from '@/hooks/use-workspace-members';
 import { useWorkspaceContext } from '@/hooks/use-workspace-settings';
-import type {
-  WorkspaceMember,
-  WorkspaceInvitation,
-  WorkspaceContextMember,
-} from '@/lib/api';
+import type { WorkspaceMember, WorkspaceInvitation, WorkspaceContextMember } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -173,7 +169,9 @@ function TransferOwnershipDialog({
   const [selectedUserId, setSelectedUserId] = useState('');
 
   const workspaceMembers = contextData?.members || [];
-  const otherMembers = workspaceMembers.filter((m: WorkspaceContextMember) => m.userId !== user?.id);
+  const otherMembers = workspaceMembers.filter(
+    (m: WorkspaceContextMember) => m.userId !== user?.id,
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -277,9 +275,19 @@ function InvitationTokenDisplay({ token }: { token: string }) {
 // ── Main Component ────────────────────────────────────────────
 
 export function WorkspaceMembers({ workspaceId }: WorkspaceMembersProps) {
-  const { data: membersData, isLoading: membersLoading, isError: membersError, error: membersErrorMsg } = useWorkspaceMembers(workspaceId);
+  const {
+    data: membersData,
+    isLoading: membersLoading,
+    isError: membersError,
+    error: membersErrorMsg,
+  } = useWorkspaceMembers(workspaceId);
   const { data: contextData } = useWorkspaceContext(workspaceId);
-  const { data: invitationsData, isLoading: invitationsLoading, isError: invitationsError, error: invitationsErrorMsg } = useWorkspaceInvitations(workspaceId);
+  const {
+    data: invitationsData,
+    isLoading: invitationsLoading,
+    isError: invitationsError,
+    error: invitationsErrorMsg,
+  } = useWorkspaceInvitations(workspaceId);
   const { user } = useAuth();
   const removeMember = useRemoveMember(workspaceId);
 
@@ -305,7 +313,9 @@ export function WorkspaceMembers({ workspaceId }: WorkspaceMembersProps) {
     return (
       <div className="py-8 text-center text-muted-foreground">
         <p className="text-sm">Failed to load members</p>
-        <p className="text-xs mt-1 opacity-70">{membersErrorMsg?.message ?? invitationsErrorMsg?.message}</p>
+        <p className="text-xs mt-1 opacity-70">
+          {membersErrorMsg?.message ?? invitationsErrorMsg?.message}
+        </p>
       </div>
     );
   }
@@ -349,7 +359,10 @@ export function WorkspaceMembers({ workspaceId }: WorkspaceMembersProps) {
               {workspaceMembers.map((member: WorkspaceContextMember) => {
                 const isCurrentUser = member.userId === user?.id;
                 return (
-                  <div key={member.userId} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                  <div
+                    key={member.userId}
+                    className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
+                  >
                     <div className="flex items-center gap-3">
                       <Avatar name={member.user?.name ?? member.userId} size="default" />
                       <div>
@@ -359,9 +372,7 @@ export function WorkspaceMembers({ workspaceId }: WorkspaceMembersProps) {
                             <span className="ml-2 text-xs text-muted-foreground">(you)</span>
                           )}
                         </p>
-                        <p className="text-xs text-muted-foreground">
-                          {member.user?.email}
-                        </p>
+                        <p className="text-xs text-muted-foreground">{member.user?.email}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -412,9 +423,7 @@ export function WorkspaceMembers({ workspaceId }: WorkspaceMembersProps) {
                       <p className="text-sm font-medium">{invitation.email}</p>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
-                        <span>
-                          Expires {new Date(invitation.expiresAt).toLocaleDateString()}
-                        </span>
+                        <span>Expires {new Date(invitation.expiresAt).toLocaleDateString()}</span>
                       </div>
                     </div>
                   </div>

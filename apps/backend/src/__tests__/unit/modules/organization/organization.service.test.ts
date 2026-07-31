@@ -30,7 +30,10 @@ vi.mock('@sprintio/shared', async (importOriginal) => {
   return {
     ...actual,
     slugify: vi.fn((name: string) =>
-      name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, ''),
     ),
   };
 });
@@ -47,11 +50,19 @@ const ORG_ID = '550e8400-e29b-41d4-a716-446655440000';
 const USER_ID = '550e8400-e29b-41d4-a716-446655440001';
 const OTHER_USER_ID = '550e8400-e29b-41d4-a716-446655440002';
 
-function makeOrg(overrides: Partial<{
-  id: string; name: string; slug: string; description: string | null;
-  logo: string | null; website: string | null; createdAt: Date;
-  updatedAt: Date; archivedAt: Date | null;
-}> = {}) {
+function makeOrg(
+  overrides: Partial<{
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    logo: string | null;
+    website: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    archivedAt: Date | null;
+  }> = {},
+) {
   return {
     id: ORG_ID,
     name: 'Test Org',
@@ -66,9 +77,15 @@ function makeOrg(overrides: Partial<{
   };
 }
 
-function makeMember(overrides: Partial<{
-  id: string; organizationId: string; userId: string; role: string; createdAt: Date;
-}> = {}) {
+function makeMember(
+  overrides: Partial<{
+    id: string;
+    organizationId: string;
+    userId: string;
+    role: string;
+    createdAt: Date;
+  }> = {},
+) {
   return {
     id: 'member-1',
     organizationId: ORG_ID,
@@ -182,9 +199,7 @@ describe('Organization Service', () => {
     it('should throw NOT_FOUND when organization does not exist', async () => {
       repo.findById.mockResolvedValue(undefined);
 
-      await expect(
-        organizationService.getOrganization(ORG_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(organizationService.getOrganization(ORG_ID, USER_ID)).rejects.toThrow(AppError);
 
       try {
         await organizationService.getOrganization(ORG_ID, USER_ID);
@@ -198,9 +213,9 @@ describe('Organization Service', () => {
       repo.findById.mockResolvedValue(makeOrg());
       repo.isMember.mockResolvedValue(false);
 
-      await expect(
-        organizationService.getOrganization(ORG_ID, OTHER_USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(organizationService.getOrganization(ORG_ID, OTHER_USER_ID)).rejects.toThrow(
+        AppError,
+      );
 
       try {
         await organizationService.getOrganization(ORG_ID, OTHER_USER_ID);
@@ -223,9 +238,7 @@ describe('Organization Service', () => {
 
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe('Test Org');
-      expect(repo.findByUserIdFiltered).toHaveBeenCalledWith(
-        expect.anything(), USER_ID, false,
-      );
+      expect(repo.findByUserIdFiltered).toHaveBeenCalledWith(expect.anything(), USER_ID, false);
     });
 
     it('should include archived when includeArchived is true', async () => {
@@ -236,9 +249,7 @@ describe('Organization Service', () => {
 
       expect(result).toHaveLength(1);
       expect(result[0].archivedAt).toBe('2025-06-01T00:00:00.000Z');
-      expect(repo.findByUserIdFiltered).toHaveBeenCalledWith(
-        expect.anything(), USER_ID, true,
-      );
+      expect(repo.findByUserIdFiltered).toHaveBeenCalledWith(expect.anything(), USER_ID, true);
     });
 
     it('should return empty array when user has no organizations', async () => {
@@ -262,7 +273,9 @@ describe('Organization Service', () => {
       repo.updateById.mockResolvedValue(makeOrg({ name: 'New Name', slug: 'new-name' }));
 
       const result = await organizationService.updateOrganization(
-        ORG_ID, { name: 'New Name' }, USER_ID,
+        ORG_ID,
+        { name: 'New Name' },
+        USER_ID,
       );
 
       expect(result.name).toBe('New Name');
@@ -277,7 +290,9 @@ describe('Organization Service', () => {
       );
 
       const result = await organizationService.updateOrganization(
-        ORG_ID, { description: 'Updated', website: 'https://example.com' }, USER_ID,
+        ORG_ID,
+        { description: 'Updated', website: 'https://example.com' },
+        USER_ID,
       );
 
       expect(result.description).toBe('Updated');
@@ -372,7 +387,9 @@ describe('Organization Service', () => {
       repo.updateById.mockResolvedValue(makeOrg());
 
       await organizationService.updateOrganization(
-        ORG_ID, { description: 'Updated desc' }, USER_ID,
+        ORG_ID,
+        { description: 'Updated desc' },
+        USER_ID,
       );
 
       expect(repo.findBySlug).not.toHaveBeenCalled();
@@ -387,9 +404,7 @@ describe('Organization Service', () => {
     it('should archive an active organization', async () => {
       repo.findById.mockResolvedValue(makeOrg());
       repo.getMemberRole.mockResolvedValue('owner');
-      repo.archiveById.mockResolvedValue(
-        makeOrg({ archivedAt: new Date('2025-07-01T00:00:00Z') }),
-      );
+      repo.archiveById.mockResolvedValue(makeOrg({ archivedAt: new Date('2025-07-01T00:00:00Z') }));
 
       const result = await organizationService.archiveOrganization(ORG_ID, USER_ID);
 
@@ -401,9 +416,9 @@ describe('Organization Service', () => {
       repo.findById.mockResolvedValue(makeOrg({ archivedAt: new Date() }));
       repo.getMemberRole.mockResolvedValue('owner');
 
-      await expect(
-        organizationService.archiveOrganization(ORG_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(organizationService.archiveOrganization(ORG_ID, USER_ID)).rejects.toThrow(
+        AppError,
+      );
 
       try {
         await organizationService.archiveOrganization(ORG_ID, USER_ID);
@@ -417,17 +432,17 @@ describe('Organization Service', () => {
       repo.findById.mockResolvedValue(makeOrg());
       repo.getMemberRole.mockResolvedValue('member');
 
-      await expect(
-        organizationService.archiveOrganization(ORG_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(organizationService.archiveOrganization(ORG_ID, USER_ID)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should throw NOT_FOUND when org does not exist', async () => {
       repo.findById.mockResolvedValue(undefined);
 
-      await expect(
-        organizationService.archiveOrganization(ORG_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(organizationService.archiveOrganization(ORG_ID, USER_ID)).rejects.toThrow(
+        AppError,
+      );
     });
   });
 
@@ -452,9 +467,9 @@ describe('Organization Service', () => {
       repo.findById.mockResolvedValue(makeOrg());
       repo.getMemberRole.mockResolvedValue('owner');
 
-      await expect(
-        organizationService.restoreOrganization(ORG_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(organizationService.restoreOrganization(ORG_ID, USER_ID)).rejects.toThrow(
+        AppError,
+      );
 
       try {
         await organizationService.restoreOrganization(ORG_ID, USER_ID);
@@ -469,9 +484,9 @@ describe('Organization Service', () => {
       repo.findById.mockResolvedValue(archived);
       repo.getMemberRole.mockResolvedValue('member');
 
-      await expect(
-        organizationService.restoreOrganization(ORG_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(organizationService.restoreOrganization(ORG_ID, USER_ID)).rejects.toThrow(
+        AppError,
+      );
     });
   });
 
@@ -495,9 +510,9 @@ describe('Organization Service', () => {
       repo.findById.mockResolvedValue(makeOrg());
       repo.getMemberRole.mockResolvedValue('owner');
 
-      await expect(
-        organizationService.deleteOrganization(ORG_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(organizationService.deleteOrganization(ORG_ID, USER_ID)).rejects.toThrow(
+        AppError,
+      );
 
       try {
         await organizationService.deleteOrganization(ORG_ID, USER_ID);
@@ -511,9 +526,9 @@ describe('Organization Service', () => {
       repo.findById.mockResolvedValue(makeOrg({ archivedAt: new Date() }));
       repo.getMemberRole.mockResolvedValue('admin');
 
-      await expect(
-        organizationService.deleteOrganization(ORG_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(organizationService.deleteOrganization(ORG_ID, USER_ID)).rejects.toThrow(
+        AppError,
+      );
 
       try {
         await organizationService.deleteOrganization(ORG_ID, USER_ID);
@@ -525,9 +540,9 @@ describe('Organization Service', () => {
     it('should throw NOT_FOUND when org does not exist', async () => {
       repo.findById.mockResolvedValue(undefined);
 
-      await expect(
-        organizationService.deleteOrganization(ORG_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(organizationService.deleteOrganization(ORG_ID, USER_ID)).rejects.toThrow(
+        AppError,
+      );
     });
   });
 
@@ -543,7 +558,10 @@ describe('Organization Service', () => {
       repo.addMember.mockResolvedValue(makeMember({ userId: OTHER_USER_ID, role: 'member' }));
 
       const result = await organizationService.addOrganizationMember(
-        ORG_ID, OTHER_USER_ID, 'member', USER_ID,
+        ORG_ID,
+        OTHER_USER_ID,
+        'member',
+        USER_ID,
       );
 
       expect(result.userId).toBe(OTHER_USER_ID);
@@ -557,7 +575,10 @@ describe('Organization Service', () => {
       repo.addMember.mockResolvedValue(makeMember({ role: 'admin' }));
 
       const result = await organizationService.addOrganizationMember(
-        ORG_ID, OTHER_USER_ID, 'admin', USER_ID,
+        ORG_ID,
+        OTHER_USER_ID,
+        'admin',
+        USER_ID,
       );
 
       expect(result.role).toBe('admin');
@@ -627,7 +648,12 @@ describe('Organization Service', () => {
       ).rejects.toThrow(AppError);
 
       try {
-        await organizationService.addOrganizationMember(ORG_ID, OTHER_USER_ID, 'superadmin', USER_ID);
+        await organizationService.addOrganizationMember(
+          ORG_ID,
+          OTHER_USER_ID,
+          'superadmin',
+          USER_ID,
+        );
       } catch (err) {
         expect((err as AppError).code).toBe('BAD_REQUEST');
       }
@@ -650,7 +676,7 @@ describe('Organization Service', () => {
     it('should remove a member', async () => {
       repo.findById.mockResolvedValue(makeOrg());
       repo.getMemberRole
-        .mockResolvedValueOnce('admin')  // requester
+        .mockResolvedValueOnce('admin') // requester
         .mockResolvedValueOnce('member'); // target
       repo.removeMember.mockResolvedValue(true);
 
@@ -755,9 +781,9 @@ describe('Organization Service', () => {
     it('should throw NOT_FOUND when org does not exist', async () => {
       repo.findById.mockResolvedValue(undefined);
 
-      await expect(
-        organizationService.getOrganizationMembers(ORG_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(organizationService.getOrganizationMembers(ORG_ID, USER_ID)).rejects.toThrow(
+        AppError,
+      );
     });
   });
 

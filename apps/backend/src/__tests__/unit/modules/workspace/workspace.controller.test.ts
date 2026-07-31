@@ -36,8 +36,7 @@ vi.mock('@sprintio/shared', async (importOriginal) => {
     ListWorkspacesSchema: { safeParse: vi.fn() },
     UuidSchema: {
       safeParse: vi.fn((val: string) => {
-        const uuidRegex =
-          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (uuidRegex.test(val)) return { success: true, data: val };
         return { success: false, error: { errors: [{ message: 'Invalid UUID' }] } };
       }),
@@ -138,7 +137,7 @@ describe('Workspace Controller', () => {
 
       vi.mocked(CreateWorkspaceSchema.safeParse).mockReturnValue({
         success: true,
-        data: { name: 'Ws' },
+        data: { name: 'Ws', organizationId: 'org-123' },
       } as never);
       vi.mocked(workspaceService.createWorkspace).mockResolvedValue(WS_RESULT as never);
 
@@ -190,9 +189,7 @@ describe('Workspace Controller', () => {
       });
       const res = createMockRes();
       const next = createMockNext();
-      vi.mocked(workspaceService.getWorkspace).mockRejectedValue(
-        AppError.notFound('Workspace'),
-      );
+      vi.mocked(workspaceService.getWorkspace).mockRejectedValue(AppError.notFound('Workspace'));
 
       await workspaceController.getWorkspace(req, res as never, next);
 
@@ -309,9 +306,10 @@ describe('Workspace Controller', () => {
         success: true,
         data: { name: 'Updated' },
       } as never);
-      vi.mocked(workspaceService.updateWorkspace).mockResolvedValue(
-        { ...WS_RESULT, name: 'Updated' } as never,
-      );
+      vi.mocked(workspaceService.updateWorkspace).mockResolvedValue({
+        ...WS_RESULT,
+        name: 'Updated',
+      } as never);
 
       await workspaceController.updateWorkspace(req, res as never, createMockNext());
 
@@ -384,9 +382,10 @@ describe('Workspace Controller', () => {
         user: { userId: USER_ID },
       });
       const res = createMockRes();
-      vi.mocked(workspaceService.archiveWorkspace).mockResolvedValue(
-        { ...WS_RESULT, archivedAt: '2025-07-01T00:00:00.000Z' } as never,
-      );
+      vi.mocked(workspaceService.archiveWorkspace).mockResolvedValue({
+        ...WS_RESULT,
+        archivedAt: '2025-07-01T00:00:00.000Z',
+      } as never);
 
       await workspaceController.archiveWorkspace(req, res as never, createMockNext());
 
@@ -582,9 +581,7 @@ describe('Workspace Controller', () => {
         user: { userId: USER_ID },
       });
       const res = createMockRes();
-      vi.mocked(workspaceService.getWorkspaceMembers).mockResolvedValue(
-        [MEMBER_RESULT] as never,
-      );
+      vi.mocked(workspaceService.getWorkspaceMembers).mockResolvedValue([MEMBER_RESULT] as never);
 
       await workspaceController.listMembers(req, res as never, createMockNext());
 

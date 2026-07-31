@@ -45,7 +45,10 @@ vi.mock('@sprintio/shared', async (importOriginal) => {
   return {
     ...actual,
     slugify: vi.fn((name: string) =>
-      name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, ''),
     ),
   };
 });
@@ -65,12 +68,22 @@ const USER_ID = '550e8400-e29b-41d4-a716-446655440001';
 const OTHER_USER_ID = '550e8400-e29b-41d4-a716-446655440002';
 const ORG_ID = '550e8400-e29b-41d4-a716-446655440003';
 
-function makeWs(overrides: Partial<{
-  id: string; name: string; slug: string; description: string | null;
-  logo: string | null; brandColor: string | null; customDomain: string | null;
-  organizationId: string | null; plan: string;
-  archivedAt: Date | null; createdAt: Date; updatedAt: Date;
-}> = {}) {
+function makeWs(
+  overrides: Partial<{
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    logo: string | null;
+    brandColor: string | null;
+    customDomain: string | null;
+    organizationId: string | null;
+    plan: string;
+    archivedAt: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+  }> = {},
+) {
   return {
     id: WS_ID,
     name: 'Test Workspace',
@@ -88,9 +101,15 @@ function makeWs(overrides: Partial<{
   };
 }
 
-function makeMember(overrides: Partial<{
-  id: string; workspaceId: string; userId: string; role: string; createdAt: Date;
-}> = {}) {
+function makeMember(
+  overrides: Partial<{
+    id: string;
+    workspaceId: string;
+    userId: string;
+    role: string;
+    createdAt: Date;
+  }> = {},
+) {
   return {
     id: 'member-1',
     workspaceId: WS_ID,
@@ -128,10 +147,19 @@ function makeOrg(
   };
 }
 
-function makeInvitation(overrides: Partial<{
-  id: string; workspaceId: string; email: string; role: string;
-  token: string; invitedById: string; status: string; expiresAt: Date; createdAt: Date;
-}> = {}) {
+function makeInvitation(
+  overrides: Partial<{
+    id: string;
+    workspaceId: string;
+    email: string;
+    role: string;
+    token: string;
+    invitedById: string;
+    status: string;
+    expiresAt: Date;
+    createdAt: Date;
+  }> = {},
+) {
   return {
     id: 'inv-1',
     workspaceId: WS_ID,
@@ -167,11 +195,14 @@ describe('Workspace Service', () => {
       expect(result.id).toBe(WS_ID);
       expect(result.slug).toBe('test-workspace');
       expect(result.createdAt).toBe('2025-01-01T00:00:00.000Z');
-      expect(repo.create).toHaveBeenCalledWith(repoDb, expect.objectContaining({
-        name: 'Test Workspace',
-        slug: 'test-workspace',
-        createdById: USER_ID,
-      }));
+      expect(repo.create).toHaveBeenCalledWith(
+        repoDb,
+        expect.objectContaining({
+          name: 'Test Workspace',
+          slug: 'test-workspace',
+          createdById: USER_ID,
+        }),
+      );
     });
 
     it('should throw CONFLICT for duplicate slug', async () => {
@@ -227,9 +258,10 @@ describe('Workspace Service', () => {
       orgRepo.isMember.mockResolvedValue(true);
       repo.create.mockResolvedValue(makeWs({ organizationId: ORG_ID }));
 
-      const result = await workspaceService.createWorkspace(
-        USER_ID, { name: 'Ws', organizationId: ORG_ID },
-      );
+      const result = await workspaceService.createWorkspace(USER_ID, {
+        name: 'Ws',
+        organizationId: ORG_ID,
+      });
       expect(result.organizationId).toBe(ORG_ID);
     });
   });
@@ -305,9 +337,7 @@ describe('Workspace Service', () => {
     it('should throw NOT_FOUND when organization does not exist', async () => {
       orgRepo.findById.mockResolvedValue(undefined);
 
-      await expect(
-        workspaceService.getOrganizationWorkspaces(ORG_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.getOrganizationWorkspaces(ORG_ID)).rejects.toThrow(AppError);
     });
   });
 
@@ -322,9 +352,7 @@ describe('Workspace Service', () => {
       repo.findBySlug.mockResolvedValue(undefined);
       repo.updateById.mockResolvedValue(makeWs({ name: 'Updated', slug: 'updated' }));
 
-      const result = await workspaceService.updateWorkspace(
-        WS_ID, { name: 'Updated' }, USER_ID,
-      );
+      const result = await workspaceService.updateWorkspace(WS_ID, { name: 'Updated' }, USER_ID);
       expect(result.name).toBe('Updated');
       expect(result.slug).toBe('updated');
     });
@@ -335,7 +363,9 @@ describe('Workspace Service', () => {
       repo.updateById.mockResolvedValue(makeWs({ description: 'New desc' }));
 
       const result = await workspaceService.updateWorkspace(
-        WS_ID, { description: 'New desc' }, USER_ID,
+        WS_ID,
+        { description: 'New desc' },
+        USER_ID,
       );
       expect(result.description).toBe('New desc');
     });
@@ -343,36 +373,36 @@ describe('Workspace Service', () => {
     it('should throw NOT_FOUND when workspace does not exist', async () => {
       repo.findById.mockResolvedValue(undefined);
 
-      await expect(
-        workspaceService.updateWorkspace(WS_ID, { name: 'X' }, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.updateWorkspace(WS_ID, { name: 'X' }, USER_ID)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should throw FORBIDDEN for non-owner/admin', async () => {
       repo.findById.mockResolvedValue(makeWs());
       repo.getMemberRole.mockResolvedValue('member');
 
-      await expect(
-        workspaceService.updateWorkspace(WS_ID, { name: 'X' }, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.updateWorkspace(WS_ID, { name: 'X' }, USER_ID)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should throw FORBIDDEN when role is undefined', async () => {
       repo.findById.mockResolvedValue(makeWs());
       repo.getMemberRole.mockResolvedValue(undefined);
 
-      await expect(
-        workspaceService.updateWorkspace(WS_ID, { name: 'X' }, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.updateWorkspace(WS_ID, { name: 'X' }, USER_ID)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should throw BAD_REQUEST when workspace is archived', async () => {
       repo.findById.mockResolvedValue(makeWs({ archivedAt: new Date() }));
       repo.getMemberRole.mockResolvedValue('owner');
 
-      await expect(
-        workspaceService.updateWorkspace(WS_ID, { name: 'X' }, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.updateWorkspace(WS_ID, { name: 'X' }, USER_ID)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should throw CONFLICT for duplicate slug', async () => {
@@ -481,35 +511,27 @@ describe('Workspace Service', () => {
       repo.getMemberRole.mockResolvedValue('owner');
       repo.deleteById.mockResolvedValue(true);
 
-      await expect(
-        workspaceService.deleteWorkspace(WS_ID, USER_ID),
-      ).resolves.toBeUndefined();
+      await expect(workspaceService.deleteWorkspace(WS_ID, USER_ID)).resolves.toBeUndefined();
     });
 
     it('should throw BAD_REQUEST when not archived', async () => {
       repo.findById.mockResolvedValue(makeWs());
       repo.getMemberRole.mockResolvedValue('owner');
 
-      await expect(
-        workspaceService.deleteWorkspace(WS_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.deleteWorkspace(WS_ID, USER_ID)).rejects.toThrow(AppError);
     });
 
     it('should throw NOT_FOUND when workspace does not exist', async () => {
       repo.findById.mockResolvedValue(undefined);
 
-      await expect(
-        workspaceService.deleteWorkspace(WS_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.deleteWorkspace(WS_ID, USER_ID)).rejects.toThrow(AppError);
     });
 
     it('should throw FORBIDDEN for non-owner (DELETE requires owner)', async () => {
       repo.findById.mockResolvedValue(makeWs({ archivedAt: new Date() }));
       repo.getMemberRole.mockResolvedValue('admin');
 
-      await expect(
-        workspaceService.deleteWorkspace(WS_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.deleteWorkspace(WS_ID, USER_ID)).rejects.toThrow(AppError);
     });
   });
 
@@ -525,7 +547,10 @@ describe('Workspace Service', () => {
       repo.addMember.mockResolvedValue(makeMember({ userId: OTHER_USER_ID }));
 
       const result = await workspaceService.addWorkspaceMember(
-        WS_ID, OTHER_USER_ID, 'member', USER_ID,
+        WS_ID,
+        OTHER_USER_ID,
+        'member',
+        USER_ID,
       );
       expect(result.userId).toBe(OTHER_USER_ID);
       expect(result.role).toBe('member');
@@ -538,7 +563,10 @@ describe('Workspace Service', () => {
       repo.addMember.mockResolvedValue(makeMember({ role: 'admin', userId: OTHER_USER_ID }));
 
       const result = await workspaceService.addWorkspaceMember(
-        WS_ID, OTHER_USER_ID, 'admin', USER_ID,
+        WS_ID,
+        OTHER_USER_ID,
+        'admin',
+        USER_ID,
       );
       expect(result.role).toBe('admin');
     });
@@ -614,9 +642,7 @@ describe('Workspace Service', () => {
   describe('removeWorkspaceMember', () => {
     it('should remove member successfully', async () => {
       repo.findById.mockResolvedValue(makeWs());
-      repo.getMemberRole
-        .mockResolvedValueOnce('admin')
-        .mockResolvedValueOnce('member');
+      repo.getMemberRole.mockResolvedValueOnce('admin').mockResolvedValueOnce('member');
       repo.removeMember.mockResolvedValue(true);
 
       await expect(
@@ -626,9 +652,7 @@ describe('Workspace Service', () => {
 
     it('should throw NOT_FOUND when member does not exist', async () => {
       repo.findById.mockResolvedValue(makeWs());
-      repo.getMemberRole
-        .mockResolvedValueOnce('admin')
-        .mockResolvedValueOnce(undefined);
+      repo.getMemberRole.mockResolvedValueOnce('admin').mockResolvedValueOnce(undefined);
 
       await expect(
         workspaceService.removeWorkspaceMember(WS_ID, OTHER_USER_ID, USER_ID),
@@ -637,9 +661,7 @@ describe('Workspace Service', () => {
 
     it('should throw BAD_REQUEST when trying to remove owner', async () => {
       repo.findById.mockResolvedValue(makeWs());
-      repo.getMemberRole
-        .mockResolvedValueOnce('admin')
-        .mockResolvedValueOnce('owner');
+      repo.getMemberRole.mockResolvedValueOnce('admin').mockResolvedValueOnce('owner');
 
       await expect(
         workspaceService.removeWorkspaceMember(WS_ID, OTHER_USER_ID, USER_ID),
@@ -672,7 +694,10 @@ describe('Workspace Service', () => {
     it('should return members for workspace', async () => {
       repo.findById.mockResolvedValue(makeWs());
       repo.isMember.mockResolvedValue(true);
-      repo.getMembers.mockResolvedValue([makeMember(), makeMember({ id: 'm2', userId: OTHER_USER_ID })]);
+      repo.getMembers.mockResolvedValue([
+        makeMember(),
+        makeMember({ id: 'm2', userId: OTHER_USER_ID }),
+      ]);
 
       const result = await workspaceService.getWorkspaceMembers(WS_ID, USER_ID);
       expect(result).toHaveLength(2);
@@ -682,17 +707,15 @@ describe('Workspace Service', () => {
       repo.findById.mockResolvedValue(makeWs());
       repo.isMember.mockResolvedValue(false);
 
-      await expect(
-        workspaceService.getWorkspaceMembers(WS_ID, OTHER_USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.getWorkspaceMembers(WS_ID, OTHER_USER_ID)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should throw NOT_FOUND when workspace does not exist', async () => {
       repo.findById.mockResolvedValue(undefined);
 
-      await expect(
-        workspaceService.getWorkspaceMembers(WS_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.getWorkspaceMembers(WS_ID, USER_ID)).rejects.toThrow(AppError);
     });
   });
 
@@ -734,18 +757,18 @@ describe('Workspace Service', () => {
     it('should throw NOT_FOUND when workspace does not exist', async () => {
       repo.findById.mockResolvedValue(undefined);
 
-      await expect(
-        workspaceService.resolveWorkspaceContext(WS_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.resolveWorkspaceContext(WS_ID, USER_ID)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should throw FORBIDDEN for non-member', async () => {
       repo.findById.mockResolvedValue(makeWs());
       repo.getMemberRole.mockResolvedValue(undefined);
 
-      await expect(
-        workspaceService.resolveWorkspaceContext(WS_ID, OTHER_USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.resolveWorkspaceContext(WS_ID, OTHER_USER_ID)).rejects.toThrow(
+        AppError,
+      );
     });
   });
 
@@ -761,7 +784,10 @@ describe('Workspace Service', () => {
       repo.createInvitation.mockResolvedValue(makeInvitation());
 
       const result = await workspaceService.inviteWorkspaceMember(
-        WS_ID, 'invitee@example.com', 'member', USER_ID,
+        WS_ID,
+        'invitee@example.com',
+        'member',
+        USER_ID,
       );
       expect(result.email).toBe('invitee@example.com');
       expect(result.status).toBe('pending');
@@ -799,7 +825,12 @@ describe('Workspace Service', () => {
       repo.getMemberRole.mockResolvedValue('admin');
 
       await expect(
-        workspaceService.inviteWorkspaceMember(WS_ID, 'invitee@example.com', 'invalid-role', USER_ID),
+        workspaceService.inviteWorkspaceMember(
+          WS_ID,
+          'invitee@example.com',
+          'invalid-role',
+          USER_ID,
+        ),
       ).rejects.toThrow(AppError);
     });
 
@@ -826,7 +857,9 @@ describe('Workspace Service', () => {
       repo.updateInvitationStatus.mockResolvedValue({ ...invitation, status: 'accepted' });
 
       const result = await workspaceService.acceptInvitation(
-        'test-token-abc123', OTHER_USER_ID, 'invitee@example.com',
+        'test-token-abc123',
+        OTHER_USER_ID,
+        'invitee@example.com',
       );
       expect(result.userId).toBe(OTHER_USER_ID);
     });
@@ -853,17 +886,23 @@ describe('Workspace Service', () => {
       );
 
       await expect(
-        workspaceService.acceptInvitation('test-token-abc123', OTHER_USER_ID, 'invitee@example.com'),
+        workspaceService.acceptInvitation(
+          'test-token-abc123',
+          OTHER_USER_ID,
+          'invitee@example.com',
+        ),
       ).rejects.toThrow(AppError);
     });
 
     it('should throw BAD_REQUEST for non-pending invitation', async () => {
-      repo.findInvitationByToken.mockResolvedValue(
-        makeInvitation({ status: 'accepted' }),
-      );
+      repo.findInvitationByToken.mockResolvedValue(makeInvitation({ status: 'accepted' }));
 
       await expect(
-        workspaceService.acceptInvitation('test-token-abc123', OTHER_USER_ID, 'invitee@example.com'),
+        workspaceService.acceptInvitation(
+          'test-token-abc123',
+          OTHER_USER_ID,
+          'invitee@example.com',
+        ),
       ).rejects.toThrow(AppError);
     });
 
@@ -872,7 +911,11 @@ describe('Workspace Service', () => {
       repo.isMember.mockResolvedValue(true);
 
       await expect(
-        workspaceService.acceptInvitation('test-token-abc123', OTHER_USER_ID, 'invitee@example.com'),
+        workspaceService.acceptInvitation(
+          'test-token-abc123',
+          OTHER_USER_ID,
+          'invitee@example.com',
+        ),
       ).rejects.toThrow(AppError);
     });
   });
@@ -887,7 +930,11 @@ describe('Workspace Service', () => {
       repo.updateInvitationStatus.mockResolvedValue({ ...makeInvitation(), status: 'rejected' });
 
       await expect(
-        workspaceService.rejectInvitation('test-token-abc123', OTHER_USER_ID, 'invitee@example.com'),
+        workspaceService.rejectInvitation(
+          'test-token-abc123',
+          OTHER_USER_ID,
+          'invitee@example.com',
+        ),
       ).resolves.toBeUndefined();
     });
 
@@ -908,12 +955,14 @@ describe('Workspace Service', () => {
     });
 
     it('should throw BAD_REQUEST for non-pending invitation', async () => {
-      repo.findInvitationByToken.mockResolvedValue(
-        makeInvitation({ status: 'rejected' }),
-      );
+      repo.findInvitationByToken.mockResolvedValue(makeInvitation({ status: 'rejected' }));
 
       await expect(
-        workspaceService.rejectInvitation('test-token-abc123', OTHER_USER_ID, 'invitee@example.com'),
+        workspaceService.rejectInvitation(
+          'test-token-abc123',
+          OTHER_USER_ID,
+          'invitee@example.com',
+        ),
       ).rejects.toThrow(AppError);
     });
   });
@@ -925,15 +974,15 @@ describe('Workspace Service', () => {
   describe('transferOwnership', () => {
     it('should transfer ownership successfully', async () => {
       repo.findById.mockResolvedValue(makeWs());
-      repo.getMemberRole
-        .mockResolvedValueOnce('owner')
-        .mockResolvedValueOnce('member');
+      repo.getMemberRole.mockResolvedValueOnce('owner').mockResolvedValueOnce('member');
       repo.updateMemberRole
         .mockResolvedValueOnce(makeMember({ role: 'admin' }))
         .mockResolvedValueOnce(makeMember({ userId: OTHER_USER_ID, role: 'owner' }));
 
       const result = await workspaceService.transferOwnership(
-        WS_ID, { newOwnerId: OTHER_USER_ID }, USER_ID,
+        WS_ID,
+        { newOwnerId: OTHER_USER_ID },
+        USER_ID,
       );
       expect(result.previousOwner.role).toBe('admin');
       expect(result.newOwner.role).toBe('owner');
@@ -950,9 +999,7 @@ describe('Workspace Service', () => {
 
     it('should throw NOT_FOUND when target is not a member', async () => {
       repo.findById.mockResolvedValue(makeWs());
-      repo.getMemberRole
-        .mockResolvedValueOnce('owner')
-        .mockResolvedValueOnce(undefined);
+      repo.getMemberRole.mockResolvedValueOnce('owner').mockResolvedValueOnce(undefined);
 
       await expect(
         workspaceService.transferOwnership(WS_ID, { newOwnerId: OTHER_USER_ID }, USER_ID),
@@ -995,17 +1042,17 @@ describe('Workspace Service', () => {
       repo.findById.mockResolvedValue(makeWs());
       repo.getMemberRole.mockResolvedValue('member');
 
-      await expect(
-        workspaceService.getWorkspaceInvitations(WS_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.getWorkspaceInvitations(WS_ID, USER_ID)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should throw NOT_FOUND when workspace does not exist', async () => {
       repo.findById.mockResolvedValue(undefined);
 
-      await expect(
-        workspaceService.getWorkspaceInvitations(WS_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.getWorkspaceInvitations(WS_ID, USER_ID)).rejects.toThrow(
+        AppError,
+      );
     });
   });
 });

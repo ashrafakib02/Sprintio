@@ -63,9 +63,8 @@ function RoleDialog({ open, onOpenChange, workspaceId, role }: RoleDialogProps) 
       if (role) {
         setName(role.name);
         setDescription(role.description ?? '');
-        const permIds = allPermissions
-          ?.filter((p) => role.permissions.includes(p.name))
-          .map((p) => p.id) ?? [];
+        const permIds =
+          allPermissions?.filter((p) => role.permissions.includes(p.name)).map((p) => p.id) ?? [];
         setSelectedPermissions(new Set(permIds));
       } else {
         setName('');
@@ -248,15 +247,9 @@ function PermissionGroup({
           <span className="text-xs text-muted-foreground">
             ({permissions.filter((p) => selectedPermissions.has(p.id)).length}/{permissions.length})
           </span>
-          {someSelected && !allSelected && (
-            <span className="h-2 w-2 rounded-full bg-primary/60" />
-          )}
+          {someSelected && !allSelected && <span className="h-2 w-2 rounded-full bg-primary/60" />}
         </div>
-        {expanded ? (
-          <ChevronUp className="h-4 w-4" />
-        ) : (
-          <ChevronDown className="h-4 w-4" />
-        )}
+        {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
       </button>
 
       {expanded && (
@@ -266,9 +259,7 @@ function PermissionGroup({
               key={perm.id}
               className={cn(
                 'flex items-center gap-3 rounded px-2 py-1.5 text-sm cursor-pointer transition-colors',
-                selectedPermissions.has(perm.id)
-                  ? 'bg-accent/50'
-                  : 'hover:bg-accent/30',
+                selectedPermissions.has(perm.id) ? 'bg-accent/50' : 'hover:bg-accent/30',
               )}
             >
               <Switch
@@ -317,8 +308,8 @@ function DeleteRoleDialog({ open, onOpenChange, workspaceId, role }: DeleteRoleD
             Delete Role
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete <strong>{role.name}</strong>? Members assigned this
-            role will need to be reassigned.
+            Are you sure you want to delete <strong>{role.name}</strong>? Members assigned this role
+            will need to be reassigned.
           </DialogDescription>
         </DialogHeader>
 
@@ -435,7 +426,8 @@ export function WorkspaceSettingsRoles({ workspaceId }: WorkspaceSettingsRolesPr
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-sm">{role.name}</span>
                       <span className="text-xs text-muted-foreground">
-                        {role.permissions.length} permission{role.permissions.length !== 1 ? 's' : ''}
+                        {role.permissions.length} permission
+                        {role.permissions.length !== 1 ? 's' : ''}
                       </span>
                     </div>
                     {role.description && (
@@ -495,8 +487,8 @@ export function WorkspaceSettingsRoles({ workspaceId }: WorkspaceSettingsRolesPr
               System Roles
             </CardTitle>
             <CardDescription>
-              These roles are built-in and cannot be modified. They provide baseline permissions
-              for all workspaces.
+              These roles are built-in and cannot be modified. They provide baseline permissions for
+              all workspaces.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -520,7 +512,12 @@ export function WorkspaceSettingsRoles({ workspaceId }: WorkspaceSettingsRolesPr
                     )}
                   </div>
                   <div className="flex items-center gap-1 ml-4">
-                    <Button variant="ghost" size="sm" disabled aria-label="System roles cannot be edited">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled
+                      aria-label="System roles cannot be edited"
+                    >
                       <Lock className="h-4 w-4 text-muted-foreground" />
                     </Button>
                   </div>

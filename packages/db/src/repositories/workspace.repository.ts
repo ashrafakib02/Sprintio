@@ -481,7 +481,10 @@ export async function getInvitations(
     .select()
     .from(workspaceInvitations)
     .where(
-      and(eq(workspaceInvitations.workspaceId, workspaceId), eq(workspaceInvitations.status, 'pending')),
+      and(
+        eq(workspaceInvitations.workspaceId, workspaceId),
+        eq(workspaceInvitations.status, 'pending'),
+      ),
     );
 }
 
