@@ -79,7 +79,7 @@ function csrfProtection(req: Request, res: Response, next: NextFunction): void {
   }
 
   const source = origin ?? referer;
-  if (!source.startsWith(expectedOrigin)) {
+  if (!source || !source.startsWith(expectedOrigin)) {
     res.status(403).json({
       error: 'CSRF validation failed: origin mismatch',
       code: 'CSRF_ORIGIN_MISMATCH',
