@@ -315,7 +315,7 @@ export function useTransferOwnership(workspaceId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (newOwnerId: string) => transferOwnership(workspaceId, { newOwnerId }),
+    mutationFn: (newOwnerId: string) => _transferOwnership(workspaceId, { newOwnerId }),
 
     onError: (error: Error) => {
       toast.error('Failed to transfer ownership', { description: error.message });

@@ -31,6 +31,9 @@ export async function requireTask(req: Request, _res: Response, next: NextFuncti
     }
 
     // Walk chain: task → board → workspace
+    if (!task.boardId) {
+      return next(AppError.badRequest('Task has no associated board'));
+    }
     const board = await boardRepo.findById(repoDb, task.boardId);
     if (!board) {
       return next(AppError.notFound('Board'));

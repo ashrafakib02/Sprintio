@@ -16,8 +16,8 @@ export interface TaskResult {
   status: string;
   priority: string;
   assigneeId: string | null;
-  boardId: string;
-  columnId: string;
+  boardId: string | null;
+  columnId: string | null;
   sprintId: string | null;
   position: number;
   labels: string[] | null;
@@ -234,6 +234,7 @@ export async function createTask(
     description: data.description,
     status: 'todo',
     priority: data.priority,
+    projectId,
     assigneeId: data.assigneeId,
     boardId,
     columnId,
@@ -257,6 +258,9 @@ export async function getTask(taskId: string, userId: string): Promise<TaskResul
   }
 
   // Walk chain: task → board → workspace
+  if (!task.boardId) {
+    throw AppError.badRequest('Task has no associated board');
+  }
   const board = await boardRepo.findById(repoDb, task.boardId);
   if (!board) {
     throw AppError.notFound('Board');
@@ -291,6 +295,9 @@ export async function updateTask(
   }
 
   // Walk chain: task → board → workspace
+  if (!task.boardId) {
+    throw AppError.badRequest('Task has no associated board');
+  }
   const board = await boardRepo.findById(repoDb, task.boardId);
   if (!board) {
     throw AppError.notFound('Board');
@@ -340,6 +347,9 @@ export async function deleteTask(taskId: string, userId: string): Promise<void> 
   }
 
   // Walk chain: task → board → workspace
+  if (!task.boardId) {
+    throw AppError.badRequest('Task has no associated board');
+  }
   const board = await boardRepo.findById(repoDb, task.boardId);
   if (!board) {
     throw AppError.notFound('Board');
