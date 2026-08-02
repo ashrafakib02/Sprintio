@@ -28,7 +28,7 @@ app.use(
 // ── Rate limiting (global) ───────────────────────────────────
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 100000, // limit each IP to 5000 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
   handler: (_req, res) => {
@@ -101,42 +101,80 @@ app.use('/api/auth', authRoutes);
 app.use('/api/organizations', organizationRoutes);
 app.use('/api/workspaces', workspaceRoutes);
 
-// ── Task routes (minimal — full task module pending) ─────────
+// ── Task routes ─────────────────────────────────────────────
 const taskRouter = express.Router();
 taskRouter.use(authenticate);
 
-taskRouter.get('/my', (_req, res) => {
-  res.json({ data: { tasks: [] }, success: true });
+taskRouter.get('/my', async (req: Request, res: Response) => {
+  try {
+    const { taskRepo } = await import('@sprintio/db/repositories');
+    const { repoDb } = await import('./config/db-for-repos.js');
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+    const tasks = await taskRepo.findByAssignee(repoDb, userId);
+    res.json({ data: { tasks }, success: true });
+  } catch (err) {
+    console.error('Failed to fetch tasks:', err);
+    res.status(500).json({ error: 'Failed to fetch tasks' });
+  }
 });
 
-taskRouter.post('/', (req: Request, res: Response) => {
-  const { title, description, priority } = req.body as {
-    title?: string;
-    description?: string;
-    priority?: string;
-  };
-  if (!title || typeof title !== 'string' || !title.trim()) {
-    res.status(400).json({ error: 'Title is required' });
-    return;
+taskRouter.post('/', async (req: Request, res: Response) => {
+  try {
+    const { taskRepo } = await import('@sprintio/db/repositories');
+    const { repoDb } = await import('./config/db-for-repos.js');
+    const { title, description, priority, projectId, assigneeId, boardId, columnId, sprintId, dueDate, labels } =
+      req.body as {
+        title?: string;
+        description?: string;
+        priority?: string;
+        projectId?: string;
+        assigneeId?: string | null;
+        boardId?: string;
+        columnId?: string;
+        sprintId?: string | null;
+        dueDate?: string | null;
+        labels?: string[];
+      };
+
+    if (!title || typeof title !== 'string' || !title.trim()) {
+      res.status(400).json({ error: 'Title is required' });
+      return;
+    }
+
+    if (!projectId || typeof projectId !== 'string') {
+      res.status(400).json({ error: 'projectId is required' });
+      return;
+    }
+
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const task = await taskRepo.create(repoDb, {
+      title: title.trim(),
+      description: description?.trim() || null,
+      priority: priority ?? 'medium',
+      projectId,
+      assigneeId: assigneeId ?? userId,
+      boardId: boardId ?? null,
+      columnId: columnId ?? null,
+      sprintId: sprintId ?? null,
+      dueDate: dueDate ? new Date(dueDate) : null,
+      labels,
+    }, userId);
+
+    res.status(201).json({ data: { task }, success: true });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Failed to create task';
+    console.error('Failed to create task:', err);
+    res.status(500).json({ error: message });
   }
-  const now = new Date().toISOString();
-  const task = {
-    id: `task-${Date.now()}`,
-    title: title.trim(),
-    description: description ?? null,
-    status: 'todo' as const,
-    priority: priority ?? 'medium',
-    assigneeId: null,
-    boardId: 'board-default',
-    columnId: 'col-todo',
-    sprintId: null,
-    position: 0,
-    labels: [],
-    dueDate: null,
-    createdAt: now,
-    updatedAt: now,
-  };
-  res.status(201).json({ data: { task }, success: true });
 });
 
 app.use('/api/tasks', taskRouter);
