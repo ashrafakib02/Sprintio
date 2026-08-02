@@ -345,14 +345,14 @@ export async function deleteById(db: PostgresJsDatabase, id: string): Promise<bo
 export async function getBoardId(
   db: PostgresJsDatabase,
   taskId: string,
-): Promise<string | undefined> {
+): Promise<string | null> {
   const [task] = await db
     .select({ boardId: tasks.boardId })
     .from(tasks)
     .where(eq(tasks.id, taskId))
     .limit(1);
 
-  return task?.boardId;
+  return task?.boardId ?? null;
 }
 
 // ============================================================
