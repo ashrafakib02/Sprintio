@@ -188,7 +188,7 @@ describe('Workspace Service', () => {
   describe('createWorkspace', () => {
     it('should create workspace and return result with ISO dates', async () => {
       repo.findBySlug.mockResolvedValue(undefined);
-      orgRepo.findById.mockResolvedValue({ id: ORG_ID, name: 'Test Org' });
+      orgRepo.findById.mockResolvedValue(makeOrg());
       orgRepo.isMember.mockResolvedValue(true);
       repo.create.mockResolvedValue(makeWs());
 
@@ -237,7 +237,7 @@ describe('Workspace Service', () => {
 
     it('should re-throw non-PG errors', async () => {
       repo.findBySlug.mockResolvedValue(undefined);
-      orgRepo.findById.mockResolvedValue({ id: ORG_ID, name: 'Test Org' });
+      orgRepo.findById.mockResolvedValue(makeOrg());
       orgRepo.isMember.mockResolvedValue(true);
       repo.create.mockRejectedValue(new Error('DB connection lost'));
 

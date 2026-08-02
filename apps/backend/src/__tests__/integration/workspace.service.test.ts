@@ -89,6 +89,33 @@ function makeWs(
   };
 }
 
+function makeOrg(
+  overrides: Partial<{
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    logo: string | null;
+    website: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    archivedAt: Date | null;
+  }> = {},
+) {
+  return {
+    id: 'org-test-001',
+    name: 'Test Org',
+    slug: 'test-org',
+    description: null,
+    logo: null,
+    website: null,
+    createdAt: new Date('2025-01-01T00:00:00Z'),
+    updatedAt: new Date('2025-01-01T00:00:00Z'),
+    archivedAt: null,
+    ...overrides,
+  };
+}
+
 function makeMember(
   overrides: Partial<{
     id: string;
@@ -123,7 +150,7 @@ describe('Workspace Service — Integration Flows', () => {
     it('should create → get → update → archive → restore → delete', async () => {
       // CREATE
       repo.findBySlug.mockResolvedValue(undefined);
-      orgRepo.findById.mockResolvedValue({ id: 'org-test-001', name: 'Test Org' });
+      orgRepo.findById.mockResolvedValue(makeOrg());
       orgRepo.isMember.mockResolvedValue(true);
       repo.create.mockResolvedValue(makeWs());
       const created = await workspaceService.createWorkspace(USER_ID, {
