@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const CreateWorkspaceSchema = z.object({
   name: z.string().min(1, 'Workspace name is required').max(100),
   description: z.string().max(500).optional(),
-  organizationId: z.string().uuid().optional(),
+  organizationId: z.string().uuid(),
 });
 
 export const UpdateWorkspaceSchema = z.object({

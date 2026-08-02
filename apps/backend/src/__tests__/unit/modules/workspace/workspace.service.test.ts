@@ -77,7 +77,7 @@ function makeWs(
     logo: string | null;
     brandColor: string | null;
     customDomain: string | null;
-    organizationId: string | null;
+    organizationId: string;
     plan: string;
     archivedAt: Date | null;
     createdAt: Date;
@@ -92,7 +92,7 @@ function makeWs(
     logo: null,
     brandColor: null,
     customDomain: null,
-    organizationId: null,
+    organizationId: 'org-test-001',
     plan: 'free',
     archivedAt: null,
     createdAt: new Date('2025-01-01T00:00:00Z'),
@@ -188,9 +188,14 @@ describe('Workspace Service', () => {
   describe('createWorkspace', () => {
     it('should create workspace and return result with ISO dates', async () => {
       repo.findBySlug.mockResolvedValue(undefined);
+      orgRepo.findById.mockResolvedValue(makeOrg());
+      orgRepo.isMember.mockResolvedValue(true);
       repo.create.mockResolvedValue(makeWs());
 
-      const result = await workspaceService.createWorkspace(USER_ID, { name: 'Test Workspace' });
+      const result = await workspaceService.createWorkspace(USER_ID, {
+        name: 'Test Workspace',
+        organizationId: ORG_ID,
+      });
 
       expect(result.id).toBe(WS_ID);
       expect(result.slug).toBe('test-workspace');
@@ -209,7 +214,10 @@ describe('Workspace Service', () => {
       repo.findBySlug.mockResolvedValue(makeWs());
 
       await expect(
-        workspaceService.createWorkspace(USER_ID, { name: 'Test Workspace' }),
+        workspaceService.createWorkspace(USER_ID, {
+          name: 'Test Workspace',
+          organizationId: ORG_ID,
+        }),
       ).rejects.toThrow(AppError);
     });
 
@@ -220,16 +228,24 @@ describe('Workspace Service', () => {
       repo.create.mockRejectedValue(pgError);
 
       await expect(
-        workspaceService.createWorkspace(USER_ID, { name: 'Test Workspace' }),
+        workspaceService.createWorkspace(USER_ID, {
+          name: 'Test Workspace',
+          organizationId: ORG_ID,
+        }),
       ).rejects.toThrow(AppError);
     });
 
     it('should re-throw non-PG errors', async () => {
       repo.findBySlug.mockResolvedValue(undefined);
+      orgRepo.findById.mockResolvedValue(makeOrg());
+      orgRepo.isMember.mockResolvedValue(true);
       repo.create.mockRejectedValue(new Error('DB connection lost'));
 
       await expect(
-        workspaceService.createWorkspace(USER_ID, { name: 'Test Workspace' }),
+        workspaceService.createWorkspace(USER_ID, {
+          name: 'Test Workspace',
+          organizationId: ORG_ID,
+        }),
       ).rejects.toThrow('DB connection lost');
     });
 

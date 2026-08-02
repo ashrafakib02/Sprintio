@@ -60,5 +60,16 @@ export const tasks = pgTable(
     columnIdIdx: index('tasks_column_id_idx').on(table.columnId),
     sprintIdIdx: index('tasks_sprint_id_idx').on(table.sprintId),
     assigneeIdIdx: index('tasks_assignee_id_idx').on(table.assigneeId),
+    // Composite indexes for common query patterns
+    projectStatusIdx: index('tasks_project_id_status_idx').on(table.projectId, table.status),
+    projectAssigneeIdx: index('tasks_project_id_assignee_id_idx').on(
+      table.projectId,
+      table.assigneeId,
+    ),
+    boardColumnPositionIdx: index('tasks_board_id_column_id_position_idx').on(
+      table.boardId,
+      table.columnId,
+      table.position,
+    ),
   }),
 );

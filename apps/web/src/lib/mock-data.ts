@@ -423,7 +423,7 @@ export const mockWorkspace: WorkspaceData = {
   brandColor: '#4F46E5',
   customDomain: null,
   archivedAt: null,
-  organizationId: null,
+  organizationId: 'org-test-001',
   plan: 'pro',
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-07-18T00:00:00Z',

@@ -76,7 +76,7 @@ function makeWs(
     logo: string | null;
     brandColor: string | null;
     customDomain: string | null;
-    organizationId: string | null;
+    organizationId: string;
     plan: string;
     archivedAt: Date | null;
     createdAt: Date;
@@ -91,7 +91,7 @@ function makeWs(
     logo: null,
     brandColor: null,
     customDomain: null,
-    organizationId: null,
+    organizationId: 'org-test-001',
     plan: 'free',
     archivedAt: null,
     createdAt: new Date('2025-01-01T00:00:00Z'),
@@ -100,24 +100,7 @@ function makeWs(
   };
 }
 
-function makeMember(
-  overrides: Partial<{
-    id: string;
-    workspaceId: string;
-    userId: string;
-    role: string;
-    createdAt: Date;
-  }> = {},
-) {
-  return {
-    id: 'member-1',
-    workspaceId: WS_ID,
-    userId: USER_ID,
-    role: 'member',
-    createdAt: new Date('2025-01-01T00:00:00Z'),
-    ...overrides,
-  };
-}
+// ── Tests ────────────────────────────────────────────────────
 
 function makeMemberWithUser(
   overrides: Partial<{

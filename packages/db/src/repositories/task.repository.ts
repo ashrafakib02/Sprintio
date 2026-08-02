@@ -1,24 +1,6 @@
-import { eq, asc } from 'drizzle-orm';
+import { eq, and, asc, count, inArray } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import {
-  tasks,
-  boards,
-  columns,
-  workspaceMembers,
-  workspaces,
-  organizationMembers,
-} from '../schema/index.js';
-
-// ============================================================
-// Helpers
-// ============================================================
-
-function _slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-}
+import { tasks, users } from '../schema/index.js';
 
 // ============================================================
 // Types
@@ -55,13 +37,39 @@ export interface CreateTaskData {
   labels?: string[];
 }
 
+export interface UpdateTaskData {
+  title?: string;
+  description?: string | null;
+  status?: string;
+  priority?: string;
+  assigneeId?: string | null;
+  boardId?: string | null;
+  columnId?: string | null;
+  sprintId?: string | null;
+  position?: number;
+  labels?: string[];
+  dueDate?: Date | null;
+}
+
+export interface TaskMoveData {
+  boardId: string;
+  columnId: string;
+  position: number;
+}
+
+export interface TaskWithAssigneeRecord extends TaskRecord {
+  assigneeName: string | null;
+  assigneeEmail: string | null;
+  assigneeAvatarUrl: string | null;
+}
+
 // ============================================================
 // Task CRUD
 // ============================================================
 
 /**
- * Create a task. Requires projectId. Auto-assigns assigneeId to userId
- * if not specified. boardId/columnId/sprintId are optional.
+ * Create a task. Requires projectId. Auto-assigns assigneeId to the
+ * provided userId if not specified. boardId/columnId/sprintId are optional.
  */
 export async function create(
   db: PostgresJsDatabase,
@@ -92,7 +100,134 @@ export async function create(
 }
 
 /**
- * Find tasks assigned to a user across all their workspaces.
+ * Find a task by its ID.
+ */
+export async function findById(
+  db: PostgresJsDatabase,
+  id: string,
+): Promise<TaskRecord | undefined> {
+  const [task] = await db.select().from(tasks).where(eq(tasks.id, id)).limit(1);
+  return task as TaskRecord | undefined;
+}
+
+/**
+ * Find a task by ID with its assignee's profile data.
+ */
+export async function findByIdWithAssignee(
+  db: PostgresJsDatabase,
+  id: string,
+): Promise<TaskWithAssigneeRecord | undefined> {
+  const [row] = await db
+    .select({
+      id: tasks.id,
+      title: tasks.title,
+      description: tasks.description,
+      status: tasks.status,
+      priority: tasks.priority,
+      assigneeId: tasks.assigneeId,
+      projectId: tasks.projectId,
+      boardId: tasks.boardId,
+      columnId: tasks.columnId,
+      sprintId: tasks.sprintId,
+      position: tasks.position,
+      labels: tasks.labels,
+      dueDate: tasks.dueDate,
+      createdAt: tasks.createdAt,
+      updatedAt: tasks.updatedAt,
+      assigneeName: users.name,
+      assigneeEmail: users.email,
+      assigneeAvatarUrl: users.avatarUrl,
+    })
+    .from(tasks)
+    .leftJoin(users, eq(tasks.assigneeId, users.id))
+    .where(eq(tasks.id, id))
+    .limit(1);
+
+  return row as TaskWithAssigneeRecord | undefined;
+}
+
+/**
+ * Find all tasks in a project, ordered by position then creation date.
+ */
+export async function findByProjectId(
+  db: PostgresJsDatabase,
+  projectId: string,
+): Promise<TaskRecord[]> {
+  return db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.projectId, projectId))
+    .orderBy(asc(tasks.position), asc(tasks.createdAt)) as Promise<TaskRecord[]>;
+}
+
+/**
+ * Find all tasks in a project with assignee profile data.
+ */
+export async function findByProjectIdWithAssignees(
+  db: PostgresJsDatabase,
+  projectId: string,
+): Promise<TaskWithAssigneeRecord[]> {
+  const rows = await db
+    .select({
+      id: tasks.id,
+      title: tasks.title,
+      description: tasks.description,
+      status: tasks.status,
+      priority: tasks.priority,
+      assigneeId: tasks.assigneeId,
+      projectId: tasks.projectId,
+      boardId: tasks.boardId,
+      columnId: tasks.columnId,
+      sprintId: tasks.sprintId,
+      position: tasks.position,
+      labels: tasks.labels,
+      dueDate: tasks.dueDate,
+      createdAt: tasks.createdAt,
+      updatedAt: tasks.updatedAt,
+      assigneeName: users.name,
+      assigneeEmail: users.email,
+      assigneeAvatarUrl: users.avatarUrl,
+    })
+    .from(tasks)
+    .leftJoin(users, eq(tasks.assigneeId, users.id))
+    .where(eq(tasks.projectId, projectId))
+    .orderBy(asc(tasks.position), asc(tasks.createdAt));
+
+  return rows as TaskWithAssigneeRecord[];
+}
+
+/**
+ * Find tasks in a project filtered by status.
+ */
+export async function findByProjectIdAndStatus(
+  db: PostgresJsDatabase,
+  projectId: string,
+  status: string,
+): Promise<TaskRecord[]> {
+  return db
+    .select()
+    .from(tasks)
+    .where(and(eq(tasks.projectId, projectId), eq(tasks.status, status)))
+    .orderBy(asc(tasks.position), asc(tasks.createdAt)) as Promise<TaskRecord[]>;
+}
+
+/**
+ * Find tasks in a project filtered by priority.
+ */
+export async function findByProjectIdAndPriority(
+  db: PostgresJsDatabase,
+  projectId: string,
+  priority: string,
+): Promise<TaskRecord[]> {
+  return db
+    .select()
+    .from(tasks)
+    .where(and(eq(tasks.projectId, projectId), eq(tasks.priority, priority)))
+    .orderBy(asc(tasks.position), asc(tasks.createdAt)) as Promise<TaskRecord[]>;
+}
+
+/**
+ * Find tasks assigned to a user across all their projects.
  */
 export async function findByAssignee(
   db: PostgresJsDatabase,
@@ -106,143 +241,297 @@ export async function findByAssignee(
 }
 
 /**
- * Find a task by ID.
+ * Find tasks assigned to a user within a specific project.
  */
-export async function findById(
+export async function findByProjectAndAssignee(
   db: PostgresJsDatabase,
-  id: string,
-): Promise<TaskRecord | undefined> {
-  const [task] = await db.select().from(tasks).where(eq(tasks.id, id)).limit(1);
-  return task as TaskRecord | undefined;
+  projectId: string,
+  assigneeId: string,
+): Promise<TaskRecord[]> {
+  return db
+    .select()
+    .from(tasks)
+    .where(and(eq(tasks.projectId, projectId), eq(tasks.assigneeId, assigneeId)))
+    .orderBy(asc(tasks.position), asc(tasks.createdAt)) as Promise<TaskRecord[]>;
 }
 
 /**
- * Update a task.
+ * Find all tasks in a sprint.
  */
-export async function update(
+export async function findBySprintId(
   db: PostgresJsDatabase,
-  id: string,
-  data: Partial<CreateTaskData>,
-): Promise<TaskRecord | undefined> {
-  const [task] = await db
-    .update(tasks)
-    .set({ ...data, updatedAt: new Date() })
-    .where(eq(tasks.id, id))
-    .returning();
-  return task as TaskRecord | undefined;
+  sprintId: string,
+): Promise<TaskRecord[]> {
+  return db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.sprintId, sprintId))
+    .orderBy(asc(tasks.position), asc(tasks.createdAt)) as Promise<TaskRecord[]>;
 }
 
 /**
- * Delete a task.
+ * Find tasks in a specific board column.
  */
-export async function remove(db: PostgresJsDatabase, id: string): Promise<boolean> {
+export async function findByColumnId(
+  db: PostgresJsDatabase,
+  columnId: string,
+): Promise<TaskRecord[]> {
+  return db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.columnId, columnId))
+    .orderBy(asc(tasks.position), asc(tasks.createdAt)) as Promise<TaskRecord[]>;
+}
+
+/**
+ * Find tasks on a specific board.
+ */
+export async function findByBoardId(
+  db: PostgresJsDatabase,
+  boardId: string,
+): Promise<TaskRecord[]> {
+  return db
+    .select()
+    .from(tasks)
+    .where(eq(tasks.boardId, boardId))
+    .orderBy(asc(tasks.position), asc(tasks.createdAt)) as Promise<TaskRecord[]>;
+}
+
+/**
+ * Update a task by ID. Only updates explicitly provided (non-undefined) fields.
+ */
+export async function updateById(
+  db: PostgresJsDatabase,
+  id: string,
+  data: UpdateTaskData,
+): Promise<TaskRecord | undefined> {
+  const cleaned: Record<string, unknown> = {};
+  if (data.title !== undefined) cleaned.title = data.title;
+  if (data.description !== undefined) cleaned.description = data.description;
+  if (data.status !== undefined) cleaned.status = data.status;
+  if (data.priority !== undefined) cleaned.priority = data.priority;
+  if (data.assigneeId !== undefined) cleaned.assigneeId = data.assigneeId;
+  if (data.boardId !== undefined) cleaned.boardId = data.boardId;
+  if (data.columnId !== undefined) cleaned.columnId = data.columnId;
+  if (data.sprintId !== undefined) cleaned.sprintId = data.sprintId;
+  if (data.position !== undefined) cleaned.position = data.position;
+  if (data.labels !== undefined) cleaned.labels = data.labels;
+  if (data.dueDate !== undefined) cleaned.dueDate = data.dueDate;
+
+  if (Object.keys(cleaned).length === 0) {
+    return findById(db, id);
+  }
+
+  cleaned.updatedAt = new Date();
+  const [updated] = await db.update(tasks).set(cleaned).where(eq(tasks.id, id)).returning();
+
+  return updated as TaskRecord | undefined;
+}
+
+/**
+ * Delete a task by ID.
+ */
+export async function deleteById(db: PostgresJsDatabase, id: string): Promise<boolean> {
   const [deleted] = await db.delete(tasks).where(eq(tasks.id, id)).returning({ id: tasks.id });
-  return deleted !== undefined;
+  return !!deleted;
 }
 
 // ============================================================
-// Helpers
+// Task Movement
 // ============================================================
 
 /**
- * Find the first board and first column in the user's workspace.
- * Bootstraps the full chain if anything is missing:
- *   organization → workspace → board → columns
+ * Move a task to a different column/board position. Updates boardId,
+ * columnId, and position in a single operation.
  */
-async function _findDefaultBoardAndColumn(
+export async function moveToColumn(
   db: PostgresJsDatabase,
-  userId: string,
-): Promise<{ boardId: string; columnId: string }> {
-  const now = new Date();
+  taskId: string,
+  data: TaskMoveData,
+): Promise<TaskRecord | undefined> {
+  const [updated] = await db
+    .update(tasks)
+    .set({
+      boardId: data.boardId,
+      columnId: data.columnId,
+      position: data.position,
+      updatedAt: new Date(),
+    })
+    .where(eq(tasks.id, taskId))
+    .returning();
 
-  // 1. Find or create a workspace membership for this user
-  let [membership] = await db
-    .select({ workspaceId: workspaceMembers.workspaceId })
-    .from(workspaceMembers)
-    .where(eq(workspaceMembers.userId, userId))
-    .limit(1);
+  return updated as TaskRecord | undefined;
+}
 
-  if (!membership) {
-    // Find the user's first organization
-    const [orgMember] = await db
-      .select({ organizationId: organizationMembers.organizationId })
-      .from(organizationMembers)
-      .where(eq(organizationMembers.userId, userId))
-      .limit(1);
+/**
+ * Move a task to a different sprint. Setting sprintId to null removes
+ * the task from any sprint.
+ */
+export async function moveToSprint(
+  db: PostgresJsDatabase,
+  taskId: string,
+  sprintId: string | null,
+): Promise<TaskRecord | undefined> {
+  const [updated] = await db
+    .update(tasks)
+    .set({ sprintId, updatedAt: new Date() })
+    .where(eq(tasks.id, taskId))
+    .returning();
 
-    const orgId = orgMember?.organizationId ?? null;
+  return updated as TaskRecord | undefined;
+}
 
-    // Create a default workspace
-    const slug = `workspace-${Date.now()}`;
-    const [ws] = await db
-      .insert(workspaces)
-      .values({
-        name: 'My Workspace',
-        slug,
-        organizationId: orgId,
-        plan: 'free',
-        createdAt: now,
-        updatedAt: now,
-      })
-      .returning({ id: workspaces.id });
+/**
+ * Reassign a task to a different user. Setting assigneeId to null
+ * unassigns the task.
+ */
+export async function reassign(
+  db: PostgresJsDatabase,
+  taskId: string,
+  assigneeId: string | null,
+): Promise<TaskRecord | undefined> {
+  const [updated] = await db
+    .update(tasks)
+    .set({ assigneeId, updatedAt: new Date() })
+    .where(eq(tasks.id, taskId))
+    .returning();
 
-    if (!ws) throw new Error('Failed to create default workspace');
+  return updated as TaskRecord | undefined;
+}
 
-    // Add user as owner
-    await db.insert(workspaceMembers).values({
-      workspaceId: ws.id,
-      userId,
-      role: 'owner',
-      createdAt: now,
-    });
+/**
+ * Batch update positions for multiple tasks within a column.
+ * Used for drag-and-drop reordering within a column.
+ */
+export async function batchUpdatePositions(
+  db: PostgresJsDatabase,
+  items: Array<{ id: string; position: number }>,
+): Promise<void> {
+  if (items.length === 0) return;
 
-    membership = { workspaceId: ws.id };
-  }
-
-  // 2. Find or create a board in the workspace
-  let [board] = await db
-    .select({ id: boards.id })
-    .from(boards)
-    .where(eq(boards.workspaceId, membership.workspaceId))
-    .limit(1);
-
-  if (!board) {
-    const [newBoard] = await db
-      .insert(boards)
-      .values({
-        name: 'Main Board',
-        workspaceId: membership.workspaceId,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .returning({ id: boards.id });
-
-    if (!newBoard) throw new Error('Failed to create default board');
-    board = newBoard;
-
-    // Create standard columns
-    const [todoCol] = await db
-      .insert(columns)
-      .values([
-        { name: 'To Do', boardId: board.id, position: 0, createdAt: now },
-        { name: 'In Progress', boardId: board.id, position: 1, createdAt: now },
-        { name: 'Done', boardId: board.id, position: 2, createdAt: now },
-      ])
-      .returning({ id: columns.id });
-
-    if (todoCol) {
-      return { boardId: board.id, columnId: todoCol.id };
+  await db.transaction(async (tx) => {
+    for (const item of items) {
+      await tx
+        .update(tasks)
+        .set({ position: item.position, updatedAt: new Date() })
+        .where(eq(tasks.id, item.id));
     }
-  }
+  });
+}
 
-  // 3. Find the first column in the board
-  const [col] = await db
-    .select({ id: columns.id })
-    .from(columns)
-    .where(eq(columns.boardId, board.id))
-    .orderBy(asc(columns.position))
-    .limit(1);
+// ============================================================
+// Bulk Operations
+// ============================================================
 
-  if (!col) throw new Error('No columns found in board');
-  return { boardId: board.id, columnId: col.id };
+/**
+ * Find multiple tasks by their IDs (for batch operations).
+ */
+export async function findByIds(db: PostgresJsDatabase, ids: string[]): Promise<TaskRecord[]> {
+  if (ids.length === 0) return [];
+  return db.select().from(tasks).where(inArray(tasks.id, ids)) as Promise<TaskRecord[]>;
+}
+
+/**
+ * Update the sprint assignment for multiple tasks in a single transaction.
+ * Used when adding/removing tasks from a sprint.
+ */
+export async function bulkUpdateSprint(
+  db: PostgresJsDatabase,
+  taskIds: string[],
+  sprintId: string | null,
+): Promise<void> {
+  if (taskIds.length === 0) return;
+
+  await db.transaction(async (tx) => {
+    for (const taskId of taskIds) {
+      await tx.update(tasks).set({ sprintId, updatedAt: new Date() }).where(eq(tasks.id, taskId));
+    }
+  });
+}
+
+/**
+ * Update the assignee for multiple tasks in a single transaction.
+ */
+export async function bulkReassign(
+  db: PostgresJsDatabase,
+  taskIds: string[],
+  assigneeId: string | null,
+): Promise<void> {
+  if (taskIds.length === 0) return;
+
+  await db.transaction(async (tx) => {
+    for (const taskId of taskIds) {
+      await tx.update(tasks).set({ assigneeId, updatedAt: new Date() }).where(eq(tasks.id, taskId));
+    }
+  });
+}
+
+/**
+ * Archive all tasks in a project by setting their status to 'archived'.
+ */
+export async function archiveByProjectId(db: PostgresJsDatabase, projectId: string): Promise<void> {
+  await db
+    .update(tasks)
+    .set({ status: 'archived', updatedAt: new Date() })
+    .where(eq(tasks.projectId, projectId));
+}
+
+// ============================================================
+// Counting / Aggregation
+// ============================================================
+
+/**
+ * Count tasks in a project.
+ */
+export async function countByProjectId(db: PostgresJsDatabase, projectId: string): Promise<number> {
+  const [result] = await db
+    .select({ value: count() })
+    .from(tasks)
+    .where(eq(tasks.projectId, projectId));
+
+  return Number(result?.value ?? 0);
+}
+
+/**
+ * Count tasks in a project by status.
+ * Returns an array of { status, count } objects.
+ */
+export async function countByStatusInProject(
+  db: PostgresJsDatabase,
+  projectId: string,
+): Promise<Array<{ status: string; count: number }>> {
+  const results = await db
+    .select({
+      status: tasks.status,
+      value: count(),
+    })
+    .from(tasks)
+    .where(eq(tasks.projectId, projectId))
+    .groupBy(tasks.status);
+
+  return results.map((r) => ({ status: r.status, count: Number(r.value) }));
+}
+
+/**
+ * Count tasks assigned to a user across all their projects.
+ */
+export async function countByAssignee(db: PostgresJsDatabase, assigneeId: string): Promise<number> {
+  const [result] = await db
+    .select({ value: count() })
+    .from(tasks)
+    .where(eq(tasks.assigneeId, assigneeId));
+
+  return Number(result?.value ?? 0);
+}
+
+/**
+ * Count tasks in a sprint.
+ */
+export async function countBySprintId(db: PostgresJsDatabase, sprintId: string): Promise<number> {
+  const [result] = await db
+    .select({ value: count() })
+    .from(tasks)
+    .where(eq(tasks.sprintId, sprintId));
+
+  return Number(result?.value ?? 0);
 }

@@ -67,7 +67,7 @@ export interface WorkspaceResult {
   logo: string | null;
   brandColor: string | null;
   customDomain: string | null;
-  organizationId: string | null;
+  organizationId: string;
   plan: string;
   archivedAt: string | null;
   createdAt: string;
