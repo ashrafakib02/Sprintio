@@ -4,21 +4,9 @@ import * as schema from '../schema/index.js';
 import { projects, sprints, boards, columns, tasks, workspaces } from '../schema/index.js';
 
 // ── Import types for local use in interface contracts ──────────
-import type {
-  ProjectRecord,
-  CreateProjectData,
-  UpdateProjectData,
-} from './project.repository.js';
-import type {
-  SprintRecord,
-  CreateSprintData,
-  UpdateSprintData,
-} from './sprint.repository.js';
-import type {
-  BoardRecord,
-  CreateBoardData,
-  UpdateBoardData,
-} from './board.repository.js';
+import type { ProjectRecord, CreateProjectData, UpdateProjectData } from './project.repository.js';
+import type { SprintRecord, CreateSprintData, UpdateSprintData } from './sprint.repository.js';
+import type { BoardRecord, CreateBoardData, UpdateBoardData } from './board.repository.js';
 import type {
   ColumnRecord,
   CreateColumnData,

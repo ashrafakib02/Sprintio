@@ -248,14 +248,8 @@ export async function findByIdWithStats(
   if (!project) return undefined;
 
   const [[sprintCountRow], [taskCountRow]] = await Promise.all([
-    db
-      .select({ value: count() })
-      .from(sprints)
-      .where(eq(sprints.projectId, id)),
-    db
-      .select({ value: count() })
-      .from(tasks)
-      .where(eq(tasks.projectId, id)),
+    db.select({ value: count() }).from(sprints).where(eq(sprints.projectId, id)),
+    db.select({ value: count() }).from(tasks).where(eq(tasks.projectId, id)),
   ]);
 
   return {

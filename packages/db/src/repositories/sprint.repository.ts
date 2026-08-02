@@ -162,17 +162,17 @@ export async function updateById(
  * via the SET NULL cascade rule.
  */
 export async function deleteById(db: PostgresJsDatabase, id: string): Promise<boolean> {
-  const [deleted] = await db.delete(sprints).where(eq(sprints.id, id)).returning({ id: sprints.id });
+  const [deleted] = await db
+    .delete(sprints)
+    .where(eq(sprints.id, id))
+    .returning({ id: sprints.id });
   return !!deleted;
 }
 
 /**
  * Count sprints in a project.
  */
-export async function countByProjectId(
-  db: PostgresJsDatabase,
-  projectId: string,
-): Promise<number> {
+export async function countByProjectId(db: PostgresJsDatabase, projectId: string): Promise<number> {
   const [result] = await db
     .select({ value: count() })
     .from(sprints)

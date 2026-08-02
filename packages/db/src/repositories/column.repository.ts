@@ -122,10 +122,7 @@ export async function deleteById(db: PostgresJsDatabase, id: string): Promise<bo
  * Reorder columns within a board. Updates the position of each column
  * in a single transaction.
  */
-export async function reorder(
-  db: PostgresJsDatabase,
-  items: ColumnReorderItem[],
-): Promise<void> {
+export async function reorder(db: PostgresJsDatabase, items: ColumnReorderItem[]): Promise<void> {
   if (items.length === 0) return;
 
   await db.transaction(async (tx) => {

@@ -89,10 +89,7 @@ export async function findWorkspaceLevelByWorkspaceId(
 /**
  * Create a new board in a workspace. Optionally scope it to a project.
  */
-export async function create(
-  db: PostgresJsDatabase,
-  data: CreateBoardData,
-): Promise<BoardRecord> {
+export async function create(db: PostgresJsDatabase, data: CreateBoardData): Promise<BoardRecord> {
   const [board] = await db
     .insert(boards)
     .values({

@@ -461,10 +461,7 @@ export async function bulkReassign(
 
   await db.transaction(async (tx) => {
     for (const taskId of taskIds) {
-      await tx
-        .update(tasks)
-        .set({ assigneeId, updatedAt: new Date() })
-        .where(eq(tasks.id, taskId));
+      await tx.update(tasks).set({ assigneeId, updatedAt: new Date() }).where(eq(tasks.id, taskId));
     }
   });
 }
@@ -472,10 +469,7 @@ export async function bulkReassign(
 /**
  * Archive all tasks in a project by setting their status to 'archived'.
  */
-export async function archiveByProjectId(
-  db: PostgresJsDatabase,
-  projectId: string,
-): Promise<void> {
+export async function archiveByProjectId(db: PostgresJsDatabase, projectId: string): Promise<void> {
   await db
     .update(tasks)
     .set({ status: 'archived', updatedAt: new Date() })
@@ -489,10 +483,7 @@ export async function archiveByProjectId(
 /**
  * Count tasks in a project.
  */
-export async function countByProjectId(
-  db: PostgresJsDatabase,
-  projectId: string,
-): Promise<number> {
+export async function countByProjectId(db: PostgresJsDatabase, projectId: string): Promise<number> {
   const [result] = await db
     .select({ value: count() })
     .from(tasks)
@@ -524,10 +515,7 @@ export async function countByStatusInProject(
 /**
  * Count tasks assigned to a user across all their projects.
  */
-export async function countByAssignee(
-  db: PostgresJsDatabase,
-  assigneeId: string,
-): Promise<number> {
+export async function countByAssignee(db: PostgresJsDatabase, assigneeId: string): Promise<number> {
   const [result] = await db
     .select({ value: count() })
     .from(tasks)
@@ -539,10 +527,7 @@ export async function countByAssignee(
 /**
  * Count tasks in a sprint.
  */
-export async function countBySprintId(
-  db: PostgresJsDatabase,
-  sprintId: string,
-): Promise<number> {
+export async function countBySprintId(db: PostgresJsDatabase, sprintId: string): Promise<number> {
   const [result] = await db
     .select({ value: count() })
     .from(tasks)

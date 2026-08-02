@@ -65,7 +65,7 @@ const WS_RESULT = {
   slug: 'test-workspace',
   description: null,
   logo: null,
-  organizationId: null,
+  organizationId: 'org-test-001',
   plan: 'free',
   archivedAt: null,
   createdAt: '2025-01-01T00:00:00.000Z',
