@@ -44,10 +44,11 @@ vi.mock('@sprintio/shared', async (importOriginal) => {
 });
 
 import * as workspaceService from '../../modules/workspace/workspace.service.js';
-import { workspaceRepo } from '@sprintio/db/repositories';
+import { workspaceRepo, organizationRepo } from '@sprintio/db/repositories';
 import { AppError } from '@sprintio/shared';
 
 const repo = vi.mocked(workspaceRepo);
+const orgRepo = vi.mocked(organizationRepo);
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -122,6 +123,8 @@ describe('Workspace Service — Integration Flows', () => {
     it('should create → get → update → archive → restore → delete', async () => {
       // CREATE
       repo.findBySlug.mockResolvedValue(undefined);
+      orgRepo.findById.mockResolvedValue({ id: 'org-test-001', name: 'Test Org' });
+      orgRepo.isMember.mockResolvedValue(true);
       repo.create.mockResolvedValue(makeWs());
       const created = await workspaceService.createWorkspace(USER_ID, {
         name: 'Test Workspace',
