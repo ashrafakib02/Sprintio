@@ -25,7 +25,7 @@ function setupMocks(pathname: string, organizations: Organization[] = []) {
     if (opts?.select) return opts.select({ location: { pathname } });
     return pathname;
   });
-   
+
   mockUseOrganizations.mockReturnValue({
     data: organizations,
     isLoading: false,
