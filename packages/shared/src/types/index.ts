@@ -8,19 +8,52 @@ export type {
   RefreshTokenFullPayload,
   AuthResponse,
 } from './auth.js';
-export type { Organization, OrganizationMembership, OrganizationRole } from './organization.js';
+
+// ── Hierarchy types (canonical source) ──────────────────────
 export type {
+  // Organization
+  Organization,
+  OrganizationMembership,
+  OrganizationRole,
+  // Workspace
   Workspace,
   WorkspaceMembership,
   WorkspaceRole,
+  // Project
+  Project,
+  ProjectMembership,
+  ProjectRole,
+  Sprint,
+  SprintStatus,
+  ProjectStatus,
+  // Task
+  Task,
+  TaskStatus,
+  TaskPriority,
+  Subtask,
+  TaskComment,
+  // Board
+  Board,
+  BoardViewType,
+  Column,
+  Card,
+  BoardView,
+  // Document
+  Document,
+  DocumentBlock,
+  // Notification
+  Notification,
+  NotificationPreference,
+  // Common
+  ApiResponse,
+  PaginatedResponse,
+  PaginationParams,
+} from '../hierarchy-types.js';
+
+// ── Re-exports from legacy files (backwards compat) ─────────
+export type {
   WorkspaceSettings,
   WorkspaceRoleDefinition,
   WorkspacePermission,
   UserRoleAssignment,
 } from './workspace.js';
-export type { Board, Column, Card, BoardView, BoardViewType } from './board.js';
-export type { Task, Subtask, TaskComment, TaskPriority, TaskStatus } from './task.js';
-export type { Document, DocumentBlock } from './document.js';
-export type { Project, Milestone, Sprint, ProjectStatus, SprintStatus } from './project.js';
-export type { Notification, NotificationPreference } from './notification.js';
-export type { ApiResponse, PaginatedResponse, PaginationParams } from './common.js';
