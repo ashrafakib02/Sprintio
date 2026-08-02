@@ -15,6 +15,7 @@ import {
   type WorkspaceRoleDefinition,
   type WorkspaceContextMember,
 } from '@/lib/api';
+import type { WorkspaceRole } from '@sprintio/shared';
 import { toast } from 'sonner';
 
 // ── Query Key Factories ─────────────────────────────────────
@@ -33,7 +34,7 @@ export const PERMISSIONS_QUERY_KEY = ['workspace', 'permissions'] as const;
 
 interface WorkspaceContextResponse {
   workspace: WorkspaceSettingsData;
-  userRole: string;
+  userRole: WorkspaceRole;
   members: WorkspaceContextMember[];
 }
 
@@ -48,6 +49,7 @@ export function useWorkspaceContext(workspaceId: string) {
     queryKey: WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
     queryFn: () => getWorkspaceContext(workspaceId),
     staleTime: 60_000,
+    retry: false,
     select: (response) => ({
       workspace: response.data.workspace,
       userRole: response.data.userRole,
@@ -290,7 +292,7 @@ export function useUpdateMemberRole(workspaceId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ userId, role }: { userId: string; role: string }) =>
+    mutationFn: ({ userId, role }: { userId: string; role: WorkspaceRole }) =>
       updateMemberRole(workspaceId, userId, role),
     onMutate: async ({ userId, role }) => {
       await queryClient.cancelQueries({

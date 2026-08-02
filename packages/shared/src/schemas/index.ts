@@ -11,3 +11,28 @@ export * from './project.js';
 export * from './column.js';
 export * from './notification.js';
 export * from './attachment.js';
+
+// ── Hierarchy schemas (canonical source for task/project/board) ─
+export {
+  TaskStatusSchema,
+  TaskPrioritySchema,
+  ProjectStatusSchema,
+  SprintStatusSchema,
+  CreateTaskSchema,
+  UpdateTaskSchema,
+  type CreateTaskInput,
+  type UpdateTaskInput,
+  CreateProjectSchema,
+  UpdateProjectSchema,
+  type CreateProjectInput,
+  type UpdateProjectInput,
+  CreateSprintSchema,
+  UpdateSprintSchema,
+  type CreateSprintInput,
+  type UpdateSprintInput,
+  BoardViewTypeSchema,
+  CreateBoardSchema,
+  UpdateBoardSchema,
+  type CreateBoardInput,
+  type UpdateBoardInput,
+} from '../hierarchy-types.js';

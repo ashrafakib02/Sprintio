@@ -3,6 +3,7 @@ import { useWorkspaceContext } from '@/hooks/use-workspace-settings';
 import { Spinner } from '@/components/ui/spinner';
 import { Settings, Palette, Users, Shield, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { getWorkspaceInitials, getAvatarGradient } from '@/lib/workspace-utils';
 
 interface WorkspaceSettingsLayoutProps {
   workspaceId: string;
@@ -46,32 +47,6 @@ const SETTINGS_NAV = [
     iconColor: 'text-amber-600 dark:text-amber-400',
   },
 ] as const;
-
-function getWorkspaceInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-}
-
-const WORKSPACE_AVATAR_COLORS = [
-  'from-blue-500 to-indigo-600',
-  'from-purple-500 to-violet-600',
-  'from-emerald-500 to-teal-600',
-  'from-amber-500 to-orange-600',
-  'from-rose-500 to-pink-600',
-  'from-cyan-500 to-blue-600',
-];
-
-function getAvatarGradient(name: string): string {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return WORKSPACE_AVATAR_COLORS[Math.abs(hash) % WORKSPACE_AVATAR_COLORS.length];
-}
 
 export function WorkspaceSettingsLayout({ workspaceId }: WorkspaceSettingsLayoutProps) {
   const { data, isLoading, error } = useWorkspaceContext(workspaceId);

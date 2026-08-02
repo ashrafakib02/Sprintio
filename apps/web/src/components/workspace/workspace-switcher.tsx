@@ -3,7 +3,10 @@ import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useListWorkspaces, useCreateWorkspace } from '@/hooks/use-workspace';
 import { WORKSPACE_CONTEXT_QUERY_KEY } from '@/hooks/use-workspace-settings';
+import { useActiveOrganization } from '@/hooks/use-active-organization';
 import { switchWorkspace } from '@/lib/api';
+import { getStoredWorkspaceId, setStoredWorkspaceId } from '@/lib/workspace-storage';
+import { getWorkspaceInitials, getAvatarGradient } from '@/lib/workspace-utils';
 import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,34 +15,9 @@ import { cn } from '@/lib/cn';
 import { ChevronDown, Check, Plus, Building2, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import type { WorkspaceSettingsData } from '@/lib/api';
+import type { WorkspaceRole } from '@sprintio/shared';
 
 // ── Helpers ─────────────────────────────────────────────────
-
-function getWorkspaceInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-}
-
-const WORKSPACE_AVATAR_COLORS = [
-  'from-blue-500 to-indigo-600',
-  'from-purple-500 to-violet-600',
-  'from-emerald-500 to-teal-600',
-  'from-amber-500 to-orange-600',
-  'from-rose-500 to-pink-600',
-  'from-cyan-500 to-blue-600',
-];
-
-function getAvatarGradient(name: string): string {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return WORKSPACE_AVATAR_COLORS[Math.abs(hash) % WORKSPACE_AVATAR_COLORS.length];
-}
 
 function extractWorkspaceId(pathname: string): string | null {
   const match = pathname.match(/\/workspace\/([^/]+)/);
@@ -99,7 +77,7 @@ function useWorkspaceRoleCache(workspaces: WorkspaceSettingsData[]) {
 
   return (workspaceId: string) => {
     const data = queryClient.getQueryData<{
-      userRole: string;
+      userRole: WorkspaceRole;
     }>(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId));
     return data?.userRole;
   };
@@ -113,16 +91,29 @@ export function WorkspaceSwitcher() {
   const [switchingTo, setSwitchingTo] = useState<string | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newWorkspaceName, setNewWorkspaceName] = useState('');
+  const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const listboxId = 'workspace-switcher-listbox';
+
   const { data: workspaces, isLoading } = useListWorkspaces();
   const createWorkspace = useCreateWorkspace();
+  const currentOrganizationId = useActiveOrganization();
 
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const activeWorkspaceId = extractWorkspaceId(pathname);
+  const urlWsId = extractWorkspaceId(pathname);
+  const activeWorkspaceId = useMemo(() => {
+    if (urlWsId) return urlWsId;
+    const stored = getStoredWorkspaceId();
+    if (stored) return stored;
+    if (workspaces && workspaces.length > 0) {
+      return workspaces[0].id;
+    }
+    return null;
+  }, [urlWsId, workspaces]);
 
   const activeWorkspace = workspaces?.find((ws) => ws.id === activeWorkspaceId);
   const displayWorkspaces = workspaces ?? [];
@@ -143,9 +134,16 @@ export function WorkspaceSwitcher() {
   // ── Click outside to close ──────────────────────────────
 
   const handleClickOutside = useCallback((e: MouseEvent) => {
-    if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+    const target = e.target as HTMLElement;
+    if (
+      containerRef.current &&
+      !containerRef.current.contains(target) &&
+      !target.closest('[role="option"]') &&
+      !target.closest('[data-create-workspace]')
+    ) {
       setOpen(false);
       setSearch('');
+      setActiveIndex(-1);
     }
   }, []);
 
@@ -167,6 +165,7 @@ export function WorkspaceSwitcher() {
       if (e.key === 'Escape') {
         setOpen(false);
         setSearch('');
+        setActiveIndex(-1);
       }
     };
 
@@ -184,6 +183,11 @@ export function WorkspaceSwitcher() {
       return () => clearTimeout(timer);
     }
   }, [open]);
+
+  // Reset active index when search changes
+  useEffect(() => {
+    setActiveIndex(-1);
+  }, [search]);
 
   // ── Select workspace ────────────────────────────────────
 
@@ -219,10 +223,23 @@ export function WorkspaceSwitcher() {
           to: '/workspace/$workspaceId',
           params: { workspaceId },
         });
+        setStoredWorkspaceId(workspaceId);
       } catch (error) {
-        toast.error('Failed to switch workspace', {
-          description: error instanceof Error ? error.message : 'Please try again',
-        });
+        const msg = error instanceof Error ? error.message : '';
+
+        if (
+          msg.includes('CSRF_MISSING_HEADER') ||
+          msg.includes('CSRF_ORIGIN_MISMATCH') ||
+          msg.includes('CSRF validation failed')
+        ) {
+          toast.error('Session validation failed', {
+            description: 'A security check failed. Please refresh the page and try again.',
+          });
+        } else {
+          toast.error('Failed to switch workspace', {
+            description: msg || 'Please try again',
+          });
+        }
       } finally {
         setSwitchingTo(null);
       }
@@ -245,7 +262,7 @@ export function WorkspaceSwitcher() {
       if (!name) return;
 
       createWorkspace.mutate(
-        { name },
+        { name, organizationId: currentOrganizationId ?? undefined },
         {
           onSuccess: (response) => {
             setCreateDialogOpen(false);
@@ -259,14 +276,18 @@ export function WorkspaceSwitcher() {
         },
       );
     },
-    [newWorkspaceName, createWorkspace, navigate],
+    [newWorkspaceName, createWorkspace, navigate, currentOrganizationId],
   );
 
   // ── Loading state ───────────────────────────────────────
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 rounded-md px-3 py-2">
+      <div
+        className="flex items-center gap-2 rounded-md px-3 py-2"
+        role="status"
+        aria-live="polite"
+      >
         <Spinner className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm text-muted-foreground">Loading workspaces...</span>
       </div>
@@ -277,14 +298,24 @@ export function WorkspaceSwitcher() {
 
   if (displayWorkspaces.length === 0) {
     return (
-      <button
-        type="button"
-        onClick={handleCreate}
-        className="flex w-full items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-      >
-        <Plus className="h-4 w-4" />
-        Create a workspace
-      </button>
+      <>
+        <button
+          type="button"
+          onClick={handleCreate}
+          className="flex w-full items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          Create a workspace
+        </button>
+        <CreateWorkspaceDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          onSubmit={handleCreateSubmit}
+          name={newWorkspaceName}
+          onNameChange={setNewWorkspaceName}
+          isPending={createWorkspace.isPending}
+        />
+      </>
     );
   }
 
@@ -294,16 +325,25 @@ export function WorkspaceSwitcher() {
 
   return (
     <div ref={containerRef} className="relative">
+      {/* Live region for screen readers */}
+      <span className="sr-only" role="status" aria-live="polite">
+        {isSwitching ? 'Switching workspace…' : ''}
+      </span>
+
       {/* Trigger Button */}
       <button
         type="button"
         onClick={() => {
           setOpen((prev) => !prev);
-          if (open) setSearch('');
+          if (open) {
+            setSearch('');
+            setActiveIndex(-1);
+          }
         }}
         disabled={isSwitching}
         aria-expanded={open}
         aria-haspopup="listbox"
+        aria-controls={open ? listboxId : undefined}
         aria-label={`Current workspace: ${activeWorkspace?.name ?? 'None selected'}`}
         className={cn(
           'flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium',
@@ -354,9 +394,31 @@ export function WorkspaceSwitcher() {
       {/* Dropdown */}
       {open && (
         <div
+          id={listboxId}
           role="listbox"
+          tabIndex={0}
           aria-label="Workspaces"
           aria-busy={isSwitching}
+          aria-activedescendant={activeIndex >= 0 ? `ws-option-${activeIndex}` : undefined}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              setActiveIndex((prev) => (prev < filteredWorkspaces.length - 1 ? prev + 1 : 0));
+            } else if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              setActiveIndex((prev) => (prev > 0 ? prev - 1 : filteredWorkspaces.length - 1));
+            } else if (e.key === 'Enter' && activeIndex >= 0) {
+              e.preventDefault();
+              const ws = filteredWorkspaces[activeIndex];
+              if (ws) handleSelect(ws.id);
+            } else if (e.key === 'Home') {
+              e.preventDefault();
+              setActiveIndex(0);
+            } else if (e.key === 'End') {
+              e.preventDefault();
+              setActiveIndex(filteredWorkspaces.length - 1);
+            }
+          }}
           className={cn(
             'absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-lg',
             'animate-in fade-in-0 zoom-in-95',
@@ -390,7 +452,7 @@ export function WorkspaceSwitcher() {
                 No workspaces found
               </div>
             ) : (
-              filteredWorkspaces.map((workspace) => {
+              filteredWorkspaces.map((workspace, idx) => {
                 const isActive = workspace.id === activeWorkspaceId;
                 const isCurrentlySwitching = workspace.id === switchingTo;
                 const role = getRole(workspace.id);
@@ -398,10 +460,12 @@ export function WorkspaceSwitcher() {
                 return (
                   <button
                     key={workspace.id}
+                    id={`ws-option-${idx}`}
                     type="button"
                     role="option"
                     aria-selected={isActive}
                     aria-disabled={isCurrentlySwitching}
+                    aria-current={isActive ? 'true' : undefined}
                     onClick={() => handleSelect(workspace.id)}
                     className={cn(
                       'flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors',
@@ -446,6 +510,7 @@ export function WorkspaceSwitcher() {
           <div className="p-1">
             <button
               type="button"
+              data-create-workspace
               onClick={handleCreate}
               className={cn(
                 'flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm',

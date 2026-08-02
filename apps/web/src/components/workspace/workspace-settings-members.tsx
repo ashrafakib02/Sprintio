@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { WorkspaceRole } from '@sprintio/shared';
 import {
   useWorkspaceContext,
   useWorkspaceRoles,
@@ -99,7 +100,7 @@ function MemberRoleChangeDialog({
   const handleConfirm = () => {
     if (!selectedRoleId || !member) return;
     updateMemberRole.mutate(
-      { userId: member.userId, role: selectedRoleId },
+      { userId: member.userId, role: selectedRoleId as WorkspaceRole },
       { onSuccess: () => onOpenChange(false) },
     );
   };

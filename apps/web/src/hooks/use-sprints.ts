@@ -17,5 +17,6 @@ export function useActiveSprint() {
       return mockActiveSprint;
     },
     staleTime: 60_000,
+    retry: false,
   });
 }

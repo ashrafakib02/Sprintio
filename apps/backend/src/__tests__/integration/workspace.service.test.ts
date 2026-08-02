@@ -44,10 +44,11 @@ vi.mock('@sprintio/shared', async (importOriginal) => {
 });
 
 import * as workspaceService from '../../modules/workspace/workspace.service.js';
-import { workspaceRepo } from '@sprintio/db/repositories';
+import { workspaceRepo, organizationRepo } from '@sprintio/db/repositories';
 import { AppError } from '@sprintio/shared';
 
 const repo = vi.mocked(workspaceRepo);
+const orgRepo = vi.mocked(organizationRepo);
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -64,7 +65,7 @@ function makeWs(
     logo: string | null;
     brandColor: string | null;
     customDomain: string | null;
-    organizationId: string | null;
+    organizationId: string;
     plan: string;
     archivedAt: Date | null;
     createdAt: Date;
@@ -79,11 +80,38 @@ function makeWs(
     logo: null,
     brandColor: null,
     customDomain: null,
-    organizationId: null,
+    organizationId: 'org-test-001',
     plan: 'free',
     archivedAt: null,
     createdAt: new Date('2025-01-01T00:00:00Z'),
     updatedAt: new Date('2025-01-01T00:00:00Z'),
+    ...overrides,
+  };
+}
+
+function makeOrg(
+  overrides: Partial<{
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    logo: string | null;
+    website: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    archivedAt: Date | null;
+  }> = {},
+) {
+  return {
+    id: 'org-test-001',
+    name: 'Test Org',
+    slug: 'test-org',
+    description: null,
+    logo: null,
+    website: null,
+    createdAt: new Date('2025-01-01T00:00:00Z'),
+    updatedAt: new Date('2025-01-01T00:00:00Z'),
+    archivedAt: null,
     ...overrides,
   };
 }
@@ -122,8 +150,13 @@ describe('Workspace Service — Integration Flows', () => {
     it('should create → get → update → archive → restore → delete', async () => {
       // CREATE
       repo.findBySlug.mockResolvedValue(undefined);
+      orgRepo.findById.mockResolvedValue(makeOrg());
+      orgRepo.isMember.mockResolvedValue(true);
       repo.create.mockResolvedValue(makeWs());
-      const created = await workspaceService.createWorkspace(USER_ID, { name: 'Test Workspace' });
+      const created = await workspaceService.createWorkspace(USER_ID, {
+        name: 'Test Workspace',
+        organizationId: 'org-test-001',
+      });
       expect(created.id).toBe(WS_ID);
 
       // GET (as owner)

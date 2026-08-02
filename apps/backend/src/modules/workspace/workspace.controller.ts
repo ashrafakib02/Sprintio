@@ -43,12 +43,8 @@ export const createWorkspace = asyncHandler(async (req: Request, res: Response) 
   }
 
   const userId = req.user!.userId;
-  const organizationId = req.body.organizationId as string | undefined;
 
-  const workspace = await workspaceService.createWorkspace(userId, {
-    ...parsed.data,
-    organizationId,
-  });
+  const workspace = await workspaceService.createWorkspace(userId, parsed.data);
 
   return sendSuccess(res, { workspace }, 201);
 });

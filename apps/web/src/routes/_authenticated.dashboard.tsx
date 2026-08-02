@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { useAuth } from '@/hooks/use-auth';
 import { useDashboardState } from '@/hooks/use-dashboard-state';
 import { DashboardSkeleton } from '@/components/dashboard/skeleton';
 import { GreetingBar } from '@/components/dashboard/greeting-bar';
+import { NewTaskDialog } from '@/components/dashboard/new-task-dialog';
 import { TaskSummaryCards } from '@/components/dashboard/task-summary-cards';
 import { MyTaskList } from '@/components/dashboard/my-task-list';
 import { SprintOverview } from '@/components/dashboard/sprint-overview';
@@ -84,6 +85,12 @@ function DashboardPage() {
     [dashboard.sprint],
   );
 
+  const [newTaskOpen, setNewTaskOpen] = useState(false);
+
+  const handleNewTask = useCallback(() => {
+    setNewTaskOpen(true);
+  }, []);
+
   // Show skeleton while initial data loads
   if (dashboard.isLoading.tasks || dashboard.isLoading.sprint) {
     return <DashboardSkeleton />;
@@ -102,6 +109,7 @@ function DashboardPage() {
         userName={user?.name?.split(' ')[0] ?? 'there'}
         sprintName={dashboard.sprint?.name}
         daysRemaining={dashboard.sprint?.daysRemaining}
+        onNewTask={handleNewTask}
       />
 
       {/* T1 — Task Summary Cards */}
@@ -134,6 +142,8 @@ function DashboardPage() {
 
       {/* T5 — Plan Usage (owner only) */}
       {isOwner && dashboard.workspace && <PlanUsage planName={dashboard.workspace.plan} />}
+
+      <NewTaskDialog open={newTaskOpen} onOpenChange={setNewTaskOpen} />
     </div>
   );
 }

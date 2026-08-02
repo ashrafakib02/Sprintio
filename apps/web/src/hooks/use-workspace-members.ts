@@ -13,7 +13,10 @@ import {
   type WorkspaceContextMember,
   type WorkspaceSettingsData,
 } from '@/lib/api';
-import { WORKSPACE_LIST_QUERY_KEY } from '@/hooks/use-workspace-settings';
+import {
+  WORKSPACE_LIST_QUERY_KEY,
+  WORKSPACE_CONTEXT_QUERY_KEY,
+} from '@/hooks/use-workspace-settings';
 import { toast } from 'sonner';
 
 // ── Internal Types ──────────────────────────────────────────
@@ -36,9 +39,6 @@ export const WORKSPACE_MEMBERS_QUERY_KEY = (workspaceId: string) =>
 
 export const WORKSPACE_INVITATIONS_QUERY_KEY = (workspaceId: string) =>
   ['workspace', workspaceId, 'invitations'] as const;
-
-export const WORKSPACE_CONTEXT_QUERY_KEY = (workspaceId: string) =>
-  ['workspace', workspaceId, 'context'] as const;
 
 // ---------------------------------------------------------------------------
 // Queries
@@ -301,6 +301,37 @@ export function useRejectInvitation() {
       void queryClient.invalidateQueries({
         queryKey: ['workspace'],
       });
+    },
+  });
+}
+
+/**
+ * Transfer workspace ownership to another member.
+ *
+ * Invalidates the workspace context cache on settlement so the role changes
+ * are reflected everywhere.
+ */
+export function useTransferOwnership(workspaceId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (newOwnerId: string) => transferOwnership(workspaceId, { newOwnerId }),
+
+    onError: (error: Error) => {
+      toast.error('Failed to transfer ownership', { description: error.message });
+    },
+
+    onSettled: () => {
+      void queryClient.invalidateQueries({
+        queryKey: WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: WORKSPACE_MEMBERS_QUERY_KEY(workspaceId),
+      });
+    },
+
+    onSuccess: () => {
+      toast.success('Ownership transferred successfully');
     },
   });
 }

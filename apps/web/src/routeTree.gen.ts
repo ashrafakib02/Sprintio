@@ -25,12 +25,16 @@ import { Route as GuestForgotPasswordRouteImport } from './routes/_guest.forgot-
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated.settings'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as AuthenticatedWorkspaceWorkspaceIdRouteImport } from './routes/_authenticated.workspace.$workspaceId'
+import { Route as AuthenticatedOrganizationOrganizationIdRouteImport } from './routes/_authenticated.organization.$organizationId'
 import { Route as AuthenticatedWorkspaceWorkspaceIdSettingsRouteImport } from './routes/_authenticated.workspace.$workspaceId.settings'
 import { Route as AuthenticatedWorkspaceWorkspaceIdMembersRouteImport } from './routes/_authenticated.workspace.$workspaceId.members'
+import { Route as AuthenticatedOrganizationOrganizationIdSettingsRouteImport } from './routes/_authenticated.organization.$organizationId.settings'
 import { Route as AuthenticatedWorkspaceWorkspaceIdSettingsRolesRouteImport } from './routes/_authenticated.workspace.$workspaceId.settings.roles'
 import { Route as AuthenticatedWorkspaceWorkspaceIdSettingsMembersRouteImport } from './routes/_authenticated.workspace.$workspaceId.settings.members'
 import { Route as AuthenticatedWorkspaceWorkspaceIdSettingsGeneralRouteImport } from './routes/_authenticated.workspace.$workspaceId.settings.general'
 import { Route as AuthenticatedWorkspaceWorkspaceIdSettingsBrandingRouteImport } from './routes/_authenticated.workspace.$workspaceId.settings.branding'
+import { Route as AuthenticatedOrganizationOrganizationIdSettingsMembersRouteImport } from './routes/_authenticated.organization.$organizationId.settings.members'
+import { Route as AuthenticatedOrganizationOrganizationIdSettingsGeneralRouteImport } from './routes/_authenticated.organization.$organizationId.settings.general'
 
 const GuestRoute = GuestRouteImport.update({
   id: '/_guest',
@@ -112,6 +116,12 @@ const AuthenticatedWorkspaceWorkspaceIdRoute =
     path: '/workspace/$workspaceId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedOrganizationOrganizationIdRoute =
+  AuthenticatedOrganizationOrganizationIdRouteImport.update({
+    id: '/organization/$organizationId',
+    path: '/organization/$organizationId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedWorkspaceWorkspaceIdSettingsRoute =
   AuthenticatedWorkspaceWorkspaceIdSettingsRouteImport.update({
     id: '/settings',
@@ -123,6 +133,12 @@ const AuthenticatedWorkspaceWorkspaceIdMembersRoute =
     id: '/members',
     path: '/members',
     getParentRoute: () => AuthenticatedWorkspaceWorkspaceIdRoute,
+  } as any)
+const AuthenticatedOrganizationOrganizationIdSettingsRoute =
+  AuthenticatedOrganizationOrganizationIdSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedOrganizationOrganizationIdRoute,
   } as any)
 const AuthenticatedWorkspaceWorkspaceIdSettingsRolesRoute =
   AuthenticatedWorkspaceWorkspaceIdSettingsRolesRouteImport.update({
@@ -148,6 +164,18 @@ const AuthenticatedWorkspaceWorkspaceIdSettingsBrandingRoute =
     path: '/branding',
     getParentRoute: () => AuthenticatedWorkspaceWorkspaceIdSettingsRoute,
   } as any)
+const AuthenticatedOrganizationOrganizationIdSettingsMembersRoute =
+  AuthenticatedOrganizationOrganizationIdSettingsMembersRouteImport.update({
+    id: '/members',
+    path: '/members',
+    getParentRoute: () => AuthenticatedOrganizationOrganizationIdSettingsRoute,
+  } as any)
+const AuthenticatedOrganizationOrganizationIdSettingsGeneralRoute =
+  AuthenticatedOrganizationOrganizationIdSettingsGeneralRouteImport.update({
+    id: '/general',
+    path: '/general',
+    getParentRoute: () => AuthenticatedOrganizationOrganizationIdSettingsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -163,9 +191,13 @@ export interface FileRoutesByFullPath {
   '/verify-email': typeof GuestVerifyEmailRoute
   '/verify-email-expired': typeof GuestVerifyEmailExpiredRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/organization/$organizationId': typeof AuthenticatedOrganizationOrganizationIdRouteWithChildren
   '/workspace/$workspaceId': typeof AuthenticatedWorkspaceWorkspaceIdRouteWithChildren
+  '/organization/$organizationId/settings': typeof AuthenticatedOrganizationOrganizationIdSettingsRouteWithChildren
   '/workspace/$workspaceId/members': typeof AuthenticatedWorkspaceWorkspaceIdMembersRoute
   '/workspace/$workspaceId/settings': typeof AuthenticatedWorkspaceWorkspaceIdSettingsRouteWithChildren
+  '/organization/$organizationId/settings/general': typeof AuthenticatedOrganizationOrganizationIdSettingsGeneralRoute
+  '/organization/$organizationId/settings/members': typeof AuthenticatedOrganizationOrganizationIdSettingsMembersRoute
   '/workspace/$workspaceId/settings/branding': typeof AuthenticatedWorkspaceWorkspaceIdSettingsBrandingRoute
   '/workspace/$workspaceId/settings/general': typeof AuthenticatedWorkspaceWorkspaceIdSettingsGeneralRoute
   '/workspace/$workspaceId/settings/members': typeof AuthenticatedWorkspaceWorkspaceIdSettingsMembersRoute
@@ -185,9 +217,13 @@ export interface FileRoutesByTo {
   '/verify-email': typeof GuestVerifyEmailRoute
   '/verify-email-expired': typeof GuestVerifyEmailExpiredRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/organization/$organizationId': typeof AuthenticatedOrganizationOrganizationIdRouteWithChildren
   '/workspace/$workspaceId': typeof AuthenticatedWorkspaceWorkspaceIdRouteWithChildren
+  '/organization/$organizationId/settings': typeof AuthenticatedOrganizationOrganizationIdSettingsRouteWithChildren
   '/workspace/$workspaceId/members': typeof AuthenticatedWorkspaceWorkspaceIdMembersRoute
   '/workspace/$workspaceId/settings': typeof AuthenticatedWorkspaceWorkspaceIdSettingsRouteWithChildren
+  '/organization/$organizationId/settings/general': typeof AuthenticatedOrganizationOrganizationIdSettingsGeneralRoute
+  '/organization/$organizationId/settings/members': typeof AuthenticatedOrganizationOrganizationIdSettingsMembersRoute
   '/workspace/$workspaceId/settings/branding': typeof AuthenticatedWorkspaceWorkspaceIdSettingsBrandingRoute
   '/workspace/$workspaceId/settings/general': typeof AuthenticatedWorkspaceWorkspaceIdSettingsGeneralRoute
   '/workspace/$workspaceId/settings/members': typeof AuthenticatedWorkspaceWorkspaceIdSettingsMembersRoute
@@ -210,9 +246,13 @@ export interface FileRoutesById {
   '/_guest/verify-email': typeof GuestVerifyEmailRoute
   '/_guest/verify-email-expired': typeof GuestVerifyEmailExpiredRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/_authenticated/organization/$organizationId': typeof AuthenticatedOrganizationOrganizationIdRouteWithChildren
   '/_authenticated/workspace/$workspaceId': typeof AuthenticatedWorkspaceWorkspaceIdRouteWithChildren
+  '/_authenticated/organization/$organizationId/settings': typeof AuthenticatedOrganizationOrganizationIdSettingsRouteWithChildren
   '/_authenticated/workspace/$workspaceId/members': typeof AuthenticatedWorkspaceWorkspaceIdMembersRoute
   '/_authenticated/workspace/$workspaceId/settings': typeof AuthenticatedWorkspaceWorkspaceIdSettingsRouteWithChildren
+  '/_authenticated/organization/$organizationId/settings/general': typeof AuthenticatedOrganizationOrganizationIdSettingsGeneralRoute
+  '/_authenticated/organization/$organizationId/settings/members': typeof AuthenticatedOrganizationOrganizationIdSettingsMembersRoute
   '/_authenticated/workspace/$workspaceId/settings/branding': typeof AuthenticatedWorkspaceWorkspaceIdSettingsBrandingRoute
   '/_authenticated/workspace/$workspaceId/settings/general': typeof AuthenticatedWorkspaceWorkspaceIdSettingsGeneralRoute
   '/_authenticated/workspace/$workspaceId/settings/members': typeof AuthenticatedWorkspaceWorkspaceIdSettingsMembersRoute
@@ -234,9 +274,13 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/verify-email-expired'
     | '/auth/callback'
+    | '/organization/$organizationId'
     | '/workspace/$workspaceId'
+    | '/organization/$organizationId/settings'
     | '/workspace/$workspaceId/members'
     | '/workspace/$workspaceId/settings'
+    | '/organization/$organizationId/settings/general'
+    | '/organization/$organizationId/settings/members'
     | '/workspace/$workspaceId/settings/branding'
     | '/workspace/$workspaceId/settings/general'
     | '/workspace/$workspaceId/settings/members'
@@ -256,9 +300,13 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/verify-email-expired'
     | '/auth/callback'
+    | '/organization/$organizationId'
     | '/workspace/$workspaceId'
+    | '/organization/$organizationId/settings'
     | '/workspace/$workspaceId/members'
     | '/workspace/$workspaceId/settings'
+    | '/organization/$organizationId/settings/general'
+    | '/organization/$organizationId/settings/members'
     | '/workspace/$workspaceId/settings/branding'
     | '/workspace/$workspaceId/settings/general'
     | '/workspace/$workspaceId/settings/members'
@@ -280,9 +328,13 @@ export interface FileRouteTypes {
     | '/_guest/verify-email'
     | '/_guest/verify-email-expired'
     | '/auth/callback'
+    | '/_authenticated/organization/$organizationId'
     | '/_authenticated/workspace/$workspaceId'
+    | '/_authenticated/organization/$organizationId/settings'
     | '/_authenticated/workspace/$workspaceId/members'
     | '/_authenticated/workspace/$workspaceId/settings'
+    | '/_authenticated/organization/$organizationId/settings/general'
+    | '/_authenticated/organization/$organizationId/settings/members'
     | '/_authenticated/workspace/$workspaceId/settings/branding'
     | '/_authenticated/workspace/$workspaceId/settings/general'
     | '/_authenticated/workspace/$workspaceId/settings/members'
@@ -411,6 +463,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWorkspaceWorkspaceIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/organization/$organizationId': {
+      id: '/_authenticated/organization/$organizationId'
+      path: '/organization/$organizationId'
+      fullPath: '/organization/$organizationId'
+      preLoaderRoute: typeof AuthenticatedOrganizationOrganizationIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/workspace/$workspaceId/settings': {
       id: '/_authenticated/workspace/$workspaceId/settings'
       path: '/settings'
@@ -424,6 +483,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/workspace/$workspaceId/members'
       preLoaderRoute: typeof AuthenticatedWorkspaceWorkspaceIdMembersRouteImport
       parentRoute: typeof AuthenticatedWorkspaceWorkspaceIdRoute
+    }
+    '/_authenticated/organization/$organizationId/settings': {
+      id: '/_authenticated/organization/$organizationId/settings'
+      path: '/settings'
+      fullPath: '/organization/$organizationId/settings'
+      preLoaderRoute: typeof AuthenticatedOrganizationOrganizationIdSettingsRouteImport
+      parentRoute: typeof AuthenticatedOrganizationOrganizationIdRoute
     }
     '/_authenticated/workspace/$workspaceId/settings/roles': {
       id: '/_authenticated/workspace/$workspaceId/settings/roles'
@@ -453,8 +519,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWorkspaceWorkspaceIdSettingsBrandingRouteImport
       parentRoute: typeof AuthenticatedWorkspaceWorkspaceIdSettingsRoute
     }
+    '/_authenticated/organization/$organizationId/settings/members': {
+      id: '/_authenticated/organization/$organizationId/settings/members'
+      path: '/members'
+      fullPath: '/organization/$organizationId/settings/members'
+      preLoaderRoute: typeof AuthenticatedOrganizationOrganizationIdSettingsMembersRouteImport
+      parentRoute: typeof AuthenticatedOrganizationOrganizationIdSettingsRoute
+    }
+    '/_authenticated/organization/$organizationId/settings/general': {
+      id: '/_authenticated/organization/$organizationId/settings/general'
+      path: '/general'
+      fullPath: '/organization/$organizationId/settings/general'
+      preLoaderRoute: typeof AuthenticatedOrganizationOrganizationIdSettingsGeneralRouteImport
+      parentRoute: typeof AuthenticatedOrganizationOrganizationIdSettingsRoute
+    }
   }
 }
+
+interface AuthenticatedOrganizationOrganizationIdSettingsRouteChildren {
+  AuthenticatedOrganizationOrganizationIdSettingsGeneralRoute: typeof AuthenticatedOrganizationOrganizationIdSettingsGeneralRoute
+  AuthenticatedOrganizationOrganizationIdSettingsMembersRoute: typeof AuthenticatedOrganizationOrganizationIdSettingsMembersRoute
+}
+
+const AuthenticatedOrganizationOrganizationIdSettingsRouteChildren: AuthenticatedOrganizationOrganizationIdSettingsRouteChildren =
+  {
+    AuthenticatedOrganizationOrganizationIdSettingsGeneralRoute:
+      AuthenticatedOrganizationOrganizationIdSettingsGeneralRoute,
+    AuthenticatedOrganizationOrganizationIdSettingsMembersRoute:
+      AuthenticatedOrganizationOrganizationIdSettingsMembersRoute,
+  }
+
+const AuthenticatedOrganizationOrganizationIdSettingsRouteWithChildren =
+  AuthenticatedOrganizationOrganizationIdSettingsRoute._addFileChildren(
+    AuthenticatedOrganizationOrganizationIdSettingsRouteChildren,
+  )
+
+interface AuthenticatedOrganizationOrganizationIdRouteChildren {
+  AuthenticatedOrganizationOrganizationIdSettingsRoute: typeof AuthenticatedOrganizationOrganizationIdSettingsRouteWithChildren
+}
+
+const AuthenticatedOrganizationOrganizationIdRouteChildren: AuthenticatedOrganizationOrganizationIdRouteChildren =
+  {
+    AuthenticatedOrganizationOrganizationIdSettingsRoute:
+      AuthenticatedOrganizationOrganizationIdSettingsRouteWithChildren,
+  }
+
+const AuthenticatedOrganizationOrganizationIdRouteWithChildren =
+  AuthenticatedOrganizationOrganizationIdRoute._addFileChildren(
+    AuthenticatedOrganizationOrganizationIdRouteChildren,
+  )
 
 interface AuthenticatedWorkspaceWorkspaceIdSettingsRouteChildren {
   AuthenticatedWorkspaceWorkspaceIdSettingsBrandingRoute: typeof AuthenticatedWorkspaceWorkspaceIdSettingsBrandingRoute
@@ -501,12 +614,15 @@ const AuthenticatedWorkspaceWorkspaceIdRouteWithChildren =
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedOrganizationOrganizationIdRoute: typeof AuthenticatedOrganizationOrganizationIdRouteWithChildren
   AuthenticatedWorkspaceWorkspaceIdRoute: typeof AuthenticatedWorkspaceWorkspaceIdRouteWithChildren
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedOrganizationOrganizationIdRoute:
+    AuthenticatedOrganizationOrganizationIdRouteWithChildren,
   AuthenticatedWorkspaceWorkspaceIdRoute:
     AuthenticatedWorkspaceWorkspaceIdRouteWithChildren,
 }

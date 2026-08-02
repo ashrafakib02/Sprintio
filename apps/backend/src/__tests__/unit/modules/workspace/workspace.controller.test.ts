@@ -68,7 +68,7 @@ const WS_RESULT = {
   logo: null,
   brandColor: null,
   customDomain: null,
-  organizationId: null,
+  organizationId: 'org-test-001',
   plan: 'free',
   archivedAt: null,
   createdAt: '2025-01-01T00:00:00.000Z',
@@ -138,7 +138,7 @@ describe('Workspace Controller', () => {
 
       vi.mocked(CreateWorkspaceSchema.safeParse).mockReturnValue({
         success: true,
-        data: { name: 'Ws' },
+        data: { name: 'Ws', organizationId: 'org-123' },
       } as never);
       vi.mocked(workspaceService.createWorkspace).mockResolvedValue(WS_RESULT as never);
 

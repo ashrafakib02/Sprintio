@@ -1,6 +1,6 @@
-import { eq, count } from 'drizzle-orm';
+import { eq, and, count, desc } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { projects } from '../schema/index.js';
+import { projects, sprints, tasks } from '../schema/index.js';
 
 // ============================================================
 // Types
@@ -47,22 +47,82 @@ export async function findById(
   id: string,
 ): Promise<ProjectRecord | undefined> {
   const [project] = await db.select().from(projects).where(eq(projects.id, id)).limit(1);
-
   return project;
 }
 
 /**
- * Find all projects belonging to a workspace.
+ * Find all projects in a workspace, ordered by creation date (newest first).
  */
 export async function findByWorkspaceId(
   db: PostgresJsDatabase,
   workspaceId: string,
 ): Promise<ProjectRecord[]> {
-  return db.select().from(projects).where(eq(projects.workspaceId, workspaceId));
+  return db
+    .select()
+    .from(projects)
+    .where(eq(projects.workspaceId, workspaceId))
+    .orderBy(desc(projects.createdAt));
 }
 
 /**
- * Create a new project.
+ * Find projects in a workspace with pagination.
+ */
+export async function findByWorkspaceIdWithPagination(
+  db: PostgresJsDatabase,
+  workspaceId: string,
+  page: number,
+  limit: number,
+): Promise<{ projects: ProjectRecord[]; total: number }> {
+  const offset = (page - 1) * limit;
+
+  const [projectRows, countRows] = await Promise.all([
+    db
+      .select()
+      .from(projects)
+      .where(eq(projects.workspaceId, workspaceId))
+      .orderBy(desc(projects.createdAt))
+      .limit(limit)
+      .offset(offset),
+    db.select({ value: count() }).from(projects).where(eq(projects.workspaceId, workspaceId)),
+  ]);
+
+  return {
+    projects: projectRows,
+    total: Number(countRows[0]?.value ?? 0),
+  };
+}
+
+/**
+ * Find active projects in a workspace.
+ */
+export async function findActiveByWorkspaceId(
+  db: PostgresJsDatabase,
+  workspaceId: string,
+): Promise<ProjectRecord[]> {
+  return db
+    .select()
+    .from(projects)
+    .where(and(eq(projects.workspaceId, workspaceId), eq(projects.status, 'active')))
+    .orderBy(desc(projects.createdAt));
+}
+
+/**
+ * Find projects in a workspace filtered by status.
+ */
+export async function findByWorkspaceIdAndStatus(
+  db: PostgresJsDatabase,
+  workspaceId: string,
+  status: string,
+): Promise<ProjectRecord[]> {
+  return db
+    .select()
+    .from(projects)
+    .where(and(eq(projects.workspaceId, workspaceId), eq(projects.status, status)))
+    .orderBy(desc(projects.createdAt));
+}
+
+/**
+ * Create a new project in a workspace.
  */
 export async function create(
   db: PostgresJsDatabase,
@@ -84,20 +144,30 @@ export async function create(
 }
 
 /**
- * Update a project by ID. Returns the updated record.
+ * Update a project by ID. Only updates explicitly provided (non-undefined) fields.
  */
 export async function updateById(
   db: PostgresJsDatabase,
   id: string,
   data: UpdateProjectData,
 ): Promise<ProjectRecord | undefined> {
-  const [updated] = await db.update(projects).set(data).where(eq(projects.id, id)).returning();
+  const cleaned: Record<string, unknown> = {};
+  if (data.name !== undefined) cleaned.name = data.name;
+  if (data.description !== undefined) cleaned.description = data.description;
+  if (data.status !== undefined) cleaned.status = data.status;
+  if (data.startDate !== undefined) cleaned.startDate = data.startDate;
+  if (data.endDate !== undefined) cleaned.endDate = data.endDate;
 
+  if (Object.keys(cleaned).length === 0) {
+    return findById(db, id);
+  }
+
+  const [updated] = await db.update(projects).set(cleaned).where(eq(projects.id, id)).returning();
   return updated;
 }
 
 /**
- * Delete a project by ID.
+ * Delete a project by ID. Cascades to sprints and tasks via FK constraints.
  */
 export async function deleteById(db: PostgresJsDatabase, id: string): Promise<boolean> {
   const [deleted] = await db
@@ -109,7 +179,7 @@ export async function deleteById(db: PostgresJsDatabase, id: string): Promise<bo
 }
 
 /**
- * Archive a project by setting its status to 'archived'.
+ * Archive a project by setting status to 'archived'.
  */
 export async function archiveById(
   db: PostgresJsDatabase,
@@ -117,7 +187,7 @@ export async function archiveById(
 ): Promise<ProjectRecord | undefined> {
   const [archived] = await db
     .update(projects)
-    .set({ status: 'archived' })
+    .set({ status: 'archived', updatedAt: new Date() })
     .where(eq(projects.id, id))
     .returning();
 
@@ -136,5 +206,55 @@ export async function countByWorkspaceId(
     .from(projects)
     .where(eq(projects.workspaceId, workspaceId));
 
-  return result?.value ?? 0;
+  return Number(result?.value ?? 0);
+}
+
+/**
+ * Count projects per status in a workspace.
+ * Returns an array of { status, count } objects.
+ */
+export async function countByStatusInWorkspace(
+  db: PostgresJsDatabase,
+  workspaceId: string,
+): Promise<Array<{ status: string; count: number }>> {
+  const results = await db
+    .select({
+      status: projects.status,
+      value: count(),
+    })
+    .from(projects)
+    .where(eq(projects.workspaceId, workspaceId))
+    .groupBy(projects.status);
+
+  return results.map((r) => ({ status: r.status, count: Number(r.value) }));
+}
+
+/**
+ * Find a project by ID with its sprints and task count.
+ * Useful for project detail views.
+ */
+export async function findByIdWithStats(
+  db: PostgresJsDatabase,
+  id: string,
+): Promise<
+  | (ProjectRecord & {
+      sprintCount: number;
+      taskCount: number;
+    })
+  | undefined
+> {
+  const [project] = await db.select().from(projects).where(eq(projects.id, id)).limit(1);
+
+  if (!project) return undefined;
+
+  const [[sprintCountRow], [taskCountRow]] = await Promise.all([
+    db.select({ value: count() }).from(sprints).where(eq(sprints.projectId, id)),
+    db.select({ value: count() }).from(tasks).where(eq(tasks.projectId, id)),
+  ]);
+
+  return {
+    ...project,
+    sprintCount: Number(sprintCountRow?.value ?? 0),
+    taskCount: Number(taskCountRow?.value ?? 0),
+  };
 }

@@ -4,3 +4,6 @@ export * as rbacRepo from './rbac.repository.js';
 export * as boardRepo from './board.repository.js';
 export * as projectRepo from './project.repository.js';
 export * as taskRepo from './task.repository.js';
+export * as sprintRepo from './sprint.repository.js';
+export * as columnRepo from './column.repository.js';
+export * as hierarchyRepo from './hierarchy-repositories.js';

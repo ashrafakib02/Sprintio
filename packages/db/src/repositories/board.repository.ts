@@ -1,4 +1,4 @@
-import { eq, and } from 'drizzle-orm';
+import { eq, and, isNull, count, asc } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { boards, workspaceMembers } from '../schema/index.js';
 
@@ -41,32 +41,53 @@ export async function findById(
   id: string,
 ): Promise<BoardRecord | undefined> {
   const [board] = await db.select().from(boards).where(eq(boards.id, id)).limit(1);
-
   return board;
 }
 
 /**
- * Find all boards belonging to a workspace.
+ * Find all boards in a workspace, ordered by creation date (oldest first).
  */
 export async function findByWorkspaceId(
   db: PostgresJsDatabase,
   workspaceId: string,
 ): Promise<BoardRecord[]> {
-  return db.select().from(boards).where(eq(boards.workspaceId, workspaceId));
+  return db
+    .select()
+    .from(boards)
+    .where(eq(boards.workspaceId, workspaceId))
+    .orderBy(asc(boards.createdAt));
 }
 
 /**
- * Find all boards belonging to a project.
+ * Find all boards scoped to a specific project within a workspace.
  */
 export async function findByProjectId(
   db: PostgresJsDatabase,
   projectId: string,
 ): Promise<BoardRecord[]> {
-  return db.select().from(boards).where(eq(boards.projectId, projectId));
+  return db
+    .select()
+    .from(boards)
+    .where(eq(boards.projectId, projectId))
+    .orderBy(asc(boards.createdAt));
 }
 
 /**
- * Create a new board.
+ * Find workspace-level boards (not scoped to any project).
+ */
+export async function findWorkspaceLevelByWorkspaceId(
+  db: PostgresJsDatabase,
+  workspaceId: string,
+): Promise<BoardRecord[]> {
+  return db
+    .select()
+    .from(boards)
+    .where(and(eq(boards.workspaceId, workspaceId), isNull(boards.projectId)))
+    .orderBy(asc(boards.createdAt));
+}
+
+/**
+ * Create a new board in a workspace. Optionally scope it to a project.
  */
 export async function create(db: PostgresJsDatabase, data: CreateBoardData): Promise<BoardRecord> {
   const [board] = await db
@@ -83,25 +104,32 @@ export async function create(db: PostgresJsDatabase, data: CreateBoardData): Pro
 }
 
 /**
- * Update a board by ID. Returns the updated record.
+ * Update a board by ID. Only updates explicitly provided (non-undefined) fields.
  */
 export async function updateById(
   db: PostgresJsDatabase,
   id: string,
   data: UpdateBoardData,
 ): Promise<BoardRecord | undefined> {
-  const [updated] = await db.update(boards).set(data).where(eq(boards.id, id)).returning();
+  const cleaned: Record<string, unknown> = {};
+  if (data.name !== undefined) cleaned.name = data.name;
+  if (data.description !== undefined) cleaned.description = data.description;
+  if (data.projectId !== undefined) cleaned.projectId = data.projectId;
 
+  if (Object.keys(cleaned).length === 0) {
+    return findById(db, id);
+  }
+
+  const [updated] = await db.update(boards).set(cleaned).where(eq(boards.id, id)).returning();
   return updated;
 }
 
 /**
- * Delete a board by ID.
- * Cascading deletes will remove columns and tasks.
+ * Delete a board by ID. Cascades to columns. Tasks have their boardId
+ * set to NULL via the SET NULL cascade rule.
  */
 export async function deleteById(db: PostgresJsDatabase, id: string): Promise<boolean> {
   const [deleted] = await db.delete(boards).where(eq(boards.id, id)).returning({ id: boards.id });
-
   return !!deleted;
 }
 
@@ -122,4 +150,19 @@ export async function isMemberOfBoardWorkspace(
     .limit(1);
 
   return !!result;
+}
+
+/**
+ * Count boards in a workspace.
+ */
+export async function countByWorkspaceId(
+  db: PostgresJsDatabase,
+  workspaceId: string,
+): Promise<number> {
+  const [result] = await db
+    .select({ value: count() })
+    .from(boards)
+    .where(eq(boards.workspaceId, workspaceId));
+
+  return Number(result?.value ?? 0);
 }

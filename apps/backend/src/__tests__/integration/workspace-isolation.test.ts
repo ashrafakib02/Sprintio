@@ -80,7 +80,7 @@ function makeWs(
     logo: string | null;
     brandColor: string | null;
     customDomain: string | null;
-    organizationId: string | null;
+    organizationId: string;
     plan: string;
     archivedAt: Date | null;
     createdAt: Date;
@@ -95,7 +95,7 @@ function makeWs(
     logo: null,
     brandColor: null,
     customDomain: null,
-    organizationId: null,
+    organizationId: 'org-test-001',
     plan: 'free',
     archivedAt: null,
     createdAt: new Date('2025-01-01T00:00:00Z'),
