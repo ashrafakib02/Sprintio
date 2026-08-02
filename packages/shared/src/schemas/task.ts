@@ -11,7 +11,7 @@ export {
   type UpdateTaskInput,
 } from '../hierarchy-types.js';
 
-import type { z } from 'zod';
+import { z } from 'zod';
 import { CreateTaskSchema } from '../hierarchy-types.js';
 
 // Nested creation: projectId comes from URL param, not request body
