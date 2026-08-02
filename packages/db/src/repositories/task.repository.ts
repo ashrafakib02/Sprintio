@@ -135,10 +135,7 @@ export async function update(
 /**
  * Delete a task.
  */
-export async function remove(
-  db: PostgresJsDatabase,
-  id: string,
-): Promise<boolean> {
+export async function remove(db: PostgresJsDatabase, id: string): Promise<boolean> {
   const [deleted] = await db.delete(tasks).where(eq(tasks.id, id)).returning({ id: tasks.id });
   return deleted !== undefined;
 }

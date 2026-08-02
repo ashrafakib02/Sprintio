@@ -49,31 +49,39 @@ vi.mock('../../config/db-for-repos.js', () => ({
 
 vi.mock('@sprintio/db/repositories', () => ({
   taskRepo: {
-    create: vi.fn().mockImplementation((_db: unknown, data: Record<string, unknown>, userId: string) =>
-      Promise.resolve({
-        id: 'task-1',
-        title: data.title ?? 'mocked',
-        description: data.description ?? null,
-        status: 'todo',
-        priority: data.priority ?? 'medium',
-        assigneeId: data.assigneeId ?? userId,
-        projectId: data.projectId ?? 'project-abc',
-        boardId: data.boardId ?? null,
-        columnId: data.columnId ?? null,
-        sprintId: data.sprintId ?? null,
-        position: 0,
-        labels: data.labels ?? [],
-        dueDate: data.dueDate ?? null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }),
-    ),
+    create: vi
+      .fn()
+      .mockImplementation((_db: unknown, data: Record<string, unknown>, userId: string) =>
+        Promise.resolve({
+          id: 'task-1',
+          title: data.title ?? 'mocked',
+          description: data.description ?? null,
+          status: 'todo',
+          priority: data.priority ?? 'medium',
+          assigneeId: data.assigneeId ?? userId,
+          projectId: data.projectId ?? 'project-abc',
+          boardId: data.boardId ?? null,
+          columnId: data.columnId ?? null,
+          sprintId: data.sprintId ?? null,
+          position: 0,
+          labels: data.labels ?? [],
+          dueDate: data.dueDate ?? null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
+      ),
   },
 }));
 
-vi.mock('helmet', () => ({ default: () => (_req: unknown, _res: unknown, next: () => void) => next() }));
-vi.mock('cors', () => ({ default: () => (_req: unknown, _res: unknown, next: () => void) => next() }));
-vi.mock('compression', () => ({ default: () => (_req: unknown, _res: unknown, next: () => void) => next() }));
+vi.mock('helmet', () => ({
+  default: () => (_req: unknown, _res: unknown, next: () => void) => next(),
+}));
+vi.mock('cors', () => ({
+  default: () => (_req: unknown, _res: unknown, next: () => void) => next(),
+}));
+vi.mock('compression', () => ({
+  default: () => (_req: unknown, _res: unknown, next: () => void) => next(),
+}));
 vi.mock('express-rate-limit', () => ({
   default: () => (_req: unknown, _res: unknown, next: () => void) => next(),
 }));

@@ -1,14 +1,7 @@
 import { eq, asc, desc, count, inArray } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import * as schema from '../schema/index.js';
-import {
-  projects,
-  sprints,
-  boards,
-  columns,
-  tasks,
-  workspaces,
-} from '../schema/index.js';
+import { projects, sprints, boards, columns, tasks, workspaces } from '../schema/index.js';
 
 /** Database type with schema — required for relational query API (db.query.*) */
 type SchemaDb = PostgresJsDatabase<typeof schema>;
@@ -304,10 +297,7 @@ export async function findProjectsByWorkspaceIdWithPagination(
       .orderBy(desc(projects.createdAt))
       .limit(limit)
       .offset(offset),
-    db
-      .select({ value: count() })
-      .from(projects)
-      .where(eq(projects.workspaceId, workspaceId)),
+    db.select({ value: count() }).from(projects).where(eq(projects.workspaceId, workspaceId)),
   ]);
 
   return {
@@ -357,11 +347,7 @@ export async function updateProjectById(
     return findProjectById(db, id);
   }
 
-  const [updated] = await db
-    .update(projects)
-    .set(cleaned)
-    .where(eq(projects.id, id))
-    .returning();
+  const [updated] = await db.update(projects).set(cleaned).where(eq(projects.id, id)).returning();
 
   return updated;
 }
@@ -385,10 +371,7 @@ export async function archiveProjectById(
 /**
  * Delete a project by ID (hard delete). Cascades to sprints and tasks.
  */
-export async function deleteProjectById(
-  db: PostgresJsDatabase,
-  id: string,
-): Promise<boolean> {
+export async function deleteProjectById(db: PostgresJsDatabase, id: string): Promise<boolean> {
   const [deleted] = await db
     .delete(projects)
     .where(eq(projects.id, id))
@@ -482,11 +465,7 @@ export async function updateSprintById(
     return findSprintById(db, id);
   }
 
-  const [updated] = await db
-    .update(sprints)
-    .set(cleaned)
-    .where(eq(sprints.id, id))
-    .returning();
+  const [updated] = await db.update(sprints).set(cleaned).where(eq(sprints.id, id)).returning();
 
   return updated;
 }
@@ -494,10 +473,7 @@ export async function updateSprintById(
 /**
  * Delete a sprint by ID.
  */
-export async function deleteSprintById(
-  db: PostgresJsDatabase,
-  id: string,
-): Promise<boolean> {
+export async function deleteSprintById(db: PostgresJsDatabase, id: string): Promise<boolean> {
   const [deleted] = await db
     .delete(sprints)
     .where(eq(sprints.id, id))
@@ -570,11 +546,7 @@ export async function updateBoardById(
     return findBoardById(db, id);
   }
 
-  const [updated] = await db
-    .update(boards)
-    .set(cleaned)
-    .where(eq(boards.id, id))
-    .returning();
+  const [updated] = await db.update(boards).set(cleaned).where(eq(boards.id, id)).returning();
 
   return updated;
 }
@@ -582,14 +554,8 @@ export async function updateBoardById(
 /**
  * Delete a board by ID. Cascades to columns and unlinks tasks.
  */
-export async function deleteBoardById(
-  db: PostgresJsDatabase,
-  id: string,
-): Promise<boolean> {
-  const [deleted] = await db
-    .delete(boards)
-    .where(eq(boards.id, id))
-    .returning({ id: boards.id });
+export async function deleteBoardById(db: PostgresJsDatabase, id: string): Promise<boolean> {
+  const [deleted] = await db.delete(boards).where(eq(boards.id, id)).returning({ id: boards.id });
 
   return !!deleted;
 }
@@ -650,11 +616,7 @@ export async function updateColumnById(
     return existing;
   }
 
-  const [updated] = await db
-    .update(columns)
-    .set(cleaned)
-    .where(eq(columns.id, id))
-    .returning();
+  const [updated] = await db.update(columns).set(cleaned).where(eq(columns.id, id)).returning();
 
   return updated;
 }
@@ -662,10 +624,7 @@ export async function updateColumnById(
 /**
  * Delete a column by ID. Cascades to tasks (tasks are deleted).
  */
-export async function deleteColumnById(
-  db: PostgresJsDatabase,
-  id: string,
-): Promise<boolean> {
+export async function deleteColumnById(db: PostgresJsDatabase, id: string): Promise<boolean> {
   const [deleted] = await db
     .delete(columns)
     .where(eq(columns.id, id))
@@ -686,10 +645,7 @@ export async function reorderColumns(
 
   await db.transaction(async (tx) => {
     for (const item of items) {
-      await tx
-        .update(columns)
-        .set({ position: item.position })
-        .where(eq(columns.id, item.id));
+      await tx.update(columns).set({ position: item.position }).where(eq(columns.id, item.id));
     }
   });
 }
@@ -791,11 +747,7 @@ export async function updateTaskById(
     return findTaskById(db, id);
   }
 
-  const [updated] = await db
-    .update(tasks)
-    .set(cleaned)
-    .where(eq(tasks.id, id))
-    .returning();
+  const [updated] = await db.update(tasks).set(cleaned).where(eq(tasks.id, id)).returning();
 
   return updated;
 }
@@ -803,14 +755,8 @@ export async function updateTaskById(
 /**
  * Delete a task by ID.
  */
-export async function deleteTaskById(
-  db: PostgresJsDatabase,
-  id: string,
-): Promise<boolean> {
-  const [deleted] = await db
-    .delete(tasks)
-    .where(eq(tasks.id, id))
-    .returning({ id: tasks.id });
+export async function deleteTaskById(db: PostgresJsDatabase, id: string): Promise<boolean> {
+  const [deleted] = await db.delete(tasks).where(eq(tasks.id, id)).returning({ id: tasks.id });
 
   return !!deleted;
 }
@@ -846,10 +792,7 @@ export async function moveTaskToColumn(
  * Get a project with its sprints and tasks (eager loaded).
  * Uses Drizzle's relational query API.
  */
-export async function findProjectWithDetails(
-  db: SchemaDb,
-  projectId: string,
-) {
+export async function findProjectWithDetails(db: SchemaDb, projectId: string) {
   const [result] = await db.query.projects.findMany({
     where: eq(projects.id, projectId),
     with: {
@@ -870,10 +813,7 @@ export async function findProjectWithDetails(
  *   task → project → workspace → organization
  * Also loads the board, column, sprint, and assignee.
  */
-export async function findTaskWithHierarchy(
-  db: SchemaDb,
-  taskId: string,
-) {
+export async function findTaskWithHierarchy(db: SchemaDb, taskId: string) {
   return db.query.tasks.findFirst({
     where: eq(tasks.id, taskId),
     with: {
@@ -904,10 +844,7 @@ export async function findTaskWithHierarchy(
 /**
  * Get a workspace with all its projects, and each project's tasks + sprints.
  */
-export async function findWorkspaceWithProjects(
-  db: SchemaDb,
-  workspaceId: string,
-) {
+export async function findWorkspaceWithProjects(db: SchemaDb, workspaceId: string) {
   return db.query.workspaces.findFirst({
     where: eq(workspaces.id, workspaceId),
     with: {
@@ -929,10 +866,7 @@ export async function findWorkspaceWithProjects(
 /**
  * Get a board with its columns and tasks (for rendering a board view).
  */
-export async function findBoardWithColumns(
-  db: SchemaDb,
-  boardId: string,
-) {
+export async function findBoardWithColumns(db: SchemaDb, boardId: string) {
   return db.query.boards.findFirst({
     where: eq(boards.id, boardId),
     with: {
@@ -949,10 +883,7 @@ export async function findBoardWithColumns(
 /**
  * Get a sprint with its tasks (for sprint planning / review views).
  */
-export async function findSprintWithTasks(
-  db: SchemaDb,
-  sprintId: string,
-) {
+export async function findSprintWithTasks(db: SchemaDb, sprintId: string) {
   return db.query.sprints.findFirst({
     where: eq(sprints.id, sprintId),
     with: {
@@ -977,10 +908,7 @@ export async function findSprintWithTasks(
  * Get a workspace with its boards (each with columns) and projects.
  * This is the main "workspace dashboard" query.
  */
-export async function findWorkspaceFull(
-  db: SchemaDb,
-  workspaceId: string,
-) {
+export async function findWorkspaceFull(db: SchemaDb, workspaceId: string) {
   return db.query.workspaces.findFirst({
     where: eq(workspaces.id, workspaceId),
     with: {
@@ -1006,10 +934,7 @@ export async function findWorkspaceFull(
 /**
  * Find multiple tasks by their IDs (for batch operations).
  */
-export async function findTasksByIds(
-  db: PostgresJsDatabase,
-  ids: string[],
-): Promise<TaskRecord[]> {
+export async function findTasksByIds(db: PostgresJsDatabase, ids: string[]): Promise<TaskRecord[]> {
   if (ids.length === 0) return [];
   return db.select().from(tasks).where(inArray(tasks.id, ids));
 }
@@ -1027,10 +952,7 @@ export async function bulkUpdateTaskSprint(
 
   await db.transaction(async (tx) => {
     for (const taskId of taskIds) {
-      await tx
-        .update(tasks)
-        .set({ sprintId, updatedAt: new Date() })
-        .where(eq(tasks.id, taskId));
+      await tx.update(tasks).set({ sprintId, updatedAt: new Date() }).where(eq(tasks.id, taskId));
     }
   });
 }

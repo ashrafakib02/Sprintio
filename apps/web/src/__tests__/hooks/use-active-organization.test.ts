@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { setStoredOrganizationId } from '@/lib/organization-storage';
+import type { Organization } from '@sprintio/shared';
 
 // Mocks must be at the top, BEFORE imports
 vi.mock('@tanstack/react-router', () => ({
@@ -18,13 +19,13 @@ import { useActiveOrganization } from '@/hooks/use-active-organization';
 const mockUseRouterState = vi.mocked(useRouterState);
 const mockUseOrganizations = vi.mocked(useOrganizations);
 
-function setupMocks(
-  pathname: string,
-  organizations: Array<{ id: string; name: string }> = [],
-) {
-  mockUseRouterState.mockImplementation(({ select }: { select?: (v: unknown) => unknown }) =>
-    select ? select({ location: { pathname } }) : pathname,
-  );
+function setupMocks(pathname: string, organizations: Organization[] = []) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  mockUseRouterState.mockImplementation((opts: any) => {
+    if (opts?.select) return opts.select({ location: { pathname } });
+    return pathname;
+  });
+   
   mockUseOrganizations.mockReturnValue({
     data: organizations,
     isLoading: false,
@@ -37,12 +38,33 @@ function setupMocks(
     error: null,
     status: 'success',
     fetchStatus: 'idle',
-  });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any);
 }
 
 describe('useActiveOrganization', () => {
-  const ORG_1 = { id: 'org-111', name: 'Org One' };
-  const ORG_2 = { id: 'org-222', name: 'Org Two' };
+  const ORG_1: Organization = {
+    id: 'org-111',
+    name: 'Org One',
+    slug: 'org-one',
+    description: null,
+    logo: null,
+    website: null,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+    archivedAt: null,
+  };
+  const ORG_2: Organization = {
+    id: 'org-222',
+    name: 'Org Two',
+    slug: 'org-two',
+    description: null,
+    logo: null,
+    website: null,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+    archivedAt: null,
+  };
 
   beforeEach(() => {
     localStorage.clear();

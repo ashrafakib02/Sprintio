@@ -223,16 +223,19 @@ export const workspaceMembersHierarchyRelations = relations(workspaceMembers, ({
 // Workspace Invitations
 // ---------------------------------------------------------------------------
 
-export const workspaceInvitationsHierarchyRelations = relations(workspaceInvitations, ({ one }) => ({
-  workspace: one(workspaces, {
-    fields: [workspaceInvitations.workspaceId],
-    references: [workspaces.id],
+export const workspaceInvitationsHierarchyRelations = relations(
+  workspaceInvitations,
+  ({ one }) => ({
+    workspace: one(workspaces, {
+      fields: [workspaceInvitations.workspaceId],
+      references: [workspaces.id],
+    }),
+    invitedBy: one(users, {
+      fields: [workspaceInvitations.invitedById],
+      references: [users.id],
+    }),
   }),
-  invitedBy: one(users, {
-    fields: [workspaceInvitations.invitedById],
-    references: [users.id],
-  }),
-}));
+);
 
 // ---------------------------------------------------------------------------
 // Project  (Workspace → Project)

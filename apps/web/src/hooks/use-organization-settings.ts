@@ -38,7 +38,9 @@ interface OrganizationContextResponse {
 }
 
 // Cache stores the selected array (response.data.organizations)
-type OrganizationListResponse = Awaited<ReturnType<typeof listOrganizations>>['data']['organizations'];
+type OrganizationListResponse = Awaited<
+  ReturnType<typeof listOrganizations>
+>['data']['organizations'];
 
 // ── List Organizations Hook ─────────────────────────────────
 

@@ -24,11 +24,7 @@
  *   requireResourceOwner           (ownership or admin override)
  */
 
-import type {
-  OrganizationRole,
-  WorkspaceRole,
-  ProjectRole,
-} from './hierarchy-types.js';
+import type { OrganizationRole, WorkspaceRole, ProjectRole } from './hierarchy-types.js';
 
 // ═══════════════════════════════════════════════════════════════
 // 1. Permission constants — every permission string in the system
@@ -300,9 +296,7 @@ export const PROJECT_ROLE_PERMISSIONS: Record<ProjectRole, readonly string[]> = 
     PERMISSIONS.DOCUMENT.CREATE,
     PERMISSIONS.DOCUMENT.UPDATE,
   ],
-  viewer: [
-    PERMISSIONS.PROJECT.READ,
-  ],
+  viewer: [PERMISSIONS.PROJECT.READ],
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -397,10 +391,7 @@ export function effectivePermissions(args: {
  * Checks whether a set of effective permissions includes ALL of the
  * required permissions.
  */
-export function hasAllPermissions(
-  effective: string[],
-  required: readonly string[],
-): boolean {
+export function hasAllPermissions(effective: string[], required: readonly string[]): boolean {
   const set = new Set(effective);
   return required.every((p) => set.has(p));
 }
@@ -409,10 +400,7 @@ export function hasAllPermissions(
  * Checks whether a set of effective permissions includes ANY of the
  * required permissions.
  */
-export function hasAnyPermission(
-  effective: string[],
-  required: readonly string[],
-): boolean {
+export function hasAnyPermission(effective: string[], required: readonly string[]): boolean {
   const set = new Set(effective);
   return required.some((p) => set.has(p));
 }

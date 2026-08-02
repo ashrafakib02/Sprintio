@@ -66,32 +66,29 @@ export function OrganizationSwitcher() {
 
   // ── Click outside to close ────────────────────────────────
 
-  const handleClickOutside = useCallback(
-    (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      setOpen(false);
+      setSearch('');
+      setActiveIndex(-1);
+    } else if (containerRef.current?.contains(e.target as Node)) {
+      // Click inside container — if it's not on the trigger button, close
+      const triggerButton = containerRef.current.querySelector('button');
+      // Don't close when clicking the "Create organization" button —
+      // its own onClick handler manages the dialog state.
+      const target = e.target as HTMLElement;
+      if (
+        triggerButton &&
+        !triggerButton.contains(e.target as Node) &&
+        !target.closest('[data-create-org]') &&
+        !target.closest('[role="option"]')
+      ) {
         setOpen(false);
         setSearch('');
         setActiveIndex(-1);
-      } else if (containerRef.current?.contains(e.target as Node)) {
-        // Click inside container — if it's not on the trigger button, close
-        const triggerButton = containerRef.current.querySelector('button');
-        // Don't close when clicking the "Create organization" button —
-        // its own onClick handler manages the dialog state.
-        const target = e.target as HTMLElement;
-        if (
-          triggerButton &&
-          !triggerButton.contains(e.target as Node) &&
-          !target.closest('[data-create-org]') &&
-          !target.closest('[role="option"]')
-        ) {
-          setOpen(false);
-          setSearch('');
-          setActiveIndex(-1);
-        }
       }
-    },
-    [],
-  );
+    }
+  }, []);
 
   useEffect(() => {
     if (open) {

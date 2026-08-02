@@ -126,19 +126,29 @@ taskRouter.post('/', async (req: Request, res: Response) => {
   try {
     const { taskRepo } = await import('@sprintio/db/repositories');
     const { repoDb } = await import('./config/db-for-repos.js');
-    const { title, description, priority, projectId, assigneeId, boardId, columnId, sprintId, dueDate, labels } =
-      req.body as {
-        title?: string;
-        description?: string;
-        priority?: string;
-        projectId?: string;
-        assigneeId?: string | null;
-        boardId?: string;
-        columnId?: string;
-        sprintId?: string | null;
-        dueDate?: string | null;
-        labels?: string[];
-      };
+    const {
+      title,
+      description,
+      priority,
+      projectId,
+      assigneeId,
+      boardId,
+      columnId,
+      sprintId,
+      dueDate,
+      labels,
+    } = req.body as {
+      title?: string;
+      description?: string;
+      priority?: string;
+      projectId?: string;
+      assigneeId?: string | null;
+      boardId?: string;
+      columnId?: string;
+      sprintId?: string | null;
+      dueDate?: string | null;
+      labels?: string[];
+    };
 
     if (!title || typeof title !== 'string' || !title.trim()) {
       res.status(400).json({ error: 'Title is required' });
@@ -156,18 +166,22 @@ taskRouter.post('/', async (req: Request, res: Response) => {
       return;
     }
 
-    const task = await taskRepo.create(repoDb, {
-      title: title.trim(),
-      description: description?.trim() || null,
-      priority: priority ?? 'medium',
-      projectId,
-      assigneeId: assigneeId ?? userId,
-      boardId: boardId ?? null,
-      columnId: columnId ?? null,
-      sprintId: sprintId ?? null,
-      dueDate: dueDate ? new Date(dueDate) : null,
-      labels,
-    }, userId);
+    const task = await taskRepo.create(
+      repoDb,
+      {
+        title: title.trim(),
+        description: description?.trim() || null,
+        priority: priority ?? 'medium',
+        projectId,
+        assigneeId: assigneeId ?? userId,
+        boardId: boardId ?? null,
+        columnId: columnId ?? null,
+        sprintId: sprintId ?? null,
+        dueDate: dueDate ? new Date(dueDate) : null,
+        labels,
+      },
+      userId,
+    );
 
     res.status(201).json({ data: { task }, success: true });
   } catch (err: unknown) {

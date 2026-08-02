@@ -30,7 +30,9 @@ export async function listOrganizations(
 
 // ─── Get by ID ───────────────────────────────────────────────────────────
 
-export async function getOrganization(id: string): Promise<ApiResponse<{ organization: Organization }>> {
+export async function getOrganization(
+  id: string,
+): Promise<ApiResponse<{ organization: Organization }>> {
   return apiRequest<{ organization: Organization }>(`/organizations/${id}`);
 }
 
