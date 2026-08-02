@@ -37,11 +37,12 @@ export function useWorkspace() {
 export function useWorkspaceById(workspaceId: string) {
   return useQuery({
     queryKey: WORKSPACE_DETAIL_QUERY_KEY(workspaceId),
-    queryFn: () => listWorkspaces().then((res) => {
-      const ws = res.data.workspaces.find((w) => w.id === workspaceId);
-      if (!ws) throw new Error('Workspace not found');
-      return ws;
-    }),
+    queryFn: () =>
+      listWorkspaces().then((res) => {
+        const ws = res.data.workspaces.find((w) => w.id === workspaceId);
+        if (!ws) throw new Error('Workspace not found');
+        return ws;
+      }),
     staleTime: 60_000,
   });
 }

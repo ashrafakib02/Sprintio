@@ -66,7 +66,9 @@ vi.mock('drizzle-orm', () => ({
   and: vi.fn((...args: unknown[]) => ({ _and: args })),
   gt: vi.fn((...args: unknown[]) => ({ _gt: args })),
   desc: vi.fn((...args: unknown[]) => ({ _desc: args })),
-  relations: vi.fn((_table: unknown, fn: (...args: unknown[]) => unknown) => fn({ many: vi.fn(), one: vi.fn() })),
+  relations: vi.fn((_table: unknown, fn: (...args: unknown[]) => unknown) =>
+    fn({ many: vi.fn(), one: vi.fn() }),
+  ),
 }));
 
 vi.mock('../../db/schema/users.js', () => ({

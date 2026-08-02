@@ -32,10 +32,7 @@ function WorkspaceLayout() {
 
         // Seed the query cache so child routes and other consumers
         // see up-to-date workspace data without an extra fetch.
-        queryClient.setQueryData(
-          WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
-          response,
-        );
+        queryClient.setQueryData(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId), response);
       })
       .catch((err: Error) => {
         if (cancelled) return;

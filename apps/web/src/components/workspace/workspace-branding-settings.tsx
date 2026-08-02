@@ -112,7 +112,9 @@ export function WorkspaceBrandingSettings({ workspaceId }: WorkspaceBrandingSett
               <div
                 className={cn(
                   'relative flex h-24 w-24 shrink-0 items-center justify-center rounded-xl border-2 border-dashed transition-colors',
-                  logo ? 'border-transparent bg-accent/30' : 'border-muted-foreground/25 bg-muted/30',
+                  logo
+                    ? 'border-transparent bg-accent/30'
+                    : 'border-muted-foreground/25 bg-muted/30',
                 )}
               >
                 {logo ? (
@@ -265,9 +267,7 @@ export function WorkspaceBrandingSettings({ workspaceId }: WorkspaceBrandingSett
                   </Button>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground">
-                Enter a hex color code (e.g. #4F46E5)
-              </p>
+              <p className="text-xs text-muted-foreground">Enter a hex color code (e.g. #4F46E5)</p>
             </div>
 
             {/* Preview */}
@@ -275,10 +275,7 @@ export function WorkspaceBrandingSettings({ workspaceId }: WorkspaceBrandingSett
               <div className="rounded-lg border p-4">
                 <p className="text-xs font-medium text-muted-foreground mb-2">Preview</p>
                 <div className="flex items-center gap-3">
-                  <div
-                    className="h-10 w-10 rounded-lg"
-                    style={{ backgroundColor: brandColor }}
-                  />
+                  <div className="h-10 w-10 rounded-lg" style={{ backgroundColor: brandColor }} />
                   <div>
                     <p className="text-sm font-medium">Workspace Sidebar</p>
                     <p className="text-xs text-muted-foreground">

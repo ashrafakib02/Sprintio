@@ -234,13 +234,10 @@ export async function inviteWorkspaceMember(
   workspaceId: string,
   data: { email: string; role: string },
 ): Promise<ApiResponse<{ invitation: WorkspaceInvitation }>> {
-  return apiRequest<{ invitation: WorkspaceInvitation }>(
-    `/workspaces/${workspaceId}/invitations`,
-    {
-      method: 'POST',
-      body: JSON.stringify(data),
-    },
-  );
+  return apiRequest<{ invitation: WorkspaceInvitation }>(`/workspaces/${workspaceId}/invitations`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
 }
 
 export async function listWorkspaceInvitations(
@@ -260,9 +257,7 @@ export async function acceptInvitation(
   });
 }
 
-export async function rejectInvitation(
-  token: string,
-): Promise<ApiResponse<{ message: string }>> {
+export async function rejectInvitation(token: string): Promise<ApiResponse<{ message: string }>> {
   return apiRequest<{ message: string }>('/workspaces/invitations/reject', {
     method: 'POST',
     body: JSON.stringify({ token }),
@@ -322,7 +317,11 @@ export async function getWorkspace(
 export async function getWorkspaceContext(
   workspaceId: string,
 ): Promise<
-  ApiResponse<{ workspace: WorkspaceSettingsData; userRole: string; members: WorkspaceContextMember[] }>
+  ApiResponse<{
+    workspace: WorkspaceSettingsData;
+    userRole: string;
+    members: WorkspaceContextMember[];
+  }>
 > {
   return apiRequest<{
     workspace: WorkspaceSettingsData;
@@ -333,7 +332,13 @@ export async function getWorkspaceContext(
 
 export async function switchWorkspace(
   workspaceId: string,
-): Promise<ApiResponse<{ workspace: WorkspaceSettingsData; userRole: string; members: WorkspaceContextMember[] }>> {
+): Promise<
+  ApiResponse<{
+    workspace: WorkspaceSettingsData;
+    userRole: string;
+    members: WorkspaceContextMember[];
+  }>
+> {
   return apiRequest<{
     workspace: WorkspaceSettingsData;
     userRole: string;
@@ -353,13 +358,10 @@ export async function updateWorkspaceSettings(
     customDomain?: string | null;
   },
 ): Promise<ApiResponse<{ workspace: WorkspaceSettingsData }>> {
-  return apiRequest<{ workspace: WorkspaceSettingsData }>(
-    `/workspaces/${workspaceId}/settings`,
-    {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    },
-  );
+  return apiRequest<{ workspace: WorkspaceSettingsData }>(`/workspaces/${workspaceId}/settings`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
 }
 
 export async function updateMemberRole(
@@ -444,19 +446,17 @@ export async function listPermissions(): Promise<
 export async function archiveWorkspace(
   workspaceId: string,
 ): Promise<ApiResponse<{ workspace: WorkspaceSettingsData }>> {
-  return apiRequest<{ workspace: WorkspaceSettingsData }>(
-    `/workspaces/${workspaceId}/archive`,
-    { method: 'POST' },
-  );
+  return apiRequest<{ workspace: WorkspaceSettingsData }>(`/workspaces/${workspaceId}/archive`, {
+    method: 'POST',
+  });
 }
 
 export async function restoreWorkspace(
   workspaceId: string,
 ): Promise<ApiResponse<{ workspace: WorkspaceSettingsData }>> {
-  return apiRequest<{ workspace: WorkspaceSettingsData }>(
-    `/workspaces/${workspaceId}/restore`,
-    { method: 'POST' },
-  );
+  return apiRequest<{ workspace: WorkspaceSettingsData }>(`/workspaces/${workspaceId}/restore`, {
+    method: 'POST',
+  });
 }
 
 export async function deleteWorkspacePermanently(

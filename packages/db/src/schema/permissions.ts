@@ -22,6 +22,9 @@ export const permissions = pgTable(
   },
   (table) => ({
     resourceIdx: index('permissions_resource_idx').on(table.resource),
-    resourceActionUnique: uniqueIndex('permissions_resource_action_idx').on(table.resource, table.action),
+    resourceActionUnique: uniqueIndex('permissions_resource_action_idx').on(
+      table.resource,
+      table.action,
+    ),
   }),
 );

@@ -88,9 +88,7 @@ export function WorkspaceSettingsLayout({ workspaceId }: WorkspaceSettingsLayout
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-sm text-muted-foreground">
-          Failed to load workspace settings.
-        </p>
+        <p className="text-sm text-muted-foreground">Failed to load workspace settings.</p>
         <p className="text-xs text-muted-foreground/70 mt-1">{error.message}</p>
       </div>
     );
@@ -171,15 +169,15 @@ export function WorkspaceSettingsLayout({ workspaceId }: WorkspaceSettingsLayout
                 <div
                   className={cn(
                     'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200',
-                    isActive
-                      ? 'bg-primary/10'
-                      : 'bg-muted group-hover:bg-muted/80',
+                    isActive ? 'bg-primary/10' : 'bg-muted group-hover:bg-muted/80',
                   )}
                 >
                   <Icon
                     className={cn(
                       'h-4 w-4 transition-colors duration-200',
-                      isActive ? item.iconColor : 'text-muted-foreground group-hover:text-foreground',
+                      isActive
+                        ? item.iconColor
+                        : 'text-muted-foreground group-hover:text-foreground',
                     )}
                   />
                 </div>

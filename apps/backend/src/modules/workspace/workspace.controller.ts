@@ -83,7 +83,11 @@ export const listWorkspaces = asyncHandler(async (req: Request, res: Response) =
 
   const userId = req.user!.userId;
   const includeArchived = parsed.data.includeArchived === 'true';
-  const workspaces = await workspaceService.getUserWorkspaces(userId, includeArchived);
+  const workspaces = await workspaceService.getUserWorkspaces(
+    userId,
+    parsed.data.organizationId,
+    includeArchived,
+  );
 
   return sendSuccess(res, { workspaces });
 });
@@ -526,12 +530,7 @@ export const updateMemberRoleHandler = asyncHandler(async (req: Request, res: Re
   }
 
   const requestedBy = req.user!.userId;
-  const member = await workspaceService.updateMemberRole(
-    workspaceId,
-    userId,
-    newRole,
-    requestedBy,
-  );
+  const member = await workspaceService.updateMemberRole(workspaceId, userId, newRole, requestedBy);
 
   return sendSuccess(res, { member });
 });

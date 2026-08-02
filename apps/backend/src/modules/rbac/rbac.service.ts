@@ -135,12 +135,10 @@ function getStaticPermissions(role: string, scope: string): string[] {
   const ROLE_MAP: Record<string, Record<string, string[]>> = {
     organization: {
       admin: [
-        ...PERMISSIONS.ORGANIZATION.UPDATE
+        ...(PERMISSIONS.ORGANIZATION.UPDATE
           ? ['organization:update', 'organization:manage_members', 'organization:settings']
-          : [],
-        ...PERMISSIONS.WORKSPACE.UPDATE
-          ? ['workspace:update', 'workspace:manage_members']
-          : [],
+          : []),
+        ...(PERMISSIONS.WORKSPACE.UPDATE ? ['workspace:update', 'workspace:manage_members'] : []),
         ...Object.values(PERMISSIONS.BOARD),
         ...Object.values(PERMISSIONS.TASK),
         ...Object.values(PERMISSIONS.DOCUMENT),
@@ -246,13 +244,7 @@ export async function assignRole(
   const existingRoles = await rbacRepo.getUserRoles(repoDb, userId, scope, scopeId);
   if (existingRoles.length > 0) {
     // Update existing role
-    await rbacRepo.revokeUserRole(
-      repoDb,
-      userId,
-      existingRoles[0].roleId,
-      scope,
-      scopeId,
-    );
+    await rbacRepo.revokeUserRole(repoDb, userId, existingRoles[0].roleId, scope, scopeId);
   }
 
   await rbacRepo.assignUserRole(repoDb, userId, role.id, scope, scopeId);

@@ -26,7 +26,12 @@ interface SelectProps {
   children: React.ReactNode;
 }
 
-function Select({ value: controlledValue, defaultValue = '', onValueChange, children }: SelectProps) {
+function Select({
+  value: controlledValue,
+  defaultValue = '',
+  onValueChange,
+  children,
+}: SelectProps) {
   const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue);
   const [open, setOpen] = React.useState(false);
   const value = controlledValue ?? uncontrolledValue;

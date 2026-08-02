@@ -1,15 +1,8 @@
 import { useMemo } from 'react';
 import { shallowEqual } from 'react-redux';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import {
-  useWorkspaceContext,
-  useWorkspaceRoles,
-  usePermissions,
-} from './use-workspace-settings';
-import {
-  useWorkspaceMembers,
-  useWorkspaceInvitations,
-} from './use-workspace-members';
+import { useWorkspaceContext, useWorkspaceRoles, usePermissions } from './use-workspace-settings';
+import { useWorkspaceMembers, useWorkspaceInvitations } from './use-workspace-members';
 import {
   setActiveTab,
   toggleSidebar,
@@ -79,9 +72,7 @@ export function useWorkspaceState(workspaceId: string) {
     if (memberSearch.trim()) {
       const q = memberSearch.toLowerCase();
       result = result.filter(
-        (m) =>
-          m.userId.toLowerCase().includes(q) ||
-          m.role.toLowerCase().includes(q),
+        (m) => m.userId.toLowerCase().includes(q) || m.role.toLowerCase().includes(q),
       );
     }
     return result;

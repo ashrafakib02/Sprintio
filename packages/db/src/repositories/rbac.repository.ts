@@ -1,21 +1,12 @@
 import { eq, and, isNull } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import {
-  roles,
-  permissions,
-  rolePermissions,
-  userRoles,
-} from '../schema/index.js';
+import { roles, permissions, rolePermissions, userRoles } from '../schema/index.js';
 
 // ============================================================
 // Roles
 // ============================================================
 
-export async function findRoleByName(
-  db: PostgresJsDatabase,
-  roleName: string,
-  scope: string,
-) {
+export async function findRoleByName(db: PostgresJsDatabase, roleName: string, scope: string) {
   const rows = await db
     .select()
     .from(roles)
@@ -58,11 +49,7 @@ export async function deleteRole(db: PostgresJsDatabase, roleId: string) {
 // ============================================================
 
 export async function findPermissionByName(db: PostgresJsDatabase, permName: string) {
-  const rows = await db
-    .select()
-    .from(permissions)
-    .where(eq(permissions.name, permName))
-    .limit(1);
+  const rows = await db.select().from(permissions).where(eq(permissions.name, permName)).limit(1);
   return rows[0] ?? undefined;
 }
 
@@ -111,11 +98,7 @@ export async function getUserPermissionNames(
           eq(userRoles.scopeId, scopeId),
           eq(userRoles.userId, userId),
         )
-      : and(
-          eq(userRoles.scope, scope),
-          isNull(userRoles.scopeId),
-          eq(userRoles.userId, userId),
-        );
+      : and(eq(userRoles.scope, scope), isNull(userRoles.scopeId), eq(userRoles.userId, userId));
 
   const rows = await db
     .select({ permName: permissions.name })
@@ -141,11 +124,7 @@ export async function getUserRoles(
           eq(userRoles.scopeId, scopeId),
           eq(userRoles.userId, userId),
         )
-      : and(
-          eq(userRoles.scope, scope),
-          isNull(userRoles.scopeId),
-          eq(userRoles.userId, userId),
-        );
+      : and(eq(userRoles.scope, scope), isNull(userRoles.scopeId), eq(userRoles.userId, userId));
 
   return db.select().from(userRoles).where(scopeFilter);
 }
@@ -157,10 +136,7 @@ export async function assignUserRole(
   scope: string,
   scopeId: string | null,
 ) {
-  const rows = await db
-    .insert(userRoles)
-    .values({ userId, roleId, scope, scopeId })
-    .returning();
+  const rows = await db.insert(userRoles).values({ userId, roleId, scope, scopeId }).returning();
   return rows[0];
 }
 
@@ -202,11 +178,7 @@ export async function getUserPrimaryRole(
           eq(userRoles.scopeId, scopeId),
           eq(userRoles.userId, userId),
         )
-      : and(
-          eq(userRoles.scope, scope),
-          isNull(userRoles.scopeId),
-          eq(userRoles.userId, userId),
-        );
+      : and(eq(userRoles.scope, scope), isNull(userRoles.scopeId), eq(userRoles.userId, userId));
 
   const rows = await db
     .select({ roleName: roles.name })

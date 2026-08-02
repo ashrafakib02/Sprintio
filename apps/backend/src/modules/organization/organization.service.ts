@@ -1,6 +1,12 @@
 import { repoDb } from '../../config/db-for-repos.js';
 import { organizationRepo } from '@sprintio/db/repositories';
-import { slugify, AppError, PERMISSIONS, ORGANIZATION_ROLES, ROLE_HIERARCHY } from '@sprintio/shared';
+import {
+  slugify,
+  AppError,
+  PERMISSIONS,
+  ORGANIZATION_ROLES,
+  ROLE_HIERARCHY,
+} from '@sprintio/shared';
 import type { CreateOrganizationInput, UpdateOrganizationInput } from '@sprintio/shared';
 
 /** Helper to detect PostgreSQL unique-constraint violation (error code 23505). */

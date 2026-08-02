@@ -14,6 +14,10 @@ export const CreateProjectSchema = z.object({
 
 export const UpdateProjectSchema = CreateProjectSchema.partial().omit({ workspaceId: true });
 
+// Nested creation: workspaceId comes from URL param, not request body
+export const CreateProjectForWorkspaceSchema = CreateProjectSchema.omit({ workspaceId: true });
+export type CreateProjectForWorkspaceInput = z.infer<typeof CreateProjectForWorkspaceSchema>;
+
 export const CreateSprintSchema = z.object({
   name: z.string().min(1).max(100),
   projectId: z.string().uuid(),

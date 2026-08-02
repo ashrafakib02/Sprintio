@@ -52,10 +52,14 @@ interface WorkspaceSettingsMembersProps {
 }
 
 const ROLE_BADGE_COLORS: Record<string, string> = {
-  owner: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
-  admin: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800',
-  member: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
-  guest: 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-800',
+  owner:
+    'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
+  admin:
+    'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800',
+  member:
+    'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
+  guest:
+    'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-800',
 };
 
 function getRoleBadgeColor(roleName: string): string {
@@ -180,12 +184,7 @@ interface InviteMemberDialogProps {
   roles: Array<{ id: string; name: string; isSystem: boolean }>;
 }
 
-function InviteMemberDialog({
-  open,
-  onOpenChange,
-  workspaceId,
-  roles,
-}: InviteMemberDialogProps) {
+function InviteMemberDialog({ open, onOpenChange, workspaceId, roles }: InviteMemberDialogProps) {
   const [email, setEmail] = useState('');
   const [roleName, setRoleName] = useState('member');
   const inviteMember = useInviteMember(workspaceId);
@@ -337,7 +336,9 @@ function TransferOwnershipDialog({
   const transferOwnership = useTransferOwnership(workspaceId);
   const [selectedUserId, setSelectedUserId] = useState('');
   const workspaceMembers = contextData?.members || [];
-  const otherMembers = workspaceMembers.filter((m: WorkspaceContextMember) => m.userId !== user?.id);
+  const otherMembers = workspaceMembers.filter(
+    (m: WorkspaceContextMember) => m.userId !== user?.id,
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -355,9 +356,7 @@ function TransferOwnershipDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Transfer Ownership</DialogTitle>
-          <DialogDescription>
-            Transfer workspace ownership to another member.
-          </DialogDescription>
+          <DialogDescription>Transfer workspace ownership to another member.</DialogDescription>
         </DialogHeader>
         <div className="rounded-md bg-amber-500/10 border border-amber-500/20 p-3">
           <p className="text-sm text-amber-600 dark:text-amber-400">
@@ -505,7 +504,11 @@ function PendingInvitations({ workspaceId }: PendingInvitationsProps) {
 
 export function WorkspaceSettingsMembers({ workspaceId }: WorkspaceSettingsMembersProps) {
   const { data, isLoading, error } = useWorkspaceContext(workspaceId);
-  const { data: rolesData, isLoading: rolesLoading, error: rolesError } = useWorkspaceRoles(workspaceId);
+  const {
+    data: rolesData,
+    isLoading: rolesLoading,
+    error: rolesError,
+  } = useWorkspaceRoles(workspaceId);
 
   const workspace = data?.workspace;
   const userRole = data?.userRole;
@@ -674,9 +677,7 @@ export function WorkspaceSettingsMembers({ workspaceId }: WorkspaceSettingsMembe
                             </>
                           )}
                           {isOwner && (
-                            <span className="text-xs text-muted-foreground italic px-2">
-                              Owner
-                            </span>
+                            <span className="text-xs text-muted-foreground italic px-2">Owner</span>
                           )}
                         </div>
                       )}
@@ -721,9 +722,7 @@ export function WorkspaceSettingsMembers({ workspaceId }: WorkspaceSettingsMembe
               <Shield className="h-4 w-4 text-muted-foreground" />
               Available Roles
             </CardTitle>
-            <CardDescription>
-              These roles can be assigned to workspace members.
-            </CardDescription>
+            <CardDescription>These roles can be assigned to workspace members.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-2 sm:grid-cols-2">
@@ -736,9 +735,7 @@ export function WorkspaceSettingsMembers({ workspaceId }: WorkspaceSettingsMembe
                     <Badge variant={ROLE_VARIANT[role.name.toLowerCase()] ?? 'default'}>
                       {role.name}
                     </Badge>
-                    {role.isSystem && (
-                      <span className="text-xs text-muted-foreground">System</span>
-                    )}
+                    {role.isSystem && <span className="text-xs text-muted-foreground">System</span>}
                   </div>
                   <span className="text-xs text-muted-foreground">
                     {role.permissions.length} permission

@@ -1,12 +1,6 @@
 import { repoDb } from '../../config/db-for-repos.js';
 import { workspaceRepo, organizationRepo } from '@sprintio/db/repositories';
-import {
-  slugify,
-  AppError,
-  PERMISSIONS,
-  WORKSPACE_ROLES,
-  ROLE_HIERARCHY,
-} from '@sprintio/shared';
+import { slugify, AppError, PERMISSIONS, WORKSPACE_ROLES, ROLE_HIERARCHY } from '@sprintio/shared';
 import type {
   CreateWorkspaceInput,
   UpdateWorkspaceInput,
@@ -310,13 +304,31 @@ export async function getWorkspace(
 }
 
 /**
- * List all workspaces a user belongs to.
+ * List all workspaces a user belongs to within an organization.
  */
 export async function getUserWorkspaces(
   userId: string,
+  organizationId: string,
   includeArchived: boolean = false,
 ): Promise<WorkspaceResult[]> {
-  const workspaces = await workspaceRepo.findByUserIdFiltered(repoDb, userId, includeArchived);
+  // Validate organization exists
+  const org = await organizationRepo.findById(repoDb, organizationId);
+  if (!org) {
+    throw AppError.notFound('Organization');
+  }
+
+  // Validate user is a member of the organization
+  const isOrgMember = await organizationRepo.isMember(repoDb, organizationId, userId);
+  if (!isOrgMember) {
+    throw AppError.forbidden('You are not a member of this organization');
+  }
+
+  const workspaces = await workspaceRepo.findByUserIdAndOrganizationId(
+    repoDb,
+    userId,
+    organizationId,
+    includeArchived,
+  );
   return workspaces.map(toWorkspaceResult);
 }
 
@@ -456,7 +468,15 @@ export async function updateWorkspaceSettings(
 export async function getWorkspaceRoles(
   workspaceId: string,
   requestedBy: string,
-): Promise<Array<{ id: string; name: string; description: string | null; isSystem: boolean; permissions: string[] }>> {
+): Promise<
+  Array<{
+    id: string;
+    name: string;
+    description: string | null;
+    isSystem: boolean;
+    permissions: string[];
+  }>
+> {
   const workspace = await workspaceRepo.findById(repoDb, workspaceId);
   if (!workspace) {
     throw AppError.notFound('Workspace');
@@ -466,9 +486,11 @@ export async function getWorkspaceRoles(
   assertPermission(role, PERMISSIONS.WORKSPACE.MANAGE_ROLES);
 
   // Query roles scoped to this workspace from the roles table
-  const { roles: rolesTable, rolePermissions: rpTable, permissions: permsTable } = await import(
-    '@sprintio/db/schema'
-  );
+  const {
+    roles: rolesTable,
+    rolePermissions: rpTable,
+    permissions: permsTable,
+  } = await import('@sprintio/db/schema');
   const { eq: eqOp, and: andOp } = await import('drizzle-orm');
 
   const workspaceRoles = await repoDb
@@ -668,11 +690,19 @@ export async function deleteWorkspaceRole(
   const assignments = await repoDb
     .select()
     .from(urTable)
-    .where(andOp(eqOp(urTable.roleId, roleId), eqOp(urTable.scope, 'workspace'), eqOp(urTable.scopeId, workspaceId)))
+    .where(
+      andOp(
+        eqOp(urTable.roleId, roleId),
+        eqOp(urTable.scope, 'workspace'),
+        eqOp(urTable.scopeId, workspaceId),
+      ),
+    )
     .limit(1);
 
   if (assignments.length > 0) {
-    throw AppError.badRequest('Cannot delete a role that is assigned to users. Reassign them first.');
+    throw AppError.badRequest(
+      'Cannot delete a role that is assigned to users. Reassign them first.',
+    );
   }
 
   await repoDb.delete(rolesTable).where(eqOp(rolesTable.id, roleId));
@@ -1037,11 +1067,7 @@ export async function acceptInvitation(
   }
 
   // Check if user is already a member
-  const alreadyMember = await workspaceRepo.isMember(
-    repoDb,
-    invitation.workspaceId,
-    userId,
-  );
+  const alreadyMember = await workspaceRepo.isMember(repoDb, invitation.workspaceId, userId);
   if (alreadyMember) {
     throw AppError.conflict('You are already a member of this workspace');
   }

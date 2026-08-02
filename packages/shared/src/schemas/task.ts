@@ -20,5 +20,15 @@ export const CreateTaskSchema = z.object({
 
 export const UpdateTaskSchema = CreateTaskSchema.partial();
 
+// Nested creation: projectId comes from URL param, not request body
+export const CreateTaskForProjectSchema = CreateTaskSchema.omit({
+  boardId: true,
+  columnId: true,
+}).extend({
+  boardId: z.string().uuid().nullable().optional(),
+  columnId: z.string().uuid().nullable().optional(),
+});
+export type CreateTaskForProjectInput = z.infer<typeof CreateTaskForProjectSchema>;
+
 export type CreateTaskInput = z.infer<typeof CreateTaskSchema>;
 export type UpdateTaskInput = z.infer<typeof UpdateTaskSchema>;

@@ -45,7 +45,10 @@ vi.mock('@sprintio/shared', async (importOriginal) => {
   return {
     ...actual,
     slugify: vi.fn((name: string) =>
-      name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, ''),
     ),
   };
 });
@@ -56,7 +59,7 @@ import { repoDb } from '../../config/db-for-repos.js';
 import { AppError } from '@sprintio/shared';
 
 const repo = vi.mocked(workspaceRepo);
-const mockTransaction = vi.mocked(repoDb).transaction as ReturnType<typeof vi.fn>;
+const _mockTransaction = vi.mocked(repoDb).transaction as ReturnType<typeof vi.fn>;
 
 // ── Constants for two-workspace isolation testing ─────────────
 
@@ -68,12 +71,22 @@ const USER_C = '550e8400-e29b-41d4-a716-446655440003';
 
 // ── Helpers ──────────────────────────────────────────────────
 
-function makeWs(id: string, overrides: Partial<{
-  name: string; slug: string; description: string | null;
-  logo: string | null; brandColor: string | null; customDomain: string | null;
-  organizationId: string | null; plan: string;
-  archivedAt: Date | null; createdAt: Date; updatedAt: Date;
-}> = {}) {
+function makeWs(
+  id: string,
+  overrides: Partial<{
+    name: string;
+    slug: string;
+    description: string | null;
+    logo: string | null;
+    brandColor: string | null;
+    customDomain: string | null;
+    organizationId: string | null;
+    plan: string;
+    archivedAt: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+  }> = {},
+) {
   return {
     id,
     name: `Workspace ${id.slice(-4)}`,
@@ -101,10 +114,19 @@ function makeMember(wsId: string, userId: string, role: string, id?: string) {
   };
 }
 
-function makeInvitation(wsId: string, overrides: Partial<{
-  id: string; email: string; role: string;
-  token: string; invitedById: string; status: string; expiresAt: Date; createdAt: Date;
-}> = {}) {
+function makeInvitation(
+  wsId: string,
+  overrides: Partial<{
+    id: string;
+    email: string;
+    role: string;
+    token: string;
+    invitedById: string;
+    status: string;
+    expiresAt: Date;
+    createdAt: Date;
+  }> = {},
+) {
   return {
     id: `inv-${wsId.slice(-4)}`,
     workspaceId: wsId,
@@ -123,7 +145,7 @@ function makeInvitation(wsId: string, overrides: Partial<{
  * Helper: configure mock responses for a workspace + role resolution sequence.
  * This sets up the mock chain for operations that call findById then getMemberRole.
  */
-function setupWsMocks(
+function _setupWsMocks(
   wsId: string,
   requesterRole: string,
   overrides: Partial<{
@@ -150,9 +172,7 @@ describe('Workspace Isolation', () => {
       repo.findById.mockResolvedValue(makeWs(WS_B));
       repo.isMember.mockResolvedValue(false);
 
-      await expect(
-        workspaceService.getWorkspace(WS_B, USER_A),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.getWorkspace(WS_B, USER_A)).rejects.toThrow(AppError);
     });
 
     it('should allow access when user is a member of the target workspace', async () => {
@@ -178,9 +198,7 @@ describe('Workspace Isolation', () => {
       repo.findById.mockResolvedValue(makeWs(WS_B));
       repo.isMember.mockResolvedValue(false);
 
-      await expect(
-        workspaceService.getWorkspaceMembers(WS_B, USER_A),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.getWorkspaceMembers(WS_B, USER_A)).rejects.toThrow(AppError);
     });
 
     it('should return members only from the requested workspace', async () => {
@@ -229,18 +247,18 @@ describe('Workspace Isolation', () => {
       repo.findById.mockResolvedValue(makeWs(WS_B));
       repo.getMemberRole.mockResolvedValue('member');
 
-      await expect(
-        workspaceService.getWorkspaceInvitations(WS_B, USER_A),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.getWorkspaceInvitations(WS_B, USER_A)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should deny invitation listing when user is not a member at all', async () => {
       repo.findById.mockResolvedValue(makeWs(WS_B));
       repo.getMemberRole.mockResolvedValue(undefined);
 
-      await expect(
-        workspaceService.getWorkspaceInvitations(WS_B, USER_A),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.getWorkspaceInvitations(WS_B, USER_A)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should return invitations only from the requested workspace', async () => {
@@ -270,9 +288,7 @@ describe('Workspace Isolation', () => {
       repo.isMember.mockResolvedValue(false);
       repo.addMember.mockResolvedValue(makeMember(WS_A, USER_C, 'member'));
 
-      const added = await workspaceService.addWorkspaceMember(
-        WS_A, USER_C, 'member', USER_A,
-      );
+      const added = await workspaceService.addWorkspaceMember(WS_A, USER_C, 'member', USER_A);
       expect(added.workspaceId).toBe(WS_A);
       expect(added.userId).toBe(USER_C);
       expect(added.role).toBe('member');
@@ -285,7 +301,7 @@ describe('Workspace Isolation', () => {
       // Setup: USER_A is admin of WS_A, removing USER_C
       repo.findById.mockResolvedValue(makeWs(WS_A));
       repo.getMemberRole
-        .mockResolvedValueOnce('admin')  // requester role check
+        .mockResolvedValueOnce('admin') // requester role check
         .mockResolvedValueOnce('member'); // target role check
       repo.removeMember.mockResolvedValue(true);
 
@@ -301,12 +317,12 @@ describe('Workspace Isolation', () => {
       // Attempting to remove USER_B from WS_A — USER_B might not even be in WS_A
       repo.findById.mockResolvedValue(makeWs(WS_A));
       repo.getMemberRole
-        .mockResolvedValueOnce('admin')   // requester role check
+        .mockResolvedValueOnce('admin') // requester role check
         .mockResolvedValueOnce(undefined); // target is not in WS_A
 
-      await expect(
-        workspaceService.removeWorkspaceMember(WS_A, USER_B, USER_A),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.removeWorkspaceMember(WS_A, USER_B, USER_A)).rejects.toThrow(
+        AppError,
+      );
     });
   });
 
@@ -318,9 +334,7 @@ describe('Workspace Isolation', () => {
         makeWs(WS_A, { name: 'Updated WS-A', slug: 'updated-ws-a' }),
       );
 
-      const result = await workspaceService.updateWorkspace(
-        WS_A, { name: 'Updated WS-A' }, USER_A,
-      );
+      const result = await workspaceService.updateWorkspace(WS_A, { name: 'Updated WS-A' }, USER_A);
       expect(result.id).toBe(WS_A);
       expect(result.name).toBe('Updated WS-A');
 
@@ -341,9 +355,7 @@ describe('Workspace Isolation', () => {
     it('should archive WS-A without affecting WS-B', async () => {
       repo.findById.mockResolvedValue(makeWs(WS_A));
       repo.getMemberRole.mockResolvedValue('owner');
-      repo.archiveById.mockResolvedValue(
-        makeWs(WS_A, { archivedAt: new Date() }),
-      );
+      repo.archiveById.mockResolvedValue(makeWs(WS_A, { archivedAt: new Date() }));
 
       const result = await workspaceService.archiveWorkspace(WS_A, USER_A);
       expect(result.archivedAt).toBeTruthy();
@@ -356,18 +368,14 @@ describe('Workspace Isolation', () => {
       repo.findById.mockResolvedValue(makeWs(WS_B));
       repo.isMember.mockResolvedValue(false);
 
-      await expect(
-        workspaceService.getWorkspace(WS_B, USER_A),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.getWorkspace(WS_B, USER_A)).rejects.toThrow(AppError);
 
       vi.clearAllMocks();
 
       repo.findById.mockResolvedValue(makeWs(WS_B));
       repo.isMember.mockResolvedValue(false);
 
-      await expect(
-        workspaceService.getWorkspaceMembers(WS_B, USER_A),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.getWorkspaceMembers(WS_B, USER_A)).rejects.toThrow(AppError);
     });
   });
 });
@@ -540,9 +548,9 @@ describe('Permission Escalation Prevention', () => {
       repo.findById.mockResolvedValue(makeWs(WS_A));
       repo.getMemberRole.mockResolvedValue('guest');
 
-      await expect(
-        workspaceService.removeWorkspaceMember(WS_A, USER_C, USER_A),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.removeWorkspaceMember(WS_A, USER_C, USER_A)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should reject guest inviting members', async () => {
@@ -558,9 +566,9 @@ describe('Permission Escalation Prevention', () => {
       repo.findById.mockResolvedValue(makeWs(WS_A));
       repo.getMemberRole.mockResolvedValue('guest');
 
-      await expect(
-        workspaceService.getWorkspaceInvitations(WS_A, USER_A),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.getWorkspaceInvitations(WS_A, USER_A)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should reject guest updating member roles', async () => {
@@ -580,7 +588,9 @@ describe('Permission Escalation Prevention', () => {
       repo.updateById.mockResolvedValue(makeWs(WS_A, { name: 'Owner Updated' }));
 
       const result = await workspaceService.updateWorkspace(
-        WS_A, { name: 'Owner Updated' }, USER_A,
+        WS_A,
+        { name: 'Owner Updated' },
+        USER_A,
       );
       expect(result.name).toBe('Owner Updated');
     });
@@ -600,24 +610,20 @@ describe('Permission Escalation Prevention', () => {
       repo.isMember.mockResolvedValue(false);
       repo.addMember.mockResolvedValue(makeMember(WS_A, USER_C, 'admin'));
 
-      const result = await workspaceService.addWorkspaceMember(
-        WS_A, USER_C, 'admin', USER_A,
-      );
+      const result = await workspaceService.addWorkspaceMember(WS_A, USER_C, 'admin', USER_A);
       expect(result.role).toBe('admin');
     });
 
     it('should allow owner to transfer ownership', async () => {
       repo.findById.mockResolvedValue(makeWs(WS_A));
       repo.getMemberRole
-        .mockResolvedValueOnce('owner')   // requester
-        .mockResolvedValueOnce('member');  // target
+        .mockResolvedValueOnce('owner') // requester
+        .mockResolvedValueOnce('member'); // target
       repo.updateMemberRole
         .mockResolvedValueOnce(makeMember(WS_A, USER_A, 'admin'))
         .mockResolvedValueOnce(makeMember(WS_A, USER_C, 'owner'));
 
-      const result = await workspaceService.transferOwnership(
-        WS_A, { newOwnerId: USER_C }, USER_A,
-      );
+      const result = await workspaceService.transferOwnership(WS_A, { newOwnerId: USER_C }, USER_A);
       expect(result.previousOwner.role).toBe('admin');
       expect(result.newOwner.role).toBe('owner');
     });
@@ -625,8 +631,8 @@ describe('Permission Escalation Prevention', () => {
     it('should allow owner to remove any non-owner member', async () => {
       repo.findById.mockResolvedValue(makeWs(WS_A));
       repo.getMemberRole
-        .mockResolvedValueOnce('owner')   // requester
-        .mockResolvedValueOnce('admin');   // target is admin, not owner
+        .mockResolvedValueOnce('owner') // requester
+        .mockResolvedValueOnce('admin'); // target is admin, not owner
       repo.removeMember.mockResolvedValue(true);
 
       await expect(
@@ -647,15 +653,11 @@ describe('Permission Escalation Prevention', () => {
       repo.findById.mockResolvedValue(makeWs(WS_A));
       repo.getMemberRole.mockResolvedValue('owner');
       // Target is not owner (can be changed)
-      repo.getMemberRole.mockResolvedValueOnce('owner');   // requester role
-      repo.getMemberRole.mockResolvedValueOnce('member');   // target role
-      repo.updateMemberRole.mockResolvedValue(
-        makeMember(WS_A, USER_C, 'admin'),
-      );
+      repo.getMemberRole.mockResolvedValueOnce('owner'); // requester role
+      repo.getMemberRole.mockResolvedValueOnce('member'); // target role
+      repo.updateMemberRole.mockResolvedValue(makeMember(WS_A, USER_C, 'admin'));
 
-      const result = await workspaceService.updateMemberRole(
-        WS_A, USER_C, 'admin', USER_A,
-      );
+      const result = await workspaceService.updateMemberRole(WS_A, USER_C, 'admin', USER_A);
       expect(result.role).toBe('admin');
     });
   });
@@ -667,9 +669,7 @@ describe('Permission Escalation Prevention', () => {
       repo.isMember.mockResolvedValue(false);
       repo.addMember.mockResolvedValue(makeMember(WS_A, USER_C, 'member'));
 
-      const result = await workspaceService.addWorkspaceMember(
-        WS_A, USER_C, 'member', USER_A,
-      );
+      const result = await workspaceService.addWorkspaceMember(WS_A, USER_C, 'member', USER_A);
       expect(result.role).toBe('member');
     });
 
@@ -679,9 +679,7 @@ describe('Permission Escalation Prevention', () => {
       repo.isMember.mockResolvedValue(false);
       repo.addMember.mockResolvedValue(makeMember(WS_A, USER_C, 'guest'));
 
-      const result = await workspaceService.addWorkspaceMember(
-        WS_A, USER_C, 'guest', USER_A,
-      );
+      const result = await workspaceService.addWorkspaceMember(WS_A, USER_C, 'guest', USER_A);
       expect(result.role).toBe('guest');
     });
 
@@ -697,12 +695,12 @@ describe('Permission Escalation Prevention', () => {
     it('should prevent admin from removing owner', async () => {
       repo.findById.mockResolvedValue(makeWs(WS_A));
       repo.getMemberRole
-        .mockResolvedValueOnce('admin')  // requester
-        .mockResolvedValueOnce('owner');   // target is owner
+        .mockResolvedValueOnce('admin') // requester
+        .mockResolvedValueOnce('owner'); // target is owner
 
-      await expect(
-        workspaceService.removeWorkspaceMember(WS_A, USER_C, USER_A),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.removeWorkspaceMember(WS_A, USER_C, USER_A)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should prevent member from adding any role (member level insufficient)', async () => {
@@ -719,9 +717,9 @@ describe('Permission Escalation Prevention', () => {
       repo.findById.mockResolvedValue(makeWs(WS_A));
       repo.getMemberRole.mockResolvedValue('member');
 
-      await expect(
-        workspaceService.removeWorkspaceMember(WS_A, USER_C, USER_A),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.removeWorkspaceMember(WS_A, USER_C, USER_A)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should prevent member from inviting anyone', async () => {
@@ -747,25 +745,23 @@ describe('Permission Escalation Prevention', () => {
       vi.clearAllMocks();
       repo.findById.mockResolvedValue(ws);
       repo.getMemberRole.mockResolvedValue('guest');
-      await expect(
-        workspaceService.removeWorkspaceMember(WS_A, USER_C, USER_A),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.removeWorkspaceMember(WS_A, USER_C, USER_A)).rejects.toThrow(
+        AppError,
+      );
 
       // Guest cannot update workspace
       vi.clearAllMocks();
       repo.findById.mockResolvedValue(ws);
       repo.getMemberRole.mockResolvedValue('guest');
-      await expect(
-        workspaceService.updateWorkspace(WS_A, { name: 'X' }, USER_A),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.updateWorkspace(WS_A, { name: 'X' }, USER_A)).rejects.toThrow(
+        AppError,
+      );
 
       // Guest cannot archive workspace
       vi.clearAllMocks();
       repo.findById.mockResolvedValue(ws);
       repo.getMemberRole.mockResolvedValue('guest');
-      await expect(
-        workspaceService.archiveWorkspace(WS_A, USER_A),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.archiveWorkspace(WS_A, USER_A)).rejects.toThrow(AppError);
 
       // Guest cannot transfer ownership
       vi.clearAllMocks();
@@ -807,28 +803,28 @@ describe('Permission Escalation Prevention', () => {
         workspaceService.addWorkspaceMember(WS_A, USER_C, 'moderator', USER_A),
       ).rejects.toThrow(AppError);
 
-      await expect(
-        workspaceService.addWorkspaceMember(WS_A, USER_C, '', USER_A),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.addWorkspaceMember(WS_A, USER_C, '', USER_A)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should prevent removing the workspace owner', async () => {
       repo.findById.mockResolvedValue(makeWs(WS_A));
       repo.getMemberRole
-        .mockResolvedValueOnce('owner')  // requester
-        .mockResolvedValueOnce('owner');  // target is also owner
+        .mockResolvedValueOnce('owner') // requester
+        .mockResolvedValueOnce('owner'); // target is also owner
 
-      await expect(
-        workspaceService.removeWorkspaceMember(WS_A, USER_C, USER_A),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.removeWorkspaceMember(WS_A, USER_C, USER_A)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should prevent changing the owner role via updateMemberRole', async () => {
       repo.findById.mockResolvedValue(makeWs(WS_A));
       repo.getMemberRole.mockResolvedValue('owner');
       // Target is the owner — cannot change owner's role
-      repo.getMemberRole.mockResolvedValueOnce('owner');   // requester role
-      repo.getMemberRole.mockResolvedValueOnce('owner');   // target is owner
+      repo.getMemberRole.mockResolvedValueOnce('owner'); // requester role
+      repo.getMemberRole.mockResolvedValueOnce('owner'); // target is owner
 
       await expect(
         workspaceService.updateMemberRole(WS_A, USER_C, 'admin', USER_A),
@@ -847,8 +843,8 @@ describe('Permission Escalation Prevention', () => {
     it('should prevent transferring ownership to a non-member', async () => {
       repo.findById.mockResolvedValue(makeWs(WS_A));
       repo.getMemberRole
-        .mockResolvedValueOnce('owner')     // requester
-        .mockResolvedValueOnce(undefined);   // target is not a member
+        .mockResolvedValueOnce('owner') // requester
+        .mockResolvedValueOnce(undefined); // target is not a member
 
       await expect(
         workspaceService.transferOwnership(WS_A, { newOwnerId: USER_C }, USER_A),

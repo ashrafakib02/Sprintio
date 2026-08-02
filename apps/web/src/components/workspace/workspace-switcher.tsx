@@ -136,23 +136,18 @@ export function WorkspaceSwitcher() {
     if (!search.trim()) return displayWorkspaces;
     const q = search.toLowerCase();
     return displayWorkspaces.filter(
-      (ws) =>
-        ws.name.toLowerCase().includes(q) ||
-        ws.slug.toLowerCase().includes(q),
+      (ws) => ws.name.toLowerCase().includes(q) || ws.slug.toLowerCase().includes(q),
     );
   }, [displayWorkspaces, search]);
 
   // ── Click outside to close ──────────────────────────────
 
-  const handleClickOutside = useCallback(
-    (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
-        setSearch('');
-      }
-    },
-    [],
-  );
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      setOpen(false);
+      setSearch('');
+    }
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -531,9 +526,7 @@ function CreateWorkspaceDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={!name.trim() || isPending}>
-              {isPending ? (
-                <Spinner className="h-4 w-4 mr-2" />
-              ) : null}
+              {isPending ? <Spinner className="h-4 w-4 mr-2" /> : null}
               Create
             </Button>
           </div>

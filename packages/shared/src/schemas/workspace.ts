@@ -20,6 +20,7 @@ export const UpdateWorkspaceMemberSchema = z.object({
 });
 
 export const ListWorkspacesSchema = z.object({
+  organizationId: z.string().uuid('Invalid organization ID'),
   includeArchived: z.enum(['true', 'false']).default('false').optional(),
 });
 

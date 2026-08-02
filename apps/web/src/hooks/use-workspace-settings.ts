@@ -102,10 +102,7 @@ export function useUpdateWorkspaceSettings(workspaceId: string) {
     },
     onError: (error: Error, _variables, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(
-          WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
-          context.previousData,
-        );
+        queryClient.setQueryData(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId), context.previousData);
       }
       toast.error('Failed to update settings', { description: error.message });
     },
@@ -153,25 +150,19 @@ export function useCreateWorkspaceRole(workspaceId: string) {
         permissions: variables.permissionIds ?? [],
       };
 
-      queryClient.setQueryData<RolesResponse>(
-        WORKSPACE_ROLES_QUERY_KEY(workspaceId),
-        (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            roles: [...old.roles, temporaryRole],
-          };
-        },
-      );
+      queryClient.setQueryData<RolesResponse>(WORKSPACE_ROLES_QUERY_KEY(workspaceId), (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          roles: [...old.roles, temporaryRole],
+        };
+      });
 
       return { previousData };
     },
     onError: (error: Error, _variables, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(
-          WORKSPACE_ROLES_QUERY_KEY(workspaceId),
-          context.previousData,
-        );
+        queryClient.setQueryData(WORKSPACE_ROLES_QUERY_KEY(workspaceId), context.previousData);
       }
       toast.error('Failed to create role', { description: error.message });
     },
@@ -206,34 +197,28 @@ export function useUpdateWorkspaceRole(workspaceId: string) {
         WORKSPACE_ROLES_QUERY_KEY(workspaceId),
       );
 
-      queryClient.setQueryData<RolesResponse>(
-        WORKSPACE_ROLES_QUERY_KEY(workspaceId),
-        (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            roles: old.roles.map((role) =>
-              role.id === roleId
-                ? {
-                    ...role,
-                    ...(data.name !== undefined && { name: data.name }),
-                    ...(data.description !== undefined && { description: data.description }),
-                    ...(data.permissionIds !== undefined && { permissions: data.permissionIds }),
-                  }
-                : role,
-            ),
-          };
-        },
-      );
+      queryClient.setQueryData<RolesResponse>(WORKSPACE_ROLES_QUERY_KEY(workspaceId), (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          roles: old.roles.map((role) =>
+            role.id === roleId
+              ? {
+                  ...role,
+                  ...(data.name !== undefined && { name: data.name }),
+                  ...(data.description !== undefined && { description: data.description }),
+                  ...(data.permissionIds !== undefined && { permissions: data.permissionIds }),
+                }
+              : role,
+          ),
+        };
+      });
 
       return { previousData };
     },
     onError: (error: Error, _variables, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(
-          WORKSPACE_ROLES_QUERY_KEY(workspaceId),
-          context.previousData,
-        );
+        queryClient.setQueryData(WORKSPACE_ROLES_QUERY_KEY(workspaceId), context.previousData);
       }
       toast.error('Failed to update role', { description: error.message });
     },
@@ -262,25 +247,19 @@ export function useDeleteWorkspaceRole(workspaceId: string) {
         WORKSPACE_ROLES_QUERY_KEY(workspaceId),
       );
 
-      queryClient.setQueryData<RolesResponse>(
-        WORKSPACE_ROLES_QUERY_KEY(workspaceId),
-        (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            roles: old.roles.filter((role) => role.id !== roleId),
-          };
-        },
-      );
+      queryClient.setQueryData<RolesResponse>(WORKSPACE_ROLES_QUERY_KEY(workspaceId), (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          roles: old.roles.filter((role) => role.id !== roleId),
+        };
+      });
 
       return { previousData };
     },
     onError: (error: Error, _variables, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(
-          WORKSPACE_ROLES_QUERY_KEY(workspaceId),
-          context.previousData,
-        );
+        queryClient.setQueryData(WORKSPACE_ROLES_QUERY_KEY(workspaceId), context.previousData);
       }
       toast.error('Failed to delete role', { description: error.message });
     },
@@ -339,10 +318,7 @@ export function useUpdateMemberRole(workspaceId: string) {
     },
     onError: (error: Error, _variables, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(
-          WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
-          context.previousData,
-        );
+        queryClient.setQueryData(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId), context.previousData);
       }
       toast.error('Failed to update role', { description: error.message });
     },
@@ -391,10 +367,7 @@ export function useArchiveWorkspace(workspaceId: string) {
     },
     onError: (error: Error, _variables, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(
-          WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
-          context.previousData,
-        );
+        queryClient.setQueryData(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId), context.previousData);
       }
       toast.error('Failed to archive workspace', { description: error.message });
     },
@@ -441,10 +414,7 @@ export function useRestoreWorkspace(workspaceId: string) {
     },
     onError: (error: Error, _variables, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(
-          WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
-          context.previousData,
-        );
+        queryClient.setQueryData(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId), context.previousData);
       }
       toast.error('Failed to restore workspace', { description: error.message });
     },

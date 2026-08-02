@@ -45,7 +45,10 @@ vi.mock('@sprintio/shared', async (importOriginal) => {
   return {
     ...actual,
     slugify: vi.fn((name: string) =>
-      name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, ''),
     ),
   };
 });
@@ -64,12 +67,22 @@ const OTHER_USER_ID = '550e8400-e29b-41d4-a716-446655440002';
 const THIRD_USER_ID = '550e8400-e29b-41d4-a716-446655440004';
 const ORG_ID = '550e8400-e29b-41d4-a716-446655440003';
 
-function makeWs(overrides: Partial<{
-  id: string; name: string; slug: string; description: string | null;
-  logo: string | null; brandColor: string | null; customDomain: string | null;
-  organizationId: string | null; plan: string;
-  archivedAt: Date | null; createdAt: Date; updatedAt: Date;
-}> = {}) {
+function makeWs(
+  overrides: Partial<{
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    logo: string | null;
+    brandColor: string | null;
+    customDomain: string | null;
+    organizationId: string | null;
+    plan: string;
+    archivedAt: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+  }> = {},
+) {
   return {
     id: WS_ID,
     name: 'Test Workspace',
@@ -87,9 +100,15 @@ function makeWs(overrides: Partial<{
   };
 }
 
-function makeMember(overrides: Partial<{
-  id: string; workspaceId: string; userId: string; role: string; createdAt: Date;
-}> = {}) {
+function _makeMember(
+  overrides: Partial<{
+    id: string;
+    workspaceId: string;
+    userId: string;
+    role: string;
+    createdAt: Date;
+  }> = {},
+) {
   return {
     id: 'member-1',
     workspaceId: WS_ID,
@@ -100,10 +119,16 @@ function makeMember(overrides: Partial<{
   };
 }
 
-function makeMemberWithUser(overrides: Partial<{
-  id: string; workspaceId: string; userId: string; role: string; createdAt: Date;
-  user: { id: string; name: string; email: string; avatarUrl: string | null };
-}> = {}) {
+function makeMemberWithUser(
+  overrides: Partial<{
+    id: string;
+    workspaceId: string;
+    userId: string;
+    role: string;
+    createdAt: Date;
+    user: { id: string; name: string; email: string; avatarUrl: string | null };
+  }> = {},
+) {
   return {
     id: 'member-1',
     workspaceId: WS_ID,
@@ -158,13 +183,23 @@ describe('Workspace Switching Integration', () => {
           id: 'm2',
           userId: OTHER_USER_ID,
           role: 'admin',
-          user: { id: OTHER_USER_ID, name: 'Admin User', email: 'admin@example.com', avatarUrl: 'https://avatar.example.com/admin.jpg' },
+          user: {
+            id: OTHER_USER_ID,
+            name: 'Admin User',
+            email: 'admin@example.com',
+            avatarUrl: 'https://avatar.example.com/admin.jpg',
+          },
         }),
         makeMemberWithUser({
           id: 'm3',
           userId: THIRD_USER_ID,
           role: 'member',
-          user: { id: THIRD_USER_ID, name: 'Member User', email: 'member@example.com', avatarUrl: null },
+          user: {
+            id: THIRD_USER_ID,
+            name: 'Member User',
+            email: 'member@example.com',
+            avatarUrl: null,
+          },
         }),
       ];
 
@@ -186,9 +221,9 @@ describe('Workspace Switching Integration', () => {
     it('should throw NOT_FOUND for non-existent workspace', async () => {
       repo.findById.mockResolvedValue(undefined);
 
-      await expect(
-        workspaceService.resolveWorkspaceContext(WS_ID, USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.resolveWorkspaceContext(WS_ID, USER_ID)).rejects.toThrow(
+        AppError,
+      );
 
       try {
         await workspaceService.resolveWorkspaceContext(WS_ID, USER_ID);
@@ -202,9 +237,9 @@ describe('Workspace Switching Integration', () => {
       repo.findById.mockResolvedValue(makeWs());
       repo.getMemberRole.mockResolvedValue(undefined);
 
-      await expect(
-        workspaceService.resolveWorkspaceContext(WS_ID, OTHER_USER_ID),
-      ).rejects.toThrow(AppError);
+      await expect(workspaceService.resolveWorkspaceContext(WS_ID, OTHER_USER_ID)).rejects.toThrow(
+        AppError,
+      );
 
       try {
         await workspaceService.resolveWorkspaceContext(WS_ID, OTHER_USER_ID);
