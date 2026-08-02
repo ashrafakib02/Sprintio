@@ -32,14 +32,13 @@ export const ORGANIZATION_MEMBERS_QUERY_KEY = (id: string) =>
 // ── Internal Types ──────────────────────────────────────────
 
 interface OrganizationContextResponse {
-  organization: Awaited<ReturnType<typeof getOrganization>>['data'];
+  organization: Awaited<ReturnType<typeof getOrganization>>['data']['organization'];
   userRole: string;
   members: OrganizationMember[];
 }
 
-interface OrganizationListResponse {
-  data: Awaited<ReturnType<typeof listOrganizations>>['data'];
-}
+// Cache stores the selected array (response.data.organizations)
+type OrganizationListResponse = Awaited<ReturnType<typeof listOrganizations>>['data']['organizations'];
 
 // ── List Organizations Hook ─────────────────────────────────
 
@@ -48,7 +47,7 @@ export function useOrganizations(includeArchived = false) {
     queryKey: [...ORGANIZATION_LIST_QUERY_KEY, { includeArchived }],
     queryFn: () => listOrganizations(includeArchived),
     staleTime: 30_000,
-    select: (response) => response.data,
+    select: (response) => response.data.organizations,
   });
 }
 
@@ -65,13 +64,15 @@ export function useOrganizationContext(organizationId: string) {
 
       // Derive userRole from membership data
       const { user: currentUser } = getAuthState();
-      const currentMembership = membersResponse.data.find((m) => m.userId === currentUser?.id);
+      const currentMembership = membersResponse.data.members.find(
+        (m) => m.userId === currentUser?.id,
+      );
       const userRole = currentMembership?.role ?? 'member';
 
       return {
-        organization: orgResponse.data,
+        organization: orgResponse.data.organization,
         userRole: userRole as string,
-        members: membersResponse.data,
+        members: membersResponse.data.members,
       };
     },
     staleTime: 60_000,
@@ -109,10 +110,7 @@ export function useCreateOrganization() {
 
       queryClient.setQueryData<OrganizationListResponse>(ORGANIZATION_LIST_QUERY_KEY, (old) => {
         if (!old) return old;
-        return {
-          ...old,
-          data: [...old.data, temporaryOrganization],
-        };
+        return [...old, temporaryOrganization];
       });
 
       return { previousData };
@@ -309,10 +307,7 @@ export function useDeleteOrganization(organizationId: string) {
 
       queryClient.setQueryData<OrganizationListResponse>(ORGANIZATION_LIST_QUERY_KEY, (old) => {
         if (!old) return old;
-        return {
-          ...old,
-          data: old.data.filter((org) => org.id !== organizationId),
-        };
+        return old.filter((org) => org.id !== organizationId);
       });
 
       return { previousData };
@@ -344,7 +339,7 @@ export function useOrganizationMembers(organizationId: string) {
   return useQuery({
     queryKey: ORGANIZATION_MEMBERS_QUERY_KEY(organizationId),
     queryFn: () => listOrganizationMembers(organizationId),
-    select: (response) => response.data,
+    select: (response) => response.data.members,
     staleTime: 30_000,
   });
 }

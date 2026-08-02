@@ -14,6 +14,23 @@ function OrganizationLayout() {
 
   const { data, isLoading, isError, error } = useOrganizationContext(organizationId);
 
+  const { organization, userRole } = data ?? {};
+
+  const roleLabel = userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : '';
+
+  const roleBadgeVariant = useMemo(() => {
+    switch (userRole) {
+      case 'owner':
+        return 'default' as const;
+      case 'admin':
+        return 'info' as const;
+      case 'member':
+        return 'secondary' as const;
+      default:
+        return 'outline' as const;
+    }
+  }, [userRole]);
+
   // ── Loading State ─────────────────────────────────────────────
 
   if (isLoading) {
@@ -49,22 +66,7 @@ function OrganizationLayout() {
     );
   }
 
-  const { organization, userRole } = data;
-
-  const roleLabel = userRole.charAt(0).toUpperCase() + userRole.slice(1);
-
-  const roleBadgeVariant = useMemo(() => {
-    switch (userRole) {
-      case 'owner':
-        return 'default' as const;
-      case 'admin':
-        return 'info' as const;
-      case 'member':
-        return 'secondary' as const;
-      default:
-        return 'outline' as const;
-    }
-  }, [userRole]);
+  if (!organization) return null;
 
   // ── Organization Header ───────────────────────────────────────
 

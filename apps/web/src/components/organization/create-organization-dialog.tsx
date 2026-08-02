@@ -70,7 +70,7 @@ export function CreateOrganizationDialog({ open, onOpenChange }: CreateOrganizat
           onOpenChange(false);
           navigate({
             to: '/organization/$organizationId',
-            params: { organizationId: response.data.id },
+            params: { organizationId: response.data.organization.id },
           });
         },
       },

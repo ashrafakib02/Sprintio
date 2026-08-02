@@ -12,8 +12,8 @@ export interface CreateOrganizationInput {
 
 export async function createOrganization(
   data: CreateOrganizationInput,
-): Promise<ApiResponse<Organization>> {
-  return apiRequest<Organization>('/organizations', {
+): Promise<ApiResponse<{ organization: Organization }>> {
+  return apiRequest<{ organization: Organization }>('/organizations', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -23,15 +23,15 @@ export async function createOrganization(
 
 export async function listOrganizations(
   includeArchived?: boolean,
-): Promise<ApiResponse<Organization[]>> {
+): Promise<ApiResponse<{ organizations: Organization[] }>> {
   const params = includeArchived ? '?includeArchived=true' : '';
-  return apiRequest<Organization[]>(`/organizations${params}`);
+  return apiRequest<{ organizations: Organization[] }>(`/organizations${params}`);
 }
 
 // ─── Get by ID ───────────────────────────────────────────────────────────
 
-export async function getOrganization(id: string): Promise<ApiResponse<Organization>> {
-  return apiRequest<Organization>(`/organizations/${id}`);
+export async function getOrganization(id: string): Promise<ApiResponse<{ organization: Organization }>> {
+  return apiRequest<{ organization: Organization }>(`/organizations/${id}`);
 }
 
 // ─── Update ──────────────────────────────────────────────────────────────
@@ -45,8 +45,8 @@ export interface UpdateOrganizationInput {
 export async function updateOrganization(
   id: string,
   data: UpdateOrganizationInput,
-): Promise<ApiResponse<Organization>> {
-  return apiRequest<Organization>(`/organizations/${id}`, {
+): Promise<ApiResponse<{ organization: Organization }>> {
+  return apiRequest<{ organization: Organization }>(`/organizations/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   });
@@ -80,8 +80,8 @@ export async function deleteOrganization(id: string): Promise<ApiResponse<null>>
 
 export async function listOrganizationMembers(
   id: string,
-): Promise<ApiResponse<OrganizationMember[]>> {
-  return apiRequest<OrganizationMember[]>(`/organizations/${id}/members`);
+): Promise<ApiResponse<{ members: OrganizationMember[] }>> {
+  return apiRequest<{ members: OrganizationMember[] }>(`/organizations/${id}/members`);
 }
 
 export interface AddOrganizationMemberInput {
