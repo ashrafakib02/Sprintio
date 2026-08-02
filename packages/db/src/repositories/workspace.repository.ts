@@ -14,7 +14,7 @@ export interface WorkspaceRecord {
   logo: string | null;
   brandColor: string | null;
   customDomain: string | null;
-  organizationId: string | null;
+  organizationId: string;
   plan: string;
   archivedAt: Date | null;
   createdAt: Date;
@@ -46,7 +46,7 @@ export interface CreateWorkspaceData {
   slug: string;
   description?: string | null;
   logo?: string | null;
-  organizationId?: string | null;
+  organizationId: string;
   plan?: string;
   createdById: string;
 }
@@ -57,7 +57,7 @@ export interface UpdateWorkspaceData {
   logo?: string | null;
   brandColor?: string | null;
   customDomain?: string | null;
-  organizationId?: string | null;
+  organizationId?: string;
   plan?: string;
 }
 
@@ -192,7 +192,7 @@ export async function create(
         slug: data.slug,
         description: data.description ?? null,
         logo: data.logo ?? null,
-        organizationId: data.organizationId ?? null,
+        organizationId: data.organizationId,
         plan: data.plan ?? 'free',
       })
       .returning();
