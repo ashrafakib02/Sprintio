@@ -12,6 +12,7 @@ import { boards } from './boards.js';
 import { columns } from './columns.js';
 import { users } from './users.js';
 import { sprints } from './sprints.js';
+import { projects } from './projects.js';
 
 export const tasks = pgTable(
   'tasks',
@@ -24,12 +25,15 @@ export const tasks = pgTable(
     assigneeId: uuid('assignee_id').references(() => users.id, {
       onDelete: 'set null',
     }),
-    boardId: uuid('board_id')
+    projectId: uuid('project_id')
       .notNull()
-      .references(() => boards.id, { onDelete: 'cascade' }),
-    columnId: uuid('column_id')
-      .notNull()
-      .references(() => columns.id, { onDelete: 'cascade' }),
+      .references(() => projects.id, { onDelete: 'cascade' }),
+    boardId: uuid('board_id').references(() => boards.id, {
+      onDelete: 'set null',
+    }),
+    columnId: uuid('column_id').references(() => columns.id, {
+      onDelete: 'set null',
+    }),
     sprintId: uuid('sprint_id').references(() => sprints.id, {
       onDelete: 'set null',
     }),
@@ -51,6 +55,7 @@ export const tasks = pgTable(
       .$onUpdate(() => new Date()),
   },
   (table) => ({
+    projectIdIdx: index('tasks_project_id_idx').on(table.projectId),
     boardIdIdx: index('tasks_board_id_idx').on(table.boardId),
     columnIdIdx: index('tasks_column_id_idx').on(table.columnId),
     sprintIdIdx: index('tasks_sprint_id_idx').on(table.sprintId),

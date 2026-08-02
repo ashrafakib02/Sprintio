@@ -9,6 +9,11 @@ import { roles } from './roles.js';
 import { permissions } from './permissions.js';
 import { rolePermissions } from './role-permissions.js';
 import { userRoles } from './user-roles.js';
+import { projects } from './projects.js';
+import { sprints } from './sprints.js';
+import { boards } from './boards.js';
+import { columns } from './columns.js';
+import { tasks } from './tasks.js';
 
 // ============================================================
 // Organization Relations
@@ -45,6 +50,8 @@ export const workspacesRelations = relations(workspaces, ({ one, many }) => ({
   }),
   members: many(workspaceMembers),
   invitations: many(workspaceInvitations),
+  projects: many(projects),
+  boards: many(boards),
 }));
 
 // ============================================================
@@ -73,6 +80,87 @@ export const workspaceInvitationsRelations = relations(workspaceInvitations, ({ 
   }),
   invitedBy: one(users, {
     fields: [workspaceInvitations.invitedById],
+    references: [users.id],
+  }),
+}));
+
+// ============================================================
+// Project Relations
+// ============================================================
+
+export const projectsRelations = relations(projects, ({ one, many }) => ({
+  workspace: one(workspaces, {
+    fields: [projects.workspaceId],
+    references: [workspaces.id],
+  }),
+  sprints: many(sprints),
+  tasks: many(tasks),
+}));
+
+// ============================================================
+// Sprint Relations
+// ============================================================
+
+export const sprintsRelations = relations(sprints, ({ one, many }) => ({
+  project: one(projects, {
+    fields: [sprints.projectId],
+    references: [projects.id],
+  }),
+  tasks: many(tasks),
+}));
+
+// ============================================================
+// Board Relations
+// ============================================================
+
+export const boardsRelations = relations(boards, ({ one, many }) => ({
+  workspace: one(workspaces, {
+    fields: [boards.workspaceId],
+    references: [workspaces.id],
+  }),
+  project: one(projects, {
+    fields: [boards.projectId],
+    references: [projects.id],
+  }),
+  columns: many(columns),
+  tasks: many(tasks),
+}));
+
+// ============================================================
+// Column Relations
+// ============================================================
+
+export const columnsRelations = relations(columns, ({ one, many }) => ({
+  board: one(boards, {
+    fields: [columns.boardId],
+    references: [boards.id],
+  }),
+  tasks: many(tasks),
+}));
+
+// ============================================================
+// Task Relations
+// ============================================================
+
+export const tasksRelations = relations(tasks, ({ one }) => ({
+  project: one(projects, {
+    fields: [tasks.projectId],
+    references: [projects.id],
+  }),
+  board: one(boards, {
+    fields: [tasks.boardId],
+    references: [boards.id],
+  }),
+  column: one(columns, {
+    fields: [tasks.columnId],
+    references: [columns.id],
+  }),
+  sprint: one(sprints, {
+    fields: [tasks.sprintId],
+    references: [sprints.id],
+  }),
+  assignee: one(users, {
+    fields: [tasks.assigneeId],
     references: [users.id],
   }),
 }));
@@ -121,4 +209,5 @@ export const usersRelations = relations(users, ({ many }) => ({
   workspaceMemberships: many(workspaceMembers),
   workspaceInvitations: many(workspaceInvitations),
   userRoles: many(userRoles),
+  assignedTasks: many(tasks),
 }));

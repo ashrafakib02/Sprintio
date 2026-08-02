@@ -7,6 +7,7 @@ import {
   ORGANIZATION_MEMBERS_QUERY_KEY,
 } from '@/hooks/use-organization-settings';
 import { getOrganizationInitials, getOrganizationAvatarGradient } from '@/lib/organization-utils';
+import { getStoredOrganizationId, setStoredOrganizationId } from '@/lib/organization-storage';
 import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/cn';
@@ -28,6 +29,7 @@ export function OrganizationSwitcher() {
   const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const listboxRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -37,7 +39,17 @@ export function OrganizationSwitcher() {
   const createOrganization = useCreateOrganization();
 
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const activeOrganizationId = extractOrganizationId(pathname);
+  const urlOrgId = extractOrganizationId(pathname);
+  const activeOrganizationId = useMemo(() => {
+    if (urlOrgId) return urlOrgId;
+    const stored = getStoredOrganizationId();
+    if (stored) return stored;
+    if (organizations && organizations.length > 0) {
+      setStoredOrganizationId(organizations[0].id);
+      return organizations[0].id;
+    }
+    return null;
+  }, [urlOrgId, organizations]);
 
   const activeOrganization = organizations?.find((org) => org.id === activeOrganizationId);
   const displayOrganizations = organizations ?? [];
@@ -59,6 +71,22 @@ export function OrganizationSwitcher() {
       setOpen(false);
       setSearch('');
       setActiveIndex(-1);
+    } else if (containerRef.current?.contains(e.target as Node)) {
+      // Click inside container — if it's not on the trigger button, close
+      const triggerButton = containerRef.current.querySelector('button');
+      // Don't close when clicking the "Create organization" button —
+      // its own onClick handler manages the dialog state.
+      const target = e.target as HTMLElement;
+      if (
+        triggerButton &&
+        !triggerButton.contains(e.target as Node) &&
+        !target.closest('[data-create-org]') &&
+        !target.closest('[role="option"]')
+      ) {
+        setOpen(false);
+        setSearch('');
+        setActiveIndex(-1);
+      }
     }
   }, []);
 
@@ -90,12 +118,37 @@ export function OrganizationSwitcher() {
     };
   }, [open]);
 
-  // Focus search input when dropdown opens
+  // Focus search input when dropdown opens, or listbox if no search
   useEffect(() => {
-    if (open && searchInputRef.current) {
-      const timer = setTimeout(() => searchInputRef.current?.focus(), 50);
+    if (open) {
+      const timer = setTimeout(() => {
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+        } else if (listboxRef.current) {
+          listboxRef.current.focus();
+        }
+      }, 50);
       return () => clearTimeout(timer);
     }
+  }, [open]);
+
+  // Keep focus on the listbox when clicking inside it,
+  // so keyboard navigation (ArrowDown/Up/Enter) keeps working.
+  useEffect(() => {
+    const el = listboxRef.current;
+    if (!open || !el) return;
+    const refocus = () => {
+      // If focus left the listbox (e.g. clicking an option), bring it back
+      if (document.activeElement !== el && el.contains(document.activeElement) === false) {
+        el.focus();
+      }
+    };
+    el.addEventListener('mouseup', refocus);
+    el.addEventListener('click', refocus);
+    return () => {
+      el.removeEventListener('mouseup', refocus);
+      el.removeEventListener('click', refocus);
+    };
   }, [open]);
 
   // Reset active index when search changes
@@ -128,6 +181,7 @@ export function OrganizationSwitcher() {
         to: '/organization/$organizationId',
         params: { organizationId },
       });
+      setStoredOrganizationId(organizationId);
     },
     [activeOrganizationId, navigate, queryClient],
   );
@@ -154,8 +208,9 @@ export function OrganizationSwitcher() {
             setNewOrgName('');
             navigate({
               to: '/organization/$organizationId',
-              params: { organizationId: response.data.id },
+              params: { organizationId: response.data.organization.id },
             });
+            setStoredOrganizationId(response.data.organization.id);
           },
         },
       );
@@ -182,14 +237,24 @@ export function OrganizationSwitcher() {
 
   if (displayOrganizations.length === 0) {
     return (
-      <button
-        type="button"
-        onClick={handleCreate}
-        className="flex w-full items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-      >
-        <Plus className="h-4 w-4" />
-        Create an organization
-      </button>
+      <div ref={containerRef}>
+        <button
+          type="button"
+          onClick={handleCreate}
+          className="flex w-full items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          Create an organization
+        </button>
+        <CreateOrganizationDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          onSubmit={handleCreateSubmit}
+          name={newOrgName}
+          onNameChange={setNewOrgName}
+          isPending={createOrganization.isPending}
+        />
+      </div>
     );
   }
 
@@ -253,8 +318,10 @@ export function OrganizationSwitcher() {
       {/* Dropdown */}
       {open && (
         <div
+          ref={listboxRef}
           id={listboxId}
           role="listbox"
+          tabIndex={-1}
           aria-label="Organizations"
           aria-activedescendant={activeIndex >= 0 ? `org-option-${activeIndex}` : undefined}
           onKeyDown={(e) => {
@@ -359,6 +426,7 @@ export function OrganizationSwitcher() {
           <div className="p-1">
             <button
               type="button"
+              data-create-org
               onClick={handleCreate}
               className={cn(
                 'flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm',

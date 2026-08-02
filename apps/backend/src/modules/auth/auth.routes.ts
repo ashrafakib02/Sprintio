@@ -24,7 +24,7 @@ import { authenticate } from '../../middleware/auth.js';
 // ── Rate limiters ────────────────────────────────────────────
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 100000,
   standardHeaders: true,
   legacyHeaders: false,
   handler: (_req, res) => {

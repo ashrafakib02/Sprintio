@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { repoDb } from '../config/db-for-repos.js';
 import { workspaceRepo, organizationRepo } from '@sprintio/db/repositories';
-import { WORKSPACE_ROLE_PERMISSIONS } from '@sprintio/shared';
+import { WORKSPACE_ROLE_PERMISSIONS, type WorkspaceRole } from '@sprintio/shared';
 
 // ============================================================
 // Type Augmentation
@@ -53,7 +53,8 @@ export function requireWorkspacePermission(...permissions: string[]) {
           return next();
         }
 
-        const rolePermissions = WORKSPACE_ROLE_PERMISSIONS[req.workspaceRole] ?? [];
+        const rolePermissions =
+          WORKSPACE_ROLE_PERMISSIONS[req.workspaceRole as WorkspaceRole] ?? [];
         const hasAll = permissions.every((p) => rolePermissions.includes(p));
 
         if (!hasAll) {
@@ -86,7 +87,7 @@ export function requireWorkspacePermission(...permissions: string[]) {
         return next();
       }
 
-      const rolePermissions = WORKSPACE_ROLE_PERMISSIONS[role] ?? [];
+      const rolePermissions = WORKSPACE_ROLE_PERMISSIONS[role as WorkspaceRole] ?? [];
       const hasAll = permissions.every((p) => rolePermissions.includes(p));
 
       if (!hasAll) {

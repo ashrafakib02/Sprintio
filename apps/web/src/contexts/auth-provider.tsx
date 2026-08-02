@@ -4,6 +4,8 @@ import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { fetchMe, refreshTokens, logoutApi } from '@/lib/api';
 import type { AuthContextValue } from '@/types/auth';
 import { setAuthState } from '@/lib/auth-store';
+import { clearStoredOrganizationId } from '@/lib/organization-storage';
+import { clearStoredWorkspaceId } from '@/lib/workspace-storage';
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -65,6 +67,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
     } catch {
       queryClient.setQueryData(AUTH_QUERY_KEY, null);
+      // Synchronously clear module-level auth store so route guards
+      // immediately reject authenticated-route access.
+      setAuthState({ user: null, isLoading: false });
       // Don't redirect to login if already on a guest route
       const currentPath = pathnameRef.current;
       if (!GUEST_ROUTES.some((route) => currentPath.startsWith(route))) {
@@ -93,8 +98,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await logoutApi();
     } finally {
+      // Synchronously clear module-level auth store so route guards
+      // immediately reject authenticated-route access.
+      setAuthState({ user: null, isLoading: false });
       queryClient.setQueryData(AUTH_QUERY_KEY, null);
       queryClient.clear();
+      clearStoredOrganizationId();
+      clearStoredWorkspaceId();
       navigate({ to: '/login' });
     }
   }, [queryClient, navigate]);

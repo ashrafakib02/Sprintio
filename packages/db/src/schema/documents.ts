@@ -1,6 +1,7 @@
 import { pgTable, uuid, varchar, jsonb, timestamp, index } from 'drizzle-orm/pg-core';
 import { workspaces } from './workspaces.js';
 import { users } from './users.js';
+import { projects } from './projects.js';
 
 export const documents = pgTable(
   'documents',
@@ -11,6 +12,9 @@ export const documents = pgTable(
     workspaceId: uuid('workspace_id')
       .notNull()
       .references(() => workspaces.id, { onDelete: 'cascade' }),
+    projectId: uuid('project_id').references(() => projects.id, {
+      onDelete: 'set null',
+    }),
     authorId: uuid('author_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
@@ -30,6 +34,7 @@ export const documents = pgTable(
   },
   (table) => ({
     workspaceIdIdx: index('documents_workspace_id_idx').on(table.workspaceId),
+    projectIdIdx: index('documents_project_id_idx').on(table.projectId),
     authorIdIdx: index('documents_author_id_idx').on(table.authorId),
   }),
 );

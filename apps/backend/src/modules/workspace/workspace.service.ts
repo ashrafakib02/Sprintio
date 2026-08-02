@@ -12,6 +12,7 @@ import type {
   CreateWorkspaceInput,
   UpdateWorkspaceInput,
   TransferOwnershipInput,
+  WorkspaceRole,
 } from '@sprintio/shared';
 import { randomBytes } from 'node:crypto';
 
@@ -194,7 +195,7 @@ function assertPermission(role: string | undefined, permission: string): string 
     return role;
   }
 
-  const permissions = WORKSPACE_ROLE_PERMISSIONS[role] ?? [];
+  const permissions = WORKSPACE_ROLE_PERMISSIONS[role as WorkspaceRole] ?? [];
   if (!permissions.includes(permission)) {
     throw AppError.forbidden('Insufficient workspace permissions');
   }

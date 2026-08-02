@@ -70,6 +70,40 @@ function WorkspaceLayout() {
     };
   }, [workspaceId, queryClient, navigate]);
 
+  // ── Derived values (must be before any early returns for Rules of Hooks) ──
+
+  const workspace = data?.workspace;
+  const userRole = data?.userRole;
+
+  const roleLabel = useMemo(
+    () => (userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : ''),
+    [userRole],
+  );
+
+  const roleBadgeVariant = useMemo(() => {
+    switch (userRole) {
+      case 'owner':
+        return 'default' as const;
+      case 'admin':
+        return 'info' as const;
+      case 'member':
+        return 'secondary' as const;
+      default:
+        return 'outline' as const;
+    }
+  }, [userRole]);
+
+  const planBadgeVariant = useMemo(() => {
+    switch (workspace?.plan) {
+      case 'enterprise':
+        return 'info' as const;
+      case 'pro':
+        return 'warning' as const;
+      default:
+        return 'secondary' as const;
+    }
+  }, [workspace?.plan]);
+
   // ── Loading State ─────────────────────────────────────────────
 
   if (isLoading) {
@@ -85,7 +119,7 @@ function WorkspaceLayout() {
 
   // ── Error / Not Found State ───────────────────────────────────
 
-  if (isError || !data) {
+  if (isError || !data || !workspace) {
     return (
       <div
         className="flex h-full flex-col items-center justify-center gap-4 text-muted-foreground"
@@ -104,34 +138,6 @@ function WorkspaceLayout() {
       </div>
     );
   }
-
-  const { workspace, userRole } = data;
-
-  const roleLabel = userRole.charAt(0).toUpperCase() + userRole.slice(1);
-
-  const roleBadgeVariant = useMemo(() => {
-    switch (userRole) {
-      case 'owner':
-        return 'default' as const;
-      case 'admin':
-        return 'info' as const;
-      case 'member':
-        return 'secondary' as const;
-      default:
-        return 'outline' as const;
-    }
-  }, [userRole]);
-
-  const planBadgeVariant = useMemo(() => {
-    switch (workspace.plan) {
-      case 'enterprise':
-        return 'info' as const;
-      case 'pro':
-        return 'warning' as const;
-      default:
-        return 'secondary' as const;
-    }
-  }, [workspace.plan]);
 
   // ── Workspace Header ──────────────────────────────────────────
 

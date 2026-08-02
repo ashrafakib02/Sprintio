@@ -3,7 +3,9 @@ import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useListWorkspaces, useCreateWorkspace } from '@/hooks/use-workspace';
 import { WORKSPACE_CONTEXT_QUERY_KEY } from '@/hooks/use-workspace-settings';
+import { useActiveOrganization } from '@/hooks/use-active-organization';
 import { switchWorkspace } from '@/lib/api';
+import { getStoredWorkspaceId, setStoredWorkspaceId } from '@/lib/workspace-storage';
 import { getWorkspaceInitials, getAvatarGradient } from '@/lib/workspace-utils';
 import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
@@ -99,9 +101,19 @@ export function WorkspaceSwitcher() {
 
   const { data: workspaces, isLoading } = useListWorkspaces();
   const createWorkspace = useCreateWorkspace();
+  const currentOrganizationId = useActiveOrganization();
 
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const activeWorkspaceId = extractWorkspaceId(pathname);
+  const urlWsId = extractWorkspaceId(pathname);
+  const activeWorkspaceId = useMemo(() => {
+    if (urlWsId) return urlWsId;
+    const stored = getStoredWorkspaceId();
+    if (stored) return stored;
+    if (workspaces && workspaces.length > 0) {
+      return workspaces[0].id;
+    }
+    return null;
+  }, [urlWsId, workspaces]);
 
   const activeWorkspace = workspaces?.find((ws) => ws.id === activeWorkspaceId);
   const displayWorkspaces = workspaces ?? [];
@@ -122,7 +134,13 @@ export function WorkspaceSwitcher() {
   // ── Click outside to close ──────────────────────────────
 
   const handleClickOutside = useCallback((e: MouseEvent) => {
-    if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+    const target = e.target as HTMLElement;
+    if (
+      containerRef.current &&
+      !containerRef.current.contains(target) &&
+      !target.closest('[role="option"]') &&
+      !target.closest('[data-create-workspace]')
+    ) {
       setOpen(false);
       setSearch('');
       setActiveIndex(-1);
@@ -205,6 +223,7 @@ export function WorkspaceSwitcher() {
           to: '/workspace/$workspaceId',
           params: { workspaceId },
         });
+        setStoredWorkspaceId(workspaceId);
       } catch (error) {
         const msg = error instanceof Error ? error.message : '';
 
@@ -243,7 +262,7 @@ export function WorkspaceSwitcher() {
       if (!name) return;
 
       createWorkspace.mutate(
-        { name },
+        { name, organizationId: currentOrganizationId ?? undefined },
         {
           onSuccess: (response) => {
             setCreateDialogOpen(false);
@@ -257,7 +276,7 @@ export function WorkspaceSwitcher() {
         },
       );
     },
-    [newWorkspaceName, createWorkspace, navigate],
+    [newWorkspaceName, createWorkspace, navigate, currentOrganizationId],
   );
 
   // ── Loading state ───────────────────────────────────────
@@ -279,14 +298,24 @@ export function WorkspaceSwitcher() {
 
   if (displayWorkspaces.length === 0) {
     return (
-      <button
-        type="button"
-        onClick={handleCreate}
-        className="flex w-full items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-      >
-        <Plus className="h-4 w-4" />
-        Create a workspace
-      </button>
+      <>
+        <button
+          type="button"
+          onClick={handleCreate}
+          className="flex w-full items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          Create a workspace
+        </button>
+        <CreateWorkspaceDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          onSubmit={handleCreateSubmit}
+          name={newWorkspaceName}
+          onNameChange={setNewWorkspaceName}
+          isPending={createWorkspace.isPending}
+        />
+      </>
     );
   }
 
@@ -367,6 +396,7 @@ export function WorkspaceSwitcher() {
         <div
           id={listboxId}
           role="listbox"
+          tabIndex={0}
           aria-label="Workspaces"
           aria-busy={isSwitching}
           aria-activedescendant={activeIndex >= 0 ? `ws-option-${activeIndex}` : undefined}
@@ -480,6 +510,7 @@ export function WorkspaceSwitcher() {
           <div className="p-1">
             <button
               type="button"
+              data-create-workspace
               onClick={handleCreate}
               className={cn(
                 'flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm',
