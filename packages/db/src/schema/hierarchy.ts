@@ -1,552 +1,188 @@
 /**
- * Sprintio Hierarchy Schema Redesign
- * ===================================
+ * Sprintio Hierarchy Schema — Authoritative Reference
+ * ====================================================
  *
- * Target hierarchy: Organization → Workspace → Project → Task
+ * Hierarchy: Organization → Workspace → Project → Task
  *
  * This file documents:
- *  1. Schema modifications (Drizzle ORM definitions)
- *  2. Updated Drizzle relation definitions for the full entity graph
- *  3. Raw SQL for foreign-key changes
- *  4. Cascade rules table
+ *  1. The complete entity graph and FK relationships
+ *  2. Cascade rules for every FK in the system
+ *  3. Index strategy for performance
+ *  4. Constraint definitions
  *
- * IMPORTANT: This file is a design document / reference. It does NOT alter
- * existing schema files at import time. Apply the changes to the actual
- * schema files, then run drizzle-kit generate to produce migration files.
+ * The actual schema lives in:
+ *  - organizations.ts       (table definition)
+ *  - workspaces.ts          (table definition)
+ *  - projects.ts            (table definition)
+ *  - tasks.ts               (table definition)
+ *  - relations.ts           (Drizzle relational queries)
+ *  - boards.ts, columns.ts, sprints.ts, documents.ts, etc.
+ *
+ * Migration SQL lives in:
+ *  - migrations/0001_organizations.sql
+ *  - migrations/0002_add_org_member_role_check.sql
+ *  - migrations/0003_add_workspace_archived_at.sql
+ *  - migrations/0004_create_workspace_invitations.sql
+ *  - migrations/0005_create_rbac_tables.sql
+ *  - migrations/0006_hierarchy_enforce_not_null_and_indexes.sql
  */
 
-// ---------------------------------------------------------------------------
-// 1. SCHEMA MODIFICATIONS
-// ---------------------------------------------------------------------------
-//
-// For each changed table: current excerpt → new definition + migration notes.
-
-// ──────────────────────────────────────────────────────────────────────────────
-// 1a. workspaces.organizationId  (NULLABLE → NOT NULL)
-// ──────────────────────────────────────────────────────────────────────────────
-
-// CURRENT  (packages/db/src/schema/workspaces.ts, line 12-14)
-// -----------------------------------------------------------------------
-// organizationId: uuid('organization_id').references(() => organizations.id, {
-//   onDelete: 'cascade',
-// }),
-
-// NEW
-// -----------------------------------------------------------------------
-// organizationId: uuid('organization_id')
-//   .notNull()                                          // ← added
-//   .references(() => organizations.id, {
-//     onDelete: 'cascade',
-//   }),
-
-// MIGRATION NOTES
-// -----------------------------------------------------------------------
-// Before running ALTER TABLE ... SET NOT NULL, back-fill any rows where
-// organization_id IS NULL.  Options:
-//   a) Delete orphan workspaces:   DELETE FROM workspaces WHERE organization_id IS NULL;
-//   b) Assign a default org:       UPDATE workspaces SET organization_id = '<uuid>' WHERE organization_id IS NULL;
-// After back-fill:
-//   ALTER TABLE workspaces ALTER COLUMN organization_id SET NOT NULL;
-
-// ──────────────────────────────────────────────────────────────────────────────
-// 1b. tasks  —  ADD projectId FK
-// ──────────────────────────────────────────────────────────────────────────────
-
-// CURRENT  (packages/db/src/schema/tasks.ts, lines 16-59)
-// -----------------------------------------------------------------------
-// tasks has: boardId, columnId, sprintId, assigneeId — but NO projectId.
-
-// NEW  (full replacement excerpt)
-// -----------------------------------------------------------------------
-// The table gains a new required column and a new index.
-//
-//   projectId: uuid('project_id')
-//     .notNull()
-//     .references(() => projects.id, { onDelete: 'cascade' }),
-//
-// Index to add:
-//   projectIdIdx: index('tasks_project_id_idx').on(table.projectId),
-//
-// KEEP existing FKs:
-//   boardId   → boards.id   (CASCADE)   — optional, task can exist without a board
-//   columnId  → columns.id  (CASCADE)   — required, task must live in a column
-//   sprintId  → sprints.id  (SET NULL)  — optional, task may be outside a sprint
-//   assigneeId → users.id   (SET NULL)  — optional
-//
-// RATIONALE for keeping boardId/columnId/sprintId:
-//   - boardId + columnId model the Kanban/Scrum board layout (position within a column).
-//   - sprintId ties a task to a sprint timebox. SET NULL keeps the task alive if
-//     its sprint is deleted.
-//   - projectId is the new authoritative ownership link in the hierarchy.
-//     A task belongs to exactly one project; board/column/sprint are views on it.
-
-// MIGRATION NOTES
-// -----------------------------------------------------------------------
-// 1. Add the column as nullable first:
-//    ALTER TABLE tasks ADD COLUMN project_id UUID;
-//
-// 2. Back-fill from board → project mapping (if a project FK exists on boards,
-//    or from a column → board → project chain). If no mapping exists, create a
-//    default project and assign:
-//    UPDATE tasks SET project_id = '<default-project-uuid>' WHERE project_id IS NULL;
-//
-// 3. Enforce NOT NULL + FK:
-//    ALTER TABLE tasks
-//      ALTER COLUMN project_id SET NOT NULL,
-//      ADD CONSTRAINT tasks_project_id_fk
-//        FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
-//
-// 4. Add index:
-//    CREATE INDEX tasks_project_id_idx ON tasks(project_id);
-
-// ──────────────────────────────────────────────────────────────────────────────
-// 1c. boards  —  ADD optional projectId FK  (design decision)
-// ──────────────────────────────────────────────────────────────────────────────
-
-// Boards currently reference workspaceId directly.  To connect a board to a
-// specific project within that workspace, add an OPTIONAL projectId:
-//
-//   projectId: uuid('project_id')
-//     .references(() => projects.id, { onDelete: 'set null' }),
-//
-// This lets a board be scoped to a project.  When NULL the board is a
-// workspace-level board.  Keeping it optional avoids breaking existing boards.
-//
-// Index:  boardProjectIdIdx: index('boards_project_id_idx').on(table.projectId),
-
-// ──────────────────────────────────────────────────────────────────────────────
-// 1d. documents  —  ADD optional projectId FK
-// ──────────────────────────────────────────────────────────────────────────────
-
-// CURRENT: documents references workspaceId + authorId only.
-// NEW: add optional link to project:
-//
-//   projectId: uuid('project_id')
-//     .references(() => projects.id, { onDelete: 'set null' }),
-//
-// Index:  documentProjectIdIdx: index('documents_project_id_idx').on(table.projectId),
-
 // ============================================================================
-// 2. DRIZZLE RELATION DEFINITIONS
+// 1. HIERARCHY FK CHAIN
 // ============================================================================
 //
-// These are the complete relation blocks for every entity in the hierarchy.
-// Import them into packages/db/src/schema/relations.ts.
-
-import { relations } from 'drizzle-orm';
-
-// ── Table imports ────────────────────────────────────────────────────────────
-// Adjust import paths to match your project structure.
-import { organizations } from './organizations.js';
-import { organizationMembers } from './organization-members.js';
-import { workspaces } from './workspaces.js';
-import { workspaceMembers } from './workspace-members.js';
-import { workspaceInvitations } from './workspace-invitations.js';
-import { projects } from './projects.js';
-import { boards } from './boards.js';
-import { columns } from './columns.js';
-import { tasks } from './tasks.js';
-import { sprints } from './sprints.js';
-import { documents } from './documents.js';
-import { attachments } from './attachments.js';
-import { notifications } from './notifications.js';
-import { users } from './users.js';
-import { roles } from './roles.js';
-import { permissions } from './permissions.js';
-import { rolePermissions } from './role-permissions.js';
-import { userRoles } from './user-roles.js';
-
-// ---------------------------------------------------------------------------
-// Organization
-// ---------------------------------------------------------------------------
-
-export const organizationsHierarchyRelations = relations(organizations, ({ many }) => ({
-  /** org owns many workspaces */
-  workspaces: many(workspaces),
-  /** org membership list */
-  members: many(organizationMembers),
-}));
-
-// ---------------------------------------------------------------------------
-// Organization Members
-// ---------------------------------------------------------------------------
-
-export const organizationMembersHierarchyRelations = relations(organizationMembers, ({ one }) => ({
-  organization: one(organizations, {
-    fields: [organizationMembers.organizationId],
-    references: [organizations.id],
-  }),
-  user: one(users, {
-    fields: [organizationMembers.userId],
-    references: [users.id],
-  }),
-}));
-
-// ---------------------------------------------------------------------------
-// Workspace
-// ---------------------------------------------------------------------------
-
-export const workspacesHierarchyRelations = relations(workspaces, ({ one, many }) => ({
-  /** each workspace belongs to exactly one organization */
-  organization: one(organizations, {
-    fields: [workspaces.organizationId],
-    references: [organizations.id],
-  }),
-  /** workspace membership list */
-  members: many(workspaceMembers),
-  /** workspace invitations */
-  invitations: many(workspaceInvitations),
-  /** a workspace contains many projects */
-  projects: many(projects),
-  /** a workspace may have many boards (workspace-level) */
-  boards: many(boards),
-  /** a workspace may have many documents */
-  documents: many(documents),
-}));
-
-// ---------------------------------------------------------------------------
-// Workspace Members
-// ---------------------------------------------------------------------------
-
-export const workspaceMembersHierarchyRelations = relations(workspaceMembers, ({ one }) => ({
-  workspace: one(workspaces, {
-    fields: [workspaceMembers.workspaceId],
-    references: [workspaces.id],
-  }),
-  user: one(users, {
-    fields: [workspaceMembers.userId],
-    references: [users.id],
-  }),
-}));
-
-// ---------------------------------------------------------------------------
-// Workspace Invitations
-// ---------------------------------------------------------------------------
-
-export const workspaceInvitationsHierarchyRelations = relations(
-  workspaceInvitations,
-  ({ one }) => ({
-    workspace: one(workspaces, {
-      fields: [workspaceInvitations.workspaceId],
-      references: [workspaces.id],
-    }),
-    invitedBy: one(users, {
-      fields: [workspaceInvitations.invitedById],
-      references: [users.id],
-    }),
-  }),
-);
-
-// ---------------------------------------------------------------------------
-// Project  (Workspace → Project)
-// ---------------------------------------------------------------------------
-
-export const projectsHierarchyRelations = relations(projects, ({ one, many }) => ({
-  /** project belongs to exactly one workspace */
-  workspace: one(workspaces, {
-    fields: [projects.workspaceId],
-    references: [workspaces.id],
-  }),
-  /** project has many sprints */
-  sprints: many(sprints),
-  /** project owns many tasks */
-  tasks: many(tasks),
-  /** project may have scoped boards */
-  boards: many(boards),
-  /** project may have scoped documents */
-  documents: many(documents),
-}));
-
-// ---------------------------------------------------------------------------
-// Board
-// ---------------------------------------------------------------------------
-
-export const boardsHierarchyRelations = relations(boards, ({ one, many }) => ({
-  /** board belongs to a workspace */
-  workspace: one(workspaces, {
-    fields: [boards.workspaceId],
-    references: [workspaces.id],
-  }),
-  /** board optionally scoped to a project */
-  project: one(projects, {
-    fields: [boards.projectId],
-    references: [projects.id],
-    relationName: 'projectBoards',
-  }),
-  /** board has ordered columns */
-  columns: many(columns),
-  /** board has many tasks displayed on it */
-  tasks: many(tasks),
-}));
-
-// ---------------------------------------------------------------------------
-// Column (Board Column)
-// ---------------------------------------------------------------------------
-
-export const columnsHierarchyRelations = relations(columns, ({ one, many }) => ({
-  /** column belongs to a board */
-  board: one(boards, {
-    fields: [columns.boardId],
-    references: [boards.id],
-  }),
-  /** column contains ordered tasks */
-  tasks: many(tasks),
-}));
-
-// ---------------------------------------------------------------------------
-// Sprint
-// ---------------------------------------------------------------------------
-
-export const sprintsHierarchyRelations = relations(sprints, ({ one, many }) => ({
-  /** sprint belongs to a project */
-  project: one(projects, {
-    fields: [sprints.projectId],
-    references: [projects.id],
-  }),
-  /** sprint contains many tasks */
-  tasks: many(tasks),
-}));
-
-// ---------------------------------------------------------------------------
-// Task  (Project → Task)
-// ---------------------------------------------------------------------------
-
-export const tasksHierarchyRelations = relations(tasks, ({ one }) => ({
-  /** task belongs to exactly one project (NEW) */
-  project: one(projects, {
-    fields: [tasks.projectId],
-    references: [projects.id],
-  }),
-  /** task optionally displayed on a board */
-  board: one(boards, {
-    fields: [tasks.boardId],
-    references: [boards.id],
-    relationName: 'boardTasks',
-  }),
-  /** task lives in a specific column */
-  column: one(columns, {
-    fields: [tasks.columnId],
-    references: [columns.id],
-  }),
-  /** task optionally assigned to a sprint */
-  sprint: one(sprints, {
-    fields: [tasks.sprintId],
-    references: [sprints.id],
-  }),
-  /** task optionally assigned to a user */
-  assignee: one(users, {
-    fields: [tasks.assigneeId],
-    references: [users.id],
-    relationName: 'assignee',
-  }),
-}));
-
-// ---------------------------------------------------------------------------
-// Document
-// ---------------------------------------------------------------------------
-
-export const documentsHierarchyRelations = relations(documents, ({ one, many }) => ({
-  /** document belongs to a workspace */
-  workspace: one(workspaces, {
-    fields: [documents.workspaceId],
-    references: [workspaces.id],
-  }),
-  /** document optionally scoped to a project */
-  project: one(projects, {
-    fields: [documents.projectId],
-    references: [projects.id],
-    relationName: 'projectDocuments',
-  }),
-  /** document has an author */
-  author: one(users, {
-    fields: [documents.authorId],
-    references: [users.id],
-  }),
-  /** document may have attachments */
-  attachments: many(attachments),
-}));
-
-// ---------------------------------------------------------------------------
-// Attachment
-// ---------------------------------------------------------------------------
-
-export const attachmentsHierarchyRelations = relations(attachments, ({ one }) => ({
-  /** attachment optionally linked to a task */
-  task: one(tasks, {
-    fields: [attachments.taskId],
-    references: [tasks.id],
-  }),
-  /** attachment optionally linked to a document */
-  document: one(documents, {
-    fields: [attachments.documentId],
-    references: [documents.id],
-  }),
-  /** attachment uploaded by a user */
-  uploader: one(users, {
-    fields: [attachments.uploaderId],
-    references: [users.id],
-  }),
-}));
-
-// ---------------------------------------------------------------------------
-// Notification
-// ---------------------------------------------------------------------------
-
-export const notificationsHierarchyRelations = relations(notifications, ({ one }) => ({
-  /** notification belongs to a user */
-  user: one(users, {
-    fields: [notifications.userId],
-    references: [users.id],
-  }),
-}));
-
-// ---------------------------------------------------------------------------
-// User  (reverse lookups)
-// ---------------------------------------------------------------------------
-
-export const usersHierarchyRelations = relations(users, ({ many }) => ({
-  organizationMemberships: many(organizationMembers),
-  workspaceMemberships: many(workspaceMembers),
-  workspaceInvitations: many(workspaceInvitations),
-  assignedTasks: many(tasks, { relationName: 'assignee' }),
-  uploadedAttachments: many(attachments),
-  authoredDocuments: many(documents),
-  notifications: many(notifications),
-  userRoles: many(userRoles),
-}));
-
-// ---------------------------------------------------------------------------
-// RBAC
-// ---------------------------------------------------------------------------
-
-export const rolesHierarchyRelations = relations(roles, ({ many }) => ({
-  rolePermissions: many(rolePermissions),
-  userRoles: many(userRoles),
-}));
-
-export const permissionsHierarchyRelations = relations(permissions, ({ many }) => ({
-  rolePermissions: many(rolePermissions),
-}));
-
-export const rolePermissionsHierarchyRelations = relations(rolePermissions, ({ one }) => ({
-  role: one(roles, {
-    fields: [rolePermissions.roleId],
-    references: [roles.id],
-  }),
-  permission: one(permissions, {
-    fields: [rolePermissions.permissionId],
-    references: [permissions.id],
-  }),
-}));
-
-export const userRolesHierarchyRelations = relations(userRoles, ({ one }) => ({
-  user: one(users, {
-    fields: [userRoles.userId],
-    references: [users.id],
-  }),
-  role: one(roles, {
-    fields: [userRoles.roleId],
-    references: [roles.id],
-  }),
-}));
+// organizations.id  ←── workspaces.organization_id       (NOT NULL, CASCADE)
+// workspaces.id     ←── projects.workspace_id             (NOT NULL, CASCADE)
+// projects.id       ←── tasks.project_id                  (NOT NULL, CASCADE)
+//
+// This is the core ownership chain. Deleting any parent cascades through
+// the entire subtree below it.
 
 // ============================================================================
-// 3. FOREIGN KEY CHANGES  (raw SQL)
+// 2. COMPLETE CASCADE RULES
 // ============================================================================
 //
-// Execute these in order.  All statements assume PostgreSQL.
-
-/*
--- ──────────────────────────────────────────────────────────────────────────────
--- 3a. workspaces.organization_id  NULLABLE → NOT NULL
--- ──────────────────────────────────────────────────────────────────────────────
--- STEP 1: back-fill orphans (choose one)
-DELETE FROM workspaces WHERE organization_id IS NULL;
--- OR: UPDATE workspaces SET organization_id = '<default-org-uuid>' WHERE organization_id IS NULL;
-
--- STEP 2: enforce
-ALTER TABLE workspaces
-  ALTER COLUMN organization_id SET NOT NULL;
-
--- ──────────────────────────────────────────────────────────────────────────────
--- 3b. tasks  —  ADD project_id
--- ──────────────────────────────────────────────────────────────────────────────
--- STEP 1: add nullable column
-ALTER TABLE tasks
-  ADD COLUMN project_id UUID;
-
--- STEP 2: back-fill
--- Option A: derive from board → project (if boards gain projectId)
-UPDATE tasks t
-SET    project_id = b.project_id
-FROM   boards b
-WHERE  t.board_id = b.id
-  AND  b.project_id IS NOT NULL;
-
--- Option B: assign all to a default project
--- UPDATE tasks SET project_id = '<default-project-uuid>';
-
--- STEP 3: enforce NOT NULL + FK
-ALTER TABLE tasks
-  ALTER COLUMN project_id SET NOT NULL;
-
-ALTER TABLE tasks
-  ADD CONSTRAINT tasks_project_id_fk
-    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
-
--- STEP 4: index
-CREATE INDEX tasks_project_id_idx ON tasks(project_id);
-
--- ──────────────────────────────────────────────────────────────────────────────
--- 3c. boards  —  ADD optional project_id  (optional design choice)
--- ──────────────────────────────────────────────────────────────────────────────
-ALTER TABLE boards
-  ADD COLUMN project_id UUID
-  REFERENCES projects(id) ON DELETE SET NULL;
-
-CREATE INDEX boards_project_id_idx ON boards(project_id);
-
--- ──────────────────────────────────────────────────────────────────────────────
--- 3d. documents  —  ADD optional project_id  (optional design choice)
--- ──────────────────────────────────────────────────────────────────────────────
-ALTER TABLE documents
-  ADD COLUMN project_id UUID
-  REFERENCES projects(id) ON DELETE SET NULL;
-
-CREATE INDEX documents_project_id_idx ON documents(project_id);
-*/
+// | #  | Parent Table        | Child Table          | FK Column           | On Delete   | On Update | Rationale                                                |
+// |----|---------------------|----------------------|---------------------|-------------|-----------|----------------------------------------------------------|
+// |----|                     |                      |                     |             |           |                                                          |
+// |    | *** CORE HIERARCHY ***                                                                                              |
+// |----|---------------------|----------------------|---------------------|-------------|-----------|----------------------------------------------------------|
+// |  1 | organizations       | workspaces           | organization_id     | CASCADE     | RESTRICT  | Deleting an org removes all its workspaces.              |
+// |  2 | workspaces          | projects             | workspace_id        | CASCADE     | RESTRICT  | Deleting a workspace removes all its projects.           |
+// |  3 | projects            | tasks                | project_id          | CASCADE     | RESTRICT  | Deleting a project removes all its tasks.                |
+// |----|                     |                      |                     |             |           |                                                          |
+// |    | *** MEMBERSHIP ***                                                                                                  |
+// |----|---------------------|----------------------|---------------------|-------------|-----------|----------------------------------------------------------|
+// |  4 | organizations       | organization_members | organization_id     | CASCADE     | RESTRICT  | Deleting an org removes its membership records.          |
+// |  5 | users               | organization_members | user_id             | CASCADE     | RESTRICT  | Deleting a user removes their org memberships.           |
+// |  6 | workspaces          | workspace_members    | workspace_id        | CASCADE     | RESTRICT  | Deleting a workspace removes its membership records.     |
+// |  7 | users               | workspace_members    | user_id             | CASCADE     | RESTRICT  | Deleting a user removes their workspace memberships.     |
+// |  8 | workspaces          | workspace_invitations| workspace_id        | CASCADE     | RESTRICT  | Deleting a workspace removes its pending invitations.    |
+// |  9 | users               | workspace_invitations| invited_by_id       | CASCADE     | RESTRICT  | Deleting the inviter removes their invitations.          |
+// |----|                     |                      |                     |             |           |                                                          |
+// |    | *** KANBAN / BOARD ***                                                                                              |
+// |----|---------------------|----------------------|---------------------|-------------|-----------|----------------------------------------------------------|
+// | 10 | workspaces          | boards               | workspace_id        | CASCADE     | RESTRICT  | Deleting a workspace removes its boards.                 |
+// | 11 | projects            | boards               | project_id          | SET NULL    | RESTRICT  | Board outlives project; scope becomes workspace-wide.    |
+// | 12 | boards              | board_columns        | board_id            | CASCADE     | RESTRICT  | Deleting a board removes its columns.                    |
+// | 13 | boards              | tasks                | board_id            | SET NULL    | RESTRICT  | Task survives board deletion; task still in project.     |
+// | 14 | board_columns       | tasks                | column_id           | SET NULL    | RESTRICT  | Task survives column deletion; reassignable.             |
+// |----|                     |                      |                     |             |           |                                                          |
+// |    | *** SPRINT ***                                                                                                      |
+// |----|---------------------|----------------------|---------------------|-------------|-----------|----------------------------------------------------------|
+// | 15 | projects            | sprints              | project_id          | CASCADE     | RESTRICT  | Deleting a project removes its sprints.                  |
+// | 16 | sprints             | tasks                | sprint_id           | SET NULL    | RESTRICT  | Task survives sprint deletion; sprint is a timebox.      |
+// |----|                     |                      |                     |             |           |                                                          |
+// |    | *** USER ASSOCIATIONS ***                                                                                           |
+// |----|---------------------|----------------------|---------------------|-------------|-----------|----------------------------------------------------------|
+// | 17 | users               | tasks                | assignee_id         | SET NULL    | RESTRICT  | Task survives user deletion; assignment cleared.         |
+// | 18 | users               | documents            | author_id           | CASCADE     | RESTRICT  | Deleting a user removes their authored documents.        |
+// | 19 | users               | attachments          | uploader_id         | CASCADE     | RESTRICT  | Deleting a user removes their uploads.                   |
+// | 20 | users               | notifications        | user_id             | CASCADE     | RESTRICT  | Deleting a user removes their notifications.             |
+// |----|                     |                      |                     |             |           |                                                          |
+// |    | *** DOCUMENTS ***                                                                                                   |
+// |----|---------------------|----------------------|---------------------|-------------|-----------|----------------------------------------------------------|
+// | 21 | workspaces          | documents            | workspace_id        | CASCADE     | RESTRICT  | Deleting a workspace removes its documents.              |
+// | 22 | projects            | documents            | project_id          | SET NULL    | RESTRICT  | Document outlives project; scope becomes workspace-wide. |
+// | 23 | tasks               | attachments          | task_id             | SET NULL    | RESTRICT  | Attachment survives task deletion; keeps the file.       |
+// | 24 | documents           | attachments          | document_id         | SET NULL    | RESTRICT  | Attachment survives document deletion; keeps the file.   |
+// |----|                     |                      |                     |             |           |                                                          |
+// |    | *** RBAC ***                                                                                                        |
+// |----|---------------------|----------------------|---------------------|-------------|-----------|----------------------------------------------------------|
+// | 25 | roles               | role_permissions     | role_id             | CASCADE     | RESTRICT  | Deleting a role removes its permission mappings.         |
+// | 26 | permissions         | role_permissions     | permission_id       | CASCADE     | RESTRICT  | Deleting a permission removes its role mappings.         |
+// | 27 | users               | user_roles           | user_id             | CASCADE     | RESTRICT  | Deleting a user removes their role assignments.          |
+// | 28 | roles               | user_roles           | role_id             | CASCADE     | RESTRICT  | Deleting a role removes all user assignments of it.      |
+// |----|                     |                      |                     |             |           |                                                          |
+// |    | *** AUTH ***                                                                                                        |
+// |----|---------------------|----------------------|---------------------|-------------|-----------|----------------------------------------------------------|
+// | 29 | users               | sessions             | user_id             | CASCADE     | RESTRICT  | Deleting a user removes their sessions.                  |
+// | 30 | sessions            | refresh_tokens       | session_id          | CASCADE     | RESTRICT  | Deleting a session removes its refresh tokens.           |
+// | 31 | users               | refresh_tokens       | user_id             | CASCADE     | RESTRICT  | Deleting a user removes their refresh tokens.            |
+// | 32 | users               | email_verification_tokens | user_id          | CASCADE     | RESTRICT  | Deleting a user removes their verification tokens.       |
+// | 33 | users               | password_reset_tokens| user_id             | CASCADE     | RESTRICT  | Deleting a user removes their reset tokens.              |
+// | 34 | users               | oauth_accounts       | user_id             | CASCADE     | RESTRICT  | Deleting a user removes their OAuth accounts.            |
 
 // ============================================================================
-// 4. CASCADE RULES TABLE
+// 3. INDEX STRATEGY
 // ============================================================================
 //
-// | #  | Parent       | Child        | FK Column             | On Delete   | Rationale                                                |
-// |----|--------------|--------------|-----------------------|-------------|----------------------------------------------------------|
-// |  1 | organizations| workspaces   | organization_id       | CASCADE     | Deleting an org removes all its workspaces.              |
-// |  2 | organizations| org_members  | organization_id       | CASCADE     | Deleting an org removes its membership records.         |
-// |  3 | workspaces   | projects     | workspace_id          | CASCADE     | Deleting a workspace removes all its projects.          |
-// |  4 | workspaces   | boards       | workspace_id          | CASCADE     | Deleting a workspace removes its boards.                |
-// |  5 | workspaces   | documents    | workspace_id          | CASCADE     | Deleting a workspace removes its documents.             |
-// |  6 | workspaces   | ws_members   | workspace_id          | CASCADE     | Deleting a workspace removes its membership records.    |
-// |  7 | workspaces   | ws_invite    | workspace_id          | CASCADE     | Deleting a workspace removes its pending invitations.   |
-// |  8 | projects     | sprints      | project_id            | CASCADE     | Deleting a project removes its sprints.                 |
-// |  9 | projects     | tasks        | project_id            | CASCADE     | Deleting a project removes all its tasks.               |
-// | 10 | projects     | boards       | project_id            | SET NULL    | Board outlives project; scope becomes workspace-wide.   |
-// | 11 | projects     | documents    | project_id            | SET NULL    | Document outlives project; scope becomes workspace-wide.|
-// | 12 | boards       | columns      | board_id              | CASCADE     | Deleting a board removes its columns.                   |
-// | 13 | boards       | tasks        | board_id              | SET NULL    | Task survives board deletion; task still in project.    |
-// | 14 | columns      | tasks        | column_id             | CASCADE     | Deleting a column removes tasks in that column.         |
-// | 15 | sprints      | tasks        | sprint_id             | SET NULL    | Task survives sprint deletion; sprint is a timebox.     |
-// | 16 | users        | tasks        | assignee_id           | SET NULL    | Task survives user deletion; assignment cleared.        |
-// | 17 | users        | attachments  | uploader_id           | CASCADE     | Deleting a user removes their uploads.                  |
-// | 18 | users        | notifications| user_id               | CASCADE     | Deleting a user removes their notifications.            |
-// | 19 | users        | documents    | author_id             | CASCADE     | Deleting a user removes their authored documents.       |
-// | 20 | tasks        | attachments  | task_id               | SET NULL    | Attachment survives task deletion; keeps the file.      |
-// | 21 | documents    | attachments  | document_id           | SET NULL    | Attachment survives document deletion; keeps the file.  |
-// | 22 | users        | org_members  | user_id               | CASCADE     | Deleting a user removes their org memberships.         |
-// | 23 | users        | ws_members   | user_id               | CASCADE     | Deleting a user removes their workspace memberships.   |
-// | 24 | users        | ws_invite    | invited_by_id         | SET NULL    | Invitation stays; inviter reference cleared.            |
-// | 25 | roles        | role_perms   | role_id               | CASCADE     | Deleting a role removes its permission mappings.        |
-// | 26 | permissions  | role_perms   | permission_id         | CASCADE     | Deleting a permission removes its role mappings.        |
-// | 27 | users        | user_roles   | user_id               | CASCADE     | Deleting a user removes their role assignments.        |
-// | 28 | roles        | user_roles   | role_id               | CASCADE     | Deleting a role removes all user assignments of it.     |
+// Every FK column has an index for JOIN performance. Composite indexes cover
+// the most common query patterns.
+//
+// | Table          | Index Name                              | Columns                              | Purpose                                |
+// |----------------|-----------------------------------------|--------------------------------------|----------------------------------------|
+// | workspaces     | workspaces_organization_id_idx          | organization_id                      | List workspaces for an org             |
+// | workspaces     | workspaces_slug_key (UNIQUE)            | slug                                 | Lookup by slug                         |
+// | projects       | projects_workspace_id_idx               | workspace_id                         | List projects in a workspace           |
+// | tasks          | tasks_project_id_idx                    | project_id                           | List tasks in a project                |
+// | tasks          | tasks_project_id_status_idx             | project_id, status                   | Filter tasks by status in project      |
+// | tasks          | tasks_project_id_assignee_id_idx        | project_id, assignee_id              | Filter tasks by assignee in project    |
+// | tasks          | tasks_board_id_idx                      | board_id                             | List tasks on a board                  |
+// | tasks          | tasks_column_id_idx                     | column_id                            | List tasks in a column                 |
+// | tasks          | tasks_board_id_column_id_position_idx   | board_id, column_id, position        | Kanban board rendering                 |
+// | tasks          | tasks_sprint_id_idx                     | sprint_id                            | List tasks in a sprint                 |
+// | tasks          | tasks_assignee_id_idx                   | assignee_id                          | Tasks assigned to a user               |
+// | boards         | boards_workspace_id_idx                 | workspace_id                         | List boards in a workspace             |
+// | boards         | boards_project_id_idx                   | project_id                           | List boards for a project              |
+// | board_columns  | board_columns_board_id_idx              | board_id                             | List columns in a board                |
+// | sprints        | sprints_project_id_idx                  | project_id                           | List sprints in a project              |
+// | documents      | documents_workspace_id_idx              | workspace_id                         | List documents in a workspace          |
+// | documents      | documents_project_id_idx                | project_id                           | List documents for a project           |
+// | documents      | documents_author_id_idx                 | author_id                            | Documents by author                    |
+// | attachments    | attachments_uploader_id_idx             | uploader_id                          | Attachments by uploader                |
+// | org_members    | org_members_organization_id_user_id_idx | organization_id, user_id (UNIQUE)    | One membership per user per org        |
+// | org_members    | org_members_user_id_idx                 | user_id                              | Org memberships for a user             |
+// | ws_members     | ws_members_workspace_id_user_id_idx     | workspace_id, user_id (UNIQUE)       | One membership per user per workspace  |
+// | ws_members     | ws_members_user_id_idx                  | user_id                              | Workspace memberships for a user       |
+// | notifications  | notifications_user_id_idx               | user_id                              | Notifications for a user               |
+// | notifications  | notifications_user_id_read_idx          | user_id, read                        | Unread notification count              |
+
+// ============================================================================
+// 4. CONSTRAINT DEFINITIONS
+// ============================================================================
+//
+// | Table              | Constraint Name                       | Type    | Definition                                        |
+// |--------------------|---------------------------------------|---------|---------------------------------------------------|
+// | organizations      | organizations_slug_key                | UNIQUE  | slug                                              |
+// | workspaces         | workspaces_slug_key                   | UNIQUE  | slug                                              |
+// | organization_members | org_members_org_user_unique          | UNIQUE  | (organization_id, user_id)                        |
+// | organization_members | org_members_role_check               | CHECK   | role IN ('owner','admin','member','guest')        |
+// | workspace_members  | ws_members_ws_user_unique             | UNIQUE  | (workspace_id, user_id)                           |
+// | workspace_invitations | ws_invitations_ws_email_unique      | UNIQUE  | (workspace_id, email)                             |
+// | workspace_invitations | ws_invitations_token_unique          | UNIQUE  | token                                             |
+// | roles              | roles_name_scope_idx                  | UNIQUE  | (name, scope)                                     |
+// | permissions        | permissions_name_key                  | UNIQUE  | name                                              |
+// | permissions        | permissions_resource_action_idx       | UNIQUE  | (resource, action)                                |
+// | role_permissions   | role_permissions_role_perm_unique     | UNIQUE  | (role_id, permission_id)                          |
+// | user_roles         | user_roles_user_scope_role_unique     | UNIQUE  | (user_id, scope, scope_id, role_id)              |
+// | users              | users_email_key                       | UNIQUE  | email                                             |
+// | users              | users_google_id_key                   | UNIQUE  | google_id                                         |
+// | sessions           | (none beyond PK)                      |         |                                                   |
+// | refresh_tokens     | refresh_tokens_token_hash_key         | UNIQUE  | token_hash                                        |
+// | email_verification | email_verification_token_hash_key     | UNIQUE  | token_hash                                        |
+// | password_reset     | password_reset_token_hash_key         | UNIQUE  | token_hash                                        |
+// | oauth_accounts     | provider_provider_account_id_idx      | UNIQUE  | (provider, provider_account_id)                   |
+// | tasks              | (all FK columns are NOT NULL)         | NOT NULL | project_id, title, status, priority              |
+// | projects           | (all FK columns are NOT NULL)         | NOT NULL | workspace_id, name, status                       |
+// | workspaces         | (all FK columns are NOT NULL)         | NOT NULL | organization_id, name, plan                      |
+
+// ============================================================================
+// 5. DRIZZLE RELATIONAL QUERY PATTERNS
+// ============================================================================
+//
+// Full relation definitions live in relations.ts. Key traversal patterns:
+//
+//   db.query.organizations.findMany({
+//     with: { workspaces: { with: { projects: { with: { tasks: true } } } } }
+//   })
+//
+//   db.query.tasks.findFirst({
+//     where: eq(tasks.id, taskId),
+//     with: { project: { with: { workspace: { with: { organization: true } } } } }
+//   })
+//
+//   db.query.projects.findMany({
+//     where: eq(projects.workspaceId, workspaceId),
+//     with: { tasks: true, sprints: true, boards: true }
+//   })
