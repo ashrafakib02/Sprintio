@@ -100,6 +100,25 @@ function makeWs(
   };
 }
 
+function _makeMember(
+  overrides: Partial<{
+    id: string;
+    workspaceId: string;
+    userId: string;
+    role: string;
+    createdAt: Date;
+  }> = {},
+) {
+  return {
+    id: 'member-1',
+    workspaceId: WS_ID,
+    userId: USER_ID,
+    role: 'member',
+    createdAt: new Date('2025-01-01T00:00:00Z'),
+    ...overrides,
+  };
+}
+
 // ── Tests ────────────────────────────────────────────────────
 
 function makeMemberWithUser(

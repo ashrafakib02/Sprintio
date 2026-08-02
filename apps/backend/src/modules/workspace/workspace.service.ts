@@ -290,13 +290,31 @@ export async function getWorkspace(
 }
 
 /**
- * List all workspaces a user belongs to.
+ * List all workspaces a user belongs to within an organization.
  */
 export async function getUserWorkspaces(
   userId: string,
+  organizationId: string,
   includeArchived: boolean = false,
 ): Promise<WorkspaceResult[]> {
-  const workspaces = await workspaceRepo.findByUserIdFiltered(repoDb, userId, includeArchived);
+  // Validate organization exists
+  const org = await organizationRepo.findById(repoDb, organizationId);
+  if (!org) {
+    throw AppError.notFound('Organization');
+  }
+
+  // Validate user is a member of the organization
+  const isOrgMember = await organizationRepo.isMember(repoDb, organizationId, userId);
+  if (!isOrgMember) {
+    throw AppError.forbidden('You are not a member of this organization');
+  }
+
+  const workspaces = await workspaceRepo.findByUserIdAndOrganizationId(
+    repoDb,
+    userId,
+    organizationId,
+    includeArchived,
+  );
   return workspaces.map(toWorkspaceResult);
 }
 

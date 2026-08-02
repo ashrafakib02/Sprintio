@@ -57,6 +57,7 @@ import { AppError } from '@sprintio/shared';
 
 const WS_ID = '550e8400-e29b-41d4-a716-446655440000';
 const USER_ID = '550e8400-e29b-41d4-a716-446655440001';
+const ORG_ID = '550e8400-e29b-41d4-a716-446655440003';
 const OTHER_USER_ID = '550e8400-e29b-41d4-a716-446655440002';
 
 const WS_RESULT = {
@@ -227,13 +228,13 @@ describe('Workspace Controller', () => {
 
       vi.mocked(ListWorkspacesSchema.safeParse).mockReturnValue({
         success: true,
-        data: { includeArchived: 'true' },
+        data: { organizationId: ORG_ID, includeArchived: 'true' },
       } as never);
       vi.mocked(workspaceService.getUserWorkspaces).mockResolvedValue([]);
 
       await workspaceController.listWorkspaces(req, res as never, createMockNext());
 
-      expect(workspaceService.getUserWorkspaces).toHaveBeenCalledWith(USER_ID, true);
+      expect(workspaceService.getUserWorkspaces).toHaveBeenCalledWith(USER_ID, ORG_ID, true);
     });
 
     it('should return 400 on invalid query', async () => {

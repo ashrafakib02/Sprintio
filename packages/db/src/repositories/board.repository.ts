@@ -1,6 +1,6 @@
 import { eq, and, isNull, count, asc } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { boards } from '../schema/index.js';
+import { boards, workspaceMembers } from '../schema/index.js';
 
 // ============================================================
 // Types
@@ -131,6 +131,25 @@ export async function updateById(
 export async function deleteById(db: PostgresJsDatabase, id: string): Promise<boolean> {
   const [deleted] = await db.delete(boards).where(eq(boards.id, id)).returning({ id: boards.id });
   return !!deleted;
+}
+
+/**
+ * Check if a user is a member of the board's workspace.
+ * Joins boards → workspaceMembers on workspaceId.
+ */
+export async function isMemberOfBoardWorkspace(
+  db: PostgresJsDatabase,
+  boardId: string,
+  userId: string,
+): Promise<boolean> {
+  const [result] = await db
+    .select({ id: workspaceMembers.id })
+    .from(boards)
+    .innerJoin(workspaceMembers, eq(boards.workspaceId, workspaceMembers.workspaceId))
+    .where(and(eq(boards.id, boardId), eq(workspaceMembers.userId, userId)))
+    .limit(1);
+
+  return !!result;
 }
 
 /**

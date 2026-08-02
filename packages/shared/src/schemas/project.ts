@@ -14,3 +14,10 @@ export {
   type CreateSprintInput,
   type UpdateSprintInput,
 } from '../hierarchy-types.js';
+
+import type { z } from 'zod';
+import { CreateProjectSchema } from '../hierarchy-types.js';
+
+// Nested creation: workspaceId comes from URL param, not request body
+export const CreateProjectForWorkspaceSchema = CreateProjectSchema.omit({ workspaceId: true });
+export type CreateProjectForWorkspaceInput = z.infer<typeof CreateProjectForWorkspaceSchema>;

@@ -178,6 +178,44 @@ export async function findByUserIdFiltered(
 }
 
 /**
+ * Find workspaces a user belongs to within a specific organization.
+ */
+export async function findByUserIdAndOrganizationId(
+  db: PostgresJsDatabase,
+  userId: string,
+  organizationId: string,
+  includeArchived: boolean,
+): Promise<WorkspaceRecord[]> {
+  const conditions = [
+    eq(workspaceMembers.userId, userId),
+    eq(workspaces.organizationId, organizationId),
+  ];
+
+  if (!includeArchived) {
+    conditions.push(isNull(workspaces.archivedAt));
+  }
+
+  return db
+    .select({
+      id: workspaces.id,
+      name: workspaces.name,
+      slug: workspaces.slug,
+      description: workspaces.description,
+      logo: workspaces.logo,
+      brandColor: workspaces.brandColor,
+      customDomain: workspaces.customDomain,
+      organizationId: workspaces.organizationId,
+      plan: workspaces.plan,
+      archivedAt: workspaces.archivedAt,
+      createdAt: workspaces.createdAt,
+      updatedAt: workspaces.updatedAt,
+    })
+    .from(workspaces)
+    .innerJoin(workspaceMembers, eq(workspaces.id, workspaceMembers.workspaceId))
+    .where(and(...conditions));
+}
+
+/**
  * Create a new workspace. The creator is added as owner.
  */
 export async function create(

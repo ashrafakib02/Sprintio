@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import * as organizationService from './organization.service.js';
+import * as workspaceService from '../workspace/workspace.service.js';
 import {
   CreateOrganizationSchema,
   UpdateOrganizationSchema,
@@ -222,4 +223,20 @@ export const deleteOrganization = asyncHandler(async (req: Request, res: Respons
   await organizationService.deleteOrganization(organizationId, requestedBy);
 
   return sendSuccess(res, { message: 'Organization deleted' });
+});
+
+/**
+ * GET /api/organizations/:organizationId/workspaces
+ * List all workspaces in an organization.
+ */
+export const listOrganizationWorkspaces = asyncHandler(async (req: Request, res: Response) => {
+  const organizationId = req.params.organizationId as string;
+  const uuidError = validateUuid(organizationId, 'organization ID');
+  if (uuidError) {
+    return res.status(400).json({ error: uuidError });
+  }
+
+  const workspaces = await workspaceService.getOrganizationWorkspaces(organizationId);
+
+  return sendSuccess(res, { workspaces });
 });

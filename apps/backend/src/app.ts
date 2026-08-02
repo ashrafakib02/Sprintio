@@ -8,6 +8,8 @@ import { env } from './config/env.js';
 import { authRoutes } from './modules/auth/index.js';
 import { organizationRoutes } from './modules/organization/index.js';
 import { workspaceRoutes } from './modules/workspace/index.js';
+import { projectRoutes } from './modules/project/index.js';
+import { taskRoutes } from './modules/task/index.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { authenticate } from './middleware/auth.js';
 
@@ -100,6 +102,8 @@ app.use(csrfProtection);
 app.use('/api/auth', authRoutes);
 app.use('/api/organizations', organizationRoutes);
 app.use('/api/workspaces', workspaceRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/tasks', taskRoutes);
 
 // ── Task routes ─────────────────────────────────────────────
 const taskRouter = express.Router();

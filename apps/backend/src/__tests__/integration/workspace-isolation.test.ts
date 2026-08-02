@@ -59,6 +59,7 @@ import { repoDb } from '../../config/db-for-repos.js';
 import { AppError } from '@sprintio/shared';
 
 const repo = vi.mocked(workspaceRepo);
+const _mockTransaction = vi.mocked(repoDb).transaction as ReturnType<typeof vi.fn>;
 
 // ── Constants for two-workspace isolation testing ─────────────
 
@@ -138,6 +139,24 @@ function makeInvitation(
     createdAt: new Date('2025-01-15T00:00:00Z'),
     ...overrides,
   };
+}
+
+/**
+ * Helper: configure mock responses for a workspace + role resolution sequence.
+ * This sets up the mock chain for operations that call findById then getMemberRole.
+ */
+function _setupWsMocks(
+  wsId: string,
+  requesterRole: string,
+  overrides: Partial<{
+    ws: ReturnType<typeof makeWs>;
+    targetRole: string;
+  }> = {},
+) {
+  const ws = overrides.ws ?? makeWs(wsId);
+  repo.findById.mockResolvedValue(ws);
+  repo.getMemberRole.mockResolvedValue(requesterRole);
+  return ws;
 }
 
 // ── Tests ────────────────────────────────────────────────────

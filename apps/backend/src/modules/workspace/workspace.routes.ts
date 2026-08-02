@@ -29,6 +29,7 @@ import {
 import { authenticate } from '../../middleware/auth.js';
 import { requireWorkspace } from '../../middleware/tenant.js';
 import { requireWorkspacePermission } from '../../middleware/rbac.js';
+import { projectNestedRoutes } from '../project/index.js';
 
 // ── Rate limiters ────────────────────────────────────────────
 const workspaceLimiter = rateLimit({
@@ -70,6 +71,9 @@ router.post(
 
 // List user's workspaces (authenticated)
 router.get('/', authenticate, listWorkspaces);
+
+// Nested project routes under workspace
+router.use('/:workspaceId/projects', projectNestedRoutes);
 
 // Get workspace by ID (authenticated, must be member via tenant middleware)
 router.get('/:workspaceId', authenticate, requireWorkspace, getWorkspace);

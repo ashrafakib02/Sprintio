@@ -27,14 +27,16 @@ export interface TaskRecord {
 export interface CreateTaskData {
   title: string;
   description?: string | null;
+  status?: string;
   priority?: string;
   projectId: string;
   assigneeId?: string | null;
   boardId?: string | null;
   columnId?: string | null;
   sprintId?: string | null;
+  position?: number;
+  labels?: string[] | null;
   dueDate?: Date | null;
-  labels?: string[];
 }
 
 export interface UpdateTaskData {
@@ -47,7 +49,7 @@ export interface UpdateTaskData {
   columnId?: string | null;
   sprintId?: string | null;
   position?: number;
-  labels?: string[];
+  labels?: string[] | null;
   dueDate?: Date | null;
 }
 
@@ -74,7 +76,7 @@ export interface TaskWithAssigneeRecord extends TaskRecord {
 export async function create(
   db: PostgresJsDatabase,
   data: CreateTaskData,
-  userId: string,
+  userId?: string,
 ): Promise<TaskRecord> {
   const now = new Date();
   const [task] = await db
@@ -82,13 +84,14 @@ export async function create(
     .values({
       title: data.title,
       description: data.description ?? null,
+      status: data.status ?? 'todo',
       priority: data.priority ?? 'medium',
       projectId: data.projectId,
-      assigneeId: data.assigneeId ?? userId,
+      assigneeId: data.assigneeId ?? userId ?? null,
       boardId: data.boardId ?? null,
       columnId: data.columnId ?? null,
       sprintId: data.sprintId ?? null,
-      position: 0,
+      position: data.position ?? 0,
       labels: data.labels ?? [],
       dueDate: data.dueDate ?? null,
       createdAt: now,
@@ -334,6 +337,19 @@ export async function updateById(
 export async function deleteById(db: PostgresJsDatabase, id: string): Promise<boolean> {
   const [deleted] = await db.delete(tasks).where(eq(tasks.id, id)).returning({ id: tasks.id });
   return !!deleted;
+}
+
+/**
+ * Get the boardId for a task. Used by middleware for scoping checks.
+ */
+export async function getBoardId(db: PostgresJsDatabase, taskId: string): Promise<string | null> {
+  const [task] = await db
+    .select({ boardId: tasks.boardId })
+    .from(tasks)
+    .where(eq(tasks.id, taskId))
+    .limit(1);
+
+  return task?.boardId ?? null;
 }
 
 // ============================================================

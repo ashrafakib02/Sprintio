@@ -79,7 +79,11 @@ export const listWorkspaces = asyncHandler(async (req: Request, res: Response) =
 
   const userId = req.user!.userId;
   const includeArchived = parsed.data.includeArchived === 'true';
-  const workspaces = await workspaceService.getUserWorkspaces(userId, includeArchived);
+  const workspaces = await workspaceService.getUserWorkspaces(
+    userId,
+    parsed.data.organizationId,
+    includeArchived,
+  );
 
   return sendSuccess(res, { workspaces });
 });

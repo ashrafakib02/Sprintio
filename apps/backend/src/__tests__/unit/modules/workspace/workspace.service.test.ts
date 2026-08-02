@@ -14,6 +14,7 @@ vi.mock('@sprintio/db/repositories', () => ({
     findBySlug: vi.fn(),
     findByUserId: vi.fn(),
     findByUserIdFiltered: vi.fn(),
+    findByUserIdAndOrganizationId: vi.fn(),
     findByOrganizationId: vi.fn(),
     create: vi.fn(),
     updateById: vi.fn(),
@@ -314,25 +315,40 @@ describe('Workspace Service', () => {
   // ═══════════════════════════════════════════════════════════
 
   describe('getUserWorkspaces', () => {
-    it('should return filtered workspaces (default excludes archived)', async () => {
-      repo.findByUserIdFiltered.mockResolvedValue([makeWs()]);
+    beforeEach(() => {
+      orgRepo.findById.mockResolvedValue({ id: ORG_ID } as never);
+      orgRepo.isMember.mockResolvedValue(true);
+    });
 
-      const result = await workspaceService.getUserWorkspaces(USER_ID);
+    it('should return filtered workspaces (default excludes archived)', async () => {
+      repo.findByUserIdAndOrganizationId.mockResolvedValue([makeWs()]);
+
+      const result = await workspaceService.getUserWorkspaces(USER_ID, ORG_ID);
       expect(result).toHaveLength(1);
-      expect(repo.findByUserIdFiltered).toHaveBeenCalledWith(repoDb, USER_ID, false);
+      expect(repo.findByUserIdAndOrganizationId).toHaveBeenCalledWith(
+        repoDb,
+        USER_ID,
+        ORG_ID,
+        false,
+      );
     });
 
     it('should include archived when includeArchived is true', async () => {
-      repo.findByUserIdFiltered.mockResolvedValue([]);
+      repo.findByUserIdAndOrganizationId.mockResolvedValue([]);
 
-      await workspaceService.getUserWorkspaces(USER_ID, true);
-      expect(repo.findByUserIdFiltered).toHaveBeenCalledWith(repoDb, USER_ID, true);
+      await workspaceService.getUserWorkspaces(USER_ID, ORG_ID, true);
+      expect(repo.findByUserIdAndOrganizationId).toHaveBeenCalledWith(
+        repoDb,
+        USER_ID,
+        ORG_ID,
+        true,
+      );
     });
 
     it('should return empty array when user has no workspaces', async () => {
-      repo.findByUserIdFiltered.mockResolvedValue([]);
+      repo.findByUserIdAndOrganizationId.mockResolvedValue([]);
 
-      const result = await workspaceService.getUserWorkspaces(USER_ID);
+      const result = await workspaceService.getUserWorkspaces(USER_ID, ORG_ID);
       expect(result).toEqual([]);
     });
   });

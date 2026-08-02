@@ -11,6 +11,7 @@ import {
   addMember,
   removeMember,
   listMembers,
+  listOrganizationWorkspaces,
 } from './organization.controller.js';
 import { authenticate } from '../../middleware/auth.js';
 import { requireOrganizationPermission } from '../../middleware/organization-permission.js';
@@ -58,6 +59,9 @@ router.get('/', authenticate, listOrganizations);
 
 // Get organization by ID (authenticated, must be member)
 router.get('/:organizationId', authenticate, getOrganization);
+
+// List workspaces in organization (authenticated, must be member)
+router.get('/:organizationId/workspaces', authenticate, listOrganizationWorkspaces);
 
 // Update organization (authenticated, requires UPDATE permission)
 router.patch(

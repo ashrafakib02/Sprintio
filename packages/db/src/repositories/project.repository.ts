@@ -167,6 +167,18 @@ export async function updateById(
 }
 
 /**
+ * Delete a project by ID. Cascades to sprints and tasks via FK constraints.
+ */
+export async function deleteById(db: PostgresJsDatabase, id: string): Promise<boolean> {
+  const [deleted] = await db
+    .delete(projects)
+    .where(eq(projects.id, id))
+    .returning({ id: projects.id });
+
+  return !!deleted;
+}
+
+/**
  * Archive a project by setting status to 'archived'.
  */
 export async function archiveById(
@@ -180,18 +192,6 @@ export async function archiveById(
     .returning();
 
   return archived;
-}
-
-/**
- * Delete a project by ID. Cascades to sprints and tasks via FK constraints.
- */
-export async function deleteById(db: PostgresJsDatabase, id: string): Promise<boolean> {
-  const [deleted] = await db
-    .delete(projects)
-    .where(eq(projects.id, id))
-    .returning({ id: projects.id });
-
-  return !!deleted;
 }
 
 /**
