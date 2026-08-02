@@ -342,10 +342,7 @@ export async function deleteById(db: PostgresJsDatabase, id: string): Promise<bo
 /**
  * Get the boardId for a task. Used by middleware for scoping checks.
  */
-export async function getBoardId(
-  db: PostgresJsDatabase,
-  taskId: string,
-): Promise<string | null> {
+export async function getBoardId(db: PostgresJsDatabase, taskId: string): Promise<string | null> {
   const [task] = await db
     .select({ boardId: tasks.boardId })
     .from(tasks)
