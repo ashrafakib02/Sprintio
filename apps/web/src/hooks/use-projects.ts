@@ -1,11 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { listProjects } from '@/lib/api';
-import { useWorkspace } from '@/hooks/use-workspace';
+import { useAppSelector } from '@/store/hooks';
 import { queryKeys } from '@/lib/query-keys';
 
 export function useProjects() {
-  const { data: workspace } = useWorkspace();
-  const workspaceId = workspace?.id;
+  const workspaceId = useAppSelector((s) => s.activeWorkspace.workspaceId);
 
   return useQuery({
     queryKey: workspaceId ? queryKeys.projects.all(workspaceId) : ['projects', 'none'],

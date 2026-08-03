@@ -1,5 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo } from 'react';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setActiveProject } from '@/store/slices/activeProjectSlice';
 import { queryKeys } from '@/lib/query-keys';
 
 const STORAGE_KEY = 'sprintio:activeProjectId';
@@ -41,6 +43,7 @@ function clearStoredProjectId(): void {
  */
 export function useActiveProject(projects: { id: string }[] | undefined) {
   const queryClient = useQueryClient();
+  const dispatch = useAppDispatch();
 
   const activeProjectId = useMemo(() => {
     const stored = getStoredProjectId();
@@ -49,7 +52,13 @@ export function useActiveProject(projects: { id: string }[] | undefined) {
     return null;
   }, [projects]);
 
-  const setActiveProject = useCallback(
+  // Sync resolved project ID to Redux store
+  const reduxProjId = useAppSelector((s) => s.activeProject.projectId);
+  if (activeProjectId !== reduxProjId) {
+    dispatch(setActiveProject(activeProjectId));
+  }
+
+  const setActiveProjectCallback = useCallback(
     (projectId: string | null) => {
       const previousId = activeProjectId;
 
@@ -67,8 +76,11 @@ export function useActiveProject(projects: { id: string }[] | undefined) {
           queryClient.invalidateQueries({ queryKey: queryKeys.tasks.byProject(projectId) });
         }
       }
+
+      // Update Redux selection state
+      dispatch(setActiveProject(projectId));
     },
-    [activeProjectId, queryClient],
+    [activeProjectId, queryClient, dispatch],
   );
 
   useEffect(() => {
@@ -77,5 +89,5 @@ export function useActiveProject(projects: { id: string }[] | undefined) {
     };
   }, []);
 
-  return { activeProjectId, setActiveProject, clearStoredProjectId };
+  return { activeProjectId, setActiveProject: setActiveProjectCallback, clearStoredProjectId };
 }

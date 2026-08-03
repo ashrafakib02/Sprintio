@@ -12,6 +12,26 @@ vi.mock('@/hooks/use-organization', () => ({
   useOrganizations: vi.fn(),
 }));
 
+vi.mock('@/store/hooks', () => ({
+  useAppDispatch: vi.fn(() => vi.fn()),
+  useAppSelector: vi.fn(() => null),
+}));
+
+vi.mock('@/store/slices/activeOrganizationSlice', () => ({
+  setActiveOrganization: vi.fn((id) => ({
+    type: 'activeOrganization/setActiveOrganization',
+    payload: id,
+  })),
+}));
+
+vi.mock('@tanstack/react-query', () => ({
+  useQueryClient: vi.fn(() => ({
+    cancelQueries: vi.fn(),
+    removeQueries: vi.fn(),
+    invalidateQueries: vi.fn(),
+  })),
+}));
+
 import { useRouterState } from '@tanstack/react-router';
 import { useOrganizations } from '@/hooks/use-organization';
 import { useActiveOrganization } from '@/hooks/use-active-organization';
@@ -74,32 +94,38 @@ describe('useActiveOrganization', () => {
   it('returns org ID from URL when on an organization route', () => {
     setupMocks('/organization/org-111', [ORG_1, ORG_2]);
     const { result } = renderHook(() => useActiveOrganization());
-    expect(result.current).toBe('org-111');
+    expect(result.current.activeOrganizationId).toBe('org-111');
   });
 
   it('returns org ID from localStorage when URL has no org', () => {
     setStoredOrganizationId('org-222');
     setupMocks('/dashboard', [ORG_1, ORG_2]);
     const { result } = renderHook(() => useActiveOrganization());
-    expect(result.current).toBe('org-222');
+    expect(result.current.activeOrganizationId).toBe('org-222');
   });
 
   it('returns first org as fallback when no URL and no localStorage', () => {
     setupMocks('/dashboard', [ORG_1, ORG_2]);
     const { result } = renderHook(() => useActiveOrganization());
-    expect(result.current).toBe('org-111');
+    expect(result.current.activeOrganizationId).toBe('org-111');
   });
 
   it('returns null when no organizations exist', () => {
     setupMocks('/dashboard', []);
     const { result } = renderHook(() => useActiveOrganization());
-    expect(result.current).toBeNull();
+    expect(result.current.activeOrganizationId).toBeNull();
   });
 
   it('URL takes precedence over localStorage', () => {
     setStoredOrganizationId('org-222');
     setupMocks('/organization/org-111', [ORG_1, ORG_2]);
     const { result } = renderHook(() => useActiveOrganization());
-    expect(result.current).toBe('org-111');
+    expect(result.current.activeOrganizationId).toBe('org-111');
+  });
+
+  it('exposes a setActiveOrganization callback', () => {
+    setupMocks('/organization/org-111', [ORG_1, ORG_2]);
+    const { result } = renderHook(() => useActiveOrganization());
+    expect(typeof result.current.setActiveOrganization).toBe('function');
   });
 });
