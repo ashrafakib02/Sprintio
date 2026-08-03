@@ -8,6 +8,7 @@ import {
 } from '@/hooks/use-organization-settings';
 import { getOrganizationInitials, getOrganizationAvatarGradient } from '@/lib/organization-utils';
 import { getStoredOrganizationId, setStoredOrganizationId } from '@/lib/organization-storage';
+import { clearStoredWorkspaceId } from '@/lib/workspace-storage';
 import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/cn';
@@ -176,6 +177,9 @@ export function OrganizationSwitcher() {
 
       setOpen(false);
       setSearch('');
+
+      // Clear workspace — it belongs to the old org
+      clearStoredWorkspaceId();
 
       navigate({
         to: '/organization/$organizationId',

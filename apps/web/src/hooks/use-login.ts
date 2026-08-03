@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import { login } from '@/lib/api';
 import type { LoginInput } from '@sprintio/shared';
-import { AUTH_QUERY_KEY } from '@/contexts/auth-provider';
+import { queryKeys } from '@/lib/query-keys';
 
 export function useLogin() {
   const navigate = useNavigate({ from: '/login' });
@@ -14,8 +14,8 @@ export function useLogin() {
     onSuccess: async (response) => {
       // Manually set user data to clear any stale 401 error before navigating.
       // This prevents the AuthProvider useEffect from re-firing with the old error.
-      queryClient.setQueryData(AUTH_QUERY_KEY, { data: { user: response.data.user } });
-      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
+      queryClient.setQueryData(queryKeys.auth.me, { data: { user: response.data.user } });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.auth.me });
 
       toast.success('Welcome back!', {
         description: `Logged in as ${response.data.user.name}`,

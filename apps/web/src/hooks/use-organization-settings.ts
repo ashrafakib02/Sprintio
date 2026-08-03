@@ -17,11 +17,12 @@ import {
 } from '@/lib/organization-api';
 import type { OrganizationMember } from '@/types/organization';
 import { getAuthState } from '@/lib/auth-store';
+import { queryKeys } from '@/lib/query-keys';
 import { toast } from 'sonner';
 
-// ── Query Key Factories ─────────────────────────────────────
+// ── Query Key Factories (re-exported for backward compat) ───
 
-export const ORGANIZATION_LIST_QUERY_KEY = ['organizations'] as const;
+export const ORGANIZATION_LIST_QUERY_KEY = queryKeys.organizations.all;
 
 export const ORGANIZATION_CONTEXT_QUERY_KEY = (id: string) =>
   ['organization', id, 'context'] as const;

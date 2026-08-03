@@ -1,18 +1,38 @@
 import { useRouterState } from '@tanstack/react-router';
-import { useMemo } from 'react';
-import { getStoredOrganizationId } from '@/lib/organization-storage';
+import { useCallback, useMemo } from 'react';
+import {
+  getStoredOrganizationId,
+  setStoredOrganizationId,
+  clearStoredOrganizationId,
+} from '@/lib/organization-storage';
+import { clearStoredWorkspaceId } from '@/lib/workspace-storage';
 import { useOrganizations } from '@/hooks/use-organization';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/query-keys';
 
 function extractOrganizationId(pathname: string): string | null {
   const match = pathname.match(/\/organization\/([^/]+)/);
   return match?.[1] ?? null;
 }
 
+/**
+ * Manages the active organization for the current session.
+ *
+ * Resolution order:
+ *  1. URL param (`/organization/:orgId/...`)
+ *  2. localStorage
+ *  3. First organization from the user's list
+ *
+ * Returns the resolved `activeOrganizationId` and a `setActiveOrganization`
+ * setter that persists the selection and clears downstream caches
+ * (workspaces, projects, tasks) scoped to the previous organization.
+ */
 export function useActiveOrganization() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data: organizations } = useOrganizations();
+  const queryClient = useQueryClient();
 
-  return useMemo(() => {
+  const activeOrganizationId = useMemo(() => {
     const urlId = extractOrganizationId(pathname);
     if (urlId) return urlId;
     const storedId = getStoredOrganizationId();
@@ -22,4 +42,44 @@ export function useActiveOrganization() {
     }
     return null;
   }, [pathname, organizations]);
+
+  const setActiveOrganization = useCallback(
+    (organizationId: string | null) => {
+      const previousId = activeOrganizationId;
+
+      if (organizationId) {
+        setStoredOrganizationId(organizationId);
+      } else {
+        clearStoredOrganizationId();
+      }
+
+      // When switching organization, cancel in-flight queries and
+      // remove all downstream caches (workspace, project, task data)
+      // so the UI starts fresh with the new org's data.
+      if (previousId && previousId !== organizationId) {
+        // Clear stored workspace — it belongs to the old org
+        clearStoredWorkspaceId();
+
+        // Cancel any in-flight requests to prevent stale data from arriving
+        // after we've already cleared the caches.
+        queryClient.cancelQueries({ queryKey: queryKeys.workspaces.all });
+
+        // Remove workspace lists for both old and new org
+        queryClient.removeQueries({ queryKey: queryKeys.workspaces.byOrganization(previousId) });
+        if (organizationId) {
+          queryClient.removeQueries({
+            queryKey: queryKeys.workspaces.byOrganization(organizationId),
+          });
+        }
+
+        // Remove all workspace contexts, project lists, and task caches
+        queryClient.removeQueries({ queryKey: ['workspace'] });
+        queryClient.removeQueries({ queryKey: ['projects'] });
+        queryClient.removeQueries({ queryKey: ['tasks'] });
+      }
+    },
+    [activeOrganizationId, queryClient],
+  );
+
+  return { activeOrganizationId, setActiveOrganization };
 }

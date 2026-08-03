@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
-import { AUTH_QUERY_KEY } from '@/contexts/auth-provider';
+import { queryKeys } from '@/lib/query-keys';
 import { Spinner } from '@/components/ui/spinner';
 
 export const Route = createFileRoute('/auth/callback')({
@@ -29,7 +29,7 @@ function AuthCallbackPage() {
     }
 
     if (success || linked) {
-      queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY }).then(() => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.auth.me }).then(() => {
         if (linked) {
           navigate({ to: '/settings' });
         } else {

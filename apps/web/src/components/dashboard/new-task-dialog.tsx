@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useCreateTask } from '@/hooks/use-create-task';
+import { useProjects } from '@/hooks/use-projects';
 import type { TaskPriority } from '@sprintio/shared';
 
 interface NewTaskDialogProps {
@@ -20,20 +21,23 @@ export function NewTaskDialog({ open, onOpenChange }: NewTaskDialogProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
+  const [projectId, setProjectId] = useState('');
   const createTask = useCreateTask();
+  const { data: projects, isLoading: projectsLoading } = useProjects();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = title.trim();
-    if (!trimmed) return;
+    if (!trimmed || !projectId) return;
 
     createTask.mutate(
-      { title: trimmed, description: description.trim() || null, priority },
+      { projectId, title: trimmed, description: description.trim() || null, priority },
       {
         onSuccess: () => {
           setTitle('');
           setDescription('');
           setPriority('medium');
+          setProjectId('');
           onOpenChange(false);
         },
       },
@@ -45,8 +49,11 @@ export function NewTaskDialog({ open, onOpenChange }: NewTaskDialogProps) {
     setTitle('');
     setDescription('');
     setPriority('medium');
+    setProjectId('');
     onOpenChange(false);
   };
+
+  const canSubmit = title.trim() && projectId;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -55,6 +62,34 @@ export function NewTaskDialog({ open, onOpenChange }: NewTaskDialogProps) {
           <DialogTitle>New task</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="task-project" className="block text-sm font-medium mb-1.5">
+              Project <span className="text-destructive">*</span>
+            </label>
+            {projectsLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                <Spinner className="h-4 w-4" /> Loading projects...
+              </div>
+            ) : projects && projects.length > 0 ? (
+              <select
+                id="task-project"
+                value={projectId}
+                onChange={(e) => setProjectId(e.target.value)}
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+              >
+                <option value="">Select a project...</option>
+                {projects.map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <p className="text-sm text-muted-foreground py-2">
+                No projects found. Create a project first.
+              </p>
+            )}
+          </div>
           <div>
             <label htmlFor="task-title" className="block text-sm font-medium mb-1.5">
               Title <span className="text-destructive">*</span>
@@ -107,7 +142,7 @@ export function NewTaskDialog({ open, onOpenChange }: NewTaskDialogProps) {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={!title.trim() || createTask.isPending}>
+            <Button type="submit" disabled={!canSubmit || createTask.isPending}>
               {createTask.isPending && <Spinner className="h-4 w-4 mr-2" />}
               Create task
             </Button>

@@ -117,7 +117,7 @@ export function clearAuthCookies(res: Response): void {
   ].filter(Boolean);
 
   const refreshParts = [
-    `${REFRESH_TOKEN_COOKIE}=; Path=/`,
+    `${REFRESH_TOKEN_COOKIE}=; Path=/api/auth/refresh`,
     'HttpOnly',
     'SameSite=Strict',
     env.COOKIE_SECURE ? 'Secure' : '',

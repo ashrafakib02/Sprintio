@@ -16,17 +16,17 @@ import {
   type WorkspaceContextMember,
 } from '@/lib/api';
 import type { WorkspaceRole } from '@sprintio/shared';
+import { queryKeys } from '@/lib/query-keys';
 import { toast } from 'sonner';
 
-// ── Query Key Factories ─────────────────────────────────────
+// ── Query Key Factories (re-exported for backward compat) ───
 
-export const WORKSPACE_CONTEXT_QUERY_KEY = (workspaceId: string) =>
-  ['workspace', workspaceId, 'context'] as const;
+export const WORKSPACE_CONTEXT_QUERY_KEY = queryKeys.workspaces.context;
 
 export const WORKSPACE_ROLES_QUERY_KEY = (workspaceId: string) =>
   ['workspace', workspaceId, 'roles'] as const;
 
-export const WORKSPACE_LIST_QUERY_KEY = ['workspaces'] as const;
+export const WORKSPACE_LIST_QUERY_KEY = queryKeys.workspaces.all;
 
 export const PERMISSIONS_QUERY_KEY = ['workspace', 'permissions'] as const;
 
@@ -46,7 +46,7 @@ interface RolesResponse {
 
 export function useWorkspaceContext(workspaceId: string) {
   return useQuery({
-    queryKey: WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+    queryKey: queryKeys.workspaces.context(workspaceId),
     queryFn: () => getWorkspaceContext(workspaceId),
     staleTime: 60_000,
     retry: false,
@@ -73,15 +73,15 @@ export function useUpdateWorkspaceSettings(workspaceId: string) {
     }) => updateWorkspaceSettings(workspaceId, data),
     onMutate: async (variables) => {
       await queryClient.cancelQueries({
-        queryKey: WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKey: queryKeys.workspaces.context(workspaceId),
       });
 
       const previousData = queryClient.getQueryData<WorkspaceContextResponse>(
-        WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKeys.workspaces.context(workspaceId),
       );
 
       queryClient.setQueryData<WorkspaceContextResponse>(
-        WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKeys.workspaces.context(workspaceId),
         (old) => {
           if (!old) return old;
           return {
@@ -104,13 +104,13 @@ export function useUpdateWorkspaceSettings(workspaceId: string) {
     },
     onError: (error: Error, _variables, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId), context.previousData);
+        queryClient.setQueryData(queryKeys.workspaces.context(workspaceId), context.previousData);
       }
       toast.error('Failed to update settings', { description: error.message });
     },
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKey: queryKeys.workspaces.context(workspaceId),
       });
     },
     onSuccess: () => {
@@ -296,15 +296,15 @@ export function useUpdateMemberRole(workspaceId: string) {
       updateMemberRole(workspaceId, userId, role),
     onMutate: async ({ userId, role }) => {
       await queryClient.cancelQueries({
-        queryKey: WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKey: queryKeys.workspaces.context(workspaceId),
       });
 
       const previousData = queryClient.getQueryData<WorkspaceContextResponse>(
-        WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKeys.workspaces.context(workspaceId),
       );
 
       queryClient.setQueryData<WorkspaceContextResponse>(
-        WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKeys.workspaces.context(workspaceId),
         (old) => {
           if (!old) return old;
           return {
@@ -320,13 +320,13 @@ export function useUpdateMemberRole(workspaceId: string) {
     },
     onError: (error: Error, _variables, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId), context.previousData);
+        queryClient.setQueryData(queryKeys.workspaces.context(workspaceId), context.previousData);
       }
       toast.error('Failed to update role', { description: error.message });
     },
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKey: queryKeys.workspaces.context(workspaceId),
       });
     },
     onSuccess: () => {
@@ -344,15 +344,15 @@ export function useArchiveWorkspace(workspaceId: string) {
     mutationFn: () => archiveWorkspaceApi(workspaceId),
     onMutate: async () => {
       await queryClient.cancelQueries({
-        queryKey: WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKey: queryKeys.workspaces.context(workspaceId),
       });
 
       const previousData = queryClient.getQueryData<WorkspaceContextResponse>(
-        WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKeys.workspaces.context(workspaceId),
       );
 
       queryClient.setQueryData<WorkspaceContextResponse>(
-        WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKeys.workspaces.context(workspaceId),
         (old) => {
           if (!old) return old;
           return {
@@ -369,13 +369,13 @@ export function useArchiveWorkspace(workspaceId: string) {
     },
     onError: (error: Error, _variables, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId), context.previousData);
+        queryClient.setQueryData(queryKeys.workspaces.context(workspaceId), context.previousData);
       }
       toast.error('Failed to archive workspace', { description: error.message });
     },
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKey: queryKeys.workspaces.context(workspaceId),
       });
     },
     onSuccess: () => {
@@ -391,15 +391,15 @@ export function useRestoreWorkspace(workspaceId: string) {
     mutationFn: () => restoreWorkspaceApi(workspaceId),
     onMutate: async () => {
       await queryClient.cancelQueries({
-        queryKey: WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKey: queryKeys.workspaces.context(workspaceId),
       });
 
       const previousData = queryClient.getQueryData<WorkspaceContextResponse>(
-        WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKeys.workspaces.context(workspaceId),
       );
 
       queryClient.setQueryData<WorkspaceContextResponse>(
-        WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKeys.workspaces.context(workspaceId),
         (old) => {
           if (!old) return old;
           return {
@@ -416,13 +416,13 @@ export function useRestoreWorkspace(workspaceId: string) {
     },
     onError: (error: Error, _variables, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId), context.previousData);
+        queryClient.setQueryData(queryKeys.workspaces.context(workspaceId), context.previousData);
       }
       toast.error('Failed to restore workspace', { description: error.message });
     },
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKey: queryKeys.workspaces.context(workspaceId),
       });
     },
     onSuccess: () => {
@@ -439,7 +439,7 @@ export function useDeleteWorkspace(workspaceId: string) {
     mutationFn: () => deleteWorkspacePermanently(workspaceId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+        queryKey: queryKeys.workspaces.context(workspaceId),
       });
       toast.success('Workspace permanently deleted');
       // Navigate away after deletion

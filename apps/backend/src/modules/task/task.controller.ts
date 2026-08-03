@@ -61,6 +61,16 @@ export const createTask = asyncHandler(async (req: Request, res: Response) => {
 });
 
 /**
+ * GET /api/tasks/my
+ * Get tasks assigned to the current user.
+ */
+export const getMyTasks = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.userId;
+  const tasks = await taskService.getMyTasks(userId);
+  return sendSuccess(res, { tasks });
+});
+
+/**
  * GET /api/tasks/:taskId
  * Get a task by ID.
  */

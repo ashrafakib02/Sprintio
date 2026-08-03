@@ -89,10 +89,15 @@ export async function refreshTokens(): Promise<void> {
 }
 
 export async function logoutApi(): Promise<void> {
-  await fetch(`${API_BASE}/auth/logout`, {
+  const res = await fetch(`${API_BASE}/auth/logout`, {
     method: 'POST',
     credentials: 'include',
   });
+  // Only throw on server errors — client errors (e.g. 401 from expired token)
+  // should not block logout, since the goal is to clear client state.
+  if (res.status >= 500) {
+    throw new Error('Logout failed');
+  }
 }
 
 // ── Email verification endpoints ─────────────────────────────
@@ -473,6 +478,26 @@ export async function deleteWorkspacePermanently(
   });
 }
 
+// ── Project endpoints ──────────────────────────────────────
+
+export interface ProjectData {
+  id: string;
+  name: string;
+  description: string | null;
+  workspaceId: string;
+  status: string;
+  startDate: string | null;
+  endDate: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function listProjects(
+  workspaceId: string,
+): Promise<ApiResponse<{ projects: ProjectData[] }>> {
+  return apiRequest<{ projects: ProjectData[] }>(`/workspaces/${workspaceId}/projects`);
+}
+
 // ── Task endpoints ─────────────────────────────────────────
 
 export interface TaskCreateInput {
@@ -503,8 +528,11 @@ export interface TaskData {
   updatedAt: string;
 }
 
-export async function createTask(data: TaskCreateInput): Promise<ApiResponse<{ task: TaskData }>> {
-  return apiRequest<{ task: TaskData }>('/tasks', {
+export async function createTask(
+  projectId: string,
+  data: TaskCreateInput,
+): Promise<ApiResponse<{ task: TaskData }>> {
+  return apiRequest<{ task: TaskData }>(`/projects/${projectId}/tasks`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -515,6 +543,15 @@ export async function listWorkspaces(
 ): Promise<ApiResponse<{ workspaces: WorkspaceSettingsData[] }>> {
   const params = includeArchived ? '?includeArchived=true' : '';
   return apiRequest<{ workspaces: WorkspaceSettingsData[] }>(`/workspaces${params}`);
+}
+
+export async function listWorkspacesByOrganization(
+  organizationId: string,
+  includeArchived?: boolean,
+): Promise<ApiResponse<{ workspaces: WorkspaceSettingsData[] }>> {
+  const params = new URLSearchParams({ organizationId });
+  if (includeArchived) params.set('includeArchived', 'true');
+  return apiRequest<{ workspaces: WorkspaceSettingsData[] }>(`/workspaces?${params}`);
 }
 
 export async function createWorkspace(data: {

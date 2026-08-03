@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getLinkedProviders, unlinkGoogleAccount } from '@/lib/api';
-import { AUTH_QUERY_KEY } from '@/contexts/auth-provider';
+import { queryKeys } from '@/lib/query-keys';
 
 function GoogleLogo({ className }: { className?: string }) {
   return (
@@ -40,7 +40,7 @@ export function ConnectedAccounts() {
     mutationFn: unlinkGoogleAccount,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['auth', 'providers'] });
-      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.auth.me });
       toast.success('Google account disconnected');
     },
     onError: (error: Error) => {

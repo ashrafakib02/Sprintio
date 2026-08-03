@@ -2,11 +2,11 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useListWorkspaces, useCreateWorkspace } from '@/hooks/use-workspace';
-import { WORKSPACE_CONTEXT_QUERY_KEY } from '@/hooks/use-workspace-settings';
 import { useActiveOrganization } from '@/hooks/use-active-organization';
 import { switchWorkspace } from '@/lib/api';
 import { getStoredWorkspaceId, setStoredWorkspaceId } from '@/lib/workspace-storage';
 import { getWorkspaceInitials, getAvatarGradient } from '@/lib/workspace-utils';
+import { queryKeys } from '@/lib/query-keys';
 import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -61,7 +61,7 @@ function useWorkspaceRoleCache(workspaces: WorkspaceSettingsData[]) {
   useEffect(() => {
     for (const ws of workspaces) {
       queryClient.prefetchQuery({
-        queryKey: WORKSPACE_CONTEXT_QUERY_KEY(ws.id),
+        queryKey: queryKeys.workspaces.context(ws.id),
         queryFn: () =>
           import('@/lib/api').then((api) =>
             api.getWorkspaceContext(ws.id).then((res) => ({
@@ -78,7 +78,7 @@ function useWorkspaceRoleCache(workspaces: WorkspaceSettingsData[]) {
   return (workspaceId: string) => {
     const data = queryClient.getQueryData<{
       userRole: WorkspaceRole;
-    }>(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId));
+    }>(queryKeys.workspaces.context(workspaceId));
     return data?.userRole;
   };
 }
@@ -101,14 +101,15 @@ export function WorkspaceSwitcher() {
 
   const { data: workspaces, isLoading } = useListWorkspaces();
   const createWorkspace = useCreateWorkspace();
-  const currentOrganizationId = useActiveOrganization();
+  const { activeOrganizationId: currentOrganizationId } = useActiveOrganization();
 
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const urlWsId = extractWorkspaceId(pathname);
   const activeWorkspaceId = useMemo(() => {
     if (urlWsId) return urlWsId;
     const stored = getStoredWorkspaceId();
-    if (stored) return stored;
+    // Only use stored ID if it belongs to the current org's workspace list
+    if (stored && workspaces?.some((ws) => ws.id === stored)) return stored;
     if (workspaces && workspaces.length > 0) {
       return workspaces[0].id;
     }
@@ -202,17 +203,25 @@ export function WorkspaceSwitcher() {
       setSwitchingTo(workspaceId);
 
       try {
+        // Remove project and task caches for the old workspace so stale data
+        // doesn't bleed into the new workspace.
+        if (activeWorkspaceId) {
+          queryClient.removeQueries({ queryKey: ['projects', activeWorkspaceId] });
+          queryClient.removeQueries({ queryKey: ['workspace', activeWorkspaceId] });
+        }
+        queryClient.removeQueries({ queryKey: ['tasks'] });
+
         // Call switchWorkspace API to validate and set the active workspace server-side
         await switchWorkspace(workspaceId);
 
         // Invalidate the workspace context for the new workspace so pages get fresh data
         await queryClient.invalidateQueries({
-          queryKey: WORKSPACE_CONTEXT_QUERY_KEY(workspaceId),
+          queryKey: queryKeys.workspaces.context(workspaceId),
         });
 
         // Also invalidate the workspace list in case anything changed
         await queryClient.invalidateQueries({
-          queryKey: ['workspaces'],
+          queryKey: queryKeys.workspaces.all,
         });
 
         setOpen(false);
