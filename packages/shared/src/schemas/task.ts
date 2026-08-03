@@ -16,6 +16,7 @@ import { CreateTaskSchema } from '../hierarchy-types.js';
 
 // Nested creation: projectId comes from URL param, not request body
 export const CreateTaskForProjectSchema = CreateTaskSchema.omit({
+  projectId: true,
   boardId: true,
   columnId: true,
 }).extend({

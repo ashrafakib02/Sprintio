@@ -1,8 +1,9 @@
 import { useEffect, useMemo } from 'react';
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { useWorkspaceContext, WORKSPACE_CONTEXT_QUERY_KEY } from '@/hooks/use-workspace-settings';
+import { useWorkspaceContext } from '@/hooks/use-workspace-settings';
 import { switchWorkspace } from '@/lib/api';
+import { queryKeys } from '@/lib/query-keys';
 import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Briefcase } from 'lucide-react';
@@ -41,7 +42,7 @@ function WorkspaceLayout() {
 
         // Seed the query cache so child routes and other consumers
         // see up-to-date workspace data without an extra fetch.
-        queryClient.setQueryData(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId), response);
+        queryClient.setQueryData(queryKeys.workspaces.context(workspaceId), response);
       })
       .catch((err: Error) => {
         if (cancelled) return;

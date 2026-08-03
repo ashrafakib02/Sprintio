@@ -11,7 +11,6 @@ import { workspaceRoutes } from './modules/workspace/index.js';
 import { projectRoutes } from './modules/project/index.js';
 import { taskRoutes } from './modules/task/index.js';
 import { errorHandler } from './middleware/error-handler.js';
-import { authenticate } from './middleware/auth.js';
 
 const app: express.Express = express();
 
@@ -104,98 +103,6 @@ app.use('/api/organizations', organizationRoutes);
 app.use('/api/workspaces', workspaceRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
-
-// ── Task routes ─────────────────────────────────────────────
-const taskRouter = express.Router();
-taskRouter.use(authenticate);
-
-taskRouter.get('/my', async (req: Request, res: Response) => {
-  try {
-    const { taskRepo } = await import('@sprintio/db/repositories');
-    const { repoDb } = await import('./config/db-for-repos.js');
-    const userId = req.user?.userId;
-    if (!userId) {
-      res.status(401).json({ error: 'Unauthorized' });
-      return;
-    }
-    const tasks = await taskRepo.findByAssignee(repoDb, userId);
-    res.json({ data: { tasks }, success: true });
-  } catch (err) {
-    console.error('Failed to fetch tasks:', err);
-    res.status(500).json({ error: 'Failed to fetch tasks' });
-  }
-});
-
-taskRouter.post('/', async (req: Request, res: Response) => {
-  try {
-    const { taskRepo } = await import('@sprintio/db/repositories');
-    const { repoDb } = await import('./config/db-for-repos.js');
-    const {
-      title,
-      description,
-      priority,
-      projectId,
-      assigneeId,
-      boardId,
-      columnId,
-      sprintId,
-      dueDate,
-      labels,
-    } = req.body as {
-      title?: string;
-      description?: string;
-      priority?: string;
-      projectId?: string;
-      assigneeId?: string | null;
-      boardId?: string;
-      columnId?: string;
-      sprintId?: string | null;
-      dueDate?: string | null;
-      labels?: string[];
-    };
-
-    if (!title || typeof title !== 'string' || !title.trim()) {
-      res.status(400).json({ error: 'Title is required' });
-      return;
-    }
-
-    if (!projectId || typeof projectId !== 'string') {
-      res.status(400).json({ error: 'projectId is required' });
-      return;
-    }
-
-    const userId = req.user?.userId;
-    if (!userId) {
-      res.status(401).json({ error: 'Unauthorized' });
-      return;
-    }
-
-    const task = await taskRepo.create(
-      repoDb,
-      {
-        title: title.trim(),
-        description: description?.trim() || null,
-        priority: priority ?? 'medium',
-        projectId,
-        assigneeId: assigneeId ?? userId,
-        boardId: boardId ?? null,
-        columnId: columnId ?? null,
-        sprintId: sprintId ?? null,
-        dueDate: dueDate ? new Date(dueDate) : null,
-        labels,
-      },
-      userId,
-    );
-
-    res.status(201).json({ data: { task }, success: true });
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Failed to create task';
-    console.error('Failed to create task:', err);
-    res.status(500).json({ error: message });
-  }
-});
-
-app.use('/api/tasks', taskRouter);
 
 // ── 404 handler ──────────────────────────────────────────────
 app.use((_req, res) => {

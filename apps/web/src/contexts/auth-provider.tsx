@@ -6,10 +6,12 @@ import type { AuthContextValue } from '@/types/auth';
 import { setAuthState } from '@/lib/auth-store';
 import { clearStoredOrganizationId } from '@/lib/organization-storage';
 import { clearStoredWorkspaceId } from '@/lib/workspace-storage';
+import { queryKeys } from '@/lib/query-keys';
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
-export const AUTH_QUERY_KEY = ['auth', 'me'] as const;
+/** @deprecated Use `queryKeys.auth.me` instead */
+export const AUTH_QUERY_KEY = queryKeys.auth.me;
 
 interface AuthProviderProps {
   children: React.ReactNode;

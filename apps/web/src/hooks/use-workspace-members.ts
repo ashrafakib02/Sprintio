@@ -13,10 +13,8 @@ import {
   type WorkspaceContextMember,
   type WorkspaceSettingsData,
 } from '@/lib/api';
-import {
-  WORKSPACE_LIST_QUERY_KEY,
-  WORKSPACE_CONTEXT_QUERY_KEY,
-} from '@/hooks/use-workspace-settings';
+import { WORKSPACE_CONTEXT_QUERY_KEY } from '@/hooks/use-workspace-settings';
+import { queryKeys } from '@/lib/query-keys';
 import { toast } from 'sonner';
 
 // ── Internal Types ──────────────────────────────────────────
@@ -349,14 +347,14 @@ export function useSwitchWorkspace(workspaceId: string) {
       const { workspace, userRole, members } = response.data;
 
       // Update the workspace context cache with the new workspace data
-      queryClient.setQueryData(WORKSPACE_CONTEXT_QUERY_KEY(workspaceId), {
+      queryClient.setQueryData(queryKeys.workspaces.context(workspaceId), {
         workspace,
         userRole,
         members,
       });
 
       // Invalidate the workspace list to refresh the switcher
-      queryClient.invalidateQueries({ queryKey: WORKSPACE_LIST_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.all });
     },
     onError: (error: Error) => {
       toast.error('Failed to switch workspace', { description: error.message });

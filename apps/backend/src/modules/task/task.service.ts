@@ -248,6 +248,14 @@ export async function createTask(
 }
 
 /**
+ * Get tasks assigned to a specific user.
+ */
+export async function getMyTasks(userId: string): Promise<TaskResult[]> {
+  const tasks = await taskRepo.findByAssignee(repoDb, userId);
+  return tasks.map(toTaskResult);
+}
+
+/**
  * Get a task by ID.
  * The requester must be a member of the workspace.
  */

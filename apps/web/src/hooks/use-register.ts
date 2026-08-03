@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import { register } from '@/lib/api';
 import type { RegisterInput } from '@sprintio/shared';
-import { AUTH_QUERY_KEY } from '@/contexts/auth-provider';
+import { queryKeys } from '@/lib/query-keys';
 
 export function useRegister() {
   const navigate = useNavigate({ from: '/register' });
@@ -12,7 +12,7 @@ export function useRegister() {
   return useMutation({
     mutationFn: (data: RegisterInput) => register(data),
     onSuccess: async (response) => {
-      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.auth.me });
 
       toast.success('Account created!', {
         description: 'Please check your email to verify your account',

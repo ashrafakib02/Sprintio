@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { getTask, updateTask, deleteTask } from './task.controller.js';
+import { getMyTasks, getTask, updateTask, deleteTask } from './task.controller.js';
 import { authenticate } from '../../middleware/auth.js';
 import { requireTask } from '../../middleware/task-scoping.js';
 import { requireWorkspacePermission } from '../../middleware/rbac.js';
@@ -19,6 +19,9 @@ const taskLimiter = rateLimit({
 });
 
 const router: ReturnType<typeof Router> = Router();
+
+// Get tasks assigned to the current user (must come before /:taskId)
+router.get('/my', authenticate, getMyTasks);
 
 // Get task (authenticated, requireTask checks membership)
 router.get('/:taskId', authenticate, requireTask, getTask);
