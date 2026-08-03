@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { listWorkspacesByOrganization, createWorkspace } from '@/lib/api';
+import { useAppSelector } from '@/store/hooks';
 import { queryKeys } from '@/lib/query-keys';
 import { toast } from 'sonner';
 
@@ -10,14 +11,19 @@ export const WORKSPACES_BY_ORG_QUERY_KEY = queryKeys.workspaces.byOrganization;
 // ── List Workspaces (org-scoped) ────────────────────────────
 
 /**
- * Fetch all workspaces belonging to a specific organization.
- * Only runs when `organizationId` is provided.
+ * Fetch all workspaces belonging to the currently active organization.
+ * Uses the Redux state for the active organization ID.
+ * Only runs when an organization ID is available.
  */
-export function useWorkspacesByOrganization(organizationId: string | null) {
+export function useWorkspacesByOrganization(organizationId?: string | null) {
+  // Allow explicit override, fall back to Redux state
+  const reduxOrgId = useAppSelector((s) => s.activeOrganization.organizationId);
+  const orgId = organizationId ?? reduxOrgId;
+
   return useQuery({
-    queryKey: queryKeys.workspaces.byOrganization(organizationId ?? ''),
-    queryFn: () => listWorkspacesByOrganization(organizationId!),
-    enabled: !!organizationId,
+    queryKey: queryKeys.workspaces.byOrganization(orgId ?? ''),
+    queryFn: () => listWorkspacesByOrganization(orgId!),
+    enabled: !!orgId,
     staleTime: 30_000,
     select: (response) => response.data.workspaces,
   });

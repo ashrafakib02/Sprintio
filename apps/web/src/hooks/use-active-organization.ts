@@ -8,6 +8,8 @@ import {
 import { clearStoredWorkspaceId } from '@/lib/workspace-storage';
 import { useOrganizations } from '@/hooks/use-organization';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setActiveOrganization } from '@/store/slices/activeOrganizationSlice';
 import { queryKeys } from '@/lib/query-keys';
 
 function extractOrganizationId(pathname: string): string | null {
@@ -24,13 +26,15 @@ function extractOrganizationId(pathname: string): string | null {
  *  3. First organization from the user's list
  *
  * Returns the resolved `activeOrganizationId` and a `setActiveOrganization`
- * setter that persists the selection and clears downstream caches
- * (workspaces, projects, tasks) scoped to the previous organization.
+ * setter that persists the selection, updates Redux state, and clears
+ * downstream caches (workspaces, projects, tasks) scoped to the previous
+ * organization.
  */
 export function useActiveOrganization() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data: organizations } = useOrganizations();
   const queryClient = useQueryClient();
+  const dispatch = useAppDispatch();
 
   const activeOrganizationId = useMemo(() => {
     const urlId = extractOrganizationId(pathname);
@@ -43,7 +47,13 @@ export function useActiveOrganization() {
     return null;
   }, [pathname, organizations]);
 
-  const setActiveOrganization = useCallback(
+  // Sync resolved org ID to Redux store
+  const reduxOrgId = useAppSelector((s) => s.activeOrganization.organizationId);
+  if (activeOrganizationId !== reduxOrgId) {
+    dispatch(setActiveOrganization(activeOrganizationId));
+  }
+
+  const setActiveOrganizationCallback = useCallback(
     (organizationId: string | null) => {
       const previousId = activeOrganizationId;
 
@@ -77,9 +87,12 @@ export function useActiveOrganization() {
         queryClient.removeQueries({ queryKey: ['projects'] });
         queryClient.removeQueries({ queryKey: ['tasks'] });
       }
+
+      // Update Redux selection state
+      dispatch(setActiveOrganization(organizationId));
     },
-    [activeOrganizationId, queryClient],
+    [activeOrganizationId, queryClient, dispatch],
   );
 
-  return { activeOrganizationId, setActiveOrganization };
+  return { activeOrganizationId, setActiveOrganization: setActiveOrganizationCallback };
 }
