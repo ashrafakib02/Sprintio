@@ -1,36 +1,57 @@
-import { eq, and, count, desc } from 'drizzle-orm';
+import { eq, and, count, desc, isNull } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { projects, sprints, tasks } from '../schema/index.js';
+import {
+  projects,
+  projectStatusEnum,
+  projectPriorityEnum,
+  projectVisibilityEnum,
+  sprints,
+  tasks,
+} from '../schema/index.js';
 
 // ============================================================
 // Types
 // ============================================================
 
+export type ProjectStatus = (typeof projectStatusEnum.enumValues)[number];
+export type ProjectPriority = (typeof projectPriorityEnum.enumValues)[number];
+export type ProjectVisibility = (typeof projectVisibilityEnum.enumValues)[number];
+
 export interface ProjectRecord {
   id: string;
   name: string;
+  slug: string;
   description: string | null;
   workspaceId: string;
-  status: string;
+  status: ProjectStatus;
+  priority: ProjectPriority;
+  visibility: ProjectVisibility;
   startDate: Date | null;
   endDate: Date | null;
+  deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface CreateProjectData {
   name: string;
+  slug: string;
   description?: string | null;
   workspaceId: string;
-  status?: string;
+  status?: ProjectStatus;
+  priority?: ProjectPriority;
+  visibility?: ProjectVisibility;
   startDate?: Date | null;
   endDate?: Date | null;
 }
 
 export interface UpdateProjectData {
   name?: string;
+  slug?: string;
   description?: string | null;
-  status?: string;
+  status?: ProjectStatus;
+  priority?: ProjectPriority;
+  visibility?: ProjectVisibility;
   startDate?: Date | null;
   endDate?: Date | null;
 }
@@ -40,9 +61,24 @@ export interface UpdateProjectData {
 // ============================================================
 
 /**
- * Find a project by its ID.
+ * Find a project by its ID (excludes soft-deleted).
  */
 export async function findById(
+  db: PostgresJsDatabase,
+  id: string,
+): Promise<ProjectRecord | undefined> {
+  const [project] = await db
+    .select()
+    .from(projects)
+    .where(and(eq(projects.id, id), isNull(projects.deletedAt)))
+    .limit(1);
+  return project;
+}
+
+/**
+ * Find a project by its ID, including soft-deleted.
+ */
+export async function findByIdIncludingDeleted(
   db: PostgresJsDatabase,
   id: string,
 ): Promise<ProjectRecord | undefined> {
@@ -52,6 +88,7 @@ export async function findById(
 
 /**
  * Find all projects in a workspace, ordered by creation date (newest first).
+ * Excludes soft-deleted projects.
  */
 export async function findByWorkspaceId(
   db: PostgresJsDatabase,
@@ -60,7 +97,7 @@ export async function findByWorkspaceId(
   return db
     .select()
     .from(projects)
-    .where(eq(projects.workspaceId, workspaceId))
+    .where(and(eq(projects.workspaceId, workspaceId), isNull(projects.deletedAt)))
     .orderBy(desc(projects.createdAt));
 }
 
@@ -74,16 +111,17 @@ export async function findByWorkspaceIdWithPagination(
   limit: number,
 ): Promise<{ projects: ProjectRecord[]; total: number }> {
   const offset = (page - 1) * limit;
+  const baseWhere = and(eq(projects.workspaceId, workspaceId), isNull(projects.deletedAt));
 
   const [projectRows, countRows] = await Promise.all([
     db
       .select()
       .from(projects)
-      .where(eq(projects.workspaceId, workspaceId))
+      .where(baseWhere)
       .orderBy(desc(projects.createdAt))
       .limit(limit)
       .offset(offset),
-    db.select({ value: count() }).from(projects).where(eq(projects.workspaceId, workspaceId)),
+    db.select({ value: count() }).from(projects).where(baseWhere),
   ]);
 
   return {
@@ -102,7 +140,13 @@ export async function findActiveByWorkspaceId(
   return db
     .select()
     .from(projects)
-    .where(and(eq(projects.workspaceId, workspaceId), eq(projects.status, 'active')))
+    .where(
+      and(
+        eq(projects.workspaceId, workspaceId),
+        eq(projects.status, 'active'),
+        isNull(projects.deletedAt),
+      ),
+    )
     .orderBy(desc(projects.createdAt));
 }
 
@@ -112,12 +156,18 @@ export async function findActiveByWorkspaceId(
 export async function findByWorkspaceIdAndStatus(
   db: PostgresJsDatabase,
   workspaceId: string,
-  status: string,
+  status: ProjectStatus,
 ): Promise<ProjectRecord[]> {
   return db
     .select()
     .from(projects)
-    .where(and(eq(projects.workspaceId, workspaceId), eq(projects.status, status)))
+    .where(
+      and(
+        eq(projects.workspaceId, workspaceId),
+        eq(projects.status, status),
+        isNull(projects.deletedAt),
+      ),
+    )
     .orderBy(desc(projects.createdAt));
 }
 
@@ -132,9 +182,12 @@ export async function create(
     .insert(projects)
     .values({
       name: data.name,
+      slug: data.slug,
       description: data.description ?? null,
       workspaceId: data.workspaceId,
       status: data.status ?? 'active',
+      priority: data.priority ?? 'none',
+      visibility: data.visibility ?? 'workspace',
       startDate: data.startDate ?? null,
       endDate: data.endDate ?? null,
     })
@@ -153,8 +206,11 @@ export async function updateById(
 ): Promise<ProjectRecord | undefined> {
   const cleaned: Record<string, unknown> = {};
   if (data.name !== undefined) cleaned.name = data.name;
+  if (data.slug !== undefined) cleaned.slug = data.slug;
   if (data.description !== undefined) cleaned.description = data.description;
   if (data.status !== undefined) cleaned.status = data.status;
+  if (data.priority !== undefined) cleaned.priority = data.priority;
+  if (data.visibility !== undefined) cleaned.visibility = data.visibility;
   if (data.startDate !== undefined) cleaned.startDate = data.startDate;
   if (data.endDate !== undefined) cleaned.endDate = data.endDate;
 
@@ -167,7 +223,39 @@ export async function updateById(
 }
 
 /**
- * Delete a project by ID. Cascades to sprints and tasks via FK constraints.
+ * Soft-delete a project by setting deleted_at.
+ */
+export async function softDeleteById(
+  db: PostgresJsDatabase,
+  id: string,
+): Promise<ProjectRecord | undefined> {
+  const [deleted] = await db
+    .update(projects)
+    .set({ deletedAt: new Date(), updatedAt: new Date() })
+    .where(eq(projects.id, id))
+    .returning();
+
+  return deleted;
+}
+
+/**
+ * Restore a soft-deleted project by clearing deleted_at.
+ */
+export async function restoreById(
+  db: PostgresJsDatabase,
+  id: string,
+): Promise<ProjectRecord | undefined> {
+  const [restored] = await db
+    .update(projects)
+    .set({ deletedAt: null, updatedAt: new Date() })
+    .where(eq(projects.id, id))
+    .returning();
+
+  return restored;
+}
+
+/**
+ * Hard-delete a project by ID. Cascades to sprints and tasks via FK constraints.
  */
 export async function deleteById(db: PostgresJsDatabase, id: string): Promise<boolean> {
   const [deleted] = await db
@@ -195,7 +283,7 @@ export async function archiveById(
 }
 
 /**
- * Count projects in a workspace.
+ * Count non-deleted projects in a workspace.
  */
 export async function countByWorkspaceId(
   db: PostgresJsDatabase,
@@ -204,26 +292,26 @@ export async function countByWorkspaceId(
   const [result] = await db
     .select({ value: count() })
     .from(projects)
-    .where(eq(projects.workspaceId, workspaceId));
+    .where(and(eq(projects.workspaceId, workspaceId), isNull(projects.deletedAt)));
 
   return Number(result?.value ?? 0);
 }
 
 /**
- * Count projects per status in a workspace.
+ * Count non-deleted projects per status in a workspace.
  * Returns an array of { status, count } objects.
  */
 export async function countByStatusInWorkspace(
   db: PostgresJsDatabase,
   workspaceId: string,
-): Promise<Array<{ status: string; count: number }>> {
+): Promise<Array<{ status: ProjectStatus; count: number }>> {
   const results = await db
     .select({
       status: projects.status,
       value: count(),
     })
     .from(projects)
-    .where(eq(projects.workspaceId, workspaceId))
+    .where(and(eq(projects.workspaceId, workspaceId), isNull(projects.deletedAt)))
     .groupBy(projects.status);
 
   return results.map((r) => ({ status: r.status, count: Number(r.value) }));
@@ -243,7 +331,11 @@ export async function findByIdWithStats(
     })
   | undefined
 > {
-  const [project] = await db.select().from(projects).where(eq(projects.id, id)).limit(1);
+  const [project] = await db
+    .select()
+    .from(projects)
+    .where(and(eq(projects.id, id), isNull(projects.deletedAt)))
+    .limit(1);
 
   if (!project) return undefined;
 

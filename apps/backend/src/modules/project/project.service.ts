@@ -1,23 +1,8 @@
 import { repoDb } from '../../config/db-for-repos.js';
 import { projectRepo, workspaceRepo } from '@sprintio/db/repositories';
-import { AppError } from '@sprintio/shared';
+import { ProjectError } from '@sprintio/shared';
 import type { CreateProjectForWorkspaceInput, UpdateProjectInput } from '@sprintio/shared';
-
-// ============================================================
-// Types
-// ============================================================
-
-export interface ProjectResult {
-  id: string;
-  name: string;
-  description: string | null;
-  workspaceId: string;
-  status: string;
-  startDate: string | null;
-  endDate: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { ProjectResult, ProjectWithStats } from './project.types.js';
 
 // ============================================================
 // Helpers
@@ -27,11 +12,15 @@ function toProjectResult(project: projectRepo.ProjectRecord): ProjectResult {
   return {
     id: project.id,
     name: project.name,
+    slug: project.slug,
     description: project.description,
     workspaceId: project.workspaceId,
     status: project.status,
+    priority: project.priority,
+    visibility: project.visibility,
     startDate: project.startDate ? project.startDate.toISOString() : null,
     endDate: project.endDate ? project.endDate.toISOString() : null,
+    deletedAt: project.deletedAt ? project.deletedAt.toISOString() : null,
     createdAt: project.createdAt.toISOString(),
     updatedAt: project.updatedAt.toISOString(),
   };
@@ -103,7 +92,7 @@ const WORKSPACE_ROLE_PERMISSIONS: Record<string, string[]> = {
 
 function assertPermission(role: string | undefined, permission: string): void {
   if (!role) {
-    throw AppError.forbidden('You are not a member of this workspace');
+    throw ProjectError.notMemberOfWorkspace();
   }
 
   if (role === 'owner') {
@@ -112,7 +101,7 @@ function assertPermission(role: string | undefined, permission: string): void {
 
   const permissions = WORKSPACE_ROLE_PERMISSIONS[role] ?? [];
   if (!permissions.includes(permission)) {
-    throw AppError.forbidden('Insufficient workspace permissions');
+    throw ProjectError.insufficientPermissions(permission.split(':')[1]);
   }
 }
 
@@ -121,24 +110,61 @@ function assertPermission(role: string | undefined, permission: string): void {
 // ============================================================
 
 /**
- * List all projects in a workspace.
+ * List all non-deleted projects in a workspace.
  * The requester must be a member of the workspace.
  */
 export async function listProjects(workspaceId: string, userId: string): Promise<ProjectResult[]> {
-  // Validate workspace exists
   const workspace = await workspaceRepo.findById(repoDb, workspaceId);
   if (!workspace) {
-    throw AppError.notFound('Workspace');
+    throw ProjectError.notFound('Workspace');
   }
 
-  // Check workspace membership
   const isMember = await workspaceRepo.isMember(repoDb, workspaceId, userId);
   if (!isMember) {
-    throw AppError.forbidden('You are not a member of this workspace');
+    throw ProjectError.notMemberOfWorkspace();
   }
 
   const projects = await projectRepo.findByWorkspaceId(repoDb, workspaceId);
   return projects.map(toProjectResult);
+}
+
+/**
+ * List projects with pagination and optional filters.
+ */
+export async function listProjectsPaginated(
+  workspaceId: string,
+  userId: string,
+  query: { page: number; limit: number; status?: string; priority?: string; search?: string },
+): Promise<{
+  projects: ProjectResult[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}> {
+  const workspace = await workspaceRepo.findById(repoDb, workspaceId);
+  if (!workspace) {
+    throw ProjectError.notFound('Workspace');
+  }
+
+  const isMember = await workspaceRepo.isMember(repoDb, workspaceId, userId);
+  if (!isMember) {
+    throw ProjectError.notMemberOfWorkspace();
+  }
+
+  const result = await projectRepo.findByWorkspaceIdWithPagination(
+    repoDb,
+    workspaceId,
+    query.page,
+    query.limit,
+  );
+  return {
+    projects: result.projects.map(toProjectResult),
+    total: result.total,
+    page: query.page,
+    limit: query.limit,
+    totalPages: Math.ceil(result.total / query.limit),
+  };
 }
 
 /**
@@ -150,25 +176,25 @@ export async function createProject(
   data: CreateProjectForWorkspaceInput,
   userId: string,
 ): Promise<ProjectResult> {
-  // Validate workspace exists
   const workspace = await workspaceRepo.findById(repoDb, workspaceId);
   if (!workspace) {
-    throw AppError.notFound('Workspace');
+    throw ProjectError.notFound('Workspace');
   }
 
-  // Check permission
   const role = await workspaceRepo.getMemberRole(repoDb, workspaceId, userId);
   assertPermission(role, 'project:create');
 
-  // Archived workspaces cannot have projects created
   if (workspace.archivedAt) {
-    throw AppError.badRequest('Cannot create projects in an archived workspace');
+    throw ProjectError.archivedWorkspace();
   }
 
   const project = await projectRepo.create(repoDb, {
     name: data.name,
+    slug: data.slug,
     description: data.description,
     workspaceId,
+    priority: data.priority,
+    visibility: data.visibility,
     startDate: data.startDate ? new Date(data.startDate) : undefined,
     endDate: data.endDate ? new Date(data.endDate) : undefined,
   });
@@ -183,22 +209,44 @@ export async function createProject(
 export async function getProject(projectId: string, userId: string): Promise<ProjectResult> {
   const project = await projectRepo.findById(repoDb, projectId);
   if (!project) {
-    throw AppError.notFound('Project');
+    throw ProjectError.notFound(projectId);
   }
 
-  // Walk chain: project → workspace
-  const workspace = await workspaceRepo.findById(repoDb, project.workspaceId);
-  if (!workspace) {
-    throw AppError.notFound('Workspace');
-  }
-
-  // Check workspace membership
-  const isMember = await workspaceRepo.isMember(repoDb, workspace.id, userId);
+  const isMember = await workspaceRepo.isMember(repoDb, project.workspaceId, userId);
   if (!isMember) {
-    throw AppError.forbidden('You are not a member of this workspace');
+    throw ProjectError.notMemberOfWorkspace();
   }
 
   return toProjectResult(project);
+}
+
+/**
+ * Get a project by ID with sprint/task counts.
+ */
+export async function getProjectWithStats(
+  projectId: string,
+  userId: string,
+): Promise<ProjectWithStats> {
+  const project = await projectRepo.findById(repoDb, projectId);
+  if (!project) {
+    throw ProjectError.notFound(projectId);
+  }
+
+  const isMember = await workspaceRepo.isMember(repoDb, project.workspaceId, userId);
+  if (!isMember) {
+    throw ProjectError.notMemberOfWorkspace();
+  }
+
+  const stats = await projectRepo.findByIdWithStats(repoDb, projectId);
+  if (!stats) {
+    throw ProjectError.notFound(projectId);
+  }
+
+  return {
+    ...toProjectResult(project),
+    sprintCount: stats.sprintCount,
+    taskCount: stats.taskCount,
+  };
 }
 
 /**
@@ -212,87 +260,109 @@ export async function updateProject(
 ): Promise<ProjectResult> {
   const project = await projectRepo.findById(repoDb, projectId);
   if (!project) {
-    throw AppError.notFound('Project');
+    throw ProjectError.notFound(projectId);
   }
 
-  // Walk chain: project → workspace
   const workspace = await workspaceRepo.findById(repoDb, project.workspaceId);
   if (!workspace) {
-    throw AppError.notFound('Workspace');
+    throw ProjectError.notFound('Workspace');
   }
 
-  // Check permission
   const role = await workspaceRepo.getMemberRole(repoDb, workspace.id, userId);
   assertPermission(role, 'project:update');
 
-  // Archived workspaces cannot have projects updated
   if (workspace.archivedAt) {
-    throw AppError.badRequest('Cannot update projects in an archived workspace');
+    throw ProjectError.archivedWorkspace();
   }
 
   const updated = await projectRepo.updateById(repoDb, projectId, {
     name: data.name,
+    slug: data.slug,
     description: data.description,
+    priority: data.priority,
+    visibility: data.visibility,
     startDate: data.startDate ? new Date(data.startDate) : undefined,
     endDate: data.endDate ? new Date(data.endDate) : undefined,
   });
 
   if (!updated) {
-    throw AppError.internal('Failed to update project');
+    throw ProjectError.notFound(projectId);
   }
 
   return toProjectResult(updated);
 }
 
 /**
- * Delete a project.
+ * Soft-delete a project (sets deletedAt).
  * The requester must have project:delete permission.
  */
 export async function deleteProject(projectId: string, userId: string): Promise<void> {
   const project = await projectRepo.findById(repoDb, projectId);
   if (!project) {
-    throw AppError.notFound('Project');
+    throw ProjectError.notFound(projectId);
   }
 
-  // Walk chain: project → workspace
   const workspace = await workspaceRepo.findById(repoDb, project.workspaceId);
   if (!workspace) {
-    throw AppError.notFound('Workspace');
+    throw ProjectError.notFound('Workspace');
   }
 
-  // Check permission
   const role = await workspaceRepo.getMemberRole(repoDb, workspace.id, userId);
   assertPermission(role, 'project:delete');
 
-  const deleted = await projectRepo.deleteById(repoDb, projectId);
+  const deleted = await projectRepo.softDeleteById(repoDb, projectId);
   if (!deleted) {
-    throw AppError.internal('Failed to delete project');
+    throw ProjectError.notFound(projectId);
   }
 }
 
 /**
- * Archive a project (soft-delete).
+ * Restore a soft-deleted project.
+ * The requester must have project:update permission.
+ */
+export async function restoreProject(projectId: string, userId: string): Promise<ProjectResult> {
+  const project = await projectRepo.findByIdIncludingDeleted(repoDb, projectId);
+  if (!project) {
+    throw ProjectError.notFound(projectId);
+  }
+
+  const workspace = await workspaceRepo.findById(repoDb, project.workspaceId);
+  if (!workspace) {
+    throw ProjectError.notFound('Workspace');
+  }
+
+  const role = await workspaceRepo.getMemberRole(repoDb, workspace.id, userId);
+  assertPermission(role, 'project:update');
+
+  const restored = await projectRepo.restoreById(repoDb, projectId);
+  if (!restored) {
+    throw ProjectError.notFound(projectId);
+  }
+
+  return toProjectResult(restored);
+}
+
+/**
+ * Archive a project (sets status to 'archived').
  * The requester must have project:update permission.
  */
 export async function archiveProject(projectId: string, userId: string): Promise<ProjectResult> {
   const project = await projectRepo.findById(repoDb, projectId);
   if (!project) {
-    throw AppError.notFound('Project');
+    throw ProjectError.notFound(projectId);
   }
 
-  // Walk chain: project → workspace
   const workspace = await workspaceRepo.findById(repoDb, project.workspaceId);
   if (!workspace) {
-    throw AppError.notFound('Workspace');
+    throw ProjectError.notFound('Workspace');
   }
 
-  // Check permission
   const role = await workspaceRepo.getMemberRole(repoDb, workspace.id, userId);
   assertPermission(role, 'project:update');
 
   const archived = await projectRepo.archiveById(repoDb, projectId);
   if (!archived) {
-    throw AppError.internal('Failed to archive project');
+    throw ProjectError.notFound(projectId);
   }
 
   return toProjectResult(archived);
