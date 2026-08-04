@@ -135,7 +135,13 @@ export async function listProjectsPaginated(
   workspaceId: string,
   userId: string,
   query: { page: number; limit: number; status?: string; priority?: string; search?: string },
-): Promise<{ projects: ProjectResult[]; total: number; page: number; limit: number; totalPages: number }> {
+): Promise<{
+  projects: ProjectResult[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}> {
   const workspace = await workspaceRepo.findById(repoDb, workspaceId);
   if (!workspace) {
     throw ProjectError.notFound('Workspace');
@@ -146,7 +152,12 @@ export async function listProjectsPaginated(
     throw ProjectError.notMemberOfWorkspace();
   }
 
-  const result = await projectRepo.findByWorkspaceIdWithPagination(repoDb, workspaceId, query.page, query.limit);
+  const result = await projectRepo.findByWorkspaceIdWithPagination(
+    repoDb,
+    workspaceId,
+    query.page,
+    query.limit,
+  );
   return {
     projects: result.projects.map(toProjectResult),
     total: result.total,
@@ -212,7 +223,10 @@ export async function getProject(projectId: string, userId: string): Promise<Pro
 /**
  * Get a project by ID with sprint/task counts.
  */
-export async function getProjectWithStats(projectId: string, userId: string): Promise<ProjectWithStats> {
+export async function getProjectWithStats(
+  projectId: string,
+  userId: string,
+): Promise<ProjectWithStats> {
   const project = await projectRepo.findById(repoDb, projectId);
   if (!project) {
     throw ProjectError.notFound(projectId);

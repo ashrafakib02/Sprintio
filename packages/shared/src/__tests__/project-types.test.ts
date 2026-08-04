@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  PROJECT_STATUSES,
-  PROJECT_PRIORITIES,
-  PROJECT_VISIBILITIES,
-} from '../constants/status.js';
+import { PROJECT_STATUSES, PROJECT_PRIORITIES, PROJECT_VISIBILITIES } from '../constants/status.js';
 import { PROJECT_ROLES, PROJECT_ROLE_HIERARCHY } from '../constants/roles.js';
 import {
   ProjectStatusSchema,

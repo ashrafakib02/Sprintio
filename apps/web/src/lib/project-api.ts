@@ -156,9 +156,7 @@ export async function updateProject(
 
 // ── Delete Project ─────────────────────────────────────────────
 
-export async function deleteProject(
-  projectId: string,
-): Promise<ApiResponse<{ message: string }>> {
+export async function deleteProject(projectId: string): Promise<ApiResponse<{ message: string }>> {
   return apiRequest<{ message: string }>(`/projects/${projectId}`, {
     method: 'DELETE',
   });

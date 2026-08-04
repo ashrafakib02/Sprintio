@@ -39,8 +39,7 @@ export const ROUTES = {
     `/workspace/${wsId}/settings/${tab}` as const,
 
   // ── Project ───────────────────────────────────────────────────
-  project: (wsId: string, projId: string) =>
-    `/workspace/${wsId}/project/${projId}` as const,
+  project: (wsId: string, projId: string) => `/workspace/${wsId}/project/${projId}` as const,
   projectBoards: (wsId: string, projId: string) =>
     `/workspace/${wsId}/project/${projId}/boards` as const,
   projectSprints: (wsId: string, projId: string) =>

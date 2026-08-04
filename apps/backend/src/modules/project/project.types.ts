@@ -1,8 +1,4 @@
-import type {
-  ProjectStatus,
-  ProjectPriority,
-  ProjectVisibility,
-} from '@sprintio/shared';
+import type { ProjectStatus, ProjectPriority, ProjectVisibility } from '@sprintio/shared';
 
 // ============================================================
 // Service Result Types
@@ -49,7 +45,13 @@ export interface IProjectService {
     workspaceId: string,
     userId: string,
     query: { page: number; limit: number; status?: string; priority?: string; search?: string },
-  ): Promise<{ projects: ProjectResult[]; total: number; page: number; limit: number; totalPages: number }>;
+  ): Promise<{
+    projects: ProjectResult[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }>;
 
   /** Get a single project by ID. */
   getProject(projectId: string, userId: string): Promise<ProjectResult>;
@@ -60,14 +62,30 @@ export interface IProjectService {
   /** Create a new project in a workspace. */
   createProject(
     workspaceId: string,
-    data: { name: string; slug: string; description?: string; priority?: string; visibility?: string; startDate?: string; endDate?: string },
+    data: {
+      name: string;
+      slug: string;
+      description?: string;
+      priority?: string;
+      visibility?: string;
+      startDate?: string;
+      endDate?: string;
+    },
     userId: string,
   ): Promise<ProjectResult>;
 
   /** Update an existing project. */
   updateProject(
     projectId: string,
-    data: { name?: string; slug?: string; description?: string | null; priority?: string; visibility?: string; startDate?: string | null; endDate?: string | null },
+    data: {
+      name?: string;
+      slug?: string;
+      description?: string | null;
+      priority?: string;
+      visibility?: string;
+      startDate?: string | null;
+      endDate?: string | null;
+    },
     userId: string,
   ): Promise<ProjectResult>;
 

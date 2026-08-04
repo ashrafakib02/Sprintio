@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { projects, projectStatusEnum, projectPriorityEnum, projectVisibilityEnum } from '../../schema/projects.js';
+import {
+  projects,
+  projectStatusEnum,
+  projectPriorityEnum,
+  projectVisibilityEnum,
+} from '../../schema/projects.js';
 
 // ── Enum Tests ────────────────────────────────────────────────
 
@@ -14,12 +19,7 @@ describe('Project Enums', () => {
     });
 
     it('should contain all expected status values', () => {
-      expect(projectStatusEnum.enumValues).toEqual([
-        'active',
-        'on_hold',
-        'completed',
-        'archived',
-      ]);
+      expect(projectStatusEnum.enumValues).toEqual(['active', 'on_hold', 'completed', 'archived']);
     });
   });
 
@@ -33,13 +33,7 @@ describe('Project Enums', () => {
     });
 
     it('should contain all expected priority values', () => {
-      expect(projectPriorityEnum.enumValues).toEqual([
-        'none',
-        'low',
-        'medium',
-        'high',
-        'urgent',
-      ]);
+      expect(projectPriorityEnum.enumValues).toEqual(['none', 'low', 'medium', 'high', 'urgent']);
     });
   });
 
@@ -62,7 +56,9 @@ describe('Project Enums', () => {
 
 describe('projects table', () => {
   it('should have the correct table name', () => {
-    expect((projects as unknown as Record<string | symbol, unknown>)[Symbol.for('drizzle:Name')]).toBe('projects');
+    expect(
+      (projects as unknown as Record<string | symbol, unknown>)[Symbol.for('drizzle:Name')],
+    ).toBe('projects');
   });
 
   describe('columns', () => {
@@ -149,16 +145,16 @@ describe('projects table', () => {
   describe('column count', () => {
     it('should have exactly 13 columns', () => {
       // Filter out Drizzle ORM internal properties (e.g. enableRLS)
-      const columnNames = Object.keys(projects).filter(
-        (key) => !['enableRLS'].includes(key),
-      );
+      const columnNames = Object.keys(projects).filter((key) => !['enableRLS'].includes(key));
       expect(columnNames).toHaveLength(13);
     });
   });
 
   describe('foreign keys', () => {
     it('should have at least one inline foreign key (workspaceId → workspaces.id)', () => {
-      const fks = (projects as unknown as Record<string | symbol, unknown>)[Symbol.for('drizzle:PgInlineForeignKeys')];
+      const fks = (projects as unknown as Record<string | symbol, unknown>)[
+        Symbol.for('drizzle:PgInlineForeignKeys')
+      ];
       expect(fks).toBeDefined();
       expect(Array.isArray(fks)).toBe(true);
       expect((fks as unknown[]).length).toBeGreaterThan(0);
@@ -167,7 +163,9 @@ describe('projects table', () => {
 
   describe('extra config (indexes and checks)', () => {
     it('should have an ExtraConfigBuilder for indexes and constraints', () => {
-      const builder = (projects as unknown as Record<string | symbol, unknown>)[Symbol.for('drizzle:ExtraConfigBuilder')];
+      const builder = (projects as unknown as Record<string | symbol, unknown>)[
+        Symbol.for('drizzle:ExtraConfigBuilder')
+      ];
       expect(builder).toBeDefined();
       expect(typeof builder).toBe('function');
     });

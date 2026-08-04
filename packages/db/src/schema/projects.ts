@@ -27,10 +27,7 @@ export const projectPriorityEnum = pgEnum('project_priority', [
   'urgent',
 ]);
 
-export const projectVisibilityEnum = pgEnum('project_visibility', [
-  'workspace',
-  'public',
-]);
+export const projectVisibilityEnum = pgEnum('project_visibility', ['workspace', 'public']);
 
 // ── Table ────────────────────────────────────────────────────────
 export const projects = pgTable(

@@ -1,8 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type {
-  ProjectUIState,
-  ProjectSettingsTab,
-} from '@/types/project';
+import type { ProjectUIState, ProjectSettingsTab } from '@/types/project';
 import type { ProjectRole, ProjectStatus, ProjectPriority } from '@sprintio/shared';
 
 const initialState: ProjectUIState = {

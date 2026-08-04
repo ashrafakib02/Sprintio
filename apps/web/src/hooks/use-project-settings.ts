@@ -49,7 +49,9 @@ interface ProjectMembersResponse {
 
 export function useProjectList(workspaceId: string, params?: ProjectListParams) {
   return useQuery({
-    queryKey: workspaceId ? queryKeys.projects.list(workspaceId, params as unknown as Record<string, unknown>) : ['projects', 'none'],
+    queryKey: workspaceId
+      ? queryKeys.projects.list(workspaceId, params as unknown as Record<string, unknown>)
+      : ['projects', 'none'],
     queryFn: () => listProjects(workspaceId, params),
     enabled: !!workspaceId,
     staleTime: 30_000,
@@ -108,16 +110,13 @@ export function useCreateProject(workspaceId: string) {
         updatedAt: new Date().toISOString(),
       };
 
-      queryClient.setQueryData<ProjectListResponse>(
-        queryKeys.projects.all(workspaceId),
-        (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            projects: [...old.projects, temporaryProject],
-          };
-        },
-      );
+      queryClient.setQueryData<ProjectListResponse>(queryKeys.projects.all(workspaceId), (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          projects: [...old.projects, temporaryProject],
+        };
+      });
 
       return { previousData };
     },
@@ -418,9 +417,7 @@ export function useUpdateProjectMemberRole(projectId: string) {
           if (!old) return old;
           return {
             ...old,
-            members: old.members.map((m) =>
-              m.userId === userId ? { ...m, role } : m,
-            ),
+            members: old.members.map((m) => (m.userId === userId ? { ...m, role } : m)),
           };
         },
       );

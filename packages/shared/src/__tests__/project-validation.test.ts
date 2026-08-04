@@ -407,7 +407,7 @@ describe('CreateProjectForWorkspaceSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('should reject if workspaceId is provided (it\'s omitted)', () => {
+  it("should reject if workspaceId is provided (it's omitted)", () => {
     const result = CreateProjectForWorkspaceSchema.safeParse({
       name: 'Project',
       slug: 'project',

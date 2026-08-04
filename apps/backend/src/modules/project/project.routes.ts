@@ -1,6 +1,12 @@
 import express, { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { getProject, updateProject, deleteProject, archiveProject, restoreProject } from './project.controller.js';
+import {
+  getProject,
+  updateProject,
+  deleteProject,
+  archiveProject,
+  restoreProject,
+} from './project.controller.js';
 import { authenticate } from '../../middleware/auth.js';
 import { requireProject } from '../../middleware/project-scoping.js';
 import { requireWorkspacePermission } from '../../middleware/rbac.js';

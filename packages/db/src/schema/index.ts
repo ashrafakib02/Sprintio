@@ -13,7 +13,12 @@ export { boards } from './boards.js';
 export { columns } from './columns.js';
 export { tasks } from './tasks.js';
 export { documents } from './documents.js';
-export { projects, projectStatusEnum, projectPriorityEnum, projectVisibilityEnum } from './projects.js';
+export {
+  projects,
+  projectStatusEnum,
+  projectPriorityEnum,
+  projectVisibilityEnum,
+} from './projects.js';
 export { sprints } from './sprints.js';
 export { notifications } from './notifications.js';
 export { attachments } from './attachments.js';
