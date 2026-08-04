@@ -350,6 +350,11 @@ export async function syncPermissions(): Promise<void> {
       resource: 'workspace',
       action,
     })),
+    ...Object.entries(PERMISSIONS.PROJECT).map(([action, name]) => ({
+      name,
+      resource: 'project',
+      action,
+    })),
     ...Object.entries(PERMISSIONS.BOARD).map(([action, name]) => ({
       name,
       resource: 'board',

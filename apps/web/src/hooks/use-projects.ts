@@ -1,8 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { listProjects } from '@/lib/api';
+import { listProjects } from '@/lib/project-api';
 import { useAppSelector } from '@/store/hooks';
 import { queryKeys } from '@/lib/query-keys';
 
+/**
+ * Fetches all projects for the currently active workspace.
+ * Uses the centralized query key factory for cache consistency.
+ */
 export function useProjects() {
   const workspaceId = useAppSelector((s) => s.activeWorkspace.workspaceId);
 
@@ -11,6 +15,6 @@ export function useProjects() {
     queryFn: () => listProjects(workspaceId!),
     enabled: !!workspaceId,
     staleTime: 30_000,
-    select: (response) => response.data.projects,
+    select: (response) => response.data.data,
   });
 }

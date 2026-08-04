@@ -17,6 +17,8 @@ export {
   TaskStatusSchema,
   TaskPrioritySchema,
   ProjectStatusSchema,
+  ProjectPrioritySchema,
+  ProjectVisibilitySchema,
   SprintStatusSchema,
   CreateTaskSchema,
   UpdateTaskSchema,

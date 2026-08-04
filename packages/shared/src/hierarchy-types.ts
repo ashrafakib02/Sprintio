@@ -21,6 +21,8 @@ import {
   TASK_STATUSES,
   TASK_PRIORITIES,
   PROJECT_STATUSES,
+  PROJECT_PRIORITIES,
+  PROJECT_VISIBILITIES,
   BOARD_VIEW_TYPES,
 } from './constants/status.js';
 
@@ -31,6 +33,8 @@ import {
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 export type TaskPriority = (typeof TASK_PRIORITIES)[number];
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
+export type ProjectPriority = (typeof PROJECT_PRIORITIES)[number];
+export type ProjectVisibility = (typeof PROJECT_VISIBILITIES)[number];
 export type BoardViewType = (typeof BOARD_VIEW_TYPES)[number];
 export type SprintStatus = 'planned' | 'active' | 'completed';
 
@@ -96,11 +100,15 @@ export type WorkspaceRole = 'owner' | 'admin' | 'member' | 'guest';
 export interface Project {
   id: string;
   name: string;
+  slug: string;
   description: string | null;
   workspaceId: string;
   status: ProjectStatus;
+  priority: ProjectPriority;
+  visibility: ProjectVisibility;
   startDate: string | null;
   endDate: string | null;
+  deletedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -226,6 +234,8 @@ export interface BoardView {
 export const TaskStatusSchema = z.enum(TASK_STATUSES);
 export const TaskPrioritySchema = z.enum(TASK_PRIORITIES);
 export const ProjectStatusSchema = z.enum(PROJECT_STATUSES);
+export const ProjectPrioritySchema = z.enum(PROJECT_PRIORITIES);
+export const ProjectVisibilitySchema = z.enum(PROJECT_VISIBILITIES);
 export const SprintStatusSchema = z.enum(['planned', 'active', 'completed'] as const);
 
 export const CreateTaskSchema = z.object({
@@ -256,9 +266,16 @@ export type UpdateTaskInput = z.infer<typeof UpdateTaskSchema>;
 
 export const CreateProjectSchema = z.object({
   name: z.string().min(1).max(100),
+  slug: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be lowercase alphanumeric with hyphens'),
   description: z.string().max(2000).optional(),
   /** Workspace is required — projects always belong to a workspace. */
   workspaceId: z.string().uuid(),
+  priority: ProjectPrioritySchema.default('none'),
+  visibility: ProjectVisibilitySchema.default('workspace'),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
 });

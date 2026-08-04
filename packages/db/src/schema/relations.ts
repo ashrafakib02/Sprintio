@@ -14,6 +14,7 @@ import { sprints } from './sprints.js';
 import { boards } from './boards.js';
 import { columns } from './columns.js';
 import { tasks } from './tasks.js';
+import { documents } from './documents.js';
 
 // ============================================================
 // Organization Relations
@@ -93,8 +94,10 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
     fields: [projects.workspaceId],
     references: [workspaces.id],
   }),
+  boards: many(boards),
   sprints: many(sprints),
   tasks: many(tasks),
+  documents: many(documents),
 }));
 
 // ============================================================

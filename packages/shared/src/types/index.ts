@@ -23,9 +23,11 @@ export type {
   Project,
   ProjectMembership,
   ProjectRole,
+  ProjectStatus,
+  ProjectPriority,
+  ProjectVisibility,
   Sprint,
   SprintStatus,
-  ProjectStatus,
   // Task
   Task,
   TaskStatus,

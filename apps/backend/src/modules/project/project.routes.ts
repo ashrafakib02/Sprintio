@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { getProject, updateProject, deleteProject, archiveProject } from './project.controller.js';
+import { getProject, updateProject, deleteProject, archiveProject, restoreProject } from './project.controller.js';
 import { authenticate } from '../../middleware/auth.js';
 import { requireProject } from '../../middleware/project-scoping.js';
 import { requireWorkspacePermission } from '../../middleware/rbac.js';
@@ -53,6 +53,15 @@ router.post(
   projectLimiter as unknown as express.RequestHandler,
   requireWorkspacePermission('project:update'),
   archiveProject,
+);
+
+// Restore soft-deleted project (requires project:update workspace permission)
+router.post(
+  '/:projectId/restore',
+  authenticate,
+  requireProject,
+  requireWorkspacePermission('project:update'),
+  restoreProject,
 );
 
 export default router;
